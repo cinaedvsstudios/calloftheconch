@@ -44,6 +44,7 @@ theme_override_font_sizes/font_size = 16
 text = "Pause"
 
 [node name="ControlHint" type="Label" parent="GameUi"]
+unique_name_in_owner = true
 offset_left = 24.0
 offset_top = 22.0
 offset_right = 760.0
