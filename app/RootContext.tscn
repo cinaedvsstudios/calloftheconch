@@ -1,0 +1,60 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://app/root_context.gd" id="1_root"]
+[ext_resource type="Script" path="res://core/state/state_store.gd" id="2_state_store"]
+[ext_resource type="Script" path="res://core/services/save_service.gd" id="3_save_service"]
+[ext_resource type="Script" path="res://core/services/settings_service.gd" id="4_settings_service"]
+[ext_resource type="Script" path="res://core/services/audio_service.gd" id="5_audio_service"]
+[ext_resource type="Script" path="res://core/services/pause_service.gd" id="6_pause_service"]
+[ext_resource type="PackedScene" path="res://app/contexts/menu/MenuContext.tscn" id="7_menu"]
+[ext_resource type="PackedScene" path="res://app/contexts/gameplay/GameplayContext.tscn" id="8_gameplay"]
+[ext_resource type="PackedScene" path="res://features/dev_admin/DeveloperAdminPanel.tscn" id="9_dev_admin"]
+
+[node name="RootContext" type="Node"]
+script = ExtResource("1_root")
+
+[node name="PersistentServices" type="Node" parent="."]
+
+[node name="StateStore" type="Node" parent="PersistentServices"]
+unique_name_in_owner = true
+script = ExtResource("2_state_store")
+
+[node name="SaveService" type="Node" parent="PersistentServices"]
+unique_name_in_owner = true
+script = ExtResource("3_save_service")
+
+[node name="SettingsService" type="Node" parent="PersistentServices"]
+unique_name_in_owner = true
+script = ExtResource("4_settings_service")
+
+[node name="AudioService" type="Node" parent="PersistentServices"]
+unique_name_in_owner = true
+script = ExtResource("5_audio_service")
+
+[node name="PauseService" type="Node" parent="PersistentServices"]
+unique_name_in_owner = true
+script = ExtResource("6_pause_service")
+
+[node name="MenuContext" parent="." instance=ExtResource("7_menu")]
+unique_name_in_owner = true
+
+[node name="GameplayContext" parent="." instance=ExtResource("8_gameplay")]
+unique_name_in_owner = true
+
+[node name="DeveloperAdminPanel" parent="." instance=ExtResource("9_dev_admin")]
+unique_name_in_owner = true
+
+[node name="TransitionLayer" type="CanvasLayer" parent="."]
+layer = 200
+
+[node name="FadeRect" type="ColorRect" parent="TransitionLayer"]
+unique_name_in_owner = true
+offset_right = 1280.0
+offset_bottom = 720.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)

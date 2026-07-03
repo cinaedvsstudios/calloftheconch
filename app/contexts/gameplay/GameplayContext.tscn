@@ -1,0 +1,125 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://app/contexts/gameplay/gameplay_context.gd" id="1_gameplay"]
+[ext_resource type="PackedScene" path="res://features/prototype_water/PrototypeWater.tscn" id="2_water"]
+[ext_resource type="PackedScene" path="res://features/prototype_water/PrototypeTuningPanel.tscn" id="3_tuning"]
+
+[sub_resource type="StyleBoxFlat" id="StylePause"]
+bg_color = Color(0.04, 0.05, 0.12, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.77, 0.62, 0.29, 0.96)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+content_margin_left = 38.0
+content_margin_top = 30.0
+content_margin_right = 38.0
+content_margin_bottom = 30.0
+
+[node name="GameplayContext" type="Node"]
+script = ExtResource("1_gameplay")
+
+[node name="PrototypeWater" parent="." instance=ExtResource("2_water")]
+unique_name_in_owner = true
+
+[node name="GameplayMusic" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+volume_db = -8.0
+
+[node name="GameUi" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+layer = 20
+
+[node name="PauseButton" type="Button" parent="GameUi"]
+unique_name_in_owner = true
+offset_left = 1150.0
+offset_top = 24.0
+offset_right = 1252.0
+offset_bottom = 64.0
+theme_override_font_sizes/font_size = 16
+text = "Pause"
+
+[node name="ControlHint" type="Label" parent="GameUi"]
+offset_left = 24.0
+offset_top = 22.0
+offset_right = 760.0
+offset_bottom = 54.0
+theme_override_colors/font_color = Color(0.88, 0.94, 0.98, 0.9)
+theme_override_font_sizes/font_size = 15
+text = "WASD / Arrows: Swim     Shift: Burst / Brake     Space: Conch     Esc: Pause"
+
+[node name="PauseOverlay" type="Control" parent="GameUi"]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+process_mode = 3
+
+[node name="Dim" type="ColorRect" parent="GameUi/PauseOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.62)
+mouse_filter = 2
+
+[node name="Center" type="CenterContainer" parent="GameUi/PauseOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="GameUi/PauseOverlay/Center"]
+custom_minimum_size = Vector2(410, 314)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StylePause")
+
+[node name="Margin" type="MarginContainer" parent="GameUi/PauseOverlay/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 26
+
+[node name="Content" type="VBoxContainer" parent="GameUi/PauseOverlay/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Heading" type="Label" parent="GameUi/PauseOverlay/Center/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.93, 0.80, 1)
+theme_override_font_sizes/font_size = 28
+text = "Paused"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="GameUi/PauseOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Resume"
+
+[node name="DebugTuningButton" type="Button" parent="GameUi/PauseOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "Debug / Tune Prototype…"
+
+[node name="ReturnToTitleButton" type="Button" parent="GameUi/PauseOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "Return to Title"
+
+[node name="PrototypeTuningPanel" parent="GameUi" instance=ExtResource("3_tuning")]
+unique_name_in_owner = true

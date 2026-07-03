@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://wfhcb2xwhdko"
+path="res://.godot/imported/call of the conch music main theme.mp3-4304d4e9b356e4101908e1fcd1a0c24e.mp3str"
+
+[deps]
+
+source_file="res://assets/audio/call of the conch music main theme.mp3"
+dest_files=["res://.godot/imported/call of the conch music main theme.mp3-4304d4e9b356e4101908e1fcd1a0c24e.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

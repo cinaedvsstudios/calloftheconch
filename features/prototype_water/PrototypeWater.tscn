@@ -1,0 +1,76 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://features/prototype_water/PrototypeWater.gd" id="1_world"]
+[ext_resource type="Script" path="res://features/prototype_water/hylas_controller.gd" id="2_hylas"]
+[ext_resource type="Script" path="res://scripts/bubble_overlay.gd" id="3_bubbles"]
+[ext_resource type="Script" path="res://features/prototype_water/tail_bubble_burst.gd" id="4_tail_burst"]
+[ext_resource type="Script" path="res://features/prototype_water/conch_pulse.gd" id="5_conch_pulse"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShapeHylas"]
+size = Vector2(123, 49)
+
+[node name="PrototypeWater" type="Node2D"]
+script = ExtResource("1_world")
+
+[node name="WaterLayer" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="SceneryLayer" type="Node2D" parent="."]
+unique_name_in_owner = true
+z_index = 0
+
+[node name="ConchPulse" type="Node2D" parent="."]
+unique_name_in_owner = true
+z_index = 5
+script = ExtResource("5_conch_pulse")
+
+[node name="Hylas" type="CharacterBody2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_hylas")
+z_index = 10
+
+[node name="HylasShadow" type="Sprite2D" parent="Hylas"]
+unique_name_in_owner = true
+z_index = -1
+show_behind_parent = true
+
+[node name="Sprite" type="Sprite2D" parent="Hylas"]
+unique_name_in_owner = true
+
+[node name="HylasCollision" type="CollisionShape2D" parent="Hylas"]
+unique_name_in_owner = true
+shape = SubResource("RectangleShapeHylas")
+
+[node name="TailBubbleBurst" type="VideoStreamPlayer" parent="Hylas"]
+unique_name_in_owner = true
+z_index = 1
+mouse_filter = 2
+script = ExtResource("4_tail_burst")
+
+[node name="Camera2D" type="Camera2D" parent="Hylas"]
+unique_name_in_owner = true
+enabled = true
+position_smoothing_enabled = true
+position_smoothing_speed = 5.5
+limit_top = 0
+limit_bottom = 720
+limit_left = 0
+limit_right = 1280
+
+[node name="ForegroundLayer" type="Node2D" parent="."]
+unique_name_in_owner = true
+z_index = 20
+
+[node name="BubbleOverlayLayer" type="CanvasLayer" parent="."]
+layer = 8
+
+[node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleOverlayLayer"]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_bubbles")

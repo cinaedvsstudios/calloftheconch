@@ -1,0 +1,107 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://features/prototype_water/prototype_tuning_panel.gd" id="1_tuning"]
+
+[sub_resource type="StyleBoxFlat" id="StyleTuningPanel"]
+bg_color = Color(0.025, 0.045, 0.10, 0.985)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.33, 0.74, 0.96, 0.96)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+content_margin_left = 24.0
+content_margin_top = 20.0
+content_margin_right = 24.0
+content_margin_bottom = 20.0
+
+[node name="PrototypeTuningPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+process_mode = 3
+script = ExtResource("1_tuning")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.82)
+mouse_filter = 2
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(830, 640)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleTuningPanel")
+
+[node name="Content" type="VBoxContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Center/Panel/Content"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Center/Panel/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.77, 0.93, 1, 1)
+theme_override_font_sizes/font_size = 26
+text = "Prototype Debug / Tuning"
+
+[node name="CloseButton" type="Button" parent="Center/Panel/Content/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Back to Pause"
+
+[node name="StatusLabel" type="Label" parent="Center/Panel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.90, 0.98, 0.92)
+text = "Changes apply immediately."
+
+[node name="Scroll" type="ScrollContainer" parent="Center/Panel/Content"]
+custom_minimum_size = Vector2(0, 470)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="FormContent" type="VBoxContainer" parent="Center/Panel/Content/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Footer" type="HBoxContainer" parent="Center/Panel/Content"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 12
+
+[node name="ResetButton" type="Button" parent="Center/Panel/Content/Footer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reset Defaults"
+
+[node name="ExportButton" type="Button" parent="Center/Panel/Content/Footer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Export Tuning JSON…"
+
+[node name="ExportFileDialog" type="FileDialog" parent="."]
+unique_name_in_owner = true

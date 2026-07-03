@@ -1,0 +1,4 @@
+Copy these two existing files here. Do not move or rename the originals.
+
+- bg_pillars_city.jpg
+- waterbg.jpg

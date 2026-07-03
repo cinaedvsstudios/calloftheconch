@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dyorkgg3nkflx"
+path="res://.godot/imported/Super Conch_noise.mp3-aa750b7241c2e79fccc7bc4f0537e1d0.mp3str"
+
+[deps]
+
+source_file="res://assets/audio/Super Conch_noise.mp3"
+dest_files=["res://.godot/imported/Super Conch_noise.mp3-aa750b7241c2e79fccc7bc4f0537e1d0.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

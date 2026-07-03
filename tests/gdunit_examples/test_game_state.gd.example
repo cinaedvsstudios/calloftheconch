@@ -1,0 +1,13 @@
+# Rename to .gd after installing GDUnit4, then adjust to its current API if needed.
+#
+# extends GdUnitTestSuite
+#
+# func test_round_trip_preserves_state() -> void:
+#     var original: GameState = GameState.new()
+#     original.increment_counter(&"shells", 4)
+#     original.set_flag(&"great_fin_unlocked", true)
+#
+#     var restored: GameState = GameState.from_save_data(original.to_save_data())
+#
+#     assert_int(restored.get_counter(&"shells")).is_equal(4)
+#     assert_bool(restored.get_flag(&"great_fin_unlocked")).is_true()
