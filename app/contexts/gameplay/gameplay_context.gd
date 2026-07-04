@@ -1,8 +1,10 @@
 class_name GameplayContext
 extends Node
-## Owns the first playable water scene, pause overlay, and local prototype tuning screen.
+## Independent gameplay scene. It owns the prototype water world, gameplay UI, pause state, and return route.
 
 signal menu_requested()
+
+const TITLE_SCENE_PATH: String = "res://app/contexts/menu/MenuContext.tscn"
 
 @onready var _prototype_water: PrototypeWater = %PrototypeWater
 @onready var _pause_overlay: Control = %PauseOverlay
@@ -10,10 +12,8 @@ signal menu_requested()
 @onready var _control_hint: Label = %ControlHint
 @onready var _gameplay_music: AudioStreamPlayer = %GameplayMusic
 @onready var _prototype_tuning_panel: PrototypeTuningPanel = %PrototypeTuningPanel
+@onready var _pause_service: PauseService = %PauseService
 
-var _pause_service: PauseService
-var _audio_service: AudioService
-var _is_bound: bool = false
 var _is_active: bool = false
 
 
@@ -23,20 +23,16 @@ func _ready() -> void:
 	%ResumeButton.pressed.connect(_on_resume_pressed)
 	%DebugTuningButton.pressed.connect(_on_debug_tuning_pressed)
 	%ReturnToTitleButton.pressed.connect(_on_return_to_title_pressed)
+	_pause_service.pause_changed.connect(_on_pause_changed)
 	_pause_overlay.hide()
 	_prototype_tuning_panel.bind_dependencies(_prototype_water)
 	_prototype_tuning_panel.hide()
-	_set_gameplay_controls_visible(false)
-	_prototype_water.deactivate()
+	activate()
 
 
-func bind_dependencies(pause_service: PauseService, audio_service: AudioService) -> void:
-	_pause_service = pause_service
-	_audio_service = audio_service
-	if _is_bound:
-		return
-	_pause_service.pause_changed.connect(_on_pause_changed)
-	_is_bound = true
+func bind_dependencies(_external_pause_service: PauseService, _audio_service: AudioService) -> void:
+	# Retained only so the unused legacy RootContext scene can still load.
+	pass
 
 
 func get_diagnostic_summary() -> String:
@@ -52,8 +48,7 @@ func activate() -> void:
 
 func deactivate() -> void:
 	_is_active = false
-	if _pause_service != null:
-		_pause_service.set_paused(false)
+	_pause_service.set_paused(false)
 	_pause_overlay.hide()
 	_prototype_tuning_panel.close()
 	_set_gameplay_controls_visible(false)
@@ -62,7 +57,7 @@ func deactivate() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not _is_active or _pause_service == null:
+	if not _is_active:
 		return
 	if event.is_action_pressed(&"pause"):
 		_pause_service.toggle_pause()
@@ -86,13 +81,11 @@ func _set_gameplay_controls_visible(is_visible: bool) -> void:
 
 
 func _on_pause_pressed() -> void:
-	if _pause_service != null:
-		_pause_service.toggle_pause()
+	_pause_service.toggle_pause()
 
 
 func _on_resume_pressed() -> void:
-	if _pause_service != null:
-		_pause_service.set_paused(false)
+	_pause_service.set_paused(false)
 
 
 func _on_debug_tuning_pressed() -> void:
@@ -100,9 +93,11 @@ func _on_debug_tuning_pressed() -> void:
 
 
 func _on_return_to_title_pressed() -> void:
-	if _pause_service != null:
-		_pause_service.set_paused(false)
+	deactivate()
 	menu_requested.emit()
+	var result: Error = get_tree().change_scene_to_file(TITLE_SCENE_PATH)
+	if result != OK:
+		push_error("Could not return to title scene: %s" % TITLE_SCENE_PATH)
 
 
 func _on_pause_changed(is_paused: bool) -> void:
