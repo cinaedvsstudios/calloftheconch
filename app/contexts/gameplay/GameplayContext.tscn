@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://app/contexts/gameplay/gameplay_context.gd" id="1_gameplay"]
 [ext_resource type="PackedScene" path="res://features/prototype_water/PrototypeWater.tscn" id="2_water"]
 [ext_resource type="PackedScene" path="res://features/prototype_water/PrototypeTuningPanel.tscn" id="3_tuning"]
+[ext_resource type="Script" path="res://core/services/pause_service.gd" id="4_pause"]
 
 [sub_resource type="StyleBoxFlat" id="StylePause"]
 bg_color = Color(0.04, 0.05, 0.12, 0.96)
@@ -22,6 +23,10 @@ content_margin_bottom = 30.0
 
 [node name="GameplayContext" type="Node"]
 script = ExtResource("1_gameplay")
+
+[node name="PauseService" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("4_pause")
 
 [node name="PrototypeWater" parent="." instance=ExtResource("2_water")]
 unique_name_in_owner = true
