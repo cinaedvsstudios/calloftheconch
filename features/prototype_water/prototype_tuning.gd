@@ -4,7 +4,7 @@ extends RefCounted
 ## It contains values only; HylasController and PrototypeWater apply the behaviour.
 
 const FORMAT_ID: String = "call_of_the_conch_prototype_tuning"
-const SCHEMA_VERSION: int = 4
+const SCHEMA_VERSION: int = 5
 
 var swim_speed: float = 320.0
 var swim_acceleration: float = 1600.0
@@ -16,35 +16,55 @@ var current_base_y: float = 0.0
 var current_sway_horizontal: float = 7.0
 var current_sway_vertical: float = 2.0
 var current_sway_frequency: float = 0.24
+
 var burst_speed: float = 1120.0
 var burst_duration: float = 0.36
 var burst_cooldown: float = 0.0
 var burst_max_charges: float = 3.0
 var burst_charge_recovery: float = 1.20
 var vertical_burst_angle_degrees: float = 75.0
+
+var tail_flip_speed: float = 860.0
+var tail_flip_duration: float = 0.46
+var tail_flip_cooldown: float = 0.30
+var tail_flip_frame_duration: float = 0.065
+
 var jump_trigger_depth: float = 300.0
 var jump_forward_distance: float = 430.0
 var jump_arc_height: float = 240.0
-var jump_frame_duration: float = 0.090
+var jump_frame_duration: float = 0.150
+
 var normal_conch_cooldown: float = 0.80
 var swim_frame_duration: float = 0.105
 var speed_frame_duration: float = 0.060
 var conch_frame_duration: float = 0.110
+
 var hylas_display_height: float = 205.0
-var hylas_shadow_opacity: float = 0.07
-var hylas_shadow_offset_x: float = 5.0
-var hylas_shadow_offset_y: float = 10.0
-var hylas_shadow_blur_radius: float = 60.0
-var hylas_shadow_scale: float = 1.12
+var hylas_shadow_opacity: float = 0.16
+var hylas_shadow_offset_x: float = 8.0
+var hylas_shadow_offset_y: float = 17.0
+var hylas_shadow_blur_radius: float = 10.0
+var hylas_shadow_scale: float = 1.18
+
 var camera_smoothing_speed: float = 5.5
+var burst_camera_shake_strength: float = 10.0
+var burst_camera_shake_duration: float = 0.13
+var conch_camera_shake_strength: float = 5.5
+var conch_camera_shake_duration: float = 0.18
+var tail_flip_camera_shake_strength: float = 8.0
+var tail_flip_camera_shake_duration: float = 0.15
+
 var conch_range: float = 700.0
 var conch_pulse_duration: float = 0.52
 var conch_line_width: float = 4.0
+
 var tail_burst_size: float = 310.0
+var tail_burst_action_size_multiplier: float = 1.65
 var tail_burst_back_offset: float = 120.0
 var tail_burst_offset_y: float = 15.0
 var tail_burst_interval_min: float = 0.50
 var tail_burst_interval_max: float = 1.15
+
 var water_horizontal_tiles: float = 3.0
 var water_parallax_scroll_scale: float = 0.12
 var lower_water_parallax_scroll_scale: float = 0.32
@@ -68,10 +88,14 @@ static func get_field_definitions() -> Array[Dictionary]:
 		{"section": "Burst", "key": &"burst_max_charges", "label": "Maximum chained bursts", "min": 1.0, "max": 5.0, "step": 1.0},
 		{"section": "Burst", "key": &"burst_charge_recovery", "label": "One burst charge recovery (sec)", "min": 0.10, "max": 10.0, "step": 0.05},
 		{"section": "Burst", "key": &"vertical_burst_angle_degrees", "label": "Vertical burst tilt (degrees)", "min": 10.0, "max": 89.0, "step": 1.0},
+		{"section": "Tail flip", "key": &"tail_flip_speed", "label": "Tail flip launch speed", "min": 10.0, "max": 2000.0, "step": 10.0},
+		{"section": "Tail flip", "key": &"tail_flip_duration", "label": "Tail flip duration", "min": 0.10, "max": 2.0, "step": 0.01},
+		{"section": "Tail flip", "key": &"tail_flip_cooldown", "label": "Tail flip cooldown", "min": 0.0, "max": 5.0, "step": 0.01},
+		{"section": "Tail flip", "key": &"tail_flip_frame_duration", "label": "Tail flip frame duration", "min": 0.02, "max": 1.0, "step": 0.005},
 		{"section": "Surface jump", "key": &"jump_trigger_depth", "label": "Jump trigger depth below surface", "min": 50.0, "max": 800.0, "step": 5.0},
 		{"section": "Surface jump", "key": &"jump_forward_distance", "label": "Jump forward distance", "min": 50.0, "max": 1200.0, "step": 10.0},
 		{"section": "Surface jump", "key": &"jump_arc_height", "label": "Jump arc height", "min": 20.0, "max": 1000.0, "step": 5.0},
-		{"section": "Surface jump", "key": &"jump_frame_duration", "label": "Jump-frame duration", "min": 0.02, "max": 1.0, "step": 0.005},
+		{"section": "Surface jump", "key": &"jump_frame_duration", "label": "Jump held-frame duration", "min": 0.02, "max": 1.0, "step": 0.005},
 		{"section": "Normal Conch", "key": &"normal_conch_cooldown", "label": "Conch cooldown (sec)", "min": 0.0, "max": 5.0, "step": 0.01},
 		{"section": "Normal Conch", "key": &"conch_range", "label": "Conch visual range", "min": 20.0, "max": 2000.0, "step": 10.0},
 		{"section": "Normal Conch", "key": &"conch_pulse_duration", "label": "Conch pulse duration", "min": 0.05, "max": 3.0, "step": 0.01},
@@ -81,12 +105,19 @@ static func get_field_definitions() -> Array[Dictionary]:
 		{"section": "Animation and camera", "key": &"conch_frame_duration", "label": "Conch frame duration", "min": 0.02, "max": 1.0, "step": 0.005},
 		{"section": "Animation and camera", "key": &"hylas_display_height", "label": "Hylas display height", "min": 40.0, "max": 700.0, "step": 1.0},
 		{"section": "Animation and camera", "key": &"camera_smoothing_speed", "label": "Camera smoothing speed", "min": 0.0, "max": 30.0, "step": 0.1},
+		{"section": "Camera shake", "key": &"burst_camera_shake_strength", "label": "Burst shake strength", "min": 0.0, "max": 50.0, "step": 0.5},
+		{"section": "Camera shake", "key": &"burst_camera_shake_duration", "label": "Burst shake duration", "min": 0.01, "max": 1.0, "step": 0.01},
+		{"section": "Camera shake", "key": &"conch_camera_shake_strength", "label": "Conch shake strength", "min": 0.0, "max": 50.0, "step": 0.5},
+		{"section": "Camera shake", "key": &"conch_camera_shake_duration", "label": "Conch shake duration", "min": 0.01, "max": 1.0, "step": 0.01},
+		{"section": "Camera shake", "key": &"tail_flip_camera_shake_strength", "label": "Tail flip shake strength", "min": 0.0, "max": 50.0, "step": 0.5},
+		{"section": "Camera shake", "key": &"tail_flip_camera_shake_duration", "label": "Tail flip shake duration", "min": 0.01, "max": 1.0, "step": 0.01},
 		{"section": "Hylas shadow", "key": &"hylas_shadow_opacity", "label": "Shadow opacity", "min": 0.0, "max": 0.80, "step": 0.01},
 		{"section": "Hylas shadow", "key": &"hylas_shadow_offset_x", "label": "Shadow horizontal offset", "min": -80.0, "max": 80.0, "step": 1.0},
 		{"section": "Hylas shadow", "key": &"hylas_shadow_offset_y", "label": "Shadow vertical offset", "min": -80.0, "max": 80.0, "step": 1.0},
 		{"section": "Hylas shadow", "key": &"hylas_shadow_blur_radius", "label": "Shadow blur radius", "min": 0.0, "max": 120.0, "step": 1.0},
-		{"section": "Hylas shadow", "key": &"hylas_shadow_scale", "label": "Shadow spread scale", "min": 1.0, "max": 1.30, "step": 0.01},
-		{"section": "Tail bubbles", "key": &"tail_burst_size", "label": "Tail burst size", "min": 50.0, "max": 1000.0, "step": 5.0},
+		{"section": "Hylas shadow", "key": &"hylas_shadow_scale", "label": "Shadow spread scale", "min": 1.0, "max": 1.40, "step": 0.01},
+		{"section": "Tail bubbles", "key": &"tail_burst_size", "label": "Normal tail bubble size", "min": 50.0, "max": 1000.0, "step": 5.0},
+		{"section": "Tail bubbles", "key": &"tail_burst_action_size_multiplier", "label": "Burst / flip bubble multiplier", "min": 1.0, "max": 3.0, "step": 0.05},
 		{"section": "Tail bubbles", "key": &"tail_burst_back_offset", "label": "Tail burst back offset", "min": 0.0, "max": 500.0, "step": 1.0},
 		{"section": "Tail bubbles", "key": &"tail_burst_offset_y", "label": "Tail burst vertical offset", "min": -300.0, "max": 300.0, "step": 1.0},
 		{"section": "Tail bubbles", "key": &"tail_burst_interval_min", "label": "Tail burst minimum interval", "min": 0.05, "max": 5.0, "step": 0.05},
@@ -114,25 +145,36 @@ func reset_defaults() -> void:
 	burst_max_charges = 3.0
 	burst_charge_recovery = 1.20
 	vertical_burst_angle_degrees = 75.0
+	tail_flip_speed = 860.0
+	tail_flip_duration = 0.46
+	tail_flip_cooldown = 0.30
+	tail_flip_frame_duration = 0.065
 	jump_trigger_depth = 300.0
 	jump_forward_distance = 430.0
 	jump_arc_height = 240.0
-	jump_frame_duration = 0.090
+	jump_frame_duration = 0.150
 	normal_conch_cooldown = 0.80
 	swim_frame_duration = 0.105
 	speed_frame_duration = 0.060
 	conch_frame_duration = 0.110
 	hylas_display_height = 205.0
-	hylas_shadow_opacity = 0.07
-	hylas_shadow_offset_x = 5.0
-	hylas_shadow_offset_y = 10.0
-	hylas_shadow_blur_radius = 60.0
-	hylas_shadow_scale = 1.12
+	hylas_shadow_opacity = 0.16
+	hylas_shadow_offset_x = 8.0
+	hylas_shadow_offset_y = 17.0
+	hylas_shadow_blur_radius = 10.0
+	hylas_shadow_scale = 1.18
 	camera_smoothing_speed = 5.5
+	burst_camera_shake_strength = 10.0
+	burst_camera_shake_duration = 0.13
+	conch_camera_shake_strength = 5.5
+	conch_camera_shake_duration = 0.18
+	tail_flip_camera_shake_strength = 8.0
+	tail_flip_camera_shake_duration = 0.15
 	conch_range = 700.0
 	conch_pulse_duration = 0.52
 	conch_line_width = 4.0
 	tail_burst_size = 310.0
+	tail_burst_action_size_multiplier = 1.65
 	tail_burst_back_offset = 120.0
 	tail_burst_offset_y = 15.0
 	tail_burst_interval_min = 0.50
@@ -160,6 +202,10 @@ func get_value(key: StringName) -> float:
 		&"burst_max_charges": return burst_max_charges
 		&"burst_charge_recovery": return burst_charge_recovery
 		&"vertical_burst_angle_degrees": return vertical_burst_angle_degrees
+		&"tail_flip_speed": return tail_flip_speed
+		&"tail_flip_duration": return tail_flip_duration
+		&"tail_flip_cooldown": return tail_flip_cooldown
+		&"tail_flip_frame_duration": return tail_flip_frame_duration
 		&"jump_trigger_depth": return jump_trigger_depth
 		&"jump_forward_distance": return jump_forward_distance
 		&"jump_arc_height": return jump_arc_height
@@ -175,10 +221,17 @@ func get_value(key: StringName) -> float:
 		&"hylas_shadow_blur_radius": return hylas_shadow_blur_radius
 		&"hylas_shadow_scale": return hylas_shadow_scale
 		&"camera_smoothing_speed": return camera_smoothing_speed
+		&"burst_camera_shake_strength": return burst_camera_shake_strength
+		&"burst_camera_shake_duration": return burst_camera_shake_duration
+		&"conch_camera_shake_strength": return conch_camera_shake_strength
+		&"conch_camera_shake_duration": return conch_camera_shake_duration
+		&"tail_flip_camera_shake_strength": return tail_flip_camera_shake_strength
+		&"tail_flip_camera_shake_duration": return tail_flip_camera_shake_duration
 		&"conch_range": return conch_range
 		&"conch_pulse_duration": return conch_pulse_duration
 		&"conch_line_width": return conch_line_width
 		&"tail_burst_size": return tail_burst_size
+		&"tail_burst_action_size_multiplier": return tail_burst_action_size_multiplier
 		&"tail_burst_back_offset": return tail_burst_back_offset
 		&"tail_burst_offset_y": return tail_burst_offset_y
 		&"tail_burst_interval_min": return tail_burst_interval_min
@@ -207,6 +260,10 @@ func set_value(key: StringName, value: float) -> void:
 		&"burst_max_charges": burst_max_charges = float(clampi(roundi(value), 1, 5))
 		&"burst_charge_recovery": burst_charge_recovery = clampf(value, 0.10, 10.0)
 		&"vertical_burst_angle_degrees": vertical_burst_angle_degrees = clampf(value, 10.0, 89.0)
+		&"tail_flip_speed": tail_flip_speed = clampf(value, 10.0, 2000.0)
+		&"tail_flip_duration": tail_flip_duration = clampf(value, 0.10, 2.0)
+		&"tail_flip_cooldown": tail_flip_cooldown = clampf(value, 0.0, 5.0)
+		&"tail_flip_frame_duration": tail_flip_frame_duration = clampf(value, 0.02, 1.0)
 		&"jump_trigger_depth": jump_trigger_depth = clampf(value, 50.0, 800.0)
 		&"jump_forward_distance": jump_forward_distance = clampf(value, 50.0, 1200.0)
 		&"jump_arc_height": jump_arc_height = clampf(value, 20.0, 1000.0)
@@ -220,12 +277,19 @@ func set_value(key: StringName, value: float) -> void:
 		&"hylas_shadow_offset_x": hylas_shadow_offset_x = clampf(value, -80.0, 80.0)
 		&"hylas_shadow_offset_y": hylas_shadow_offset_y = clampf(value, -80.0, 80.0)
 		&"hylas_shadow_blur_radius": hylas_shadow_blur_radius = clampf(value, 0.0, 120.0)
-		&"hylas_shadow_scale": hylas_shadow_scale = clampf(value, 1.0, 1.30)
+		&"hylas_shadow_scale": hylas_shadow_scale = clampf(value, 1.0, 1.40)
 		&"camera_smoothing_speed": camera_smoothing_speed = clampf(value, 0.0, 30.0)
+		&"burst_camera_shake_strength": burst_camera_shake_strength = clampf(value, 0.0, 50.0)
+		&"burst_camera_shake_duration": burst_camera_shake_duration = clampf(value, 0.01, 1.0)
+		&"conch_camera_shake_strength": conch_camera_shake_strength = clampf(value, 0.0, 50.0)
+		&"conch_camera_shake_duration": conch_camera_shake_duration = clampf(value, 0.01, 1.0)
+		&"tail_flip_camera_shake_strength": tail_flip_camera_shake_strength = clampf(value, 0.0, 50.0)
+		&"tail_flip_camera_shake_duration": tail_flip_camera_shake_duration = clampf(value, 0.01, 1.0)
 		&"conch_range": conch_range = clampf(value, 20.0, 2000.0)
 		&"conch_pulse_duration": conch_pulse_duration = clampf(value, 0.05, 3.0)
 		&"conch_line_width": conch_line_width = clampf(value, 1.0, 30.0)
 		&"tail_burst_size": tail_burst_size = clampf(value, 50.0, 1000.0)
+		&"tail_burst_action_size_multiplier": tail_burst_action_size_multiplier = clampf(value, 1.0, 3.0)
 		&"tail_burst_back_offset": tail_burst_back_offset = clampf(value, 0.0, 500.0)
 		&"tail_burst_offset_y": tail_burst_offset_y = clampf(value, -300.0, 300.0)
 		&"tail_burst_interval_min": tail_burst_interval_min = clampf(value, 0.05, 5.0)
