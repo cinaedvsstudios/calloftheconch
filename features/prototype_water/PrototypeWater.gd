@@ -1,17 +1,31 @@
 class_name PrototypeWater
 extends Node2D
-## Layered open-water movement test with direct tiled world layers and alpha-shaped mountain collision.
-## Direct tiles are used here deliberately: the base world must remain visible even while parallax tuning evolves.
+## Layered open-water movement test with direct tiled world layers and alpha-shaped collision.
+## The lower transparent water artwork uses an alpha-safe multiply shader so empty pixels never blacken the world.
 
 const VIEWPORT_SIZE: Vector2 = Vector2(1280.0, 720.0)
 const ENVIRONMENT_TILE_SIZE: Vector2 = Vector2(2560.0, 2160.0)
 const MINIMUM_HORIZONTAL_TILES: int = 1
 const MAXIMUM_HORIZONTAL_TILES: int = 9
 const MOUNTAIN_ALPHA_THRESHOLD: float = 0.10
+const COLLISION_INSET_RATIO: float = 0.90
 const MOUNTAIN_COLLISION_SIMPLIFY_EPSILON: float = 4.0
 const SURFACE_WATERLINE_FROM_BOTTOM: float = 100.0
 const SPLASH_OPACITY: float = 0.65
 const SPLASH_FRAME_DURATION: float = 0.08
+const ALPHA_SAFE_MULTIPLY_SHADER_CODE: String = """
+shader_type canvas_item;
+render_mode blend_mul;
+
+uniform float darken_strength : hint_range(0.0, 1.0) = 0.64;
+
+void fragment() {
+	vec4 source = texture(TEXTURE, UV);
+	float coverage = source.a * darken_strength;
+	vec3 multiplier = mix(vec3(1.0), clamp(source.rgb, vec3(0.08), vec3(1.0)), coverage);
+	COLOR = vec4(multiplier, coverage);
+}
+"""
 
 @onready var _water_layer: Node2D = %WaterLayer
 @onready var _scenery_layer: Node2D = %SceneryLayer
@@ -19,6 +33,7 @@ const SPLASH_FRAME_DURATION: float = 0.08
 @onready var _hylas: HylasController = %Hylas
 @onready var _conch_pulse: ConchPulse = %ConchPulse
 @onready var _bubble_overlay: VideoStreamPlayer = %BubbleOverlay
+@onready var _underwater_ambience: AudioStreamPlayer = %UnderwaterAmbience
 
 var _tuning: PrototypeTuning = PrototypeTuning.new()
 var _world_size: Vector2 = VIEWPORT_SIZE
@@ -31,6 +46,9 @@ func _ready() -> void:
 	_hylas.bind_tuning(_tuning)
 	_hylas.normal_conch_used.connect(_on_normal_conch_used)
 	_hylas.surface_splash_requested.connect(_on_surface_splash_requested)
+	_underwater_ambience.finished.connect(_on_underwater_ambience_finished)
+	_underwater_ambience.stream = PrototypeAssets.load_audio(PrototypeAssets.UNDERWATER_AMBIENCE_CANDIDATES)
+	PrototypeAssets.set_audio_looping(_underwater_ambience.stream)
 	_ensure_surface_splash_player()
 	_build_world()
 	_bubble_overlay.hide()
@@ -40,10 +58,11 @@ func _ready() -> void:
 func activate() -> void:
 	if not _has_built_world:
 		_build_world()
+	show()
 	_hylas.reset_to_start()
 	_hylas.set_play_enabled(true)
 	_bubble_overlay.show()
-	show()
+	_play_underwater_ambience()
 	set_process(true)
 
 
@@ -51,6 +70,7 @@ func deactivate() -> void:
 	_hylas.set_play_enabled(false)
 	_bubble_overlay.hide()
 	_conch_pulse.hide()
+	_underwater_ambience.stop()
 	if is_instance_valid(_surface_splash):
 		_surface_splash.hide()
 	set_process(false)
@@ -144,11 +164,10 @@ func _build_lower_water_overlay() -> void:
 	var lower_water_texture: Texture2D = PrototypeAssets.load_texture(PrototypeAssets.WATER_PARALLAX_OVERLAY_CANDIDATES)
 	if lower_water_texture == null:
 		return
-	var multiply_material: CanvasItemMaterial = CanvasItemMaterial.new()
-	multiply_material.blend_mode = CanvasItemMaterial.BLEND_MODE_MUL
+	var darken_material: ShaderMaterial = _create_alpha_safe_multiply_material()
 	for tile_index: int in range(_get_horizontal_tile_count()):
 		var tile_origin: Vector2 = Vector2(ENVIRONMENT_TILE_SIZE.x * float(tile_index), ENVIRONMENT_TILE_SIZE.y)
-		_add_bottom_anchored_sprite(_water_layer, lower_water_texture, tile_origin, -20, multiply_material)
+		_add_bottom_anchored_sprite(_water_layer, lower_water_texture, tile_origin, -20, darken_material)
 
 
 func _build_mountain_overlays() -> void:
@@ -166,7 +185,7 @@ func _build_mountain_overlays() -> void:
 		var texture: Texture2D = mountain_textures[tile_index % mountain_textures.size()]
 		var tile_origin: Vector2 = Vector2(ENVIRONMENT_TILE_SIZE.x * float(tile_index), ENVIRONMENT_TILE_SIZE.y)
 		var mountain_sprite: Sprite2D = _add_bottom_anchored_sprite(_scenery_layer, texture, tile_origin, 0, null)
-		_create_alpha_collision(mountain_sprite, texture)
+		_create_alpha_collision(mountain_sprite, texture, "MountainCollision")
 
 
 func _build_sand_foreground() -> void:
@@ -175,7 +194,8 @@ func _build_sand_foreground() -> void:
 		return
 	for tile_index: int in range(_get_horizontal_tile_count()):
 		var tile_origin: Vector2 = Vector2(ENVIRONMENT_TILE_SIZE.x * float(tile_index), ENVIRONMENT_TILE_SIZE.y)
-		_add_bottom_anchored_sprite(_foreground_layer, sand_texture, tile_origin, 20, null)
+		var sand_sprite: Sprite2D = _add_bottom_anchored_sprite(_foreground_layer, sand_texture, tile_origin, 20, null)
+		_create_alpha_collision(sand_sprite, sand_texture, "SandCollision")
 
 
 func _build_fallback_background() -> void:
@@ -212,7 +232,7 @@ func _add_bottom_anchored_sprite(
 	return sprite
 
 
-func _create_alpha_collision(mountain_sprite: Sprite2D, texture: Texture2D) -> void:
+func _create_alpha_collision(sprite: Sprite2D, texture: Texture2D, collision_name: String) -> void:
 	var image: Image = texture.get_image()
 	if image == null:
 		return
@@ -225,8 +245,8 @@ func _create_alpha_collision(mountain_sprite: Sprite2D, texture: Texture2D) -> v
 		return
 
 	var static_body: StaticBody2D = StaticBody2D.new()
-	static_body.name = "MountainCollision"
-	static_body.position = mountain_sprite.position
+	static_body.name = collision_name
+	static_body.position = sprite.position
 	_scenery_layer.add_child(static_body)
 
 	for polygon_variant: Variant in polygons:
@@ -235,12 +255,35 @@ func _create_alpha_collision(mountain_sprite: Sprite2D, texture: Texture2D) -> v
 		var source_polygon: PackedVector2Array = polygon_variant
 		if source_polygon.size() < 3:
 			continue
-		var collision_points: PackedVector2Array = PackedVector2Array()
+		var scaled_points: PackedVector2Array = PackedVector2Array()
 		for source_point: Vector2 in source_polygon:
-			collision_points.append(source_point * mountain_sprite.scale)
+			scaled_points.append(source_point * sprite.scale)
+		var inset_points: PackedVector2Array = _inset_collision_polygon(scaled_points)
+		if inset_points.size() < 3:
+			continue
 		var collision_polygon: CollisionPolygon2D = CollisionPolygon2D.new()
-		collision_polygon.polygon = collision_points
+		collision_polygon.polygon = inset_points
 		static_body.add_child(collision_polygon)
+
+
+func _inset_collision_polygon(points: PackedVector2Array) -> PackedVector2Array:
+	var centre: Vector2 = Vector2.ZERO
+	for point: Vector2 in points:
+		centre += point
+	centre /= float(points.size())
+
+	var inset_points: PackedVector2Array = PackedVector2Array()
+	for point: Vector2 in points:
+		inset_points.append(centre.lerp(point, COLLISION_INSET_RATIO))
+	return inset_points
+
+
+func _create_alpha_safe_multiply_material() -> ShaderMaterial:
+	var shader: Shader = Shader.new()
+	shader.code = ALPHA_SAFE_MULTIPLY_SHADER_CODE
+	var material: ShaderMaterial = ShaderMaterial.new()
+	material.shader = shader
+	return material
 
 
 func _clear_children(parent: Node) -> void:
@@ -260,8 +303,18 @@ func _get_horizontal_tile_count() -> int:
 	return clampi(int(_tuning.water_horizontal_tiles), MINIMUM_HORIZONTAL_TILES, MAXIMUM_HORIZONTAL_TILES)
 
 
-func _on_normal_conch_used(origin: Vector2, facing_left: bool) -> void:
-	_conch_pulse.trigger(origin, facing_left, _tuning)
+func _on_normal_conch_used(origin: Vector2, direction: Vector2) -> void:
+	_conch_pulse.trigger(origin, direction, _tuning)
+
+
+func _play_underwater_ambience() -> void:
+	if _underwater_ambience.stream != null and not _underwater_ambience.playing:
+		_underwater_ambience.play()
+
+
+func _on_underwater_ambience_finished() -> void:
+	if visible and _underwater_ambience.stream != null:
+		_underwater_ambience.play()
 
 
 func _ensure_surface_splash_player() -> void:
