@@ -1,67 +1,51 @@
 class_name VisualCollisionGuard
 extends Node
+## Keeps the terrain collision created by PrototypeWater intact.
+## Only changes how the visual-only lower-water parallax sprite is drawn.
 
-const LOWER_WATER_SHADER: String = """
+const PARALLAX_SHADER_CODE: String = """
 shader_type canvas_item;
-render_mode blend_mix;
+render_mode blend_mul;
 
-uniform float overlay_opacity : hint_range(0.0, 1.0) = 0.64;
-uniform float top_fade_fraction : hint_range(0.001, 1.0) = 0.045;
+uniform float darken_strength : hint_range(0.0, 1.0) = 0.64;
+uniform float transparent_cutoff : hint_range(0.0, 1.0) = 0.06;
 
 void fragment() {
 	vec4 source = texture(TEXTURE, UV);
-	float top_fade = smoothstep(0.0, top_fade_fraction, UV.y);
-	COLOR = vec4(source.rgb, source.a * overlay_opacity * top_fade);
+	if (source.a <= transparent_cutoff) {
+		discard;
+	}
+	float coverage = smoothstep(transparent_cutoff, 1.0, source.a) * darken_strength;
+	vec3 multiplier = mix(vec3(1.0), clamp(source.rgb, vec3(0.08), vec3(1.0)), coverage);
+	COLOR = vec4(multiplier, coverage);
 }
 """
 
-var _lower_water_material: ShaderMaterial
+var _parallax_material: ShaderMaterial
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
-	_lower_water_material = _create_lower_water_material()
-	set_process(true)
+	_parallax_material = _create_parallax_material()
+	call_deferred("_apply_parallax_material")
+	set_process(false)
 
 
-func _process(_delta: float) -> void:
+func _apply_parallax_material() -> void:
 	var world: Node = get_parent()
 	if world == null:
 		return
-	_disable_generated_backdrop_collision(world)
-	_apply_lower_water_overlay_material(world)
-
-
-func _disable_generated_backdrop_collision(world: Node) -> void:
-	_disable_collision_in_layer(world.get_node_or_null("WaterLayer"))
-	_disable_collision_in_layer(world.get_node_or_null("SceneryLayer"))
-	_disable_collision_in_layer(world.get_node_or_null("ForegroundLayer"))
-
-
-func _disable_collision_in_layer(layer: Node) -> void:
-	if layer == null:
-		return
-	for child: Node in layer.get_children():
-		if child is StaticBody2D:
-			var body: StaticBody2D = child as StaticBody2D
-			body.collision_layer = 0
-			body.collision_mask = 0
-
-
-func _apply_lower_water_overlay_material(world: Node) -> void:
 	var water_layer: Node = world.get_node_or_null("WaterLayer")
 	if water_layer == null:
 		return
 	for child: Node in water_layer.get_children():
 		if child is Sprite2D and child.z_index == -20:
-			var lower_overlay: Sprite2D = child as Sprite2D
-			if lower_overlay.material != _lower_water_material:
-				lower_overlay.material = _lower_water_material
+			var parallax_sprite: Sprite2D = child as Sprite2D
+			parallax_sprite.material = _parallax_material
 
 
-func _create_lower_water_material() -> ShaderMaterial:
+func _create_parallax_material() -> ShaderMaterial:
 	var shader: Shader = Shader.new()
-	shader.code = LOWER_WATER_SHADER
+	shader.code = PARALLAX_SHADER_CODE
 	var material: ShaderMaterial = ShaderMaterial.new()
 	material.shader = shader
 	return material
