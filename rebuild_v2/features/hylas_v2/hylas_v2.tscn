@@ -1,0 +1,58 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/hylas-swim_01.webp" id="1_swim_idle"]
+[ext_resource type="AudioStream" path="res://assets/audio/swim_noise.mp3" id="2_swim_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/speed_noise.mp3" id="3_burst_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/Super Conch_noise.mp3" id="4_conch_audio"]
+
+[sub_resource type="RectangleShape2D" id="HylasCollisionShape"]
+size = Vector2(123, 49)
+
+[sub_resource type="CircleShape2D" id="HylasInteractionShape"]
+radius = 120.0
+
+[node name="HylasV2" type="CharacterBody2D"]
+
+[node name="ShadowSprite" type="Sprite2D" parent="."]
+texture = ExtResource("1_swim_idle")
+position = Vector2(8, 17)
+scale = Vector2(1.18, 1.18)
+modulate = Color(0.005, 0.04, 0.12, 0.16)
+z_index = -2
+show_behind_parent = true
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+
+[node name="PreviewSprite" type="Sprite2D" parent="."]
+texture = ExtResource("1_swim_idle")
+
+[node name="CollisionShape" type="CollisionShape2D" parent="."]
+shape = SubResource("HylasCollisionShape")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position_smoothing_enabled = true
+position_smoothing_speed = 5.5
+
+[node name="TailBubbleAnchor" type="Marker2D" parent="."]
+position = Vector2(-120, 15)
+
+[node name="SurfaceSplashAnchor" type="Marker2D" parent="."]
+
+[node name="InteractionArea" type="Area2D" parent="."]
+
+[node name="InteractionShape" type="CollisionShape2D" parent="InteractionArea"]
+shape = SubResource("HylasInteractionShape")
+
+[node name="Audio" type="Node2D" parent="."]
+
+[node name="SwimAudio" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("2_swim_audio")
+volume_db = -16.0
+
+[node name="BurstAudio" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("3_burst_audio")
+volume_db = -10.0
+
+[node name="ConchAudio" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("4_conch_audio")
+volume_db = -7.0
