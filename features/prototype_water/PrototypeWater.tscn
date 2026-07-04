@@ -31,7 +31,7 @@ z_index = 10
 
 [node name="HylasShadow" type="Sprite2D" parent="Hylas"]
 unique_name_in_owner = true
-z_index = -1
+z_index = -2
 show_behind_parent = true
 
 [node name="Sprite" type="Sprite2D" parent="Hylas"]
@@ -43,9 +43,22 @@ shape = SubResource("RectangleShapeHylas")
 
 [node name="TailBubbleBurst" type="VideoStreamPlayer" parent="Hylas"]
 unique_name_in_owner = true
-z_index = 1
+z_index = -1
+show_behind_parent = true
 mouse_filter = 2
 script = ExtResource("4_tail_burst")
+
+[node name="SwimAudio" type="AudioStreamPlayer" parent="Hylas"]
+unique_name_in_owner = true
+volume_db = -16.0
+
+[node name="SpeedAudio" type="AudioStreamPlayer" parent="Hylas"]
+unique_name_in_owner = true
+volume_db = -10.0
+
+[node name="ConchAudio" type="AudioStreamPlayer" parent="Hylas"]
+unique_name_in_owner = true
+volume_db = -7.0
 
 [node name="Camera2D" type="Camera2D" parent="Hylas"]
 unique_name_in_owner = true
@@ -60,6 +73,10 @@ limit_right = 1280
 [node name="ForegroundLayer" type="Node2D" parent="."]
 unique_name_in_owner = true
 z_index = 20
+
+[node name="UnderwaterAmbience" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+volume_db = -20.0
 
 [node name="BubbleOverlayLayer" type="CanvasLayer" parent="."]
 layer = 8
