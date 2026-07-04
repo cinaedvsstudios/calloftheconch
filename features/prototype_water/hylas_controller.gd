@@ -10,7 +10,7 @@ const BURST_PREPARATION_FRAME_COUNT: int = 2
 const TAIL_FLIP_PREPARATION_FRAME_COUNT: int = 2
 const DOUBLE_CONCH_TAP_WINDOW: float = 0.20
 const CONCH_DIRECTION_ANGLE_DEGREES: float = 45.0
-const JUMP_FRAME_SEQUENCE: PackedInt32Array = PackedInt32Array([0, 1, 1, 2, 2, 3])
+const JUMP_FRAME_SEQUENCE: Array = [0, 1, 1, 2, 2, 3]
 const SHADOW_SHADER_CODE: String = """
 shader_type canvas_item;
 uniform vec4 shadow_tint : source_color = vec4(0.005, 0.04, 0.12, 0.16);
@@ -698,7 +698,7 @@ func _update_jump(delta: float) -> void:
 	var base_position: Vector2 = _jump_start_position.lerp(_jump_end_position, progress)
 	global_position = Vector2(base_position.x, base_position.y - sin(progress * PI) * _tuning.jump_arc_height)
 	var held_index: int = clampi(floori(progress * float(JUMP_FRAME_SEQUENCE.size())), 0, JUMP_FRAME_SEQUENCE.size() - 1)
-	_frame_index = clampi(JUMP_FRAME_SEQUENCE[held_index], 0, frames.size() - 1)
+	_frame_index = clampi(int(JUMP_FRAME_SEQUENCE[held_index]), 0, frames.size() - 1)
 	_set_frame(frames, _frame_index)
 	if not _jump_reentry_splash_played and progress >= 0.80:
 		surface_splash_requested.emit(Vector2(global_position.x, _surface_waterline_y))
