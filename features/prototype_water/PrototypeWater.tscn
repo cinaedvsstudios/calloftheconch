@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://features/prototype_water/PrototypeWater.gd" id="1_world"]
 [ext_resource type="Script" path="res://features/prototype_water/hylas_controller.gd" id="2_hylas"]
 [ext_resource type="Script" path="res://scripts/bubble_overlay.gd" id="3_bubbles"]
 [ext_resource type="Script" path="res://features/prototype_water/tail_bubble_burst.gd" id="4_tail_burst"]
 [ext_resource type="Script" path="res://features/prototype_water/conch_pulse.gd" id="5_conch_pulse"]
+[ext_resource type="Script" path="res://features/prototype_water/idle_visual_controller.gd" id="6_idle"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShapeHylas"]
 size = Vector2(123, 49)
@@ -47,6 +48,9 @@ z_index = -1
 show_behind_parent = true
 mouse_filter = 2
 script = ExtResource("4_tail_burst")
+
+[node name="IdleVisualController" type="Node" parent="Hylas"]
+script = ExtResource("6_idle")
 
 [node name="SwimAudio" type="AudioStreamPlayer" parent="Hylas"]
 unique_name_in_owner = true
