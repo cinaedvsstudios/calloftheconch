@@ -24,6 +24,7 @@ func _ready() -> void:
 	%DebugTuningButton.pressed.connect(_on_debug_tuning_pressed)
 	%ReturnToTitleButton.pressed.connect(_on_return_to_title_pressed)
 	_pause_service.pause_changed.connect(_on_pause_changed)
+	_gameplay_music.finished.connect(_on_gameplay_music_finished)
 	_pause_overlay.hide()
 	_prototype_tuning_panel.bind_dependencies(_prototype_water)
 	_prototype_tuning_panel.hide()
@@ -67,8 +68,14 @@ func _unhandled_input(event: InputEvent) -> void:
 func _play_gameplay_music() -> void:
 	if _gameplay_music.playing:
 		return
-	_gameplay_music.stream = PrototypeAssets.load_audio_with_words(PackedStringArray(["pillars"]))
+	_gameplay_music.stream = PrototypeAssets.load_audio(PrototypeAssets.GAMEPLAY_MUSIC_CANDIDATES)
+	PrototypeAssets.set_audio_looping(_gameplay_music.stream)
 	if _gameplay_music.stream != null:
+		_gameplay_music.play()
+
+
+func _on_gameplay_music_finished() -> void:
+	if _is_active and _gameplay_music.stream != null:
 		_gameplay_music.play()
 
 
