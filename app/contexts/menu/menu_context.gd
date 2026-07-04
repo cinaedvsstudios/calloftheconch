@@ -1,9 +1,11 @@
 class_name MenuContext
 extends Control
-## Animated title screen. The title scene uses the width-scaled Sea of Pillars city art.
+## Independent title scene. It loads gameplay only after Start is pressed.
 
 signal start_game_requested()
 signal quit_requested()
+
+const GAMEPLAY_SCENE_PATH: String = "res://app/contexts/gameplay/GameplayContext.tscn"
 
 @onready var _background: TextureRect = %Background
 @onready var _title: TextureRect = %Title
@@ -19,7 +21,7 @@ func _ready() -> void:
 	_background.texture = PrototypeAssets.load_texture(PrototypeAssets.CITY_BACKGROUND_CANDIDATES)
 	_title.texture = PrototypeAssets.load_texture(PrototypeAssets.TITLE_TEXTURE_CANDIDATES)
 	_title.pivot_offset = _title.size * 0.5
-	hide()
+	call_deferred("activate")
 
 
 func activate() -> void:
@@ -94,8 +96,12 @@ func _play_main_music() -> void:
 
 
 func _on_start_pressed() -> void:
-	start_game_requested.emit()
+	_main_music.stop()
+	var result: Error = get_tree().change_scene_to_file(GAMEPLAY_SCENE_PATH)
+	if result != OK:
+		push_error("Could not open gameplay scene: %s" % GAMEPLAY_SCENE_PATH)
 
 
 func _on_quit_pressed() -> void:
 	quit_requested.emit()
+	get_tree().quit()
