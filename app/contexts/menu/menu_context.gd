@@ -18,6 +18,7 @@ var _pulse_tween: Tween
 func _ready() -> void:
 	_start_button.pressed.connect(_on_start_pressed)
 	%QuitButton.pressed.connect(_on_quit_pressed)
+	_main_music.finished.connect(_on_main_music_finished)
 	_background.texture = PrototypeAssets.load_texture(PrototypeAssets.CITY_BACKGROUND_CANDIDATES)
 	_title.texture = PrototypeAssets.load_texture(PrototypeAssets.TITLE_TEXTURE_CANDIDATES)
 	_title.pivot_offset = _title.size * 0.5
@@ -90,8 +91,14 @@ func _stop_title_animation() -> void:
 func _play_main_music() -> void:
 	if _main_music.playing:
 		return
-	_main_music.stream = PrototypeAssets.load_audio_with_words(PackedStringArray(["call", "conch", "music"]))
+	_main_music.stream = PrototypeAssets.load_audio(PrototypeAssets.TITLE_MUSIC_CANDIDATES)
+	PrototypeAssets.set_audio_looping(_main_music.stream)
 	if _main_music.stream != null:
+		_main_music.play()
+
+
+func _on_main_music_finished() -> void:
+	if is_visible_in_tree() and _main_music.stream != null:
 		_main_music.play()
 
 
