@@ -97,8 +97,7 @@ func _play_main_music() -> void:
 
 func _on_start_pressed() -> void:
 	_main_music.stop()
-	var result: Error = get_tree().change_scene_to_file(GAMEPLAY_SCENE_PATH)
-	if result != OK:
+	if get_tree().change_scene_to_file(GAMEPLAY_SCENE_PATH) != OK:
 		push_error("Could not open gameplay scene: %s" % GAMEPLAY_SCENE_PATH)
 
 
