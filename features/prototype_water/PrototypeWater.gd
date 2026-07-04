@@ -1,7 +1,6 @@
 class_name PrototypeWater
 extends Node2D
-## Layered open-water movement test with direct tiled world layers and alpha-shaped collision.
-## The lower transparent water artwork uses an alpha-safe multiply shader so empty pixels never blacken the world.
+## Layered open-water movement test. Water background remains continuous beneath visual overlays.
 
 const VIEWPORT_SIZE: Vector2 = Vector2(1280.0, 720.0)
 const ENVIRONMENT_TILE_SIZE: Vector2 = Vector2(2560.0, 2160.0)
@@ -13,7 +12,7 @@ const MOUNTAIN_COLLISION_SIMPLIFY_EPSILON: float = 4.0
 const SURFACE_WATERLINE_FROM_BOTTOM: float = 100.0
 const SPLASH_OPACITY: float = 0.65
 const SPLASH_FRAME_DURATION: float = 0.08
-const ALPHA_SAFE_MULTIPLY_SHADER_CODE: String = """
+const PARALLAX_MULTIPLY_SHADER_CODE: String = """
 shader_type canvas_item;
 render_mode blend_mul;
 
@@ -21,6 +20,9 @@ uniform float darken_strength : hint_range(0.0, 1.0) = 0.64;
 
 void fragment() {
 	vec4 source = texture(TEXTURE, UV);
+	if (source.a <= 0.0) {
+		discard;
+	}
 	float coverage = source.a * darken_strength;
 	vec3 multiplier = mix(vec3(1.0), clamp(source.rgb, vec3(0.08), vec3(1.0)), coverage);
 	COLOR = vec4(multiplier, coverage);
@@ -118,8 +120,8 @@ func _build_world() -> void:
 	_world_size = Vector2(ENVIRONMENT_TILE_SIZE.x * float(_get_horizontal_tile_count()), ENVIRONMENT_TILE_SIZE.y * 2.0)
 	_surface_waterline_y = ENVIRONMENT_TILE_SIZE.y - SURFACE_WATERLINE_FROM_BOTTOM
 
+	_build_continuous_water_background()
 	_build_surface_sky_tiles()
-	_build_deep_water_tiles()
 	_build_lower_water_overlay()
 	_build_mountain_overlays()
 	_build_sand_foreground()
@@ -141,6 +143,20 @@ func _rebuild_world() -> void:
 	_hylas.reset_to_start()
 
 
+func _build_continuous_water_background() -> void:
+	var water_texture: Texture2D = PrototypeAssets.load_texture(PrototypeAssets.WATER_BACKGROUND_CANDIDATES)
+	if water_texture == null:
+		_build_fallback_background()
+		return
+	for vertical_tile_index: int in range(2):
+		for horizontal_tile_index: int in range(_get_horizontal_tile_count()):
+			var tile_origin: Vector2 = Vector2(
+				ENVIRONMENT_TILE_SIZE.x * float(horizontal_tile_index),
+				ENVIRONMENT_TILE_SIZE.y * float(vertical_tile_index),
+			)
+			_add_bottom_anchored_sprite(_water_layer, water_texture, tile_origin, -40, null)
+
+
 func _build_surface_sky_tiles() -> void:
 	var surface_texture: Texture2D = PrototypeAssets.load_texture(PrototypeAssets.WATER_SKY_BACKGROUND_CANDIDATES)
 	if surface_texture == null:
@@ -150,24 +166,14 @@ func _build_surface_sky_tiles() -> void:
 		_add_bottom_anchored_sprite(_water_layer, surface_texture, tile_origin, -30, null)
 
 
-func _build_deep_water_tiles() -> void:
-	var water_texture: Texture2D = PrototypeAssets.load_texture(PrototypeAssets.WATER_BACKGROUND_CANDIDATES)
-	if water_texture == null:
-		_build_fallback_background()
-		return
-	for tile_index: int in range(_get_horizontal_tile_count()):
-		var tile_origin: Vector2 = Vector2(ENVIRONMENT_TILE_SIZE.x * float(tile_index), ENVIRONMENT_TILE_SIZE.y)
-		_add_bottom_anchored_sprite(_water_layer, water_texture, tile_origin, -30, null)
-
-
 func _build_lower_water_overlay() -> void:
 	var lower_water_texture: Texture2D = PrototypeAssets.load_texture(PrototypeAssets.WATER_PARALLAX_OVERLAY_CANDIDATES)
 	if lower_water_texture == null:
 		return
-	var darken_material: ShaderMaterial = _create_alpha_safe_multiply_material()
+	var parallax_material: ShaderMaterial = _create_parallax_multiply_material()
 	for tile_index: int in range(_get_horizontal_tile_count()):
 		var tile_origin: Vector2 = Vector2(ENVIRONMENT_TILE_SIZE.x * float(tile_index), ENVIRONMENT_TILE_SIZE.y)
-		_add_bottom_anchored_sprite(_water_layer, lower_water_texture, tile_origin, -20, darken_material)
+		_add_bottom_anchored_sprite(_water_layer, lower_water_texture, tile_origin, -20, parallax_material)
 
 
 func _build_mountain_overlays() -> void:
@@ -207,7 +213,7 @@ func _build_fallback_background() -> void:
 		Vector2(0.0, _world_size.y),
 	])
 	fallback.color = Color(0.02, 0.19, 0.27, 1.0)
-	fallback.z_index = -30
+	fallback.z_index = -40
 	_water_layer.add_child(fallback)
 
 
@@ -278,9 +284,9 @@ func _inset_collision_polygon(points: PackedVector2Array) -> PackedVector2Array:
 	return inset_points
 
 
-func _create_alpha_safe_multiply_material() -> ShaderMaterial:
+func _create_parallax_multiply_material() -> ShaderMaterial:
 	var shader: Shader = Shader.new()
-	shader.code = ALPHA_SAFE_MULTIPLY_SHADER_CODE
+	shader.code = PARALLAX_MULTIPLY_SHADER_CODE
 	var material: ShaderMaterial = ShaderMaterial.new()
 	material.shader = shader
 	return material
