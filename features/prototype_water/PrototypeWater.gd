@@ -11,6 +11,7 @@ const MOUNTAIN_ALPHA_THRESHOLD: float = 0.10
 const MOUNTAIN_COLLISION_SIMPLIFY_EPSILON: float = 4.0
 const SURFACE_WATERLINE_FROM_BOTTOM: float = 100.0
 const SPLASH_OPACITY: float = 0.65
+const SPLASH_FRAME_DURATION: float = 0.08
 
 @onready var _water_layer: Node2D = %WaterLayer
 @onready var _scenery_layer: Node2D = %SceneryLayer
@@ -259,53 +260,68 @@ func _get_horizontal_tile_count() -> int:
 	return clampi(int(_tuning.water_horizontal_tiles), MINIMUM_HORIZONTAL_TILES, MAXIMUM_HORIZONTAL_TILES)
 
 
-func _ensure_surface_splash_player() -> void:
-	if is_instance_valid(_surface_splash):
-		return
-	_surface_splash = AnimatedSprite2D.new()
-	_surface_splash.name = "SurfaceSplash"
-	_surface_splash.z_index = 9
-	_surface_splash.modulate = Color(1.0, 1.0, 1.0, SPLASH_OPACITY)
-	_surface_splash.visible = false
-	_surface_splash.animation_finished.connect(_on_surface_splash_animation_finished)
-	add_child(_surface_splash)
-	_refresh_surface_splash_frames()
-
-
-func _refresh_surface_splash_frames() -> void:
-	var splash_textures: Array[Texture2D] = PrototypeAssets.load_effect_frames("splash")
-	if splash_textures.is_empty():
-		_surface_splash.sprite_frames = null
-		return
-	var sprite_frames: SpriteFrames = SpriteFrames.new()
-	sprite_frames.add_animation(&"play")
-	sprite_frames.set_animation_loop(&"play", false)
-	sprite_frames.set_animation_speed(&"play", 12.0)
-	for texture: Texture2D in splash_textures:
-		sprite_frames.add_frame(&"play", texture)
-	_surface_splash.sprite_frames = sprite_frames
-	_surface_splash.animation = &"play"
-	_surface_splash.stop()
-
-
 func _on_normal_conch_used(origin: Vector2, facing_left: bool) -> void:
 	_conch_pulse.trigger(origin, facing_left, _tuning)
 
 
+func _ensure_surface_splash_player() -> void:
+	if is_instance_valid(_surface_splash):
+		return
+	var splash_frames: Array[Texture2D] = _load_surface_splash_frames()
+	if splash_frames.is_empty():
+		return
+
+	var frames: SpriteFrames = SpriteFrames.new()
+	if not frames.has_animation(&"default"):
+		frames.add_animation(&"default")
+	frames.set_animation_speed(&"default", 1.0 / SPLASH_FRAME_DURATION)
+	frames.set_animation_loop(&"default", false)
+	for texture: Texture2D in splash_frames:
+		frames.add_frame(&"default", texture, 1.0)
+
+	_surface_splash = AnimatedSprite2D.new()
+	_surface_splash.name = "SurfaceSplash"
+	_surface_splash.sprite_frames = frames
+	_surface_splash.animation = &"default"
+	_surface_splash.centered = true
+	_surface_splash.z_index = 9
+	_surface_splash.modulate.a = SPLASH_OPACITY
+	_surface_splash.hide()
+	add_child(_surface_splash)
+
+
+func _load_surface_splash_frames() -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	for frame_number: int in range(1, 6):
+		var candidates: PackedStringArray = [
+			"res://assets/effects/splash%d.webp" % frame_number,
+			"res://assets/effects/splash%d.png" % frame_number,
+			"res://assets/effects/splash_%02d.webp" % frame_number,
+			"res://assets/effects/splash_%02d.png" % frame_number,
+		]
+		for path: String in candidates:
+			if not ResourceLoader.exists(path):
+				continue
+			var resource: Resource = load(path)
+			if resource is Texture2D:
+				frames.append(resource as Texture2D)
+				break
+	return frames
+
+
 func _on_surface_splash_requested(origin: Vector2) -> void:
+	_ensure_surface_splash_player()
 	if not is_instance_valid(_surface_splash):
 		return
-	if _surface_splash.sprite_frames == null:
-		_refresh_surface_splash_frames()
-	if _surface_splash.sprite_frames == null:
-		return
-	_surface_splash.global_position = Vector2(origin.x, _surface_waterline_y)
-	_surface_splash.show()
-	_surface_splash.stop()
+	_surface_splash.global_position = origin
 	_surface_splash.frame = 0
-	_surface_splash.play(&"play")
+	_surface_splash.show()
+	_surface_splash.play(&"default")
+	var duration: float = float(_surface_splash.sprite_frames.get_frame_count(&"default")) * SPLASH_FRAME_DURATION
+	var hide_timer: SceneTreeTimer = get_tree().create_timer(maxf(SPLASH_FRAME_DURATION, duration), true)
+	hide_timer.timeout.connect(_hide_surface_splash)
 
 
-func _on_surface_splash_animation_finished() -> void:
+func _hide_surface_splash() -> void:
 	if is_instance_valid(_surface_splash):
 		_surface_splash.hide()
