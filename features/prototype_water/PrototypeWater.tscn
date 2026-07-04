@@ -43,7 +43,7 @@ show_behind_parent = true
 [node name="Sprite" type="Sprite2D" parent="Hylas"]
 unique_name_in_owner = true
 
-[node name="ShadowFeatherController" type="Node" parent="Hylas"]
+[node name="ShadowFeatherController" type="Node2D" parent="Hylas"]
 script = ExtResource("7_shadow")
 
 [node name="HylasCollision" type="CollisionShape2D" parent="Hylas"]
