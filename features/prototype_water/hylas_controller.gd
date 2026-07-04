@@ -3,34 +3,34 @@ extends CharacterBody2D
 ## Movement-feel controller for Prototype 0.1.
 ## Player momentum and current stay separate, so braking never cancels the sea itself.
 
-signal normal_conch_used(origin: Vector2, facing_left: bool)
+signal normal_conch_used(origin: Vector2, direction: Vector2)
 signal surface_splash_requested(origin: Vector2)
 
 const PLAYER_EDGE_PADDING: float = 105.0
 const BURST_PREPARATION_FRAME_COUNT: int = 2
+const TAIL_FLIP_PREPARATION_FRAME_COUNT: int = 2
+const DOUBLE_CONCH_TAP_WINDOW: float = 0.20
+const CONCH_DIRECTION_ANGLE_DEGREES: float = 45.0
+const JUMP_FRAME_SEQUENCE: Array[int] = [0, 1, 1, 2, 2, 3]
 const SHADOW_SHADER_CODE: String = """
 shader_type canvas_item;
 
-uniform vec4 shadow_tint : source_color = vec4(0.01, 0.06, 0.11, 0.07);
-uniform float blur_radius = 60.0;
+uniform vec4 shadow_tint : source_color = vec4(0.005, 0.04, 0.12, 0.16);
+uniform float blur_radius = 10.0;
 
 void fragment() {
-	vec2 blur_step = TEXTURE_PIXEL_SIZE * blur_radius;
+	vec2 blur_step = TEXTURE_PIXEL_SIZE * max(0.5, blur_radius);
 	float alpha_sum = 0.0;
-	alpha_sum += texture(TEXTURE, UV + vec2(-2.0, 0.0) * blur_step).a;
-	alpha_sum += texture(TEXTURE, UV + vec2(2.0, 0.0) * blur_step).a;
-	alpha_sum += texture(TEXTURE, UV + vec2(0.0, -2.0) * blur_step).a;
-	alpha_sum += texture(TEXTURE, UV + vec2(0.0, 2.0) * blur_step).a;
-	alpha_sum += texture(TEXTURE, UV + vec2(-1.0, -1.0) * blur_step).a;
-	alpha_sum += texture(TEXTURE, UV + vec2(1.0, -1.0) * blur_step).a;
-	alpha_sum += texture(TEXTURE, UV + vec2(-1.0, 1.0) * blur_step).a;
-	alpha_sum += texture(TEXTURE, UV + vec2(1.0, 1.0) * blur_step).a;
-	alpha_sum += texture(TEXTURE, UV + vec2(-1.0, 0.0) * blur_step).a * 0.75;
-	alpha_sum += texture(TEXTURE, UV + vec2(1.0, 0.0) * blur_step).a * 0.75;
-	alpha_sum += texture(TEXTURE, UV + vec2(0.0, -1.0) * blur_step).a * 0.75;
-	alpha_sum += texture(TEXTURE, UV + vec2(0.0, 1.0) * blur_step).a * 0.75;
-	float blurred_alpha = alpha_sum / 11.0;
-	COLOR = vec4(shadow_tint.rgb, blurred_alpha * shadow_tint.a);
+	alpha_sum += texture(TEXTURE, clamp(UV, vec2(0.0), vec2(1.0))).a * 0.18;
+	alpha_sum += texture(TEXTURE, clamp(UV + vec2(-1.0, 0.0) * blur_step, vec2(0.0), vec2(1.0))).a * 0.11;
+	alpha_sum += texture(TEXTURE, clamp(UV + vec2(1.0, 0.0) * blur_step, vec2(0.0), vec2(1.0))).a * 0.11;
+	alpha_sum += texture(TEXTURE, clamp(UV + vec2(0.0, -1.0) * blur_step, vec2(0.0), vec2(1.0))).a * 0.11;
+	alpha_sum += texture(TEXTURE, clamp(UV + vec2(0.0, 1.0) * blur_step, vec2(0.0), vec2(1.0))).a * 0.11;
+	alpha_sum += texture(TEXTURE, clamp(UV + vec2(-1.0, -1.0) * blur_step, vec2(0.0), vec2(1.0))).a * 0.095;
+	alpha_sum += texture(TEXTURE, clamp(UV + vec2(1.0, -1.0) * blur_step, vec2(0.0), vec2(1.0))).a * 0.095;
+	alpha_sum += texture(TEXTURE, clamp(UV + vec2(-1.0, 1.0) * blur_step, vec2(0.0), vec2(1.0))).a * 0.095;
+	alpha_sum += texture(TEXTURE, clamp(UV + vec2(1.0, 1.0) * blur_step, vec2(0.0), vec2(1.0))).a * 0.095;
+	COLOR = vec4(shadow_tint.rgb, clamp(alpha_sum, 0.0, 1.0) * shadow_tint.a);
 }
 """
 
@@ -41,12 +41,17 @@ void fragment() {
 @onready var _collision_shape: CollisionShape2D = %HylasCollision
 @onready var _camera: Camera2D = %Camera2D
 @onready var _tail_bubble_burst: TailBubbleBurst = %TailBubbleBurst
+@onready var _swim_audio: AudioStreamPlayer = %SwimAudio
+@onready var _speed_audio: AudioStreamPlayer = %SpeedAudio
+@onready var _conch_audio: AudioStreamPlayer = %ConchAudio
 
 var _tuning: PrototypeTuning = PrototypeTuning.new()
 var _swim_frames: Array[Texture2D] = []
 var _speed_frames: Array[Texture2D] = []
 var _conch_frames: Array[Texture2D] = []
 var _jump_frames: Array[Texture2D] = []
+var _tail_flip_frames: Array[Texture2D] = []
+var _stop_frames: Array[Texture2D] = []
 var _player_velocity: Vector2 = Vector2.ZERO
 var _world_bounds: Rect2 = Rect2(0.0, 0.0, 1280.0, 720.0)
 var _swim_ceiling_y: float = 105.0
@@ -61,8 +66,12 @@ var _burst_charge_recovery_remaining: float = 0.0
 var _burst_charges: int = 0
 var _burst_direction: Vector2 = Vector2.RIGHT
 var _burst_tail_has_played: bool = false
+var _tail_flip_elapsed: float = 0.0
+var _tail_flip_total_duration: float = 0.0
+var _tail_flip_cooldown_remaining: float = 0.0
+var _tail_flip_direction: Vector2 = Vector2.RIGHT
+var _tail_flip_tail_has_played: bool = false
 var _conch_cooldown_remaining: float = 0.0
-var _tail_burst_remaining: float = 0.0
 var _is_using_conch: bool = false
 var _facing_left: bool = false
 var _play_enabled: bool = false
@@ -76,6 +85,13 @@ var _jump_total_duration: float = 0.0
 var _jump_start_position: Vector2 = Vector2.ZERO
 var _jump_end_position: Vector2 = Vector2.ZERO
 var _jump_reentry_splash_played: bool = false
+var _pending_conch_timer: float = 0.0
+var _pending_conch_direction: Vector2 = Vector2.RIGHT
+var _current_conch_direction: Vector2 = Vector2.RIGHT
+var _camera_rest_offset: Vector2 = Vector2.ZERO
+var _camera_shake_remaining: float = 0.0
+var _camera_shake_duration: float = 0.0
+var _camera_shake_strength: float = 0.0
 
 
 func _ready() -> void:
@@ -84,8 +100,12 @@ func _ready() -> void:
 	_speed_frames = PrototypeAssets.load_hylas_frames("hylas-speed")
 	_conch_frames = PrototypeAssets.load_hylas_frames("hylas-conch1")
 	_jump_frames = PrototypeAssets.load_hylas_frames("hylas-jump")
+	_tail_flip_frames = PrototypeAssets.load_hylas_frames("hylas-flip")
+	_stop_frames = PrototypeAssets.load_hylas_frames("hylas-stop")
 	_shadow_material = _create_shadow_material()
 	_shadow.material = _shadow_material
+	_camera_rest_offset = _camera.offset
+	_configure_audio()
 	_burst_charges = _get_max_burst_charges()
 	global_position = start_position
 	refresh_tuning()
@@ -133,11 +153,16 @@ func set_play_enabled(enabled: bool) -> void:
 		_player_velocity = Vector2.ZERO
 		_burst_elapsed = 0.0
 		_burst_total_duration = 0.0
+		_tail_flip_elapsed = 0.0
+		_tail_flip_total_duration = 0.0
 		_jump_elapsed = 0.0
 		_jump_total_duration = 0.0
+		_pending_conch_timer = 0.0
 		_pending_surface_jump = false
 		_set_visual_rotation(0.0)
+		_stop_movement_audio()
 		_tail_bubble_burst.hide()
+		_camera.offset = _camera_rest_offset
 
 
 func reset_to_start() -> void:
@@ -150,14 +175,20 @@ func reset_to_start() -> void:
 	_burst_cooldown_remaining = 0.0
 	_burst_charge_recovery_remaining = 0.0
 	_burst_charges = _get_max_burst_charges()
+	_tail_flip_elapsed = 0.0
+	_tail_flip_total_duration = 0.0
+	_tail_flip_cooldown_remaining = 0.0
 	_conch_cooldown_remaining = 0.0
 	_is_using_conch = false
+	_pending_conch_timer = 0.0
 	_pending_surface_jump = false
 	_jump_elapsed = 0.0
 	_jump_total_duration = 0.0
 	_jump_reentry_splash_played = false
 	_animation_mode = &"idle"
 	_set_visual_rotation(0.0)
+	_camera.offset = _camera_rest_offset
+	_stop_movement_audio()
 	_reset_tail_burst_timer()
 	_tail_bubble_burst.hide()
 	_show_idle_frame()
@@ -165,7 +196,7 @@ func reset_to_start() -> void:
 
 func get_diagnostic_summary() -> String:
 	var current_velocity: Vector2 = _get_current_velocity()
-	return "Hylas: (%.0f, %.0f) | Own velocity: (%.0f, %.0f) | Current: (%.0f, %.0f) | Burst charges: %d/%d | Burst launch: %.0f | Jump: %s" % [
+	return "Hylas: (%.0f, %.0f) | Own velocity: (%.0f, %.0f) | Current: (%.0f, %.0f) | Burst charges: %d/%d | Burst launch: %.0f | Tail flip: %s | Jump: %s" % [
 		global_position.x,
 		global_position.y,
 		_player_velocity.x,
@@ -175,6 +206,7 @@ func get_diagnostic_summary() -> String:
 		_burst_charges,
 		_get_max_burst_charges(),
 		_tuning.burst_speed,
+		"yes" if _tail_flip_total_duration > 0.0 else "no",
 		"yes" if _jump_total_duration > 0.0 else "no",
 	]
 
@@ -185,11 +217,23 @@ func _physics_process(delta: float) -> void:
 
 	_current_time += delta
 	_burst_cooldown_remaining = maxf(0.0, _burst_cooldown_remaining - delta)
+	_tail_flip_cooldown_remaining = maxf(0.0, _tail_flip_cooldown_remaining - delta)
 	_conch_cooldown_remaining = maxf(0.0, _conch_cooldown_remaining - delta)
 	_update_burst_charge_recovery(delta)
+	_update_camera_shake(delta)
 
 	if _jump_total_duration > 0.0:
 		_update_jump(delta)
+		return
+
+	var input_direction: Vector2 = Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
+	if Input.is_action_just_pressed(&"conch"):
+		_handle_conch_pressed(input_direction)
+	_update_pending_conch(delta)
+
+	if _tail_flip_total_duration > 0.0:
+		_update_tail_flip(delta)
+		_apply_current_and_position(delta, false)
 		return
 
 	if _is_using_conch:
@@ -197,7 +241,6 @@ func _physics_process(delta: float) -> void:
 		_apply_current_and_position(delta, true)
 		return
 
-	var input_direction: Vector2 = Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
 	if _should_begin_action_a_burst(input_direction):
 		_try_begin_action_a(input_direction)
 
@@ -210,17 +253,13 @@ func _physics_process(delta: float) -> void:
 	else:
 		_update_idle(delta)
 
-	if Input.is_action_just_pressed(&"conch") and _conch_cooldown_remaining <= 0.0 and not _conch_frames.is_empty():
-		_begin_conch()
-		return
-
 	_apply_current_and_position(delta, input_direction == Vector2.ZERO)
 	if _pending_surface_jump and _burst_total_duration > 0.0 and global_position.y <= _surface_waterline_y + 0.1:
 		_begin_surface_jump()
 
 
 func _should_begin_action_a_burst(input_direction: Vector2) -> bool:
-	if _burst_total_duration > 0.0 or _burst_cooldown_remaining > 0.0:
+	if _pending_conch_timer > 0.0 or _burst_total_duration > 0.0 or _burst_cooldown_remaining > 0.0:
 		return false
 	if _burst_charges <= 0:
 		return false
@@ -234,6 +273,7 @@ func _try_begin_action_a(input_direction: Vector2) -> void:
 	if vertical_burst_axis == 0.0 and _is_backward_input(input_direction):
 		return
 
+	_pending_conch_timer = 0.0
 	_pending_surface_jump = false
 	if vertical_burst_axis != 0.0:
 		_burst_direction = _get_facing_vertical_burst_direction(vertical_burst_axis)
@@ -257,6 +297,7 @@ func _try_begin_action_a(input_direction: Vector2) -> void:
 	_frame_time = 0.0
 	_set_visual_rotation(_get_burst_sprite_rotation())
 	_set_frame(_get_burst_frames(), _frame_index)
+	_stop_swim_audio()
 
 
 func _update_burst(delta: float) -> void:
@@ -270,17 +311,20 @@ func _update_burst(delta: float) -> void:
 	if _is_burst_launch_frame(frame_index, burst_frames.size()):
 		_player_velocity = _burst_direction * _tuning.burst_speed
 		if not _burst_tail_has_played:
-			_tail_bubble_burst.play_at_tail(_facing_left, _visual_rotation)
+			_tail_bubble_burst.play_at_tail(_facing_left, _visual_rotation, _tuning.tail_burst_action_size_multiplier)
+			_play_speed_audio()
+			_trigger_camera_shake(_tuning.burst_camera_shake_strength, _tuning.burst_camera_shake_duration)
 			_burst_tail_has_played = true
 	else:
 		_player_velocity = _player_velocity.move_toward(Vector2.ZERO, _tuning.brake_deceleration * delta)
 
-	_update_tail_burst(delta, true)
 	if _burst_elapsed >= _burst_total_duration:
 		_burst_total_duration = 0.0
 		_burst_elapsed = 0.0
 		_pending_surface_jump = false
 		_set_visual_rotation(0.0)
+		_stop_speed_audio()
+		_reset_tail_burst_timer()
 
 
 func _update_burst_charge_recovery(delta: float) -> void:
@@ -295,9 +339,98 @@ func _update_burst_charge_recovery(delta: float) -> void:
 		_burst_charge_recovery_remaining = _tuning.burst_charge_recovery
 
 
+func _handle_conch_pressed(input_direction: Vector2) -> void:
+	if _is_using_conch or _burst_total_duration > 0.0 or _jump_total_duration > 0.0:
+		return
+	if _pending_conch_timer > 0.0 and _can_begin_tail_flip():
+		_pending_conch_timer = 0.0
+		_begin_tail_flip()
+		return
+	if _conch_cooldown_remaining > 0.0:
+		return
+	_pending_conch_direction = _get_conch_direction(input_direction)
+	_pending_conch_timer = DOUBLE_CONCH_TAP_WINDOW
+
+
+func _update_pending_conch(delta: float) -> void:
+	if _pending_conch_timer <= 0.0:
+		return
+	_pending_conch_timer = maxf(0.0, _pending_conch_timer - delta)
+	if _pending_conch_timer > 0.0:
+		return
+	if _conch_cooldown_remaining <= 0.0 and not _is_using_conch and _tail_flip_total_duration <= 0.0:
+		_begin_conch(_pending_conch_direction)
+
+
+func _can_begin_tail_flip() -> bool:
+	return _tail_flip_cooldown_remaining <= 0.0 and _tail_flip_total_duration <= 0.0
+
+
+func _begin_tail_flip() -> void:
+	_tail_flip_direction = Vector2.LEFT if _facing_left else Vector2.RIGHT
+	_tail_flip_total_duration = _get_tail_flip_total_duration()
+	_tail_flip_elapsed = 0.0
+	_tail_flip_cooldown_remaining = _tuning.tail_flip_cooldown
+	_tail_flip_tail_has_played = false
+	_player_velocity = Vector2.ZERO
+	_animation_mode = &"tail_flip"
+	_frame_index = 0
+	_frame_time = 0.0
+	_set_visual_rotation(0.0)
+	_set_frame(_get_tail_flip_frames(), _frame_index)
+	_stop_swim_audio()
+
+
+func _update_tail_flip(delta: float) -> void:
+	var flip_frames: Array[Texture2D] = _get_tail_flip_frames()
+	_tail_flip_elapsed = minf(_tail_flip_total_duration, _tail_flip_elapsed + delta)
+	var frame_index: int = _get_tail_flip_frame_index(flip_frames.size())
+	_frame_index = frame_index
+	_set_frame(flip_frames, frame_index)
+
+	if _is_tail_flip_launch_frame(frame_index, flip_frames.size()):
+		_player_velocity = _tail_flip_direction * _tuning.tail_flip_speed
+		if not _tail_flip_tail_has_played:
+			_tail_bubble_burst.play_at_tail(_facing_left, 0.0, _tuning.tail_burst_action_size_multiplier)
+			_play_speed_audio()
+			_trigger_camera_shake(_tuning.tail_flip_camera_shake_strength, _tuning.tail_flip_camera_shake_duration)
+			_tail_flip_tail_has_played = true
+	else:
+		_player_velocity = _player_velocity.move_toward(Vector2.ZERO, _tuning.brake_deceleration * delta)
+
+	if _tail_flip_elapsed >= _tail_flip_total_duration:
+		_tail_flip_elapsed = 0.0
+		_tail_flip_total_duration = 0.0
+		_stop_speed_audio()
+		_reset_tail_burst_timer()
+		_show_idle_frame()
+
+
 func _update_brake(delta: float) -> void:
 	_player_velocity = _player_velocity.move_toward(Vector2.ZERO, _tuning.brake_deceleration * delta)
-	_show_idle_frame()
+	_stop_movement_audio()
+	_update_stop_animation(delta)
+
+
+func _update_stop_animation(delta: float) -> void:
+	if _stop_frames.is_empty():
+		_show_idle_frame()
+		return
+	if _animation_mode != &"stop":
+		_animation_mode = &"stop"
+		_frame_index = 0
+		_frame_time = 0.0
+		_set_visual_rotation(0.0)
+		_set_frame(_stop_frames, _frame_index)
+		return
+	if _frame_index >= _stop_frames.size() - 1:
+		return
+	_frame_time += delta
+	if _frame_time < _tuning.conch_frame_duration:
+		return
+	_frame_time = 0.0
+	_frame_index += 1
+	_set_frame(_stop_frames, _frame_index)
 
 
 func _update_swim(input_direction: Vector2, delta: float) -> void:
@@ -306,24 +439,30 @@ func _update_swim(input_direction: Vector2, delta: float) -> void:
 		_facing_left = input_direction.x < 0.0
 	_set_visual_rotation(0.0)
 	_update_animation(_swim_frames, _tuning.swim_frame_duration, &"swim", delta)
-	_update_tail_burst(delta, true)
+	_update_tail_burst(delta)
+	_play_swim_audio()
 
 
 func _update_idle(delta: float) -> void:
 	_player_velocity = _player_velocity.move_toward(Vector2.ZERO, _tuning.idle_momentum_deceleration * delta)
+	_stop_movement_audio()
 	_show_idle_frame()
 
 
-func _begin_conch() -> void:
+func _begin_conch(direction: Vector2) -> void:
 	_is_using_conch = true
+	_current_conch_direction = direction.normalized()
 	_conch_cooldown_remaining = _tuning.normal_conch_cooldown
 	_player_velocity = _player_velocity.move_toward(Vector2.ZERO, _tuning.brake_deceleration * 0.08)
 	_animation_mode = &"conch"
 	_frame_index = 0
 	_frame_time = 0.0
-	_set_visual_rotation(0.0)
+	_set_visual_rotation(_get_conch_sprite_rotation(_current_conch_direction))
 	_set_frame(_conch_frames, _frame_index)
-	normal_conch_used.emit(global_position, _facing_left)
+	_stop_movement_audio()
+	_play_conch_audio()
+	_trigger_camera_shake(_tuning.conch_camera_shake_strength, _tuning.conch_camera_shake_duration)
+	normal_conch_used.emit(global_position, _current_conch_direction)
 
 
 func _update_conch(delta: float) -> void:
@@ -389,6 +528,15 @@ func _get_facing_vertical_burst_direction(vertical_axis: float) -> Vector2:
 	return Vector2(facing_axis * cos(angle_radians), vertical_axis * sin(angle_radians)).normalized()
 
 
+func _get_conch_direction(input_direction: Vector2) -> Vector2:
+	var vertical_axis: float = _get_vertical_burst_axis(input_direction)
+	var facing_axis: float = -1.0 if _facing_left else 1.0
+	if vertical_axis == 0.0:
+		return Vector2(facing_axis, 0.0)
+	var angle_radians: float = deg_to_rad(CONCH_DIRECTION_ANGLE_DEGREES)
+	return Vector2(facing_axis * cos(angle_radians), vertical_axis * sin(angle_radians)).normalized()
+
+
 func _get_burst_sprite_rotation() -> float:
 	if absf(_burst_direction.y) < 0.01:
 		return 0.0
@@ -397,14 +545,34 @@ func _get_burst_sprite_rotation() -> float:
 	return vertical_axis * facing_axis * deg_to_rad(_tuning.vertical_burst_angle_degrees)
 
 
+func _get_conch_sprite_rotation(direction: Vector2) -> float:
+	if absf(direction.y) < 0.01:
+		return 0.0
+	var vertical_axis: float = -1.0 if direction.y < 0.0 else 1.0
+	var facing_axis: float = -1.0 if _facing_left else 1.0
+	return vertical_axis * facing_axis * deg_to_rad(CONCH_DIRECTION_ANGLE_DEGREES)
+
+
 func _get_burst_frames() -> Array[Texture2D]:
 	return _speed_frames if not _speed_frames.is_empty() else _swim_frames
+
+
+func _get_tail_flip_frames() -> Array[Texture2D]:
+	if not _tail_flip_frames.is_empty():
+		return _tail_flip_frames
+	return _get_burst_frames()
 
 
 func _get_burst_total_duration() -> float:
 	var frame_duration: float = maxf(0.02, _tuning.speed_frame_duration)
 	var animation_duration: float = float(maxi(1, _get_burst_frames().size())) * frame_duration
 	return maxf(_tuning.burst_duration, animation_duration)
+
+
+func _get_tail_flip_total_duration() -> float:
+	var frame_duration: float = maxf(0.02, _tuning.tail_flip_frame_duration)
+	var animation_duration: float = float(maxi(1, _get_tail_flip_frames().size())) * frame_duration
+	return maxf(_tuning.tail_flip_duration, animation_duration)
 
 
 func _get_burst_frame_index(frame_count: int) -> int:
@@ -414,8 +582,20 @@ func _get_burst_frame_index(frame_count: int) -> int:
 	return clampi(floori(_burst_elapsed / frame_duration), 0, frame_count - 1)
 
 
+func _get_tail_flip_frame_index(frame_count: int) -> int:
+	if frame_count <= 1:
+		return 0
+	var frame_duration: float = maxf(0.02, _tuning.tail_flip_frame_duration)
+	return clampi(floori(_tail_flip_elapsed / frame_duration), 0, frame_count - 1)
+
+
 func _is_burst_launch_frame(frame_index: int, frame_count: int) -> bool:
 	var preparation_frame_count: int = mini(BURST_PREPARATION_FRAME_COUNT, maxi(0, frame_count - 1))
+	return frame_index >= preparation_frame_count
+
+
+func _is_tail_flip_launch_frame(frame_index: int, frame_count: int) -> bool:
+	var preparation_frame_count: int = mini(TAIL_FLIP_PREPARATION_FRAME_COUNT, maxi(0, frame_count - 1))
 	return frame_index >= preparation_frame_count
 
 
@@ -423,9 +603,7 @@ func _get_max_burst_charges() -> int:
 	return maxi(1, roundi(_tuning.burst_max_charges))
 
 
-func _update_tail_burst(delta: float, is_swimming: bool) -> void:
-	if not is_swimming:
-		return
+func _update_tail_burst(delta: float) -> void:
 	_tail_burst_remaining -= delta
 	if _tail_burst_remaining > 0.0:
 		return
@@ -468,6 +646,10 @@ func _get_active_frames() -> Array[Texture2D]:
 			return _conch_frames
 		&"speed":
 			return _get_burst_frames()
+		&"tail_flip":
+			return _get_tail_flip_frames()
+		&"stop":
+			return _stop_frames if not _stop_frames.is_empty() else _swim_frames
 		&"jump":
 			return _jump_frames if not _jump_frames.is_empty() else _get_burst_frames()
 		_:
@@ -513,11 +695,10 @@ func _apply_collision_shape() -> void:
 
 func _apply_shadow_style() -> void:
 	_shadow.position = Vector2(_tuning.hylas_shadow_offset_x, _tuning.hylas_shadow_offset_y)
-	_shadow.modulate = Color.WHITE
 	_shadow.visible = _tuning.hylas_shadow_opacity > 0.0
 	if _shadow_material == null:
 		return
-	_shadow_material.set_shader_parameter(&"shadow_tint", Color(0.01, 0.06, 0.11, _tuning.hylas_shadow_opacity))
+	_shadow_material.set_shader_parameter(&"shadow_tint", Color(0.005, 0.04, 0.12, _tuning.hylas_shadow_opacity))
 	_shadow_material.set_shader_parameter(&"blur_radius", _tuning.hylas_shadow_blur_radius)
 
 
@@ -527,6 +708,73 @@ func _create_shadow_material() -> ShaderMaterial:
 	var shader_material: ShaderMaterial = ShaderMaterial.new()
 	shader_material.shader = shader
 	return shader_material
+
+
+func _trigger_camera_shake(strength: float, duration: float) -> void:
+	if strength <= 0.0 or duration <= 0.0:
+		return
+	_camera_shake_strength = maxf(_camera_shake_strength, strength)
+	_camera_shake_duration = maxf(_camera_shake_duration, duration)
+	_camera_shake_remaining = maxf(_camera_shake_remaining, duration)
+
+
+func _update_camera_shake(delta: float) -> void:
+	if _camera_shake_remaining <= 0.0:
+		_camera.offset = _camera_rest_offset
+		return
+	_camera_shake_remaining = maxf(0.0, _camera_shake_remaining - delta)
+	var remaining_ratio: float = _camera_shake_remaining / maxf(0.001, _camera_shake_duration)
+	var amplitude: float = _camera_shake_strength * remaining_ratio
+	_camera.offset = _camera_rest_offset + Vector2(
+		_random.randf_range(-amplitude, amplitude),
+		_random.randf_range(-amplitude, amplitude),
+	)
+	if _camera_shake_remaining <= 0.0:
+		_camera.offset = _camera_rest_offset
+		_camera_shake_strength = 0.0
+		_camera_shake_duration = 0.0
+
+
+func _configure_audio() -> void:
+	_swim_audio.stream = PrototypeAssets.load_audio(PrototypeAssets.SWIM_SOUND_CANDIDATES)
+	_speed_audio.stream = PrototypeAssets.load_audio(PrototypeAssets.SPEED_SOUND_CANDIDATES)
+	_conch_audio.stream = PrototypeAssets.load_audio(PrototypeAssets.CONCH_SOUND_CANDIDATES)
+	PrototypeAssets.set_audio_looping(_swim_audio.stream)
+	PrototypeAssets.set_audio_looping(_speed_audio.stream)
+
+
+func _play_swim_audio() -> void:
+	_stop_speed_audio()
+	if _swim_audio.stream != null and not _swim_audio.playing:
+		_swim_audio.play()
+
+
+func _play_speed_audio() -> void:
+	_stop_swim_audio()
+	if _speed_audio.stream != null and not _speed_audio.playing:
+		_speed_audio.play()
+
+
+func _play_conch_audio() -> void:
+	if _conch_audio.stream == null:
+		return
+	_conch_audio.stop()
+	_conch_audio.play()
+
+
+func _stop_swim_audio() -> void:
+	if _swim_audio.playing:
+		_swim_audio.stop()
+
+
+func _stop_speed_audio() -> void:
+	if _speed_audio.playing:
+		_speed_audio.stop()
+
+
+func _stop_movement_audio() -> void:
+	_stop_swim_audio()
+	_stop_speed_audio()
 
 
 func _clamp_to_world(position_to_clamp: Vector2) -> Vector2:
@@ -551,9 +799,10 @@ func _begin_surface_jump() -> void:
 	_burst_total_duration = 0.0
 	_burst_elapsed = 0.0
 	_is_using_conch = false
+	_pending_conch_timer = 0.0
 	_player_velocity = Vector2.ZERO
 	_jump_elapsed = 0.0
-	_jump_total_duration = maxf(0.20, _tuning.jump_frame_duration * float(maxi(1, _jump_frames.size())))
+	_jump_total_duration = maxf(0.20, _tuning.jump_frame_duration * float(JUMP_FRAME_SEQUENCE.size()))
 	_jump_start_position = Vector2(global_position.x, _surface_waterline_y)
 	var facing_sign: float = -1.0 if _facing_left else 1.0
 	_jump_end_position = Vector2(
@@ -566,6 +815,7 @@ func _begin_surface_jump() -> void:
 	_frame_time = 0.0
 	_set_visual_rotation(0.0)
 	global_position = _jump_start_position
+	_stop_movement_audio()
 	surface_splash_requested.emit(_jump_start_position)
 	_set_frame(_get_active_frames(), _frame_index)
 
@@ -578,9 +828,7 @@ func _update_jump(delta: float) -> void:
 	var base_position: Vector2 = _jump_start_position.lerp(_jump_end_position, t)
 	var arc_offset: float = sin(t * PI) * _tuning.jump_arc_height
 	global_position = Vector2(base_position.x, base_position.y - arc_offset)
-	var frame_index: int = 0
-	if frames.size() > 1:
-		frame_index = clampi(floori(t * float(frames.size())), 0, frames.size() - 1)
+	var frame_index: int = _get_jump_frame_index(frames.size(), t)
 	_frame_index = frame_index
 	_set_frame(frames, frame_index)
 
@@ -594,3 +842,10 @@ func _update_jump(delta: float) -> void:
 		_jump_total_duration = 0.0
 		_show_idle_frame()
 		global_position = _clamp_to_world(global_position)
+
+
+func _get_jump_frame_index(frame_count: int, progress: float) -> int:
+	if frame_count <= 1:
+		return 0
+	var held_index: int = clampi(floori(progress * float(JUMP_FRAME_SEQUENCE.size())), 0, JUMP_FRAME_SEQUENCE.size() - 1)
+	return clampi(JUMP_FRAME_SEQUENCE[held_index], 0, frame_count - 1)
