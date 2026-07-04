@@ -1,5 +1,0 @@
-Copy this existing file here. Do not move or rename the original.
-
-- Sea of Pillars Calm.mp3
-
-The prototype runs without this file too; it only removes the music.

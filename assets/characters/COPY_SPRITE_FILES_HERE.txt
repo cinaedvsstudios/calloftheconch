@@ -1,6 +1,0 @@
-Copy runtime Hylas frames here:
-- hylas-swim_01.webp ... hylas-swim_07.webp
-- hylas-speed_01.webp ... hylas-speed_06.webp
-- hylas-conch1_01.webp ... hylas-conch1_06.webp
-
-The prototype finds each numbered PNG/WebP sequence automatically.
