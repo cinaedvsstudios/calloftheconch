@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/backgrounds/waterskybg.jpg" id="1_water_sky"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/waterbg.jpg" id="2_deep_water"]
@@ -6,6 +6,8 @@
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mountainoverlay01.webp" id="4_mountain_a"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/mountainoverlay03.webp" id="5_mountain_b"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/sandoverlay.webp" id="6_sand"]
+[ext_resource type="PackedScene" path="res://rebuild_v2/features/hylas_v2/hylas_v2.tscn" id="7_hylas"]
+[ext_resource type="AudioStream" path="res://assets/audio/underwater_ambience.mp3" id="8_ambience"]
 
 [node name="SeaOfPillarsV2" type="Node2D"]
 
@@ -114,4 +116,12 @@ position = Vector2(1280, 2060)
 
 [node name="Audio" type="Node2D" parent="."]
 
+[node name="UnderwaterAmbience" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("8_ambience")
+volume_db = -20.0
+
 [node name="EffectsLayer" type="Node2D" parent="."]
+
+[node name="HylasV2" parent="." instance=ExtResource("7_hylas")]
+position = Vector2(1280, 2520)
+z_index = 10
