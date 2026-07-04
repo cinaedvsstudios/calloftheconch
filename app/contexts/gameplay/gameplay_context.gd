@@ -95,8 +95,7 @@ func _on_debug_tuning_pressed() -> void:
 func _on_return_to_title_pressed() -> void:
 	deactivate()
 	menu_requested.emit()
-	var result: Error = get_tree().change_scene_to_file(TITLE_SCENE_PATH)
-	if result != OK:
+	if get_tree().change_scene_to_file(TITLE_SCENE_PATH) != OK:
 		push_error("Could not return to title scene: %s" % TITLE_SCENE_PATH)
 
 
