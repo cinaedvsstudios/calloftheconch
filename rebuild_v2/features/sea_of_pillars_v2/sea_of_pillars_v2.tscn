@@ -41,24 +41,6 @@ shader_parameter/strength = 0.55
 shader_parameter/fade_start = 0.5
 shader_parameter/fade_end = 1.0
 
-[sub_resource type="ConvexPolygonShape2D" id="MountainShape01"]
-points = PackedVector2Array(248, 4144, 552, 4040, 848, 3840, 1304, 3720, 1856, 3792, 2232, 4136, 2560, 4320, 0, 4320)
-
-[sub_resource type="ConvexPolygonShape2D" id="MountainShape02"]
-points = PackedVector2Array(4248, 3552, 3736, 3424, 3056, 3576, 2936, 3296, 3712, 2960, 3928, 2680, 4464, 3232, 4600, 3152, 4984, 3752, 4816, 4024, 5066, 4286, 2560, 4320, 2968, 4016, 3760, 3720, 4136, 3752)
-
-[sub_resource type="ConvexPolygonShape2D" id="MountainShape03"]
-points = PackedVector2Array(5220, 4280, 5358, 4090, 5862, 3852, 6314, 3674, 6937, 3753, 7353, 4129, 7680, 4320, 5120, 4320)
-
-[sub_resource type="RectangleShape2D" id="SandShape01"]
-size = Vector2(2556, 100)
-
-[sub_resource type="RectangleShape2D" id="SandShape02"]
-size = Vector2(2566, 91)
-
-[sub_resource type="RectangleShape2D" id="SandShape03"]
-size = Vector2(2555, 90)
-
 [node name="SeaOfPillarsV2" type="Node2D" unique_id=1981294601]
 script = ExtResource("1_controller")
 
@@ -475,14 +457,6 @@ texture = ExtResource("4_lower_parallax")
 centered = false
 metadata/_edit_lock_ = true
 
-[node name="LowerWaterParallax06" type="Sprite2D" parent="ParallaxLayer" unique_id=2059305614]
-material = SubResource("ShaderMaterial_13qdw")
-position = Vector2(0, 3312)
-scale = Vector2(1.1786373, 1.4917129)
-texture = ExtResource("4_lower_parallax")
-centered = false
-metadata/_edit_lock_ = true
-
 [node name="LowerWaterParallax04" type="Sprite2D" parent="ParallaxLayer" unique_id=804975970]
 material = SubResource("ShaderMaterial_65ai8")
 position = Vector2(10240, 3312)
@@ -492,7 +466,7 @@ centered = false
 
 [node name="LowerWaterParallax08" type="Sprite2D" parent="ParallaxLayer" unique_id=1228889540]
 material = SubResource("ShaderMaterial_4vdix")
-position = Vector2(15360, 3320.0002)
+position = Vector2(15360, 3322.0002)
 scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
@@ -537,21 +511,12 @@ texture = ExtResource("4_lower_parallax")
 centered = false
 metadata/_edit_lock_ = true
 
-[node name="LowerWaterParallax11" type="Sprite2D" parent="ParallaxLayer" unique_id=1985298683]
-material = SubResource("ShaderMaterial_13qdw")
-position = Vector2(0, 3312)
-scale = Vector2(1.1786373, 1.4917129)
-texture = ExtResource("4_lower_parallax")
-centered = false
-metadata/_edit_lock_ = true
-
 [node name="LowerWaterParallax12" type="Sprite2D" parent="ParallaxLayer" unique_id=1317835242]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(23040, 3312)
 scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
-metadata/_edit_lock_ = true
 
 [node name="LowerWaterParallax13" type="Sprite2D" parent="ParallaxLayer" unique_id=799307784]
 material = SubResource("ShaderMaterial_13qdw")
@@ -572,14 +537,6 @@ metadata/_edit_lock_ = true
 [node name="LowerWaterParallax15" type="Sprite2D" parent="ParallaxLayer" unique_id=2146640829]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(28160, 3312)
-scale = Vector2(1.1786373, 1.4917129)
-texture = ExtResource("4_lower_parallax")
-centered = false
-metadata/_edit_lock_ = true
-
-[node name="LowerWaterParallax16" type="Sprite2D" parent="ParallaxLayer" unique_id=574274983]
-material = SubResource("ShaderMaterial_13qdw")
-position = Vector2(0, 3312)
 scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
@@ -617,14 +574,6 @@ texture = ExtResource("4_lower_parallax")
 centered = false
 metadata/_edit_lock_ = true
 
-[node name="LowerWaterParallax21" type="Sprite2D" parent="ParallaxLayer" unique_id=543923159]
-material = SubResource("ShaderMaterial_13qdw")
-position = Vector2(0, 3312)
-scale = Vector2(1.1786373, 1.4917129)
-texture = ExtResource("4_lower_parallax")
-centered = false
-metadata/_edit_lock_ = true
-
 [node name="LowerWaterParallax22" type="Sprite2D" parent="ParallaxLayer" unique_id=708677595]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(43520, 3312)
@@ -652,14 +601,6 @@ metadata/_edit_lock_ = true
 [node name="LowerWaterParallax25" type="Sprite2D" parent="ParallaxLayer" unique_id=938050093]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(48640, 3312)
-scale = Vector2(1.1786373, 1.4917129)
-texture = ExtResource("4_lower_parallax")
-centered = false
-metadata/_edit_lock_ = true
-
-[node name="LowerWaterParallax26" type="Sprite2D" parent="ParallaxLayer" unique_id=10968156]
-material = SubResource("ShaderMaterial_13qdw")
-position = Vector2(0, 3312)
 scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
@@ -724,14 +665,6 @@ metadata/_edit_lock_ = true
 [node name="LowerWaterParallax34" type="Sprite2D" parent="ParallaxLayer" unique_id=1479054198]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(69120, 3312)
-scale = Vector2(1.1786373, 1.4917129)
-texture = ExtResource("4_lower_parallax")
-centered = false
-metadata/_edit_lock_ = true
-
-[node name="LowerWaterParallax35" type="Sprite2D" parent="ParallaxLayer" unique_id=1904924281]
-material = SubResource("ShaderMaterial_13qdw")
-position = Vector2(0, 3312)
 scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
@@ -813,14 +746,6 @@ texture = ExtResource("7_sand")
 centered = false
 metadata/_edit_lock_ = true
 
-[node name="SandOverlay06" type="Sprite2D" parent="TerrainArtLayer" unique_id=475430536]
-z_index = 20
-position = Vector2(0, 1893)
-scale = Vector2(1.5311005, 1.0028)
-texture = ExtResource("7_sand")
-centered = false
-metadata/_edit_lock_ = true
-
 [node name="SandOverlay08" type="Sprite2D" parent="TerrainArtLayer" unique_id=1417868239]
 z_index = 20
 position = Vector2(15360.001, 1893.0001)
@@ -840,14 +765,6 @@ metadata/_edit_lock_ = true
 [node name="SandOverlay10" type="Sprite2D" parent="TerrainArtLayer" unique_id=999240041]
 z_index = 20
 position = Vector2(17920.002, 1893)
-scale = Vector2(1.5311005, 1.0028)
-texture = ExtResource("7_sand")
-centered = false
-metadata/_edit_lock_ = true
-
-[node name="SandOverlay11" type="Sprite2D" parent="TerrainArtLayer" unique_id=844057776]
-z_index = 20
-position = Vector2(0, 1893)
 scale = Vector2(1.5311005, 1.0028)
 texture = ExtResource("7_sand")
 centered = false
@@ -885,14 +802,6 @@ texture = ExtResource("7_sand")
 centered = false
 metadata/_edit_lock_ = true
 
-[node name="SandOverlay16" type="Sprite2D" parent="TerrainArtLayer" unique_id=901301004]
-z_index = 20
-position = Vector2(0, 1893)
-scale = Vector2(1.5311005, 1.0028)
-texture = ExtResource("7_sand")
-centered = false
-metadata/_edit_lock_ = true
-
 [node name="SandOverlay17" type="Sprite2D" parent="TerrainArtLayer" unique_id=667023600]
 z_index = 20
 position = Vector2(33280.004, 1893)
@@ -925,14 +834,6 @@ texture = ExtResource("7_sand")
 centered = false
 metadata/_edit_lock_ = true
 
-[node name="SandOverlay21" type="Sprite2D" parent="TerrainArtLayer" unique_id=1832174103]
-z_index = 20
-position = Vector2(0, 1893)
-scale = Vector2(1.5311005, 1.0028)
-texture = ExtResource("7_sand")
-centered = false
-metadata/_edit_lock_ = true
-
 [node name="SandOverlay22" type="Sprite2D" parent="TerrainArtLayer" unique_id=2018143894]
 z_index = 20
 position = Vector2(43520.004, 1893)
@@ -960,14 +861,6 @@ metadata/_edit_lock_ = true
 [node name="SandOverlay25" type="Sprite2D" parent="TerrainArtLayer" unique_id=35259453]
 z_index = 20
 position = Vector2(48640.008, 1893)
-scale = Vector2(1.5311005, 1.0028)
-texture = ExtResource("7_sand")
-centered = false
-metadata/_edit_lock_ = true
-
-[node name="SandOverlay26" type="Sprite2D" parent="TerrainArtLayer" unique_id=2139268343]
-z_index = 20
-position = Vector2(0, 1893)
 scale = Vector2(1.5311005, 1.0028)
 texture = ExtResource("7_sand")
 centered = false
@@ -1037,14 +930,6 @@ texture = ExtResource("7_sand")
 centered = false
 metadata/_edit_lock_ = true
 
-[node name="SandOverlay35" type="Sprite2D" parent="TerrainArtLayer" unique_id=248186689]
-z_index = 20
-position = Vector2(0, 1893)
-scale = Vector2(1.5311005, 1.0028)
-texture = ExtResource("7_sand")
-centered = false
-metadata/_edit_lock_ = true
-
 [node name="SandOverlay36" type="Sprite2D" parent="TerrainArtLayer" unique_id=279408879]
 z_index = 20
 position = Vector2(74240.01, 1893)
@@ -1062,53 +947,6 @@ centered = false
 metadata/_edit_lock_ = true
 
 [node name="TerrainCollisionLayer" type="Node2D" parent="." unique_id=2073464158]
-
-[node name="MountainCollision01" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=1826481702]
-
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision01" unique_id=1473689322]
-shape = SubResource("MountainShape01")
-
-[node name="MountainCollision02" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=602038845]
-
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision02" unique_id=1774193903]
-shape = SubResource("MountainShape02")
-metadata/_edit_lock_ = true
-
-[node name="MountainCollision03" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=2116730756]
-
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision03" unique_id=1918170989]
-shape = SubResource("MountainShape03")
-
-[node name="SandCollision01" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=29770953]
-position = Vector2(1280, 4225)
-
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision01" unique_id=282752368]
-position = Vector2(-2, 119)
-shape = SubResource("SandShape01")
-
-[node name="SandCollision02" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=1143078279]
-position = Vector2(3840, 4225)
-
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision02" unique_id=406249969]
-position = Vector2(424, 103)
-shape = SubResource("SandShape02")
-
-[node name="SandCollision03" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=1217244897]
-position = Vector2(6400, 4225)
-
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision03" unique_id=498475454]
-position = Vector2(0, 114)
-shape = SubResource("SandShape03")
-
-[node name="SandCollision04" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=1919434240]
-position = Vector2(14080, 4225)
-
-[node name="SandCollision05" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=91044709]
-position = Vector2(16640, 4225)
-
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision05" unique_id=1570199459]
-position = Vector2(0, 114)
-shape = SubResource("SandShape03")
 
 [node name="ObjectsLayer" type="Node2D" parent="." unique_id=1657635660]
 
