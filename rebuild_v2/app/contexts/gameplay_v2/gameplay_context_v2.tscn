@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v2/app/contexts/gameplay_v2/gameplay_context_v2.gd" id="1"]
+
+[node name="GameplayContextV2" type="Node"]
+script = ExtResource("1")
