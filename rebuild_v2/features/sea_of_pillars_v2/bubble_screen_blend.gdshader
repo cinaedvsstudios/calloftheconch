@@ -1,11 +1,14 @@
 shader_type canvas_item;
-render_mode unshaded;
+render_mode unshaded, blend_add;
 
-uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_nearest;
+uniform float dark_cutoff : hint_range(0.0, 1.0) = 0.28;
+uniform float soft_edge : hint_range(0.001, 1.0) = 0.10;
+uniform float brightness : hint_range(0.0, 4.0) = 1.0;
 
 void fragment() {
 	vec4 video = texture(TEXTURE, UV) * COLOR;
-	vec3 scene = texture(screen_texture, SCREEN_UV).rgb;
-	vec3 screened = vec3(1.0) - (vec3(1.0) - scene) * (vec3(1.0) - video.rgb);
-	COLOR = vec4(screened, 1.0);
+	float light = max(video.r, max(video.g, video.b));
+	float mask = smoothstep(dark_cutoff, dark_cutoff + soft_edge, light);
+
+	COLOR = vec4(video.rgb * brightness, mask);
 }
