@@ -21,6 +21,7 @@ var _active: bool = false
 
 
 func _ready() -> void:
+	_underwater_ambience.process_mode = Node.PROCESS_MODE_ALWAYS
 	_add_ship_cavern_collision()
 	_hylas.normal_conch_used.connect(_on_hylas_normal_conch_used)
 	_hylas.surface_splash_requested.connect(_on_hylas_surface_splash_requested)
@@ -48,8 +49,7 @@ func activate() -> void:
 	configure_player()
 	_hylas.reset_to_start(_start_marker.global_position)
 	_hylas.set_play_enabled(true)
-	if auto_play_ambience and _underwater_ambience.stream != null and not _underwater_ambience.playing:
-		_underwater_ambience.play()
+	_play_underwater_ambience()
 	if auto_play_bubble_overlay and _bubble_overlay.stream != null:
 		_bubble_overlay.show()
 		_bubble_overlay.play()
@@ -64,6 +64,14 @@ func deactivate() -> void:
 	_conch_pulse.hide()
 	_surface_splash.hide()
 	hide()
+
+
+func _play_underwater_ambience() -> void:
+	if not auto_play_ambience or _underwater_ambience.stream == null:
+		return
+	_underwater_ambience.stream_paused = false
+	if not _underwater_ambience.playing:
+		_underwater_ambience.play()
 
 
 func _on_hylas_normal_conch_used(origin: Vector2, direction: Vector2) -> void:
