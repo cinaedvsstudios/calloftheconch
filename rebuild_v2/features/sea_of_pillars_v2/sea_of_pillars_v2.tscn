@@ -42,7 +42,6 @@ shader_parameter/fade_start = 0.5
 shader_parameter/fade_end = 1.0
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_qitmw"]
-blend_mode = 1
 
 [node name="SeaOfPillarsV2" type="Node2D" unique_id=1981294601]
 script = ExtResource("1_controller")
