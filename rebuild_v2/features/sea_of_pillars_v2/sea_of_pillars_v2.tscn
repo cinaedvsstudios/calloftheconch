@@ -41,6 +41,9 @@ shader_parameter/strength = 0.55
 shader_parameter/fade_start = 0.5
 shader_parameter/fade_end = 1.0
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_qitmw"]
+blend_mode = 1
+
 [node name="SeaOfPillarsV2" type="Node2D" unique_id=1981294601]
 script = ExtResource("1_controller")
 
@@ -1101,10 +1104,11 @@ stream = ExtResource("11_splash_video")
 script = ExtResource("10_splash_script")
 
 [node name="BubbleOverlayLayer" type="CanvasLayer" parent="." unique_id=1024688829]
-layer = 8
+layer = 999
 
 [node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleOverlayLayer" unique_id=1091427672]
 unique_name_in_owner = true
+material = SubResource("CanvasItemMaterial_qitmw")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
