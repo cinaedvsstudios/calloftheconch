@@ -1,8 +1,7 @@
 class_name SeaOfPillarsV2
 extends Node2D
 
-const SHIP_CAVERN_COLLISION_SCENE: PackedScene = preload("res://rebuild_v2/features/sea_of_pillars_v2/ship_cavern_collision.tscn")
-const BUBBLE_SCREEN_BLEND_SHADER: Shader = preload("res://rebuild_v2/features/sea_of_pillars_v2/bubble_screen_blend.gdshader")
+const SCREEN_VIDEO_PLAYER: Script = preload("res://rebuild_v2/shared/screen_video_player.gd")
 
 @export_category("Level")
 @export var auto_play_ambience: bool = true
@@ -13,6 +12,7 @@ const BUBBLE_SCREEN_BLEND_SHADER: Shader = preload("res://rebuild_v2/features/se
 @onready var _waterline_marker: Marker2D = %WaterlineMarker
 @onready var _world_top_left: Marker2D = %WorldTopLeft
 @onready var _world_bottom_right: Marker2D = %WorldBottomRight
+@onready var _world_bottom_right_extension: Marker2D = get_node_or_null("SpawnPoints/WorldBottomRight2") as Marker2D
 @onready var _underwater_ambience: AudioStreamPlayer = %UnderwaterAmbience
 @onready var _bubble_overlay: VideoStreamPlayer = %BubbleOverlay
 @onready var _conch_pulse: ConchPulseV2 = %ConchPulseV2
@@ -23,8 +23,8 @@ var _active: bool = false
 
 func _ready() -> void:
 	_underwater_ambience.process_mode = Node.PROCESS_MODE_ALWAYS
+	_remove_duplicate_lower_water_parallax()
 	_configure_bubble_overlay()
-	_add_ship_cavern_collision()
 	_hylas.normal_conch_used.connect(_on_hylas_normal_conch_used)
 	_hylas.surface_splash_requested.connect(_on_hylas_surface_splash_requested)
 	_set_audio_stream_looping(_underwater_ambience)
@@ -33,22 +33,37 @@ func _ready() -> void:
 
 
 func _configure_bubble_overlay() -> void:
-	var screen_material: ShaderMaterial = ShaderMaterial.new()
-	screen_material.shader = BUBBLE_SCREEN_BLEND_SHADER
-	_bubble_overlay.material = screen_material
-	_bubble_overlay.loop = true
-	_bubble_overlay.expand = true
-	_bubble_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	SCREEN_VIDEO_PLAYER.configure_effect(_bubble_overlay, true)
 
 
-func _add_ship_cavern_collision() -> void:
-	var ship_cavern_collision: Node2D = SHIP_CAVERN_COLLISION_SCENE.instantiate() as Node2D
-	add_child(ship_cavern_collision)
+func _remove_duplicate_lower_water_parallax() -> void:
+	var parallax_layer: Node2D = get_node_or_null("ParallaxLayer") as Node2D
+	if parallax_layer == null:
+		return
+
+	var occupied_positions: Dictionary = {}
+	for child: Node in parallax_layer.get_children():
+		var sprite: Sprite2D = child as Sprite2D
+		if sprite == null or not String(sprite.name).begins_with("LowerWaterParallax"):
+			continue
+
+		var position_key: Vector2i = Vector2i(roundi(sprite.position.x), roundi(sprite.position.y))
+		if occupied_positions.has(position_key):
+			sprite.hide()
+		else:
+			occupied_positions[position_key] = true
 
 
 func configure_player() -> void:
 	var top_left: Vector2 = _world_top_left.global_position
 	var bottom_right: Vector2 = _world_bottom_right.global_position
+	if _world_bottom_right_extension != null:
+		var extension_position: Vector2 = _world_bottom_right_extension.global_position
+		bottom_right = Vector2(
+			maxf(bottom_right.x, extension_position.x),
+			maxf(bottom_right.y, extension_position.y),
+		)
+
 	var world_bounds: Rect2 = Rect2(top_left, bottom_right - top_left)
 	_hylas.configure_world(world_bounds, _waterline_marker.global_position.y, _start_marker.global_position)
 
