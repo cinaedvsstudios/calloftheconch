@@ -9,6 +9,7 @@ signal menu_requested
 @onready var _pause_overlay: PauseOverlayV2 = %PauseOverlay
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	_pause_overlay.menu_requested.connect(_on_pause_menu_requested)
 
 func activate() -> void:
@@ -17,6 +18,7 @@ func activate() -> void:
 	_gameplay_music.play()
 
 func deactivate() -> void:
+	get_tree().paused = false
 	_gameplay_ui.visible = false
 	_gameplay_music.stop()
 	_level.deactivate()
