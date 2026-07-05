@@ -8,21 +8,17 @@ signal menu_requested
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_resume_button.pressed.connect(_resume)
+	_resume_button.pressed.connect(close_overlay)
 	_menu_button.pressed.connect(_menu)
 	hide()
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed(&"pause"):
-		visible = not visible
-		get_tree().paused = visible
-		get_viewport().set_input_as_handled()
+func open_overlay() -> void:
+	show()
+	_resume_button.grab_focus()
 
-func _resume() -> void:
-	get_tree().paused = false
+func close_overlay() -> void:
 	hide()
 
 func _menu() -> void:
-	get_tree().paused = false
 	hide()
 	menu_requested.emit()
