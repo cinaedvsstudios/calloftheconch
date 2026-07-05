@@ -8,21 +8,38 @@
 [ext_resource type="Texture2D" uid="uid://cebhhicckj285" path="res://assets/backgrounds/mountainoverlay01.webp" id="5_mountain_a"]
 [ext_resource type="Shader" uid="uid://c7ehqrsmjmdr" path="res://rebuild_v2/features/sea_of_pillars_v2/lower_water_multiply.gdshader" id="5_qtevd"]
 [ext_resource type="Texture2D" uid="uid://bnh8y5pk6qa0j" path="res://assets/backgrounds/mountainoverlay03.webp" id="6_mountain_b"]
+[ext_resource type="Shader" uid="uid://cdt8duh1t2nq3" path="res://lower_water_fade_left.gdshader" id="7_qtevd"]
 [ext_resource type="Texture2D" uid="uid://dejgtuv4d265x" path="res://assets/backgrounds/sandoverlay.webp" id="7_sand"]
+[ext_resource type="Shader" uid="uid://dkacrtong4472" path="res://rebuild_v2/features/sea_of_pillars_v2/lower_water_fade_left.gdshader.gdshader" id="7_xfcpf"]
 [ext_resource type="PackedScene" path="res://rebuild_v2/features/hylas_v2/hylas_v2.tscn" id="8_hylas"]
 [ext_resource type="PackedScene" path="res://rebuild_v2/features/effects_v2/conch_pulse_v2.tscn" id="9_conch_pulse"]
 [ext_resource type="Script" uid="uid://cbg0rqalr8f2f" path="res://rebuild_v2/features/effects_v2/surface_splash_v2.gd" id="10_splash_script"]
 [ext_resource type="VideoStream" uid="uid://d3o33jkhljemp" path="res://assets/effects/bubble-explosion.ogv" id="11_splash_video"]
 [ext_resource type="VideoStream" uid="uid://buw0jv63vxw0i" path="res://assets/effects/bubble_riser_field.ogv" id="12_bubble_overlay"]
 [ext_resource type="AudioStream" uid="uid://b1ok5tlb5fqkw" path="res://assets/audio/underwater_ambience.mp3" id="13_ambience"]
+[ext_resource type="Texture2D" uid="uid://c3c10q6mvinl0" path="res://rebuild_v2/features/sea_of_pillars_v2/waterdeepbg2.jpg" id="18_65ai8"]
+[ext_resource type="Texture2D" uid="uid://de8kwicxeff17" path="res://rebuild_v2/features/sea_of_pillars_v2/ship1.webp" id="19_4vdix"]
+[ext_resource type="Texture2D" uid="uid://dhp4hr07wjkpg" path="res://rebuild_v2/features/sea_of_pillars_v2/mountainoverlay04.webp" id="20_w2na3"]
+[ext_resource type="Texture2D" uid="uid://35w6bpfsthyv" path="res://rebuild_v2/features/sea_of_pillars_v2/mountainoverlay05.webp" id="21_pg2vj"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_13qdw"]
 shader = ExtResource("5_qtevd")
-shader_parameter/fade_start = 0.5
-shader_parameter/fade_end = 1.0
 shader_parameter/strength = 0.55
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_xfcpf"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_65ai8"]
+shader = ExtResource("7_xfcpf")
+shader_parameter/strength = 0.55
+shader_parameter/fade_start = 0.5
+shader_parameter/fade_end = 1.0
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4lrlp"]
+load_path = "res://.godot/imported/waterbgparalax.webp-438d63c1ba2a97395929188d0cd7ed41.ctex"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4vdix"]
+shader = ExtResource("7_qtevd")
+shader_parameter/strength = 0.55
+shader_parameter/fade_start = 0.5
+shader_parameter/fade_end = 1.0
 
 [sub_resource type="ConvexPolygonShape2D" id="MountainShape01"]
 points = PackedVector2Array(248, 4144, 552, 4040, 848, 3840, 1304, 3720, 1856, 3792, 2232, 4136, 2560, 4320, 0, 4320)
@@ -467,14 +484,14 @@ centered = false
 metadata/_edit_lock_ = true
 
 [node name="LowerWaterParallax04" type="Sprite2D" parent="ParallaxLayer" unique_id=804975970]
-material = SubResource("ShaderMaterial_xfcpf")
+material = SubResource("ShaderMaterial_65ai8")
 position = Vector2(10240, 3312)
 scale = Vector2(1.1786373, 1.4917129)
-texture = ExtResource("4_lower_parallax")
+texture = SubResource("CompressedTexture2D_4lrlp")
 centered = false
 
 [node name="LowerWaterParallax08" type="Sprite2D" parent="ParallaxLayer" unique_id=1228889540]
-material = SubResource("ShaderMaterial_13qdw")
+material = SubResource("ShaderMaterial_4vdix")
 position = Vector2(15360, 3320.0002)
 scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
@@ -487,6 +504,30 @@ scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
 metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax38" type="Sprite2D" parent="ParallaxLayer" unique_id=552704257]
+z_index = 21
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(10248, 7544)
+scale = Vector2(1.1786373, 1.5911604)
+texture = ExtResource("4_lower_parallax")
+centered = false
+
+[node name="LowerWaterParallax39" type="Sprite2D" parent="ParallaxLayer" unique_id=1545873793]
+z_index = 21
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(12807.999, 7544)
+scale = Vector2(1.1786373, 1.5911604)
+texture = ExtResource("4_lower_parallax")
+centered = false
+
+[node name="LowerWaterParallax40" type="Sprite2D" parent="ParallaxLayer" unique_id=917587024]
+z_index = 21
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(15367.999, 7544)
+scale = Vector2(1.1786373, 1.5911604)
+texture = ExtResource("4_lower_parallax")
+centered = false
 
 [node name="LowerWaterParallax10" type="Sprite2D" parent="ParallaxLayer" unique_id=1787657763]
 material = SubResource("ShaderMaterial_13qdw")
@@ -1133,3 +1174,108 @@ stream = ExtResource("12_bubble_overlay")
 unique_name_in_owner = true
 z_index = 10
 position = Vector2(1280, 2520)
+
+[node name="Waterdeepbg2" type="Sprite2D" parent="." unique_id=835616659]
+position = Vector2(14080, 7560)
+texture = ExtResource("18_65ai8")
+
+[node name="Waterdeepbg3" type="Sprite2D" parent="." unique_id=1382861438]
+position = Vector2(11520, 7560)
+texture = ExtResource("18_65ai8")
+
+[node name="Waterdeepbg4" type="Sprite2D" parent="." unique_id=1270086258]
+position = Vector2(16640, 7560)
+texture = ExtResource("18_65ai8")
+
+[node name="Ship1" type="Sprite2D" parent="." unique_id=1084031204]
+position = Vector2(14048, 7615.9995)
+scale = Vector2(1.4466667, 1.6272142)
+texture = ExtResource("19_4vdix")
+
+[node name="Mountainoverlay04" type="Sprite2D" parent="." unique_id=1188748318]
+z_index = 20
+position = Vector2(12153.682, 4678.8237)
+rotation = 0.08552113
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay05" type="Sprite2D" parent="." unique_id=6055074]
+z_index = 20
+position = Vector2(13098.799, 5350.689)
+rotation = 1.2845623
+scale = Vector2(0.9026336, 1.0110809)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay06" type="Sprite2D" parent="." unique_id=665493576]
+z_index = 20
+position = Vector2(12583.999, 5959.9995)
+rotation = 3.0194197
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay07" type="Sprite2D" parent="." unique_id=1995805417]
+z_index = 21
+position = Vector2(10648, 6032.0005)
+rotation = 3.0194197
+scale = Vector2(1.2523407, 1.0527323)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay12" type="Sprite2D" parent="." unique_id=1374480810]
+z_index = 21
+position = Vector2(17152.002, 5368)
+rotation = -2.5062928
+scale = Vector2(1.592, 1.332)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay13" type="Sprite2D" parent="." unique_id=602894030]
+z_index = 20
+position = Vector2(10096.001, 5056.0005)
+rotation = -0.050614547
+scale = Vector2(1.592, 1.332)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay14" type="Sprite2D" parent="." unique_id=1380982366]
+z_index = 21
+position = Vector2(16736.002, 4416.0005)
+rotation = 0.22165681
+scale = Vector2(1.592, 1.332)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay08" type="Sprite2D" parent="." unique_id=1632480524]
+z_index = 19
+position = Vector2(10096.001, 7663.9995)
+rotation = 1.5707964
+scale = Vector2(1.2523407, 1.0527323)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay09" type="Sprite2D" parent="." unique_id=227197616]
+z_index = 20
+position = Vector2(15247.998, 4976)
+rotation = 4.7472954
+scale = Vector2(1.1869445, 0.87505066)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay10" type="Sprite2D" parent="." unique_id=1913390899]
+z_index = 20
+position = Vector2(16592.002, 6368)
+rotation = -2.9757864
+scale = Vector2(1.4478711, 0.89670765)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay11" type="Sprite2D" parent="." unique_id=995717088]
+z_index = 19
+position = Vector2(17664.951, 7744.2856)
+rotation = -1.5882496
+scale = Vector2(1.2523407, 1.0527323)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay15" type="Sprite2D" parent="." unique_id=21416593]
+position = Vector2(11640, 8616)
+texture = ExtResource("21_pg2vj")
+
+[node name="Mountainoverlay16" type="Sprite2D" parent="." unique_id=1536349815]
+position = Vector2(16248, 8616)
+texture = ExtResource("21_pg2vj")
+
+[node name="Mountainoverlay17" type="Sprite2D" parent="." unique_id=1078278286]
+position = Vector2(13944, 8616)
+scale = Vector2(1.2457627, 1)
+texture = ExtResource("21_pg2vj")
