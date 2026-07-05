@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v2/app/contexts/gameplay_v2/gameplay_context_v2.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v2/features/sea_of_pillars_v2/sea_of_pillars_v2.tscn" id="2_level"]
 [ext_resource type="AudioStream" path="res://assets/audio/Sea of Pillars Calm.mp3" id="3_music"]
 [ext_resource type="Script" path="res://rebuild_v2/app/contexts/gameplay_v2/pause_overlay_v2.gd" id="4_pause"]
+[ext_resource type="Script" path="res://rebuild_v2/shared/looping_audio_player_v2.gd" id="5_looping_audio"]
 
 [node name="GameplayContextV2" type="Node"]
 script = ExtResource("1_controller")
@@ -15,6 +16,7 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 stream = ExtResource("3_music")
 volume_db = -8.0
+script = ExtResource("5_looping_audio")
 
 [node name="GameplayUI" type="CanvasLayer" parent="."]
 layer = 20
