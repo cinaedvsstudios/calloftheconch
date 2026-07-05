@@ -6,7 +6,12 @@
 [ext_resource type="AudioStream" path="res://assets/audio/call of the conch music main theme.mp3" id="4_music"]
 [ext_resource type="Script" path="res://rebuild_v2/shared/looping_audio_player_v2.gd" id="5_looping_audio"]
 [ext_resource type="VideoStream" path="res://assets/effects/bubble_riser_field.ogv" id="6_bubbles"]
-[ext_resource type="Script" path="res://rebuild_v2/shared/screen_video_player.gd" id="7_screen_video"]
+[ext_resource type="Shader" path="res://rebuild_v2/features/sea_of_pillars_v2/bubble_screen_blend.gdshader" id="7_bubble_shader"]
+
+[sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
+shader = ExtResource("7_bubble_shader")
+shader_parameter/black_level = 0.55
+shader_parameter/brightness = 1.5
 
 [node name="MenuContextV2" type="Control"]
 layout_mode = 3
@@ -39,9 +44,6 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.01, 0.03, 0.10, 0.35)
 
-[node name="BubbleScreenBackBuffer" type="BackBufferCopy" parent="."]
-copy_mode = 2
-
 [node name="BubbleOverlay" type="VideoStreamPlayer" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
@@ -50,11 +52,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+material = SubResource("BubbleVideoMaterial")
 stream = ExtResource("6_bubbles")
 mouse_filter = 2
-script = ExtResource("7_screen_video")
-effect_loops = true
-start_on_ready = true
+autoplay = true
+loop = true
+expand = true
 
 [node name="Title" type="TextureRect" parent="."]
 layout_mode = 1

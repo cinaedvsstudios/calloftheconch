@@ -8,13 +8,18 @@
 [ext_resource type="AudioStream" path="res://assets/audio/speed_noise.mp3" id="6_burst_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/Super Conch_noise.mp3" id="7_conch_audio"]
 [ext_resource type="Script" path="res://rebuild_v2/shared/looping_audio_player_v2.gd" id="8_looping_audio"]
-[ext_resource type="Script" path="res://rebuild_v2/shared/screen_video_player.gd" id="9_screen_video"]
+[ext_resource type="Shader" path="res://rebuild_v2/features/sea_of_pillars_v2/bubble_screen_blend.gdshader" id="9_bubble_shader"]
 
 [sub_resource type="RectangleShape2D" id="HylasCollisionShape"]
 size = Vector2(123, 49)
 
 [sub_resource type="CircleShape2D" id="HylasInteractionShape"]
 radius = 120.0
+
+[sub_resource type="ShaderMaterial" id="TailBubbleMaterial"]
+shader = ExtResource("9_bubble_shader")
+shader_parameter/black_level = 0.55
+shader_parameter/brightness = 1.5
 
 [node name="HylasV2" type="CharacterBody2D"]
 script = ExtResource("1_controller")
@@ -50,13 +55,13 @@ position = Vector2(-120, 15)
 
 [node name="TailBubbleBurst" type="VideoStreamPlayer" parent="."]
 unique_name_in_owner = true
+material = SubResource("TailBubbleMaterial")
 stream = ExtResource("4_tail_bubbles")
 position = Vector2(-120, 15)
 scale = Vector2(0.55, 0.55)
 z_index = -1
 show_behind_parent = true
 mouse_filter = 2
-script = ExtResource("9_screen_video")
 
 [node name="SurfaceSplashAnchor" type="Marker2D" parent="."]
 unique_name_in_owner = true

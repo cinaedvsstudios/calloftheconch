@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://rebuild_v2/features/sea_of_pillars_v2/sea_of_pillars_v2.tscn" id="1_base_scene"]
+[ext_resource type="Shader" path="res://rebuild_v2/features/sea_of_pillars_v2/bubble_screen_blend.gdshader" id="2_bubble_shader"]
+
+[sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
+shader = ExtResource("2_bubble_shader")
+shader_parameter/black_level = 0.55
+shader_parameter/brightness = 1.5
+
+[node name="SeaOfPillarsV2" instance=ExtResource("1_base_scene")]
+
+[node name="WorldBottomRight2" parent="SpawnPoints" index="3"]
+position = Vector2(17920, 9000)
+
+[node name="SurfaceSplashV2" parent="EffectsLayer" index="1"]
+material = SubResource("BubbleVideoMaterial")
+
+[node name="BubbleOverlay" parent="BubbleOverlayLayer" index="0"]
+material = SubResource("BubbleVideoMaterial")
+autoplay = true
+loop = true
+expand = true

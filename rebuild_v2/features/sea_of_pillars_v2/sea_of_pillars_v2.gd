@@ -1,8 +1,6 @@
 class_name SeaOfPillarsV2
 extends Node2D
 
-const SHIP_SWIM_BOTTOM_Y: float = 9000.0
-
 @export_category("Level")
 @export var auto_play_ambience: bool = true
 @export var auto_play_bubble_overlay: bool = true
@@ -20,7 +18,6 @@ const SHIP_SWIM_BOTTOM_Y: float = 9000.0
 
 var _active: bool = false
 
-
 func _ready() -> void:
 	_underwater_ambience.process_mode = Node.PROCESS_MODE_ALWAYS
 	_hylas.normal_conch_used.connect(_on_hylas_normal_conch_used)
@@ -28,7 +25,6 @@ func _ready() -> void:
 	_set_audio_stream_looping(_underwater_ambience)
 	configure_player()
 	deactivate()
-
 
 func configure_player() -> void:
 	var top_left: Vector2 = _world_top_left.global_position
@@ -39,11 +35,8 @@ func configure_player() -> void:
 			maxf(bottom_right.x, extension_position.x),
 			maxf(bottom_right.y, extension_position.y),
 		)
-
-	bottom_right.y = maxf(bottom_right.y, SHIP_SWIM_BOTTOM_Y)
 	var world_bounds: Rect2 = Rect2(top_left, bottom_right - top_left)
 	_hylas.configure_world(world_bounds, _waterline_marker.global_position.y, _start_marker.global_position)
-
 
 func activate() -> void:
 	_active = true
@@ -56,7 +49,6 @@ func activate() -> void:
 		_bubble_overlay.show()
 		_bubble_overlay.play()
 
-
 func deactivate() -> void:
 	_active = false
 	_hylas.set_play_enabled(false)
@@ -67,7 +59,6 @@ func deactivate() -> void:
 	_surface_splash.hide()
 	hide()
 
-
 func _play_underwater_ambience() -> void:
 	if not auto_play_ambience or _underwater_ambience.stream == null:
 		return
@@ -75,16 +66,13 @@ func _play_underwater_ambience() -> void:
 	if not _underwater_ambience.playing:
 		_underwater_ambience.play()
 
-
 func _on_hylas_normal_conch_used(origin: Vector2, direction: Vector2) -> void:
 	if _active:
 		_conch_pulse.trigger(origin, direction)
 
-
 func _on_hylas_surface_splash_requested(origin: Vector2) -> void:
 	if _active:
 		_surface_splash.trigger(origin)
-
 
 func _set_audio_stream_looping(player: AudioStreamPlayer) -> void:
 	if player.stream is AudioStreamMP3:
