@@ -443,7 +443,7 @@ texture = ExtResource("4_4lrlp")
 [node name="ParallaxLayer" type="Node2D" parent="." unique_id=986835539]
 z_index = -20
 
-[node name="LowerWaterParallax01" type="Sprite2D" parent="ParallaxLayer" unique_id=1904924281]
+[node name="LowerWaterParallax01" type="Sprite2D" parent="ParallaxLayer" unique_id=2099463608]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(0, 3312)
 scale = Vector2(1.1786373, 1.4917129)
@@ -470,6 +470,14 @@ metadata/_edit_lock_ = true
 [node name="LowerWaterParallax05" type="Sprite2D" parent="ParallaxLayer" unique_id=1769215055]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(7680, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax06" type="Sprite2D" parent="ParallaxLayer" unique_id=2059305614]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
 scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
@@ -529,6 +537,14 @@ texture = ExtResource("4_lower_parallax")
 centered = false
 metadata/_edit_lock_ = true
 
+[node name="LowerWaterParallax11" type="Sprite2D" parent="ParallaxLayer" unique_id=1985298683]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
 [node name="LowerWaterParallax12" type="Sprite2D" parent="ParallaxLayer" unique_id=1317835242]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(23040, 3312)
@@ -556,6 +572,14 @@ metadata/_edit_lock_ = true
 [node name="LowerWaterParallax15" type="Sprite2D" parent="ParallaxLayer" unique_id=2146640829]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(28160, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax16" type="Sprite2D" parent="ParallaxLayer" unique_id=574274983]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
 scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
@@ -593,6 +617,14 @@ texture = ExtResource("4_lower_parallax")
 centered = false
 metadata/_edit_lock_ = true
 
+[node name="LowerWaterParallax21" type="Sprite2D" parent="ParallaxLayer" unique_id=543923159]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
 [node name="LowerWaterParallax22" type="Sprite2D" parent="ParallaxLayer" unique_id=708677595]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(43520, 3312)
@@ -620,6 +652,14 @@ metadata/_edit_lock_ = true
 [node name="LowerWaterParallax25" type="Sprite2D" parent="ParallaxLayer" unique_id=938050093]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(48640, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax26" type="Sprite2D" parent="ParallaxLayer" unique_id=10968156]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
 scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
@@ -689,6 +729,14 @@ texture = ExtResource("4_lower_parallax")
 centered = false
 metadata/_edit_lock_ = true
 
+[node name="LowerWaterParallax35" type="Sprite2D" parent="ParallaxLayer" unique_id=1904924281]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
 [node name="LowerWaterParallax36" type="Sprite2D" parent="ParallaxLayer" unique_id=1348870315]
 material = SubResource("ShaderMaterial_13qdw")
 position = Vector2(74240, 3312)
@@ -731,6 +779,7 @@ position = Vector2(0, 1893)
 scale = Vector2(1.5311005, 1.0028)
 texture = ExtResource("7_sand")
 centered = false
+metadata/_edit_lock_ = true
 
 [node name="SandOverlay02" type="Sprite2D" parent="TerrainArtLayer" unique_id=1025178088]
 z_index = 20
@@ -764,6 +813,14 @@ texture = ExtResource("7_sand")
 centered = false
 metadata/_edit_lock_ = true
 
+[node name="SandOverlay06" type="Sprite2D" parent="TerrainArtLayer" unique_id=475430536]
+z_index = 20
+position = Vector2(0, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
 [node name="SandOverlay08" type="Sprite2D" parent="TerrainArtLayer" unique_id=1417868239]
 z_index = 20
 position = Vector2(15360.001, 1893.0001)
@@ -783,6 +840,14 @@ metadata/_edit_lock_ = true
 [node name="SandOverlay10" type="Sprite2D" parent="TerrainArtLayer" unique_id=999240041]
 z_index = 20
 position = Vector2(17920.002, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay11" type="Sprite2D" parent="TerrainArtLayer" unique_id=844057776]
+z_index = 20
+position = Vector2(0, 1893)
 scale = Vector2(1.5311005, 1.0028)
 texture = ExtResource("7_sand")
 centered = false
@@ -820,6 +885,14 @@ texture = ExtResource("7_sand")
 centered = false
 metadata/_edit_lock_ = true
 
+[node name="SandOverlay16" type="Sprite2D" parent="TerrainArtLayer" unique_id=901301004]
+z_index = 20
+position = Vector2(0, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
 [node name="SandOverlay17" type="Sprite2D" parent="TerrainArtLayer" unique_id=667023600]
 z_index = 20
 position = Vector2(33280.004, 1893)
@@ -852,6 +925,14 @@ texture = ExtResource("7_sand")
 centered = false
 metadata/_edit_lock_ = true
 
+[node name="SandOverlay21" type="Sprite2D" parent="TerrainArtLayer" unique_id=1832174103]
+z_index = 20
+position = Vector2(0, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
 [node name="SandOverlay22" type="Sprite2D" parent="TerrainArtLayer" unique_id=2018143894]
 z_index = 20
 position = Vector2(43520.004, 1893)
@@ -879,6 +960,14 @@ metadata/_edit_lock_ = true
 [node name="SandOverlay25" type="Sprite2D" parent="TerrainArtLayer" unique_id=35259453]
 z_index = 20
 position = Vector2(48640.008, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay26" type="Sprite2D" parent="TerrainArtLayer" unique_id=2139268343]
+z_index = 20
+position = Vector2(0, 1893)
 scale = Vector2(1.5311005, 1.0028)
 texture = ExtResource("7_sand")
 centered = false
@@ -943,6 +1032,14 @@ metadata/_edit_lock_ = true
 [node name="SandOverlay34" type="Sprite2D" parent="TerrainArtLayer" unique_id=6598203]
 z_index = 20
 position = Vector2(69120.01, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay35" type="Sprite2D" parent="TerrainArtLayer" unique_id=248186689]
+z_index = 20
+position = Vector2(0, 1893)
 scale = Vector2(1.5311005, 1.0028)
 texture = ExtResource("7_sand")
 centered = false
