@@ -1,7 +1,7 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="PackedScene" path="res://rebuild_v2/features/sea_of_pillars_v2/sea_of_pillars_v2.tscn" id="1_sea_of_pillars"]
+[ext_resource type="PackedScene" path="res://rebuild_v2/features/sea_of_pillars_v2/sea_of_pillars_v2.tscn" id="1"]
 
 [node name="RebuildPreviewV2" type="Node2D"]
 
-[node name="SeaOfPillarsV2" parent="." instance=ExtResource("1_sea_of_pillars")]
+[node name="SeaOfPillarsV2" parent="." instance=ExtResource("1")]
