@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v2/app/contexts/gameplay_v2/gameplay_context_v2.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v2/features/sea_of_pillars_v2/sea_of_pillars_v2.tscn" id="2_level"]
 [ext_resource type="AudioStream" path="res://assets/audio/Sea of Pillars Calm.mp3" id="3_music"]
+[ext_resource type="Script" path="res://rebuild_v2/app/contexts/gameplay_v2/pause_overlay_v2.gd" id="4_pause"]
 
 [node name="GameplayContextV2" type="Node"]
 script = ExtResource("1_controller")
@@ -36,6 +37,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("4_pause")
 
 [node name="Backdrop" type="ColorRect" parent="GameplayUI/PauseOverlay"]
 layout_mode = 1
