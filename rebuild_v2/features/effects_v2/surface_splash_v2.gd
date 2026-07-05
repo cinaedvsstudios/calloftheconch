@@ -1,12 +1,15 @@
 class_name SurfaceSplashV2
 extends VideoStreamPlayer
 
+const SCREEN_VIDEO_PLAYER: Script = preload("res://rebuild_v2/shared/screen_video_player.gd")
+
 @export var display_duration: float = 0.42
 
 var _remaining: float = 0.0
 
 
 func _ready() -> void:
+	SCREEN_VIDEO_PLAYER.configure_effect(self, false)
 	hide()
 	set_process(false)
 
