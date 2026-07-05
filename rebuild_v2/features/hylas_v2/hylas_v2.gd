@@ -92,6 +92,9 @@ var _camera_shake_remaining: float = 0.0
 func _ready() -> void:
 	_camera_rest_offset = _camera.offset
 	_burst_charges = burst_max_charges
+	_swim_audio.process_mode = Node.PROCESS_MODE_ALWAYS
+	_burst_audio.process_mode = Node.PROCESS_MODE_ALWAYS
+	_conch_audio.process_mode = Node.PROCESS_MODE_ALWAYS
 	_apply_display_scale()
 	_set_animation(&"idle")
 	set_physics_process(false)
@@ -268,9 +271,7 @@ func _start_conch(direction: Vector2) -> void:
 	_set_visual_rotation(_direction_rotation(direction, conch_direction_angle_degrees))
 	_set_animation(&"conch")
 	_stop_movement_audio()
-	if _conch_audio.stream != null:
-		_conch_audio.stop()
-		_conch_audio.play()
+	_play_one_shot_audio(_conch_audio)
 	_trigger_camera_shake()
 	normal_conch_used.emit(global_position, direction)
 
@@ -399,6 +400,13 @@ func _play_burst_audio() -> void:
 		_swim_audio.stop()
 	if _burst_audio.stream != null and not _burst_audio.playing:
 		_burst_audio.play()
+
+
+func _play_one_shot_audio(player: AudioStreamPlayer) -> void:
+	if player.stream == null:
+		return
+	player.stop()
+	player.play()
 
 
 func _stop_burst_audio() -> void:
