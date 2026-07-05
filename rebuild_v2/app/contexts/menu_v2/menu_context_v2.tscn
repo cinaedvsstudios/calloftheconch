@@ -39,6 +39,9 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.01, 0.03, 0.10, 0.35)
 
+[node name="BubbleScreenBackBuffer" type="BackBufferCopy" parent="."]
+copy_mode = 2
+
 [node name="BubbleOverlay" type="VideoStreamPlayer" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
