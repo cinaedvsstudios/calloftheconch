@@ -1,5 +1,5 @@
 class_name GameplayContextV2
-extends Node
+extends Node2D
 
 signal menu_requested
 
