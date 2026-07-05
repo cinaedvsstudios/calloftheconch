@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v2/features/hylas_v2/hylas_v2.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://rebuild_v2/features/hylas_v2/hylas_v2_sprite_frames.tres" id="2_frames"]
@@ -7,6 +7,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/swim_noise.mp3" id="5_swim_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/speed_noise.mp3" id="6_burst_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/Super Conch_noise.mp3" id="7_conch_audio"]
+[ext_resource type="Script" path="res://rebuild_v2/shared/looping_audio_player_v2.gd" id="8_looping_audio"]
 
 [sub_resource type="RectangleShape2D" id="HylasCollisionShape"]
 size = Vector2(123, 49)
@@ -68,11 +69,13 @@ shape = SubResource("HylasInteractionShape")
 unique_name_in_owner = true
 stream = ExtResource("5_swim_audio")
 volume_db = -16.0
+script = ExtResource("8_looping_audio")
 
 [node name="BurstAudio" type="AudioStreamPlayer" parent="Audio"]
 unique_name_in_owner = true
 stream = ExtResource("6_burst_audio")
 volume_db = -10.0
+script = ExtResource("8_looping_audio")
 
 [node name="ConchAudio" type="AudioStreamPlayer" parent="Audio"]
 unique_name_in_owner = true
