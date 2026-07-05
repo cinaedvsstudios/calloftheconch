@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v2/features/effects_v2/conch_pulse_v2.gd" id="1_controller"]
+
+[node name="ConchPulseV2" type="Node2D"]
+script = ExtResource("1_controller")
+
+[node name="Ring" type="Line2D" parent="."]
+unique_name_in_owner = true
+points = PackedVector2Array(100, 0, 92.388, 38.2683, 70.7107, 70.7107, 38.2683, 92.388, 0, 100, -38.2683, 92.388, -70.7107, 70.7107, -92.388, 38.2683, -100, 0, -92.388, -38.2683, -70.7107, -70.7107, -38.2683, -92.388, 0, -100, 38.2683, -92.388, 70.7107, -70.7107, 92.388, -38.2683, 100, 0)
+width = 5.0
+default_color = Color(0.62, 0.35, 1, 0.9)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
