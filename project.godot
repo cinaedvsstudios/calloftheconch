@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Call of the Conch Prototype"
-run/main_scene="res://rebuild_v2/app/front_end_v2.tscn"
+run/main_scene="res://rebuild_v3/app/front_end.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [debug]

@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/effects/surface_splash.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/effects/splash1.webp" id="2_splash_1"]
+[ext_resource type="Texture2D" path="res://assets/effects/splash2.webp" id="3_splash_2"]
+[ext_resource type="Texture2D" path="res://assets/effects/splash3.webp" id="4_splash_3"]
+[ext_resource type="Texture2D" path="res://assets/effects/splash4.webp" id="5_splash_4"]
+[ext_resource type="Texture2D" path="res://assets/effects/splash5.webp" id="6_splash_5"]
+
+[sub_resource type="SpriteFrames" id="SurfaceSplashFrames"]
+animations = [{
+"frames": [{"duration": 1.0, "texture": ExtResource("2_splash_1")}, {"duration": 1.0, "texture": ExtResource("3_splash_2")}, {"duration": 1.0, "texture": ExtResource("4_splash_3")}, {"duration": 1.0, "texture": ExtResource("5_splash_4")}, {"duration": 1.0, "texture": ExtResource("6_splash_5")}],
+"loop": 0,
+"name": &"splash",
+"speed": 12.0
+}]
+
+[node name="SurfaceSplash" type="AnimatedSprite2D"]
+sprite_frames = SubResource("SurfaceSplashFrames")
+animation = &"splash"
+centered = true
+script = ExtResource("1_controller")

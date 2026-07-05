@@ -1,1 +1,0 @@
-Environment artwork should be editable scene nodes.
