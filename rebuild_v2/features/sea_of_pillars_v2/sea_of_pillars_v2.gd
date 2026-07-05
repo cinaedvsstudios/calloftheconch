@@ -17,20 +17,19 @@ extends Node2D
 
 var _active: bool = false
 
-
 func _ready() -> void:
 	_hylas.normal_conch_used.connect(_on_hylas_normal_conch_used)
 	_hylas.surface_splash_requested.connect(_on_hylas_surface_splash_requested)
+	_set_audio_stream_looping(_underwater_ambience)
+	_bubble_overlay.loop = true
 	configure_player()
 	deactivate()
-
 
 func configure_player() -> void:
 	var top_left: Vector2 = _world_top_left.global_position
 	var bottom_right: Vector2 = _world_bottom_right.global_position
 	var world_bounds: Rect2 = Rect2(top_left, bottom_right - top_left)
 	_hylas.configure_world(world_bounds, _waterline_marker.global_position.y, _start_marker.global_position)
-
 
 func activate() -> void:
 	_active = true
@@ -44,7 +43,6 @@ func activate() -> void:
 		_bubble_overlay.show()
 		_bubble_overlay.play()
 
-
 func deactivate() -> void:
 	_active = false
 	_hylas.set_play_enabled(false)
@@ -55,12 +53,16 @@ func deactivate() -> void:
 	_surface_splash.hide()
 	hide()
 
-
 func _on_hylas_normal_conch_used(origin: Vector2, direction: Vector2) -> void:
 	if _active:
 		_conch_pulse.trigger(origin, direction)
 
-
 func _on_hylas_surface_splash_requested(origin: Vector2) -> void:
 	if _active:
 		_surface_splash.trigger(origin)
+
+func _set_audio_stream_looping(player: AudioStreamPlayer) -> void:
+	if player.stream is AudioStreamMP3:
+		(player.stream as AudioStreamMP3).loop = true
+	elif player.stream is AudioStreamOggVorbis:
+		(player.stream as AudioStreamOggVorbis).loop = true
