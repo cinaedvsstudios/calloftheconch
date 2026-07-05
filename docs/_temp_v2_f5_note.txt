@@ -1,1 +1,0 @@
-Temporary verification note: project startup should point to res://rebuild_v2/app/front_end_v2.tscn.
