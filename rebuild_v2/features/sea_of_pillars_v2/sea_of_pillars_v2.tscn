@@ -422,6 +422,18 @@ metadata/_edit_lock_ = true
 position = Vector2(14080, 5400)
 texture = ExtResource("4_4lrlp")
 
+[node name="Waterdeepbg2" type="Sprite2D" parent="BackgroundLayer" unique_id=835616659]
+position = Vector2(14080, 7560)
+texture = ExtResource("18_65ai8")
+
+[node name="Waterdeepbg3" type="Sprite2D" parent="BackgroundLayer" unique_id=1382861438]
+position = Vector2(11520, 7560)
+texture = ExtResource("18_65ai8")
+
+[node name="Waterdeepbg4" type="Sprite2D" parent="BackgroundLayer" unique_id=1270086258]
+position = Vector2(16640, 7560)
+texture = ExtResource("18_65ai8")
+
 [node name="ParallaxLayer" type="Node2D" parent="." unique_id=986835539]
 z_index = -20
 
@@ -946,9 +958,104 @@ texture = ExtResource("7_sand")
 centered = false
 metadata/_edit_lock_ = true
 
+[node name="Mountainoverlay04" type="Sprite2D" parent="TerrainArtLayer" unique_id=1188748318]
+z_index = 20
+position = Vector2(12153.682, 4678.8237)
+rotation = 0.08552113
+scale = Vector2(0.99999994, 0.99999994)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay05" type="Sprite2D" parent="TerrainArtLayer" unique_id=6055074]
+z_index = 20
+position = Vector2(13098.799, 5350.689)
+rotation = 1.2845623
+scale = Vector2(0.9026336, 1.0110809)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay06" type="Sprite2D" parent="TerrainArtLayer" unique_id=665493576]
+z_index = 20
+position = Vector2(12583.999, 5959.9995)
+rotation = 3.0194197
+scale = Vector2(0.99999994, 0.99999994)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay07" type="Sprite2D" parent="TerrainArtLayer" unique_id=1995805417]
+z_index = 21
+position = Vector2(10648, 6032.0005)
+rotation = 3.0194197
+scale = Vector2(1.2523406, 1.0527323)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay12" type="Sprite2D" parent="TerrainArtLayer" unique_id=1374480810]
+z_index = 21
+position = Vector2(17152.002, 5368)
+rotation = -2.5062928
+scale = Vector2(1.592, 1.332)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay13" type="Sprite2D" parent="TerrainArtLayer" unique_id=602894030]
+z_index = 20
+position = Vector2(10096.001, 5056.0005)
+rotation = -0.050614547
+scale = Vector2(1.592, 1.332)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay14" type="Sprite2D" parent="TerrainArtLayer" unique_id=1380982366]
+z_index = 21
+position = Vector2(16736.002, 4416.0005)
+rotation = 0.22165681
+scale = Vector2(1.592, 1.332)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay08" type="Sprite2D" parent="TerrainArtLayer" unique_id=1632480524]
+z_index = 19
+position = Vector2(10096.001, 7663.9995)
+rotation = 1.5707964
+scale = Vector2(1.2523407, 1.0527323)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay09" type="Sprite2D" parent="TerrainArtLayer" unique_id=227197616]
+z_index = 20
+position = Vector2(15247.998, 4976)
+rotation = -1.53589
+scale = Vector2(1.1869445, 0.87505066)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay10" type="Sprite2D" parent="TerrainArtLayer" unique_id=1913390899]
+z_index = 20
+position = Vector2(16592.002, 6368)
+rotation = -2.9757864
+scale = Vector2(1.4478711, 0.89670765)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay11" type="Sprite2D" parent="TerrainArtLayer" unique_id=995717088]
+z_index = 19
+position = Vector2(17664.951, 7744.2856)
+rotation = -1.5882496
+scale = Vector2(1.2523407, 1.0527323)
+texture = ExtResource("20_w2na3")
+
+[node name="Mountainoverlay15" type="Sprite2D" parent="TerrainArtLayer" unique_id=21416593]
+position = Vector2(11640, 8616)
+texture = ExtResource("21_pg2vj")
+
+[node name="Mountainoverlay16" type="Sprite2D" parent="TerrainArtLayer" unique_id=1536349815]
+position = Vector2(16248, 8616)
+texture = ExtResource("21_pg2vj")
+
+[node name="Mountainoverlay17" type="Sprite2D" parent="TerrainArtLayer" unique_id=1078278286]
+position = Vector2(13944, 8616)
+scale = Vector2(1.2457627, 1)
+texture = ExtResource("21_pg2vj")
+
 [node name="TerrainCollisionLayer" type="Node2D" parent="." unique_id=2073464158]
 
 [node name="ObjectsLayer" type="Node2D" parent="." unique_id=1657635660]
+
+[node name="Ship1" type="Sprite2D" parent="ObjectsLayer" unique_id=1084031204]
+position = Vector2(14048, 7615.9995)
+scale = Vector2(1.4466667, 1.6272142)
+texture = ExtResource("19_4vdix")
 
 [node name="TriggersLayer" type="Node2D" parent="." unique_id=177133980]
 
@@ -1012,108 +1119,3 @@ stream = ExtResource("12_bubble_overlay")
 unique_name_in_owner = true
 z_index = 10
 position = Vector2(1280, 2520)
-
-[node name="Waterdeepbg2" type="Sprite2D" parent="." unique_id=835616659]
-position = Vector2(14080, 7560)
-texture = ExtResource("18_65ai8")
-
-[node name="Waterdeepbg3" type="Sprite2D" parent="." unique_id=1382861438]
-position = Vector2(11520, 7560)
-texture = ExtResource("18_65ai8")
-
-[node name="Waterdeepbg4" type="Sprite2D" parent="." unique_id=1270086258]
-position = Vector2(16640, 7560)
-texture = ExtResource("18_65ai8")
-
-[node name="Ship1" type="Sprite2D" parent="." unique_id=1084031204]
-position = Vector2(14048, 7615.9995)
-scale = Vector2(1.4466667, 1.6272142)
-texture = ExtResource("19_4vdix")
-
-[node name="Mountainoverlay04" type="Sprite2D" parent="." unique_id=1188748318]
-z_index = 20
-position = Vector2(12153.682, 4678.8237)
-rotation = 0.08552113
-texture = ExtResource("20_w2na3")
-
-[node name="Mountainoverlay05" type="Sprite2D" parent="." unique_id=6055074]
-z_index = 20
-position = Vector2(13098.799, 5350.689)
-rotation = 1.2845623
-scale = Vector2(0.9026336, 1.0110809)
-texture = ExtResource("20_w2na3")
-
-[node name="Mountainoverlay06" type="Sprite2D" parent="." unique_id=665493576]
-z_index = 20
-position = Vector2(12583.999, 5959.9995)
-rotation = 3.0194197
-texture = ExtResource("20_w2na3")
-
-[node name="Mountainoverlay07" type="Sprite2D" parent="." unique_id=1995805417]
-z_index = 21
-position = Vector2(10648, 6032.0005)
-rotation = 3.0194197
-scale = Vector2(1.2523407, 1.0527323)
-texture = ExtResource("20_w2na3")
-
-[node name="Mountainoverlay12" type="Sprite2D" parent="." unique_id=1374480810]
-z_index = 21
-position = Vector2(17152.002, 5368)
-rotation = -2.5062928
-scale = Vector2(1.592, 1.332)
-texture = ExtResource("20_w2na3")
-
-[node name="Mountainoverlay13" type="Sprite2D" parent="." unique_id=602894030]
-z_index = 20
-position = Vector2(10096.001, 5056.0005)
-rotation = -0.050614547
-scale = Vector2(1.592, 1.332)
-texture = ExtResource("20_w2na3")
-
-[node name="Mountainoverlay14" type="Sprite2D" parent="." unique_id=1380982366]
-z_index = 21
-position = Vector2(16736.002, 4416.0005)
-rotation = 0.22165681
-scale = Vector2(1.592, 1.332)
-texture = ExtResource("20_w2na3")
-
-[node name="Mountainoverlay08" type="Sprite2D" parent="." unique_id=1632480524]
-z_index = 19
-position = Vector2(10096.001, 7663.9995)
-rotation = 1.5707964
-scale = Vector2(1.2523407, 1.0527323)
-texture = ExtResource("20_w2na3")
-
-[node name="Mountainoverlay09" type="Sprite2D" parent="." unique_id=227197616]
-z_index = 20
-position = Vector2(15247.998, 4976)
-rotation = 4.7472954
-scale = Vector2(1.1869445, 0.87505066)
-texture = ExtResource("20_w2na3")
-
-[node name="Mountainoverlay10" type="Sprite2D" parent="." unique_id=1913390899]
-z_index = 20
-position = Vector2(16592.002, 6368)
-rotation = -2.9757864
-scale = Vector2(1.4478711, 0.89670765)
-texture = ExtResource("20_w2na3")
-
-[node name="Mountainoverlay11" type="Sprite2D" parent="." unique_id=995717088]
-z_index = 19
-position = Vector2(17664.951, 7744.2856)
-rotation = -1.5882496
-scale = Vector2(1.2523407, 1.0527323)
-texture = ExtResource("20_w2na3")
-
-[node name="Mountainoverlay15" type="Sprite2D" parent="." unique_id=21416593]
-position = Vector2(11640, 8616)
-texture = ExtResource("21_pg2vj")
-
-[node name="Mountainoverlay16" type="Sprite2D" parent="." unique_id=1536349815]
-position = Vector2(16248, 8616)
-texture = ExtResource("21_pg2vj")
-
-[node name="Mountainoverlay17" type="Sprite2D" parent="." unique_id=1078278286]
-position = Vector2(13944, 8616)
-scale = Vector2(1.2457627, 1)
-texture = ExtResource("21_pg2vj")
