@@ -1,223 +1,1135 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene format=3 uid="uid://d2sk0wsbeygtc"]
 
-[ext_resource type="Script" path="res://rebuild_v2/features/sea_of_pillars_v2/sea_of_pillars_v2.gd" id="1_controller"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/waterskybg.jpg" id="2_water_sky"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/waterbg.jpg" id="3_deep_water"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/waterbgparalax.webp" id="4_lower_parallax"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/mountainoverlay01.webp" id="5_mountain_a"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/mountainoverlay03.webp" id="6_mountain_b"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/sandoverlay.webp" id="7_sand"]
+[ext_resource type="Script" uid="uid://cwrb2jvitdcjw" path="res://rebuild_v2/features/sea_of_pillars_v2/sea_of_pillars_v2.gd" id="1_controller"]
+[ext_resource type="Texture2D" uid="uid://cwrbkxc6mw11b" path="res://assets/backgrounds/waterskybg.jpg" id="2_water_sky"]
+[ext_resource type="Texture2D" uid="uid://cw5k6kvodru7p" path="res://assets/backgrounds/waterbg.jpg" id="3_deep_water"]
+[ext_resource type="Texture2D" uid="uid://k48eqm6henos" path="res://assets/backgrounds/waterdeepbg.jpg" id="4_4lrlp"]
+[ext_resource type="Texture2D" uid="uid://c0gc4155a43db" path="res://assets/backgrounds/waterbgparalax.webp" id="4_lower_parallax"]
+[ext_resource type="Texture2D" uid="uid://cebhhicckj285" path="res://assets/backgrounds/mountainoverlay01.webp" id="5_mountain_a"]
+[ext_resource type="Shader" uid="uid://c7ehqrsmjmdr" path="res://rebuild_v2/features/sea_of_pillars_v2/lower_water_multiply.gdshader" id="5_qtevd"]
+[ext_resource type="Texture2D" uid="uid://bnh8y5pk6qa0j" path="res://assets/backgrounds/mountainoverlay03.webp" id="6_mountain_b"]
+[ext_resource type="Texture2D" uid="uid://dejgtuv4d265x" path="res://assets/backgrounds/sandoverlay.webp" id="7_sand"]
 [ext_resource type="PackedScene" path="res://rebuild_v2/features/hylas_v2/hylas_v2.tscn" id="8_hylas"]
 [ext_resource type="PackedScene" path="res://rebuild_v2/features/effects_v2/conch_pulse_v2.tscn" id="9_conch_pulse"]
-[ext_resource type="Script" path="res://rebuild_v2/features/effects_v2/surface_splash_v2.gd" id="10_splash_script"]
-[ext_resource type="VideoStream" path="res://assets/effects/bubble-explosion.ogv" id="11_splash_video"]
-[ext_resource type="VideoStream" path="res://assets/effects/bubble_riser_field.ogv" id="12_bubble_overlay"]
-[ext_resource type="AudioStream" path="res://assets/audio/underwater_ambience.mp3" id="13_ambience"]
+[ext_resource type="Script" uid="uid://cbg0rqalr8f2f" path="res://rebuild_v2/features/effects_v2/surface_splash_v2.gd" id="10_splash_script"]
+[ext_resource type="VideoStream" uid="uid://d3o33jkhljemp" path="res://assets/effects/bubble-explosion.ogv" id="11_splash_video"]
+[ext_resource type="VideoStream" uid="uid://buw0jv63vxw0i" path="res://assets/effects/bubble_riser_field.ogv" id="12_bubble_overlay"]
+[ext_resource type="AudioStream" uid="uid://b1ok5tlb5fqkw" path="res://assets/audio/underwater_ambience.mp3" id="13_ambience"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_13qdw"]
+shader = ExtResource("5_qtevd")
+shader_parameter/fade_start = 0.5
+shader_parameter/fade_end = 1.0
+shader_parameter/strength = 0.55
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xfcpf"]
 
 [sub_resource type="ConvexPolygonShape2D" id="MountainShape01"]
-points = PackedVector2Array(0, 3650, 260, 3320, 760, 3490, 1230, 3190, 1880, 3470, 2560, 3300, 2560, 4320, 0, 4320)
+points = PackedVector2Array(248, 4144, 552, 4040, 848, 3840, 1304, 3720, 1856, 3792, 2232, 4136, 2560, 4320, 0, 4320)
 
 [sub_resource type="ConvexPolygonShape2D" id="MountainShape02"]
-points = PackedVector2Array(2560, 3570, 2890, 3300, 3410, 3480, 3910, 3180, 4580, 3460, 5120, 3300, 5120, 4320, 2560, 4320)
+points = PackedVector2Array(4248, 3552, 3736, 3424, 3056, 3576, 2936, 3296, 3712, 2960, 3928, 2680, 4464, 3232, 4600, 3152, 4984, 3752, 4816, 4024, 5066, 4286, 2560, 4320, 2968, 4016, 3760, 3720, 4136, 3752)
 
 [sub_resource type="ConvexPolygonShape2D" id="MountainShape03"]
-points = PackedVector2Array(5120, 3650, 5380, 3320, 5880, 3490, 6350, 3190, 7000, 3470, 7680, 3300, 7680, 4320, 5120, 4320)
+points = PackedVector2Array(5220, 4280, 5358, 4090, 5862, 3852, 6314, 3674, 6937, 3753, 7353, 4129, 7680, 4320, 5120, 4320)
 
 [sub_resource type="RectangleShape2D" id="SandShape01"]
-size = Vector2(2560, 190)
+size = Vector2(2556, 100)
 
 [sub_resource type="RectangleShape2D" id="SandShape02"]
-size = Vector2(2560, 190)
+size = Vector2(2566, 91)
 
 [sub_resource type="RectangleShape2D" id="SandShape03"]
-size = Vector2(2560, 190)
+size = Vector2(2555, 90)
 
-[node name="SeaOfPillarsV2" type="Node2D"]
+[node name="SeaOfPillarsV2" type="Node2D" unique_id=1981294601]
 script = ExtResource("1_controller")
 
-[node name="BackgroundLayer" type="Node2D" parent="."]
+[node name="BackgroundLayer" type="Node2D" parent="." unique_id=2109573204]
 z_index = -30
 
-[node name="WaterSky01" type="Sprite2D" parent="BackgroundLayer"]
+[node name="WaterSky01" type="Sprite2D" parent="BackgroundLayer" unique_id=568234537]
 texture = ExtResource("2_water_sky")
 centered = false
-position = Vector2(0, 0)
+metadata/_edit_lock_ = true
 
-[node name="WaterSky02" type="Sprite2D" parent="BackgroundLayer"]
-texture = ExtResource("2_water_sky")
-centered = false
+[node name="WaterSky02" type="Sprite2D" parent="BackgroundLayer" unique_id=236715620]
 position = Vector2(2560, 0)
-
-[node name="WaterSky03" type="Sprite2D" parent="BackgroundLayer"]
 texture = ExtResource("2_water_sky")
 centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky03" type="Sprite2D" parent="BackgroundLayer" unique_id=1547209883]
 position = Vector2(5120, 0)
-
-[node name="DeepWater01" type="Sprite2D" parent="BackgroundLayer"]
-texture = ExtResource("3_deep_water")
+texture = ExtResource("2_water_sky")
 centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater01" type="Sprite2D" parent="BackgroundLayer" unique_id=1210502170]
 position = Vector2(0, 2160)
-
-[node name="DeepWater02" type="Sprite2D" parent="BackgroundLayer"]
 texture = ExtResource("3_deep_water")
 centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater02" type="Sprite2D" parent="BackgroundLayer" unique_id=193512881]
 position = Vector2(2560, 2160)
-
-[node name="DeepWater03" type="Sprite2D" parent="BackgroundLayer"]
 texture = ExtResource("3_deep_water")
 centered = false
-position = Vector2(5120, 2160)
+metadata/_edit_lock_ = true
 
-[node name="ParallaxLayer" type="Node2D" parent="."]
+[node name="DeepWater03" type="Sprite2D" parent="BackgroundLayer" unique_id=512308334]
+position = Vector2(5120, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky04" type="Sprite2D" parent="BackgroundLayer" unique_id=616264691]
+position = Vector2(7664, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater04" type="Sprite2D" parent="BackgroundLayer" unique_id=2084613220]
+position = Vector2(7664, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky05" type="Sprite2D" parent="BackgroundLayer" unique_id=1340221429]
+position = Vector2(10224, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater05" type="Sprite2D" parent="BackgroundLayer" unique_id=925207242]
+position = Vector2(10224, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky06" type="Sprite2D" parent="BackgroundLayer" unique_id=90415399]
+position = Vector2(12784, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater06" type="Sprite2D" parent="BackgroundLayer" unique_id=1373843611]
+position = Vector2(12784, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky07" type="Sprite2D" parent="BackgroundLayer" unique_id=2047563381]
+position = Vector2(15328, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater07" type="Sprite2D" parent="BackgroundLayer" unique_id=517977520]
+position = Vector2(15328, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky08" type="Sprite2D" parent="BackgroundLayer" unique_id=1207720152]
+position = Vector2(17888, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater08" type="Sprite2D" parent="BackgroundLayer" unique_id=934261]
+position = Vector2(17888, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky09" type="Sprite2D" parent="BackgroundLayer" unique_id=975247906]
+position = Vector2(20448, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater09" type="Sprite2D" parent="BackgroundLayer" unique_id=885452055]
+position = Vector2(20448, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky10" type="Sprite2D" parent="BackgroundLayer" unique_id=194216273]
+position = Vector2(23008, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater10" type="Sprite2D" parent="BackgroundLayer" unique_id=688473665]
+position = Vector2(23008, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky11" type="Sprite2D" parent="BackgroundLayer" unique_id=652858458]
+position = Vector2(25568, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater11" type="Sprite2D" parent="BackgroundLayer" unique_id=967546760]
+position = Vector2(25568, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky12" type="Sprite2D" parent="BackgroundLayer" unique_id=581340376]
+position = Vector2(28128, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater12" type="Sprite2D" parent="BackgroundLayer" unique_id=102023782]
+position = Vector2(28128, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky13" type="Sprite2D" parent="BackgroundLayer" unique_id=1619824681]
+position = Vector2(30688, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater13" type="Sprite2D" parent="BackgroundLayer" unique_id=141612029]
+position = Vector2(30688, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky14" type="Sprite2D" parent="BackgroundLayer" unique_id=612191647]
+position = Vector2(33232, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater14" type="Sprite2D" parent="BackgroundLayer" unique_id=1233638006]
+position = Vector2(33232, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky15" type="Sprite2D" parent="BackgroundLayer" unique_id=1937340345]
+position = Vector2(35792, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater15" type="Sprite2D" parent="BackgroundLayer" unique_id=1435513292]
+position = Vector2(35792, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky16" type="Sprite2D" parent="BackgroundLayer" unique_id=2038240167]
+position = Vector2(38352, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater16" type="Sprite2D" parent="BackgroundLayer" unique_id=1503710515]
+position = Vector2(38352, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky17" type="Sprite2D" parent="BackgroundLayer" unique_id=1552833553]
+position = Vector2(40912, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater17" type="Sprite2D" parent="BackgroundLayer" unique_id=1455009511]
+position = Vector2(40912, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky18" type="Sprite2D" parent="BackgroundLayer" unique_id=528969875]
+position = Vector2(43472, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater18" type="Sprite2D" parent="BackgroundLayer" unique_id=359271767]
+position = Vector2(43472, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky19" type="Sprite2D" parent="BackgroundLayer" unique_id=444580812]
+position = Vector2(46032, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater19" type="Sprite2D" parent="BackgroundLayer" unique_id=993033758]
+position = Vector2(46032, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky20" type="Sprite2D" parent="BackgroundLayer" unique_id=501507488]
+position = Vector2(48576, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater20" type="Sprite2D" parent="BackgroundLayer" unique_id=308641342]
+position = Vector2(48576, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky21" type="Sprite2D" parent="BackgroundLayer" unique_id=434251027]
+position = Vector2(51136, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater21" type="Sprite2D" parent="BackgroundLayer" unique_id=769856639]
+position = Vector2(51136, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky22" type="Sprite2D" parent="BackgroundLayer" unique_id=1949972315]
+position = Vector2(53696, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater22" type="Sprite2D" parent="BackgroundLayer" unique_id=323358831]
+position = Vector2(53696, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky23" type="Sprite2D" parent="BackgroundLayer" unique_id=51293899]
+position = Vector2(56256, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater23" type="Sprite2D" parent="BackgroundLayer" unique_id=746418570]
+position = Vector2(56256, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky24" type="Sprite2D" parent="BackgroundLayer" unique_id=1131106208]
+position = Vector2(58816, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater24" type="Sprite2D" parent="BackgroundLayer" unique_id=521704932]
+position = Vector2(58816, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky25" type="Sprite2D" parent="BackgroundLayer" unique_id=1054113564]
+position = Vector2(61376, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater25" type="Sprite2D" parent="BackgroundLayer" unique_id=152318387]
+position = Vector2(61376, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky26" type="Sprite2D" parent="BackgroundLayer" unique_id=1535075281]
+position = Vector2(63936, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater26" type="Sprite2D" parent="BackgroundLayer" unique_id=389760627]
+position = Vector2(63936, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky27" type="Sprite2D" parent="BackgroundLayer" unique_id=1793040948]
+position = Vector2(66480, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater27" type="Sprite2D" parent="BackgroundLayer" unique_id=1526353764]
+position = Vector2(66480, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky28" type="Sprite2D" parent="BackgroundLayer" unique_id=810228057]
+position = Vector2(69040, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater28" type="Sprite2D" parent="BackgroundLayer" unique_id=1811682507]
+position = Vector2(69040, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky29" type="Sprite2D" parent="BackgroundLayer" unique_id=2082623078]
+position = Vector2(71600, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater29" type="Sprite2D" parent="BackgroundLayer" unique_id=604616899]
+position = Vector2(71600, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky30" type="Sprite2D" parent="BackgroundLayer" unique_id=695356694]
+position = Vector2(74160, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater30" type="Sprite2D" parent="BackgroundLayer" unique_id=2032722547]
+position = Vector2(74160, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="WaterSky31" type="Sprite2D" parent="BackgroundLayer" unique_id=1602216798]
+position = Vector2(76720, 0)
+texture = ExtResource("2_water_sky")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="DeepWater31" type="Sprite2D" parent="BackgroundLayer" unique_id=1085673928]
+position = Vector2(76720, 2160)
+texture = ExtResource("3_deep_water")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="deepdeepsea" type="Sprite2D" parent="BackgroundLayer" unique_id=180125710]
+position = Vector2(14080, 5400)
+texture = ExtResource("4_4lrlp")
+
+[node name="ParallaxLayer" type="Node2D" parent="." unique_id=986835539]
 z_index = -20
 
-[node name="LowerWaterParallax01" type="Sprite2D" parent="ParallaxLayer"]
-visible = false
+[node name="LowerWaterParallax01" type="Sprite2D" parent="ParallaxLayer" unique_id=2099463608]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
+scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax02" type="Sprite2D" parent="ParallaxLayer" unique_id=1673045541]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(2560, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax03" type="Sprite2D" parent="ParallaxLayer" unique_id=1510218165]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(5120.0005, 3320.0002)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax05" type="Sprite2D" parent="ParallaxLayer" unique_id=1769215055]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(7680, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax06" type="Sprite2D" parent="ParallaxLayer" unique_id=2059305614]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax04" type="Sprite2D" parent="ParallaxLayer" unique_id=804975970]
+material = SubResource("ShaderMaterial_xfcpf")
+position = Vector2(10240, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+
+[node name="LowerWaterParallax08" type="Sprite2D" parent="ParallaxLayer" unique_id=1228889540]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(15360, 3320.0002)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+
+[node name="LowerWaterParallax09" type="Sprite2D" parent="ParallaxLayer" unique_id=1014531712]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(20480, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax10" type="Sprite2D" parent="ParallaxLayer" unique_id=1787657763]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(17920, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax11" type="Sprite2D" parent="ParallaxLayer" unique_id=1985298683]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax12" type="Sprite2D" parent="ParallaxLayer" unique_id=1317835242]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(23040, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax13" type="Sprite2D" parent="ParallaxLayer" unique_id=799307784]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(25600, 3320.0002)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax14" type="Sprite2D" parent="ParallaxLayer" unique_id=1373322283]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(30720, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax15" type="Sprite2D" parent="ParallaxLayer" unique_id=2146640829]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(28160, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax16" type="Sprite2D" parent="ParallaxLayer" unique_id=574274983]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax17" type="Sprite2D" parent="ParallaxLayer" unique_id=1935763513]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(33280, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax18" type="Sprite2D" parent="ParallaxLayer" unique_id=1472200834]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(35840, 3320.0002)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax19" type="Sprite2D" parent="ParallaxLayer" unique_id=1652234011]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(40960, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax20" type="Sprite2D" parent="ParallaxLayer" unique_id=1469106068]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(38400, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax21" type="Sprite2D" parent="ParallaxLayer" unique_id=543923159]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax22" type="Sprite2D" parent="ParallaxLayer" unique_id=708677595]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(43520, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax23" type="Sprite2D" parent="ParallaxLayer" unique_id=1786425253]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(46080, 3320.0002)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax24" type="Sprite2D" parent="ParallaxLayer" unique_id=104830738]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(51200, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax25" type="Sprite2D" parent="ParallaxLayer" unique_id=938050093]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(48640, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax26" type="Sprite2D" parent="ParallaxLayer" unique_id=10968156]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax27" type="Sprite2D" parent="ParallaxLayer" unique_id=1377331608]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(53760, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax28" type="Sprite2D" parent="ParallaxLayer" unique_id=359400768]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(56320, 3320.0002)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax29" type="Sprite2D" parent="ParallaxLayer" unique_id=762873515]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(61440, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax30" type="Sprite2D" parent="ParallaxLayer" unique_id=1388973116]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(58880, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax31" type="Sprite2D" parent="ParallaxLayer" unique_id=2069386573]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(64000, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax32" type="Sprite2D" parent="ParallaxLayer" unique_id=1708389998]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(66560, 3320.0002)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax33" type="Sprite2D" parent="ParallaxLayer" unique_id=1804239026]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(71680, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax34" type="Sprite2D" parent="ParallaxLayer" unique_id=1479054198]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(69120, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax35" type="Sprite2D" parent="ParallaxLayer" unique_id=1904924281]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(0, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax36" type="Sprite2D" parent="ParallaxLayer" unique_id=1348870315]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(74240, 3312)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="LowerWaterParallax37" type="Sprite2D" parent="ParallaxLayer" unique_id=767978295]
+material = SubResource("ShaderMaterial_13qdw")
+position = Vector2(76800, 3320.0002)
+scale = Vector2(1.1786373, 1.4917129)
+texture = ExtResource("4_lower_parallax")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="TerrainArtLayer" type="Node2D" parent="." unique_id=60207807]
+
+[node name="MountainOverlay01" type="Sprite2D" parent="TerrainArtLayer" unique_id=564759518]
 position = Vector2(0, 2160)
-
-[node name="LowerWaterParallax02" type="Sprite2D" parent="ParallaxLayer"]
-visible = false
-texture = ExtResource("4_lower_parallax")
-centered = false
-position = Vector2(2560, 2160)
-
-[node name="LowerWaterParallax03" type="Sprite2D" parent="ParallaxLayer"]
-visible = false
-texture = ExtResource("4_lower_parallax")
-centered = false
-position = Vector2(5120, 2160)
-
-[node name="TerrainArtLayer" type="Node2D" parent="."]
-
-[node name="MountainOverlay01" type="Sprite2D" parent="TerrainArtLayer"]
 texture = ExtResource("5_mountain_a")
 centered = false
-position = Vector2(0, 2160)
+metadata/_edit_lock_ = true
 
-[node name="MountainOverlay02" type="Sprite2D" parent="TerrainArtLayer"]
+[node name="MountainOverlay02" type="Sprite2D" parent="TerrainArtLayer" unique_id=1543005597]
+position = Vector2(2560, 2160)
 texture = ExtResource("6_mountain_b")
 centered = false
-position = Vector2(2560, 2160)
+metadata/_edit_lock_ = true
 
-[node name="MountainOverlay03" type="Sprite2D" parent="TerrainArtLayer"]
+[node name="MountainOverlay03" type="Sprite2D" parent="TerrainArtLayer" unique_id=1436983356]
+position = Vector2(5120, 2160)
 texture = ExtResource("5_mountain_a")
 centered = false
-position = Vector2(5120, 2160)
+metadata/_edit_lock_ = true
 
-[node name="SandOverlay01" type="Sprite2D" parent="TerrainArtLayer"]
+[node name="SandOverlay01" type="Sprite2D" parent="TerrainArtLayer" unique_id=88416392]
+z_index = 20
+position = Vector2(0, 1893)
+scale = Vector2(1.5311005, 1.0028)
 texture = ExtResource("7_sand")
 centered = false
-position = Vector2(0, 2160)
-z_index = 20
+metadata/_edit_lock_ = true
 
-[node name="SandOverlay02" type="Sprite2D" parent="TerrainArtLayer"]
+[node name="SandOverlay02" type="Sprite2D" parent="TerrainArtLayer" unique_id=1025178088]
+z_index = 20
+position = Vector2(2560.0002, 1893)
+scale = Vector2(1.5311005, 1.0028)
 texture = ExtResource("7_sand")
 centered = false
-position = Vector2(2560, 2160)
-z_index = 20
+metadata/_edit_lock_ = true
 
-[node name="SandOverlay03" type="Sprite2D" parent="TerrainArtLayer"]
+[node name="SandOverlay03" type="Sprite2D" parent="TerrainArtLayer" unique_id=227351303]
+z_index = 20
+position = Vector2(5120, 1893.0001)
+scale = Vector2(1.5311005, 1.0028)
 texture = ExtResource("7_sand")
 centered = false
-position = Vector2(5120, 2160)
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay04" type="Sprite2D" parent="TerrainArtLayer" unique_id=1404225554]
 z_index = 20
+position = Vector2(10240.001, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
 
-[node name="TerrainCollisionLayer" type="Node2D" parent="."]
+[node name="SandOverlay05" type="Sprite2D" parent="TerrainArtLayer" unique_id=617958819]
+z_index = 20
+position = Vector2(7680.001, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
 
-[node name="MountainCollision01" type="StaticBody2D" parent="TerrainCollisionLayer"]
+[node name="SandOverlay06" type="Sprite2D" parent="TerrainArtLayer" unique_id=475430536]
+z_index = 20
+position = Vector2(0, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
 
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision01"]
+[node name="SandOverlay08" type="Sprite2D" parent="TerrainArtLayer" unique_id=1417868239]
+z_index = 20
+position = Vector2(15360.001, 1893.0001)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay09" type="Sprite2D" parent="TerrainArtLayer" unique_id=1978216382]
+z_index = 20
+position = Vector2(20480.002, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay10" type="Sprite2D" parent="TerrainArtLayer" unique_id=999240041]
+z_index = 20
+position = Vector2(17920.002, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay11" type="Sprite2D" parent="TerrainArtLayer" unique_id=844057776]
+z_index = 20
+position = Vector2(0, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay12" type="Sprite2D" parent="TerrainArtLayer" unique_id=1355544009]
+z_index = 20
+position = Vector2(23040.002, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay13" type="Sprite2D" parent="TerrainArtLayer" unique_id=478621359]
+z_index = 20
+position = Vector2(25600.002, 1893.0001)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay14" type="Sprite2D" parent="TerrainArtLayer" unique_id=604833967]
+z_index = 20
+position = Vector2(30720.004, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay15" type="Sprite2D" parent="TerrainArtLayer" unique_id=1020544118]
+z_index = 20
+position = Vector2(28160.004, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay16" type="Sprite2D" parent="TerrainArtLayer" unique_id=901301004]
+z_index = 20
+position = Vector2(0, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay17" type="Sprite2D" parent="TerrainArtLayer" unique_id=667023600]
+z_index = 20
+position = Vector2(33280.004, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay18" type="Sprite2D" parent="TerrainArtLayer" unique_id=588789264]
+z_index = 20
+position = Vector2(35840.004, 1893.0001)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay19" type="Sprite2D" parent="TerrainArtLayer" unique_id=850081638]
+z_index = 20
+position = Vector2(40960.004, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay20" type="Sprite2D" parent="TerrainArtLayer" unique_id=1762110744]
+z_index = 20
+position = Vector2(38400.004, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay21" type="Sprite2D" parent="TerrainArtLayer" unique_id=1832174103]
+z_index = 20
+position = Vector2(0, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay22" type="Sprite2D" parent="TerrainArtLayer" unique_id=2018143894]
+z_index = 20
+position = Vector2(43520.004, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay23" type="Sprite2D" parent="TerrainArtLayer" unique_id=1678822220]
+z_index = 20
+position = Vector2(46080.004, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay24" type="Sprite2D" parent="TerrainArtLayer" unique_id=843850473]
+z_index = 20
+position = Vector2(51200.008, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay25" type="Sprite2D" parent="TerrainArtLayer" unique_id=35259453]
+z_index = 20
+position = Vector2(48640.008, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay26" type="Sprite2D" parent="TerrainArtLayer" unique_id=2139268343]
+z_index = 20
+position = Vector2(0, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay27" type="Sprite2D" parent="TerrainArtLayer" unique_id=1689440438]
+z_index = 20
+position = Vector2(53760.008, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay28" type="Sprite2D" parent="TerrainArtLayer" unique_id=810979787]
+z_index = 20
+position = Vector2(56320.008, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay29" type="Sprite2D" parent="TerrainArtLayer" unique_id=453507823]
+z_index = 20
+position = Vector2(61440.008, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay30" type="Sprite2D" parent="TerrainArtLayer" unique_id=1577208899]
+z_index = 20
+position = Vector2(58880.008, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay31" type="Sprite2D" parent="TerrainArtLayer" unique_id=480218422]
+z_index = 20
+position = Vector2(64000.008, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay32" type="Sprite2D" parent="TerrainArtLayer" unique_id=1135889964]
+z_index = 20
+position = Vector2(66560.01, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay33" type="Sprite2D" parent="TerrainArtLayer" unique_id=185037205]
+z_index = 20
+position = Vector2(71680.01, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay34" type="Sprite2D" parent="TerrainArtLayer" unique_id=6598203]
+z_index = 20
+position = Vector2(69120.01, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay35" type="Sprite2D" parent="TerrainArtLayer" unique_id=248186689]
+z_index = 20
+position = Vector2(0, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay36" type="Sprite2D" parent="TerrainArtLayer" unique_id=279408879]
+z_index = 20
+position = Vector2(74240.01, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="SandOverlay37" type="Sprite2D" parent="TerrainArtLayer" unique_id=1393562674]
+z_index = 20
+position = Vector2(76800.01, 1893)
+scale = Vector2(1.5311005, 1.0028)
+texture = ExtResource("7_sand")
+centered = false
+metadata/_edit_lock_ = true
+
+[node name="TerrainCollisionLayer" type="Node2D" parent="." unique_id=2073464158]
+
+[node name="MountainCollision01" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=1826481702]
+
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision01" unique_id=1473689322]
 shape = SubResource("MountainShape01")
 
-[node name="MountainCollision02" type="StaticBody2D" parent="TerrainCollisionLayer"]
+[node name="MountainCollision02" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=602038845]
 
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision02"]
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision02" unique_id=1774193903]
 shape = SubResource("MountainShape02")
+metadata/_edit_lock_ = true
 
-[node name="MountainCollision03" type="StaticBody2D" parent="TerrainCollisionLayer"]
+[node name="MountainCollision03" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=2116730756]
 
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision03"]
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision03" unique_id=1918170989]
 shape = SubResource("MountainShape03")
 
-[node name="SandCollision01" type="StaticBody2D" parent="TerrainCollisionLayer"]
+[node name="SandCollision01" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=29770953]
 position = Vector2(1280, 4225)
 
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision01"]
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision01" unique_id=282752368]
+position = Vector2(-2, 119)
 shape = SubResource("SandShape01")
 
-[node name="SandCollision02" type="StaticBody2D" parent="TerrainCollisionLayer"]
+[node name="SandCollision02" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=1143078279]
 position = Vector2(3840, 4225)
 
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision02"]
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision02" unique_id=406249969]
+position = Vector2(424, 103)
 shape = SubResource("SandShape02")
 
-[node name="SandCollision03" type="StaticBody2D" parent="TerrainCollisionLayer"]
+[node name="SandCollision03" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=1217244897]
 position = Vector2(6400, 4225)
 
-[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision03"]
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision03" unique_id=498475454]
+position = Vector2(0, 114)
 shape = SubResource("SandShape03")
 
-[node name="ObjectsLayer" type="Node2D" parent="."]
+[node name="SandCollision04" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=1919434240]
+position = Vector2(14080, 4225)
 
-[node name="TriggersLayer" type="Node2D" parent="."]
+[node name="SandCollision05" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=91044709]
+position = Vector2(16640, 4225)
 
-[node name="WaterlineMarker" type="Marker2D" parent="TriggersLayer"]
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision05" unique_id=1570199459]
+position = Vector2(0, 114)
+shape = SubResource("SandShape03")
+
+[node name="ObjectsLayer" type="Node2D" parent="." unique_id=1657635660]
+
+[node name="TriggersLayer" type="Node2D" parent="." unique_id=177133980]
+
+[node name="WaterlineMarker" type="Marker2D" parent="TriggersLayer" unique_id=1141759321]
 unique_name_in_owner = true
 position = Vector2(1280, 2060)
 
-[node name="SpawnPoints" type="Node2D" parent="."]
+[node name="SpawnPoints" type="Node2D" parent="." unique_id=1662862446]
 
-[node name="HylasStart" type="Marker2D" parent="SpawnPoints"]
+[node name="HylasStart" type="Marker2D" parent="SpawnPoints" unique_id=2099407237]
 unique_name_in_owner = true
 position = Vector2(1280, 2520)
 
-[node name="WorldTopLeft" type="Marker2D" parent="SpawnPoints"]
+[node name="WorldTopLeft" type="Marker2D" parent="SpawnPoints" unique_id=1746992840]
 unique_name_in_owner = true
-position = Vector2(0, 0)
 
-[node name="WorldBottomRight" type="Marker2D" parent="SpawnPoints"]
+[node name="WorldBottomRight" type="Marker2D" parent="SpawnPoints" unique_id=674130765]
 unique_name_in_owner = true
 position = Vector2(7680, 4320)
 
-[node name="Audio" type="Node2D" parent="."]
+[node name="WorldBottomRight2" type="Marker2D" parent="SpawnPoints" unique_id=297393892]
+unique_name_in_owner = true
+position = Vector2(17920, 4320)
 
-[node name="UnderwaterAmbience" type="AudioStreamPlayer" parent="Audio"]
+[node name="Audio" type="Node2D" parent="." unique_id=1524100572]
+
+[node name="UnderwaterAmbience" type="AudioStreamPlayer" parent="Audio" unique_id=377211940]
 unique_name_in_owner = true
 stream = ExtResource("13_ambience")
 volume_db = -20.0
 
-[node name="EffectsLayer" type="Node2D" parent="."]
+[node name="EffectsLayer" type="Node2D" parent="." unique_id=569188736]
 
-[node name="ConchPulseV2" parent="EffectsLayer" instance=ExtResource("9_conch_pulse")]
+[node name="ConchPulseV2" parent="EffectsLayer" unique_id=721953133 instance=ExtResource("9_conch_pulse")]
 unique_name_in_owner = true
 z_index = 12
 
-[node name="SurfaceSplashV2" type="VideoStreamPlayer" parent="EffectsLayer"]
+[node name="SurfaceSplashV2" type="VideoStreamPlayer" parent="EffectsLayer" unique_id=20892766]
 unique_name_in_owner = true
-stream = ExtResource("11_splash_video")
-position = Vector2(0, 0)
+z_index = 12
 scale = Vector2(0.55, 0.55)
-z_index = 12
+stream = ExtResource("11_splash_video")
 script = ExtResource("10_splash_script")
 
-[node name="BubbleOverlayLayer" type="CanvasLayer" parent="."]
+[node name="BubbleOverlayLayer" type="CanvasLayer" parent="." unique_id=1024688829]
 layer = 8
 
-[node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleOverlayLayer"]
+[node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleOverlayLayer" unique_id=1091427672]
 unique_name_in_owner = true
-stream = ExtResource("12_bubble_overlay")
-offset_right = 1280.0
-offset_bottom = 720.0
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = 1280.0
+offset_bottom = 720.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+stream = ExtResource("12_bubble_overlay")
 
-[node name="HylasV2" parent="." instance=ExtResource("8_hylas")]
+[node name="HylasV2" parent="." unique_id=1638166879 instance=ExtResource("8_hylas")]
 unique_name_in_owner = true
-position = Vector2(1280, 2520)
 z_index = 10
+position = Vector2(1280, 2520)
