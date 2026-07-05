@@ -5,19 +5,14 @@
 
 [sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
 shader = ExtResource("2_bubble_shader")
-shader_parameter/black_level = 0.55
-shader_parameter/brightness = 1.5
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 1.35
 
 [node name="SeaOfPillarsV2" instance=ExtResource("1_base_scene")]
 
-[node name="WorldBottomRight2" parent="SpawnPoints" index="3"]
-position = Vector2(17920, 9000)
-
-[node name="SurfaceSplashV2" parent="EffectsLayer" index="1"]
-material = SubResource("BubbleVideoMaterial")
-
 [node name="BubbleOverlay" parent="BubbleOverlayLayer" index="0"]
 material = SubResource("BubbleVideoMaterial")
-autoplay = true
+autoplay = false
 loop = true
 expand = true

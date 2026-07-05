@@ -6,9 +6,7 @@ signal surface_splash_requested(origin: Vector2)
 signal burst_started(origin: Vector2, direction: Vector2)
 signal tail_flip_started(origin: Vector2, direction: Vector2)
 
-@export_category("World")
-@export var world_bounds: Rect2 = Rect2(0.0, 0.0, 7680.0, 4320.0)
-@export var swim_ceiling_y: float = 2060.0
+@export_category("World Clamping")
 @export var player_edge_padding: float = 105.0
 
 @export_category("Swimming")
@@ -49,8 +47,6 @@ signal tail_flip_started(origin: Vector2, direction: Vector2)
 
 @export_category("Presentation")
 @export var display_height: float = 205.0
-@export var shadow_offset: Vector2 = Vector2(8.0, 17.0)
-@export var shadow_scale_multiplier: float = 1.18
 @export var camera_shake_strength: float = 10.0
 @export var camera_shake_duration: float = 0.13
 
@@ -59,10 +55,13 @@ signal tail_flip_started(origin: Vector2, direction: Vector2)
 @onready var _collision_shape: CollisionShape2D = %CollisionShape
 @onready var _camera: Camera2D = %Camera2D
 @onready var _tail_bubble_burst: VideoStreamPlayer = %TailBubbleBurst
-@onready var _tail_bubble_anchor: Marker2D = %TailBubbleAnchor
 @onready var _swim_audio: AudioStreamPlayer = %SwimAudio
 @onready var _burst_audio: AudioStreamPlayer = %BurstAudio
 @onready var _conch_audio: AudioStreamPlayer = %ConchAudio
+
+# Level-owned markers provide these values through configure_world().
+var _world_bounds: Rect2 = Rect2()
+var _swim_ceiling_y: float = 0.0
 
 var _play_enabled: bool = false
 var _facing_left: bool = false
@@ -96,13 +95,15 @@ func _ready() -> void:
 	_burst_audio.process_mode = Node.PROCESS_MODE_ALWAYS
 	_conch_audio.process_mode = Node.PROCESS_MODE_ALWAYS
 	_apply_display_scale()
+	_tail_bubble_burst.finished.connect(_on_tail_bubble_burst_finished)
+	_tail_bubble_burst.hide()
 	_set_animation(&"idle")
 	set_physics_process(false)
 
 
 func configure_world(bounds: Rect2, waterline_y: float, start_position: Vector2) -> void:
-	world_bounds = bounds
-	swim_ceiling_y = waterline_y
+	_world_bounds = bounds
+	_swim_ceiling_y = waterline_y
 	global_position = _clamp_to_world(start_position)
 	_camera.limit_left = floori(bounds.position.x)
 	_camera.limit_top = floori(bounds.position.y)
@@ -160,7 +161,7 @@ func _physics_process(delta: float) -> void:
 	if _burst_remaining > 0.0:
 		_update_burst(delta)
 		_apply_motion(delta, false)
-		if _pending_surface_jump and global_position.y <= swim_ceiling_y:
+		if _pending_surface_jump and global_position.y <= _swim_ceiling_y:
 			_begin_surface_jump()
 		return
 
@@ -203,7 +204,7 @@ func _start_burst(input_direction: Vector2) -> void:
 	_burst_cooldown_remaining = burst_cooldown
 	_burst_charges -= 1
 	_burst_charge_timer = burst_charge_recovery
-	_pending_surface_jump = vertical_axis < 0.0 and global_position.y <= swim_ceiling_y + jump_trigger_depth
+	_pending_surface_jump = vertical_axis < 0.0 and global_position.y <= _swim_ceiling_y + jump_trigger_depth
 	_movement_velocity = _burst_direction * burst_speed
 	_set_visual_rotation(_direction_rotation(_burst_direction, vertical_burst_angle_degrees))
 	_set_animation(&"burst")
@@ -324,9 +325,9 @@ func _begin_surface_jump() -> void:
 	_burst_remaining = 0.0
 	_movement_velocity = Vector2.ZERO
 	_jump_elapsed = 0.0001
-	_jump_start = Vector2(global_position.x, swim_ceiling_y)
+	_jump_start = Vector2(global_position.x, _swim_ceiling_y)
 	var facing_sign: float = -1.0 if _facing_left else 1.0
-	_jump_end = Vector2(_jump_start.x + facing_sign * jump_forward_distance, swim_ceiling_y + 40.0)
+	_jump_end = Vector2(_jump_start.x + facing_sign * jump_forward_distance, _swim_ceiling_y + 40.0)
 	global_position = _jump_start
 	_set_visual_rotation(0.0)
 	_set_animation(&"jump")
@@ -340,7 +341,7 @@ func _update_surface_jump(delta: float) -> void:
 	var base_position: Vector2 = _jump_start.lerp(_jump_end, progress)
 	global_position = Vector2(base_position.x, base_position.y - sin(progress * PI) * jump_arc_height)
 	if progress >= 0.80 and _jump_elapsed - delta < jump_duration * 0.80:
-		surface_splash_requested.emit(Vector2(global_position.x, swim_ceiling_y))
+		surface_splash_requested.emit(Vector2(global_position.x, _swim_ceiling_y))
 	if progress >= 1.0:
 		_jump_elapsed = 0.0
 		global_position = _clamp_to_world(_jump_end)
@@ -369,24 +370,26 @@ func _apply_display_scale() -> void:
 		return
 	var scale_factor: float = display_height / maxf(1.0, float(first_texture.get_height()))
 	_animated_sprite.scale = Vector2.ONE * scale_factor
-	_shadow_sprite.scale = Vector2.ONE * scale_factor * shadow_scale_multiplier
-	var rectangle: RectangleShape2D = _collision_shape.shape as RectangleShape2D
-	if rectangle != null:
-		rectangle.size = Vector2(maxf(70.0, display_height * 0.60), maxf(30.0, display_height * 0.24))
+	# The shadow follows Hylas's body scale only. Its position remains the ShadowSprite node's own Inspector control.
+	_shadow_sprite.scale = Vector2.ONE * scale_factor
 
 
 func _update_shadow() -> void:
 	var texture: Texture2D = _animated_sprite.sprite_frames.get_frame_texture(_animated_sprite.animation, _animated_sprite.frame)
 	_shadow_sprite.texture = texture
 	_shadow_sprite.flip_h = _facing_left
-	_shadow_sprite.position = shadow_offset
 
 
 func _play_tail_bubble_burst() -> void:
-	_tail_bubble_burst.global_position = _tail_bubble_anchor.global_position
+	if _tail_bubble_burst.stream == null:
+		return
 	_tail_bubble_burst.stop()
 	_tail_bubble_burst.show()
 	_tail_bubble_burst.play()
+
+
+func _on_tail_bubble_burst_finished() -> void:
+	_tail_bubble_burst.hide()
 
 
 func _play_swim_audio() -> void:
@@ -475,10 +478,10 @@ func _direction_rotation(direction: Vector2, degrees: float) -> float:
 
 
 func _clamp_to_world(position_value: Vector2) -> Vector2:
-	var minimum_y: float = world_bounds.position.y + player_edge_padding
+	var minimum_y: float = _world_bounds.position.y + player_edge_padding
 	if _jump_elapsed <= 0.0:
-		minimum_y = maxf(minimum_y, swim_ceiling_y)
+		minimum_y = maxf(minimum_y, _swim_ceiling_y)
 	return Vector2(
-		clampf(position_value.x, world_bounds.position.x + player_edge_padding, world_bounds.end.x - player_edge_padding),
-		clampf(position_value.y, minimum_y, world_bounds.end.y - player_edge_padding),
+		clampf(position_value.x, _world_bounds.position.x + player_edge_padding, _world_bounds.end.x - player_edge_padding),
+		clampf(position_value.y, minimum_y, _world_bounds.end.y - player_edge_padding),
 	)

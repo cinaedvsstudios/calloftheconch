@@ -1,4 +1,7 @@
-shader_type canvas_item;
+[gd_resource type="Shader" format=3 uid="uid://cq5iqis5uc4va"]
+
+[resource]
+code = "shader_type canvas_item;
 render_mode unshaded, blend_add;
 
 // Each VideoStreamPlayer material owns these appearance values.
@@ -12,3 +15,4 @@ void fragment() {
 	float bubble_mask = smoothstep(cut_off, cut_off + fade_width, light);
 	COLOR = vec4(video * bubble_mask * brightness, 1.0);
 }
+"

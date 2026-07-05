@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://d2sk0wsbeygtc"]
 
 [ext_resource type="Script" uid="uid://cwrb2jvitdcjw" path="res://rebuild_v2/features/sea_of_pillars_v2/sea_of_pillars_v2.gd" id="1_controller"]
+[ext_resource type="Script" uid="uid://cgw48qy2v0v2l" path="res://rebuild_v2/shared/looping_audio_player_v2.gd" id="2_looping_audio"]
 [ext_resource type="Texture2D" uid="uid://cwrbkxc6mw11b" path="res://assets/backgrounds/waterskybg.jpg" id="2_water_sky"]
 [ext_resource type="Texture2D" uid="uid://cw5k6kvodru7p" path="res://assets/backgrounds/waterbg.jpg" id="3_deep_water"]
 [ext_resource type="Texture2D" uid="uid://k48eqm6henos" path="res://assets/backgrounds/waterdeepbg.jpg" id="4_4lrlp"]
@@ -8,10 +9,9 @@
 [ext_resource type="Texture2D" uid="uid://cebhhicckj285" path="res://assets/backgrounds/mountainoverlay01.webp" id="5_mountain_a"]
 [ext_resource type="Shader" uid="uid://c7ehqrsmjmdr" path="res://rebuild_v2/features/sea_of_pillars_v2/lower_water_multiply.gdshader" id="5_qtevd"]
 [ext_resource type="Texture2D" uid="uid://bnh8y5pk6qa0j" path="res://assets/backgrounds/mountainoverlay03.webp" id="6_mountain_b"]
-[ext_resource type="Shader" uid="uid://cdt8duh1t2nq3" path="res://lower_water_fade_left.gdshader" id="7_qtevd"]
 [ext_resource type="Texture2D" uid="uid://dejgtuv4d265x" path="res://assets/backgrounds/sandoverlay.webp" id="7_sand"]
 [ext_resource type="Shader" uid="uid://dkacrtong4472" path="res://rebuild_v2/features/sea_of_pillars_v2/lower_water_fade_left.gdshader.gdshader" id="7_xfcpf"]
-[ext_resource type="PackedScene" path="res://rebuild_v2/features/hylas_v2/hylas_v2.tscn" id="8_hylas"]
+[ext_resource type="PackedScene" uid="uid://c517thhqaggvs" path="res://rebuild_v2/features/hylas_v2/hylas_v2.tscn" id="8_hylas"]
 [ext_resource type="PackedScene" path="res://rebuild_v2/features/effects_v2/conch_pulse_v2.tscn" id="9_conch_pulse"]
 [ext_resource type="Script" uid="uid://cbg0rqalr8f2f" path="res://rebuild_v2/features/effects_v2/surface_splash_v2.gd" id="10_splash_script"]
 [ext_resource type="VideoStream" uid="uid://d3o33jkhljemp" path="res://assets/effects/bubble-explosion.ogv" id="11_splash_video"]
@@ -19,6 +19,7 @@
 [ext_resource type="AudioStream" uid="uid://b1ok5tlb5fqkw" path="res://assets/audio/underwater_ambience.mp3" id="13_ambience"]
 [ext_resource type="Texture2D" uid="uid://c3c10q6mvinl0" path="res://rebuild_v2/features/sea_of_pillars_v2/waterdeepbg2.jpg" id="18_65ai8"]
 [ext_resource type="Texture2D" uid="uid://de8kwicxeff17" path="res://rebuild_v2/features/sea_of_pillars_v2/ship1.webp" id="19_4vdix"]
+[ext_resource type="Shader" uid="uid://cq5iqis5uc4va" path="res://features/prototype_water/bubble_overlay_material.tres" id="20_efaxg"]
 [ext_resource type="Texture2D" uid="uid://dhp4hr07wjkpg" path="res://rebuild_v2/features/sea_of_pillars_v2/mountainoverlay04.webp" id="20_w2na3"]
 [ext_resource type="Texture2D" uid="uid://35w6bpfsthyv" path="res://rebuild_v2/features/sea_of_pillars_v2/mountainoverlay05.webp" id="21_pg2vj"]
 
@@ -35,14 +36,11 @@ shader_parameter/fade_end = 1.0
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4lrlp"]
 load_path = "res://.godot/imported/waterbgparalax.webp-438d63c1ba2a97395929188d0cd7ed41.ctex"
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_4vdix"]
-shader = ExtResource("7_qtevd")
-shader_parameter/strength = 0.55
-shader_parameter/fade_start = 0.5
-shader_parameter/fade_end = 1.0
-
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_qitmw"]
-blend_mode = 1
+[sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
+shader = ExtResource("20_efaxg")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 4.0
 
 [node name="SeaOfPillarsV2" type="Node2D" unique_id=1981294601]
 script = ExtResource("1_controller")
@@ -480,7 +478,7 @@ texture = SubResource("CompressedTexture2D_4lrlp")
 centered = false
 
 [node name="LowerWaterParallax08" type="Sprite2D" parent="ParallaxLayer" unique_id=1228889540]
-material = SubResource("ShaderMaterial_4vdix")
+material = SubResource("ShaderMaterial_65ai8")
 position = Vector2(15360, 3322.0002)
 scale = Vector2(1.1786373, 1.4917129)
 texture = ExtResource("4_lower_parallax")
@@ -1077,10 +1075,6 @@ unique_name_in_owner = true
 
 [node name="WorldBottomRight" type="Marker2D" parent="SpawnPoints" unique_id=674130765]
 unique_name_in_owner = true
-position = Vector2(7680, 4320)
-
-[node name="WorldBottomRight2" type="Marker2D" parent="SpawnPoints" unique_id=297393892]
-unique_name_in_owner = true
 position = Vector2(17920, 4320)
 
 [node name="Audio" type="Node2D" parent="." unique_id=1524100572]
@@ -1089,6 +1083,7 @@ position = Vector2(17920, 4320)
 unique_name_in_owner = true
 stream = ExtResource("13_ambience")
 volume_db = -20.0
+script = ExtResource("2_looping_audio")
 
 [node name="EffectsLayer" type="Node2D" parent="." unique_id=569188736]
 
@@ -1108,7 +1103,7 @@ layer = 999
 
 [node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleOverlayLayer" unique_id=1091427672]
 unique_name_in_owner = true
-material = SubResource("CanvasItemMaterial_qitmw")
+material = SubResource("BubbleVideoMaterial")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -1120,10 +1115,9 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 stream = ExtResource("12_bubble_overlay")
-autoplay = true
+expand = true
 loop = true
 
 [node name="HylasV2" parent="." unique_id=1638166879 instance=ExtResource("8_hylas")]
 unique_name_in_owner = true
 z_index = 10
-position = Vector2(1280, 2520)

@@ -28,3 +28,17 @@ For direct level inspection without the menu, run:
 - `app/contexts/gameplay_v2/gameplay_context_v2.tscn` — editable gameplay wrapper and pause UI.
 - `features/sea_of_pillars_v2/sea_of_pillars_v2.tscn` — editable water, terrain art, collision, audio, markers and effects.
 - `features/hylas_v2/hylas_v2.tscn` — editable Hylas sprite, collision, camera, audio and effect anchors.
+
+
+## Single-control rule (V2 cleanup)
+
+Each value has one authoring home. Scene nodes own their authored placement and structure; root feature nodes own their behaviour settings; materials on the visual node own shader appearance. Scripts may derive runtime state from those controls, but do not provide competing Inspector values.
+
+Examples:
+
+- `ShadowSprite` owns its shader appearance and native offset. Hylas only mirrors live texture, direction, rotation and body scale.
+- `CollisionShape` owns the Hylas hitbox size.
+- `HylasStart`, `WaterlineMarker`, `WorldTopLeft` and `WorldBottomRight` own level spawn/bounds.
+- `ConchPulseV2` owns pulse timing, size and width transition; `Ring` owns its line geometry and colour.
+- Each bubble `VideoStreamPlayer` owns its own assigned material.
+- `UnderwaterAmbience` owns its loop setting; `SeaOfPillarsV2` owns only whether it starts for this level.
