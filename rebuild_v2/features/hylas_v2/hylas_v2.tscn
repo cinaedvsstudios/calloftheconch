@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v2/features/hylas_v2/hylas_v2.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://rebuild_v2/features/hylas_v2/hylas_v2_sprite_frames.tres" id="2_frames"]
@@ -8,6 +8,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/speed_noise.mp3" id="6_burst_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/Super Conch_noise.mp3" id="7_conch_audio"]
 [ext_resource type="Script" path="res://rebuild_v2/shared/looping_audio_player_v2.gd" id="8_looping_audio"]
+[ext_resource type="Script" path="res://rebuild_v2/shared/screen_video_player.gd" id="9_screen_video"]
 
 [sub_resource type="RectangleShape2D" id="HylasCollisionShape"]
 size = Vector2(123, 49)
@@ -20,6 +21,7 @@ script = ExtResource("1_controller")
 
 [node name="ShadowSprite" type="Sprite2D" parent="."]
 unique_name_in_owner = true
+visible = false
 texture = ExtResource("3_swim_idle")
 position = Vector2(8, 17)
 scale = Vector2(1.18, 1.18)
@@ -54,6 +56,7 @@ scale = Vector2(0.55, 0.55)
 z_index = -1
 show_behind_parent = true
 mouse_filter = 2
+script = ExtResource("9_screen_video")
 
 [node name="SurfaceSplashAnchor" type="Marker2D" parent="."]
 unique_name_in_owner = true
