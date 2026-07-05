@@ -10,6 +10,8 @@ signal exit_requested
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	_main_music.process_mode = Node.PROCESS_MODE_ALWAYS
 	_start_button.pressed.connect(_on_start_button_pressed)
 	_exit_button.pressed.connect(_on_exit_button_pressed)
 
@@ -17,13 +19,20 @@ func _ready() -> void:
 func activate() -> void:
 	show()
 	_start_button.grab_focus()
-	if _main_music.stream != null and not _main_music.playing:
-		_main_music.play()
+	_play_main_music()
 
 
 func deactivate() -> void:
 	_main_music.stop()
 	hide()
+
+
+func _play_main_music() -> void:
+	if _main_music.stream == null:
+		return
+	_main_music.stream_paused = false
+	if not _main_music.playing:
+		_main_music.play()
 
 
 func _on_start_button_pressed() -> void:
