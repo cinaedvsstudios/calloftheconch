@@ -2,6 +2,7 @@ class_name SeaOfPillarsV2
 extends Node2D
 
 const SHIP_CAVERN_COLLISION_SCENE: PackedScene = preload("res://rebuild_v2/features/sea_of_pillars_v2/ship_cavern_collision.tscn")
+const BUBBLE_SCREEN_BLEND_SHADER: Shader = preload("res://rebuild_v2/features/sea_of_pillars_v2/bubble_screen_blend.gdshader")
 
 @export_category("Level")
 @export var auto_play_ambience: bool = true
@@ -32,9 +33,9 @@ func _ready() -> void:
 
 
 func _configure_bubble_overlay() -> void:
-	var additive_material: CanvasItemMaterial = CanvasItemMaterial.new()
-	additive_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-	_bubble_overlay.material = additive_material
+	var screen_material: ShaderMaterial = ShaderMaterial.new()
+	screen_material.shader = BUBBLE_SCREEN_BLEND_SHADER
+	_bubble_overlay.material = screen_material
 	_bubble_overlay.loop = true
 	_bubble_overlay.expand = true
 	_bubble_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
