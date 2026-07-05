@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v2/app/contexts/menu_v2/menu_context_v2.gd" id="1"]
+
+[node name="MenuContextV2" type="Control"]
+script = ExtResource("1")
