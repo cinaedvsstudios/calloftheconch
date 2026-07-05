@@ -2,6 +2,7 @@ class_name SeaOfPillarsV2
 extends Node2D
 
 const SCREEN_VIDEO_PLAYER: Script = preload("res://rebuild_v2/shared/screen_video_player.gd")
+const SHIP_SWIM_BOTTOM_Y: float = 9000.0
 
 @export_category("Level")
 @export var auto_play_ambience: bool = true
@@ -64,6 +65,7 @@ func configure_player() -> void:
 			maxf(bottom_right.y, extension_position.y),
 		)
 
+	bottom_right.y = maxf(bottom_right.y, SHIP_SWIM_BOTTOM_Y)
 	var world_bounds: Rect2 = Rect2(top_left, bottom_right - top_left)
 	_hylas.configure_world(world_bounds, _waterline_marker.global_position.y, _start_marker.global_position)
 
