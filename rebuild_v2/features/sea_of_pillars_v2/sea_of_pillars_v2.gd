@@ -1,7 +1,6 @@
 class_name SeaOfPillarsV2
 extends Node2D
 
-const SCREEN_VIDEO_PLAYER: Script = preload("res://rebuild_v2/shared/screen_video_player.gd")
 const SHIP_SWIM_BOTTOM_Y: float = 9000.0
 
 @export_category("Level")
@@ -24,35 +23,11 @@ var _active: bool = false
 
 func _ready() -> void:
 	_underwater_ambience.process_mode = Node.PROCESS_MODE_ALWAYS
-	_remove_duplicate_lower_water_parallax()
-	_configure_bubble_overlay()
 	_hylas.normal_conch_used.connect(_on_hylas_normal_conch_used)
 	_hylas.surface_splash_requested.connect(_on_hylas_surface_splash_requested)
 	_set_audio_stream_looping(_underwater_ambience)
 	configure_player()
 	deactivate()
-
-
-func _configure_bubble_overlay() -> void:
-	SCREEN_VIDEO_PLAYER.configure_effect(_bubble_overlay, true)
-
-
-func _remove_duplicate_lower_water_parallax() -> void:
-	var parallax_layer: Node2D = get_node_or_null("ParallaxLayer") as Node2D
-	if parallax_layer == null:
-		return
-
-	var occupied_positions: Dictionary = {}
-	for child: Node in parallax_layer.get_children():
-		var sprite: Sprite2D = child as Sprite2D
-		if sprite == null or not String(sprite.name).begins_with("LowerWaterParallax"):
-			continue
-
-		var position_key: Vector2i = Vector2i(roundi(sprite.position.x), roundi(sprite.position.y))
-		if occupied_positions.has(position_key):
-			sprite.hide()
-		else:
-			occupied_positions[position_key] = true
 
 
 func configure_player() -> void:
