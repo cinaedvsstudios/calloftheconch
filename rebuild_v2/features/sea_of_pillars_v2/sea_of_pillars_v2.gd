@@ -22,13 +22,22 @@ var _active: bool = false
 
 func _ready() -> void:
 	_underwater_ambience.process_mode = Node.PROCESS_MODE_ALWAYS
+	_configure_bubble_overlay()
 	_add_ship_cavern_collision()
 	_hylas.normal_conch_used.connect(_on_hylas_normal_conch_used)
 	_hylas.surface_splash_requested.connect(_on_hylas_surface_splash_requested)
 	_set_audio_stream_looping(_underwater_ambience)
-	_bubble_overlay.loop = true
 	configure_player()
 	deactivate()
+
+
+func _configure_bubble_overlay() -> void:
+	var additive_material: CanvasItemMaterial = CanvasItemMaterial.new()
+	additive_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_bubble_overlay.material = additive_material
+	_bubble_overlay.loop = true
+	_bubble_overlay.expand = true
+	_bubble_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _add_ship_cavern_collision() -> void:
