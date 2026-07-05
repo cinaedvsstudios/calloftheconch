@@ -1,46 +1,70 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=18 format=3]
 
-[ext_resource type="Texture2D" path="res://assets/backgrounds/waterskybg.jpg" id="1_water_sky"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/waterbg.jpg" id="2_deep_water"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/waterbgparalax.webp" id="3_lower_parallax"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/mountainoverlay01.webp" id="4_mountain_a"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/mountainoverlay03.webp" id="5_mountain_b"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/sandoverlay.webp" id="6_sand"]
-[ext_resource type="PackedScene" path="res://rebuild_v2/features/hylas_v2/hylas_v2.tscn" id="7_hylas"]
-[ext_resource type="AudioStream" path="res://assets/audio/underwater_ambience.mp3" id="8_ambience"]
+[ext_resource type="Script" path="res://rebuild_v2/features/sea_of_pillars_v2/sea_of_pillars_v2.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/waterskybg.jpg" id="2_water_sky"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/waterbg.jpg" id="3_deep_water"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/waterbgparalax.webp" id="4_lower_parallax"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/mountainoverlay01.webp" id="5_mountain_a"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/mountainoverlay03.webp" id="6_mountain_b"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/sandoverlay.webp" id="7_sand"]
+[ext_resource type="PackedScene" path="res://rebuild_v2/features/hylas_v2/hylas_v2.tscn" id="8_hylas"]
+[ext_resource type="PackedScene" path="res://rebuild_v2/features/effects_v2/conch_pulse_v2.tscn" id="9_conch_pulse"]
+[ext_resource type="Script" path="res://rebuild_v2/features/effects_v2/surface_splash_v2.gd" id="10_splash_script"]
+[ext_resource type="VideoStream" path="res://assets/effects/bubble-explosion.ogv" id="11_splash_video"]
+[ext_resource type="VideoStream" path="res://assets/effects/bubble_riser_field.ogv" id="12_bubble_overlay"]
+[ext_resource type="AudioStream" path="res://assets/audio/underwater_ambience.mp3" id="13_ambience"]
+
+[sub_resource type="ConvexPolygonShape2D" id="MountainShape01"]
+points = PackedVector2Array(0, 3650, 260, 3320, 760, 3490, 1230, 3190, 1880, 3470, 2560, 3300, 2560, 4320, 0, 4320)
+
+[sub_resource type="ConvexPolygonShape2D" id="MountainShape02"]
+points = PackedVector2Array(2560, 3570, 2890, 3300, 3410, 3480, 3910, 3180, 4580, 3460, 5120, 3300, 5120, 4320, 2560, 4320)
+
+[sub_resource type="ConvexPolygonShape2D" id="MountainShape03"]
+points = PackedVector2Array(5120, 3650, 5380, 3320, 5880, 3490, 6350, 3190, 7000, 3470, 7680, 3300, 7680, 4320, 5120, 4320)
+
+[sub_resource type="RectangleShape2D" id="SandShape01"]
+size = Vector2(2560, 190)
+
+[sub_resource type="RectangleShape2D" id="SandShape02"]
+size = Vector2(2560, 190)
+
+[sub_resource type="RectangleShape2D" id="SandShape03"]
+size = Vector2(2560, 190)
 
 [node name="SeaOfPillarsV2" type="Node2D"]
+script = ExtResource("1_controller")
 
 [node name="BackgroundLayer" type="Node2D" parent="."]
 z_index = -30
 
 [node name="WaterSky01" type="Sprite2D" parent="BackgroundLayer"]
-texture = ExtResource("1_water_sky")
+texture = ExtResource("2_water_sky")
 centered = false
 position = Vector2(0, 0)
 
 [node name="WaterSky02" type="Sprite2D" parent="BackgroundLayer"]
-texture = ExtResource("1_water_sky")
+texture = ExtResource("2_water_sky")
 centered = false
 position = Vector2(2560, 0)
 
 [node name="WaterSky03" type="Sprite2D" parent="BackgroundLayer"]
-texture = ExtResource("1_water_sky")
+texture = ExtResource("2_water_sky")
 centered = false
 position = Vector2(5120, 0)
 
 [node name="DeepWater01" type="Sprite2D" parent="BackgroundLayer"]
-texture = ExtResource("2_deep_water")
+texture = ExtResource("3_deep_water")
 centered = false
 position = Vector2(0, 2160)
 
 [node name="DeepWater02" type="Sprite2D" parent="BackgroundLayer"]
-texture = ExtResource("2_deep_water")
+texture = ExtResource("3_deep_water")
 centered = false
 position = Vector2(2560, 2160)
 
 [node name="DeepWater03" type="Sprite2D" parent="BackgroundLayer"]
-texture = ExtResource("2_deep_water")
+texture = ExtResource("3_deep_water")
 centered = false
 position = Vector2(5120, 2160)
 
@@ -49,79 +73,151 @@ z_index = -20
 
 [node name="LowerWaterParallax01" type="Sprite2D" parent="ParallaxLayer"]
 visible = false
-texture = ExtResource("3_lower_parallax")
+texture = ExtResource("4_lower_parallax")
 centered = false
 position = Vector2(0, 2160)
 
 [node name="LowerWaterParallax02" type="Sprite2D" parent="ParallaxLayer"]
 visible = false
-texture = ExtResource("3_lower_parallax")
+texture = ExtResource("4_lower_parallax")
 centered = false
 position = Vector2(2560, 2160)
 
 [node name="LowerWaterParallax03" type="Sprite2D" parent="ParallaxLayer"]
 visible = false
-texture = ExtResource("3_lower_parallax")
+texture = ExtResource("4_lower_parallax")
 centered = false
 position = Vector2(5120, 2160)
 
 [node name="TerrainArtLayer" type="Node2D" parent="."]
 
 [node name="MountainOverlay01" type="Sprite2D" parent="TerrainArtLayer"]
-texture = ExtResource("4_mountain_a")
+texture = ExtResource("5_mountain_a")
 centered = false
 position = Vector2(0, 2160)
 
 [node name="MountainOverlay02" type="Sprite2D" parent="TerrainArtLayer"]
-texture = ExtResource("5_mountain_b")
+texture = ExtResource("6_mountain_b")
 centered = false
 position = Vector2(2560, 2160)
 
 [node name="MountainOverlay03" type="Sprite2D" parent="TerrainArtLayer"]
-texture = ExtResource("4_mountain_a")
+texture = ExtResource("5_mountain_a")
 centered = false
 position = Vector2(5120, 2160)
 
 [node name="SandOverlay01" type="Sprite2D" parent="TerrainArtLayer"]
-texture = ExtResource("6_sand")
+texture = ExtResource("7_sand")
 centered = false
 position = Vector2(0, 2160)
 z_index = 20
 
 [node name="SandOverlay02" type="Sprite2D" parent="TerrainArtLayer"]
-texture = ExtResource("6_sand")
+texture = ExtResource("7_sand")
 centered = false
 position = Vector2(2560, 2160)
 z_index = 20
 
 [node name="SandOverlay03" type="Sprite2D" parent="TerrainArtLayer"]
-texture = ExtResource("6_sand")
+texture = ExtResource("7_sand")
 centered = false
 position = Vector2(5120, 2160)
 z_index = 20
 
 [node name="TerrainCollisionLayer" type="Node2D" parent="."]
 
+[node name="MountainCollision01" type="StaticBody2D" parent="TerrainCollisionLayer"]
+
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision01"]
+shape = SubResource("MountainShape01")
+
+[node name="MountainCollision02" type="StaticBody2D" parent="TerrainCollisionLayer"]
+
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision02"]
+shape = SubResource("MountainShape02")
+
+[node name="MountainCollision03" type="StaticBody2D" parent="TerrainCollisionLayer"]
+
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/MountainCollision03"]
+shape = SubResource("MountainShape03")
+
+[node name="SandCollision01" type="StaticBody2D" parent="TerrainCollisionLayer"]
+position = Vector2(1280, 4225)
+
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision01"]
+shape = SubResource("SandShape01")
+
+[node name="SandCollision02" type="StaticBody2D" parent="TerrainCollisionLayer"]
+position = Vector2(3840, 4225)
+
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision02"]
+shape = SubResource("SandShape02")
+
+[node name="SandCollision03" type="StaticBody2D" parent="TerrainCollisionLayer"]
+position = Vector2(6400, 4225)
+
+[node name="CollisionShape" type="CollisionShape2D" parent="TerrainCollisionLayer/SandCollision03"]
+shape = SubResource("SandShape03")
+
 [node name="ObjectsLayer" type="Node2D" parent="."]
 
 [node name="TriggersLayer" type="Node2D" parent="."]
 
+[node name="WaterlineMarker" type="Marker2D" parent="TriggersLayer"]
+unique_name_in_owner = true
+position = Vector2(1280, 2060)
+
 [node name="SpawnPoints" type="Node2D" parent="."]
 
 [node name="HylasStart" type="Marker2D" parent="SpawnPoints"]
+unique_name_in_owner = true
 position = Vector2(1280, 2520)
 
-[node name="WaterlineMarker" type="Marker2D" parent="TriggersLayer"]
-position = Vector2(1280, 2060)
+[node name="WorldTopLeft" type="Marker2D" parent="SpawnPoints"]
+unique_name_in_owner = true
+position = Vector2(0, 0)
+
+[node name="WorldBottomRight" type="Marker2D" parent="SpawnPoints"]
+unique_name_in_owner = true
+position = Vector2(7680, 4320)
 
 [node name="Audio" type="Node2D" parent="."]
 
 [node name="UnderwaterAmbience" type="AudioStreamPlayer" parent="Audio"]
-stream = ExtResource("8_ambience")
+unique_name_in_owner = true
+stream = ExtResource("13_ambience")
 volume_db = -20.0
 
 [node name="EffectsLayer" type="Node2D" parent="."]
 
-[node name="HylasV2" parent="." instance=ExtResource("7_hylas")]
+[node name="ConchPulseV2" parent="EffectsLayer" instance=ExtResource("9_conch_pulse")]
+unique_name_in_owner = true
+z_index = 12
+
+[node name="SurfaceSplashV2" type="VideoStreamPlayer" parent="EffectsLayer"]
+unique_name_in_owner = true
+stream = ExtResource("11_splash_video")
+position = Vector2(0, 0)
+scale = Vector2(0.55, 0.55)
+z_index = 12
+script = ExtResource("10_splash_script")
+
+[node name="BubbleOverlayLayer" type="CanvasLayer" parent="."]
+layer = 8
+
+[node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleOverlayLayer"]
+unique_name_in_owner = true
+stream = ExtResource("12_bubble_overlay")
+offset_right = 1280.0
+offset_bottom = 720.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HylasV2" parent="." instance=ExtResource("8_hylas")]
+unique_name_in_owner = true
 position = Vector2(1280, 2520)
 z_index = 10
