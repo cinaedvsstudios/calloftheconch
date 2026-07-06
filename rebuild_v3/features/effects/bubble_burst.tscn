@@ -1,16 +1,16 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://ood4cgs0bkqk"]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/effects/bubble_burst.gd" id="1_controller"]
-[ext_resource type="VideoStream" path="res://assets/effects/bubble-explosion.ogv" id="2_video"]
-[ext_resource type="Shader" path="res://rebuild_v3/features/effects/bubble_burst.gdshader" id="3_shader"]
+[ext_resource type="Script" uid="uid://duq4g2fya37cv" path="res://rebuild_v3/features/effects/bubble_burst.gd" id="1_controller"]
+[ext_resource type="VideoStream" uid="uid://d3o33jkhljemp" path="res://assets/effects/bubble-explosion.ogv" id="2_video"]
+[ext_resource type="Shader" uid="uid://de1sc35uvfevr" path="res://rebuild_v3/features/effects/bubble_burst.gdshader" id="3_shader"]
 
 [sub_resource type="ShaderMaterial" id="BubbleBurstMaterial"]
 shader = ExtResource("3_shader")
 shader_parameter/cut_off = 0.01
 shader_parameter/fade_width = 0.08
-shader_parameter/brightness = 4.0
+shader_parameter/brightness = 6.0
 
-[node name="BubbleBurst" type="Node2D"]
+[node name="BubbleBurst" type="Node2D" unique_id=1133206351]
 visible = false
 z_index = 12
 script = ExtResource("1_controller")
@@ -18,11 +18,12 @@ script = ExtResource("1_controller")
 [node name="BubbleVideo" type="VideoStreamPlayer" parent="." unique_id=1182704802]
 unique_name_in_owner = true
 material = SubResource("BubbleBurstMaterial")
-offset_left = -256.0
-offset_top = -256.0
-offset_right = 256.0
-offset_bottom = 256.0
-scale = Vector2(0.55, 0.55)
+offset_left = -640.0
+offset_top = -360.0
+offset_right = 640.0
+offset_bottom = 360.0
+scale = Vector2(1.5, 1.5)
+pivot_offset = Vector2(640, 360)
 mouse_filter = 2
 stream = ExtResource("2_video")
 expand = true
