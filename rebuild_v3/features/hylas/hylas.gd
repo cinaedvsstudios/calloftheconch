@@ -14,15 +14,17 @@ signal tail_flip_started(origin: Vector2, direction: Vector2)
 @export var swim_acceleration: float = 1600.0
 @export var idle_momentum_deceleration: float = 300.0
 @export var brake_deceleration: float = 2800.0
+@export_range(10.0, 89.0, 1.0) var normal_swim_vertical_angle_degrees: float = 45.0
 @export var idle_sink_speed: float = 14.0
 @export var current_base_velocity: Vector2 = Vector2(10.0, 0.0)
 @export var current_sway_horizontal: float = 7.0
 @export var current_sway_vertical: float = 2.0
 @export var current_sway_frequency: float = 0.24
 
-@export_category("Burst")
+@export_category("Speed Swim")
 @export var burst_speed: float = 1120.0
-@export var burst_duration: float = 0.36
+@export_range(0.10, 10.0, 0.05) var burst_max_duration: float = 3.0
+@export var burst_coast_deceleration: float = 700.0
 @export var burst_cooldown: float = 0.0
 @export_range(1, 5, 1) var burst_max_charges: int = 3
 @export var burst_charge_recovery: float = 1.20
@@ -67,12 +69,22 @@ var _play_enabled: bool = false
 var _facing_left: bool = false
 var _visual_rotation: float = 0.0
 var _current_time: float = 0.0
-var _movement_velocity: Vector2 = Vector2.ZERO
+
+# Standard movement is deliberately split so normal swimming can be added to
+# residual speed-swim momentum instead of replacing it.
+var _swim_velocity: Vector2 = Vector2.ZERO
+var _burst_coast_velocity: Vector2 = Vector2.ZERO
+var _special_velocity: Vector2 = Vector2.ZERO
+
 var _burst_direction: Vector2 = Vector2.RIGHT
+var _burst_active: bool = false
+var _burst_elapsed: float = 0.0
 var _burst_remaining: float = 0.0
+var _burst_requires_release: bool = false
 var _burst_cooldown_remaining: float = 0.0
 var _burst_charges: int = 0
 var _burst_charge_timer: float = 0.0
+
 var _tail_flip_direction: Vector2 = Vector2.RIGHT
 var _tail_flip_remaining: float = 0.0
 var _tail_flip_cooldown_remaining: float = 0.0
@@ -114,14 +126,13 @@ func set_play_enabled(enabled: bool) -> void:
 	_play_enabled = enabled
 	set_physics_process(enabled)
 	if not enabled:
-		_movement_velocity = Vector2.ZERO
+		_reset_motion_state()
 		_stop_movement_audio()
 
 
 func reset_to_start(start_position: Vector2) -> void:
 	global_position = _clamp_to_world(start_position)
-	_movement_velocity = Vector2.ZERO
-	_burst_remaining = 0.0
+	_reset_motion_state()
 	_tail_flip_remaining = 0.0
 	_conch_remaining = 0.0
 	_pending_conch_remaining = 0.0
@@ -130,6 +141,7 @@ func reset_to_start(start_position: Vector2) -> void:
 	_burst_charges = burst_max_charges
 	_tail_bubble_burst.stop_burst()
 	_stop_movement_audio()
+	_set_visual_rotation(0.0)
 	_set_animation(&"idle")
 
 
@@ -146,26 +158,30 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var input_direction: Vector2 = Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
+	_update_burst_release_latch(input_direction)
 	if Input.is_action_just_pressed(&"conch"):
 		_handle_conch_pressed(input_direction)
 	_update_pending_conch(delta)
 
 	if _tail_flip_remaining > 0.0:
 		_update_tail_flip(delta)
-		_apply_motion(delta, false)
+		_apply_motion(_special_velocity, false)
 		return
 	if _conch_remaining > 0.0:
 		_update_conch(delta)
-		_apply_motion(delta, true)
+		_apply_motion(_special_velocity, true)
 		return
-	if _burst_remaining > 0.0:
-		_update_burst(delta)
-		_apply_motion(delta, false)
+	if _burst_active:
+		_update_active_burst(input_direction, delta)
+		_apply_motion(_swim_velocity + _burst_coast_velocity, false)
 		if _pending_surface_jump and global_position.y <= _swim_ceiling_y:
 			_begin_surface_jump()
 		return
 
-	if _can_start_burst(input_direction):
+	_update_burst_coast(delta)
+	if _burst_requires_release and Input.is_action_pressed(&"action_a"):
+		_update_idle(delta)
+	elif _can_start_burst(input_direction):
 		_start_burst(input_direction)
 	elif _is_braking(input_direction):
 		_update_brake(delta)
@@ -173,7 +189,7 @@ func _physics_process(delta: float) -> void:
 		_update_swim(input_direction, delta)
 	else:
 		_update_idle(delta)
-	_apply_motion(delta, input_direction == Vector2.ZERO)
+	_apply_motion(_swim_velocity + _burst_coast_velocity, input_direction == Vector2.ZERO and not _has_burst_coast())
 
 
 func _update_cooldowns(delta: float) -> void:
@@ -187,8 +203,13 @@ func _update_cooldowns(delta: float) -> void:
 			_burst_charge_timer = burst_charge_recovery if _burst_charges < burst_max_charges else 0.0
 
 
+func _update_burst_release_latch(input_direction: Vector2) -> void:
+	if not Input.is_action_pressed(&"action_a") or input_direction == Vector2.ZERO:
+		_burst_requires_release = false
+
+
 func _can_start_burst(input_direction: Vector2) -> bool:
-	return _pending_conch_remaining <= 0.0 and Input.is_action_pressed(&"action_a") and input_direction != Vector2.ZERO and _burst_charges > 0 and _burst_cooldown_remaining <= 0.0
+	return _pending_conch_remaining <= 0.0 and not _burst_requires_release and Input.is_action_pressed(&"action_a") and input_direction != Vector2.ZERO and _burst_charges > 0 and _burst_cooldown_remaining <= 0.0
 
 
 func _start_burst(input_direction: Vector2) -> void:
@@ -200,12 +221,16 @@ func _start_burst(input_direction: Vector2) -> void:
 	else:
 		_facing_left = input_direction.x < 0.0
 		_burst_direction = Vector2.LEFT if _facing_left else Vector2.RIGHT
-	_burst_remaining = burst_duration
+	_burst_active = true
+	_burst_elapsed = 0.0
+	_burst_remaining = burst_max_duration
 	_burst_cooldown_remaining = burst_cooldown
 	_burst_charges -= 1
 	_burst_charge_timer = burst_charge_recovery
 	_pending_surface_jump = vertical_axis < 0.0 and global_position.y <= _swim_ceiling_y + jump_trigger_depth
-	_movement_velocity = _burst_direction * burst_speed
+	_swim_velocity = Vector2.ZERO
+	_burst_coast_velocity = _burst_direction * burst_speed
+	_special_velocity = Vector2.ZERO
 	_set_visual_rotation(_direction_rotation(_burst_direction, vertical_burst_angle_degrees))
 	_set_animation(&"burst")
 	_play_burst_audio()
@@ -215,18 +240,35 @@ func _start_burst(input_direction: Vector2) -> void:
 	burst_started.emit(global_position, _burst_direction)
 
 
-func _update_burst(delta: float) -> void:
-	_burst_remaining = maxf(0.0, _burst_remaining - delta)
-	_movement_velocity = _movement_velocity.move_toward(Vector2.ZERO, brake_deceleration * delta)
-	if _burst_remaining <= 0.0:
-		_pending_surface_jump = false
-		_set_visual_rotation(0.0)
-		_stop_burst_audio()
-		_set_animation(&"idle")
+func _update_active_burst(input_direction: Vector2, delta: float) -> void:
+	_burst_elapsed += delta
+	_burst_remaining = maxf(0.0, burst_max_duration - _burst_elapsed)
+	if not _is_burst_input_held(input_direction):
+		_finish_burst_to_coast(false)
+		return
+	if _burst_elapsed >= burst_max_duration:
+		_finish_burst_to_coast(true)
+
+
+func _is_burst_input_held(input_direction: Vector2) -> bool:
+	return Input.is_action_pressed(&"action_a") and input_direction != Vector2.ZERO
+
+
+func _finish_burst_to_coast(requires_release: bool) -> void:
+	_burst_active = false
+	_burst_remaining = 0.0
+	_pending_surface_jump = false
+	_burst_requires_release = requires_release
+	_stop_burst_audio()
+	_set_animation(&"swim")
+
+
+func _update_burst_coast(delta: float) -> void:
+	_burst_coast_velocity = _burst_coast_velocity.move_toward(Vector2.ZERO, burst_coast_deceleration * delta)
 
 
 func _handle_conch_pressed(input_direction: Vector2) -> void:
-	if _burst_remaining > 0.0 or _tail_flip_remaining > 0.0 or _jump_elapsed > 0.0:
+	if _burst_active or _tail_flip_remaining > 0.0 or _jump_elapsed > 0.0:
 		return
 	if _pending_conch_remaining > 0.0 and _tail_flip_cooldown_remaining <= 0.0:
 		_pending_conch_remaining = 0.0
@@ -249,7 +291,9 @@ func _start_tail_flip() -> void:
 	_tail_flip_direction = Vector2.LEFT if _facing_left else Vector2.RIGHT
 	_tail_flip_remaining = tail_flip_duration
 	_tail_flip_cooldown_remaining = tail_flip_cooldown
-	_movement_velocity = _tail_flip_direction * tail_flip_speed
+	_special_velocity = _tail_flip_direction * tail_flip_speed
+	_swim_velocity = Vector2.ZERO
+	_burst_coast_velocity = Vector2.ZERO
 	_set_visual_rotation(0.0)
 	_set_animation(&"tail_flip")
 	_play_burst_audio()
@@ -260,7 +304,7 @@ func _start_tail_flip() -> void:
 
 func _update_tail_flip(delta: float) -> void:
 	_tail_flip_remaining = maxf(0.0, _tail_flip_remaining - delta)
-	_movement_velocity = _movement_velocity.move_toward(Vector2.ZERO, brake_deceleration * delta)
+	_special_velocity = _special_velocity.move_toward(Vector2.ZERO, brake_deceleration * delta)
 	if _tail_flip_remaining <= 0.0:
 		_stop_burst_audio()
 		_set_animation(&"idle")
@@ -269,7 +313,9 @@ func _update_tail_flip(delta: float) -> void:
 func _start_conch(direction: Vector2) -> void:
 	_conch_remaining = conch_duration
 	_conch_cooldown_remaining = conch_cooldown
-	_movement_velocity = _movement_velocity.move_toward(Vector2.ZERO, brake_deceleration * 0.08)
+	_special_velocity = (_swim_velocity + _burst_coast_velocity).move_toward(Vector2.ZERO, brake_deceleration * 0.08)
+	_swim_velocity = Vector2.ZERO
+	_burst_coast_velocity = Vector2.ZERO
 	_set_visual_rotation(_direction_rotation(direction, conch_direction_angle_degrees))
 	_set_animation(&"conch")
 	_stop_movement_audio()
@@ -280,51 +326,73 @@ func _start_conch(direction: Vector2) -> void:
 
 func _update_conch(delta: float) -> void:
 	_conch_remaining = maxf(0.0, _conch_remaining - delta)
-	_movement_velocity = _movement_velocity.move_toward(Vector2.ZERO, idle_momentum_deceleration * delta)
+	_special_velocity = _special_velocity.move_toward(Vector2.ZERO, idle_momentum_deceleration * delta)
 	if _conch_remaining <= 0.0:
 		_set_visual_rotation(0.0)
 		_set_animation(&"idle")
 
 
 func _update_swim(input_direction: Vector2, delta: float) -> void:
-	_movement_velocity = _movement_velocity.move_toward(input_direction * swim_speed, swim_acceleration * delta)
-	if absf(input_direction.x) > 0.01:
-		_facing_left = input_direction.x < 0.0
-	_set_visual_rotation(0.0)
+	var swim_direction: Vector2 = _normal_swim_direction(input_direction)
+	_swim_velocity = _swim_velocity.move_toward(swim_direction * swim_speed, swim_acceleration * delta)
+	_set_visual_rotation(_direction_rotation(swim_direction, normal_swim_vertical_angle_degrees))
 	_set_animation(&"swim")
 	_play_swim_audio()
 
 
+func _normal_swim_direction(input_direction: Vector2) -> Vector2:
+	if absf(input_direction.x) > 0.01:
+		_facing_left = input_direction.x < 0.0
+	var vertical_axis: float = _vertical_axis(input_direction)
+	if vertical_axis != 0.0:
+		return _facing_tilted_direction(vertical_axis, normal_swim_vertical_angle_degrees)
+	return Vector2.LEFT if _facing_left else Vector2.RIGHT
+
+
 func _update_brake(delta: float) -> void:
-	_movement_velocity = _movement_velocity.move_toward(Vector2.ZERO, brake_deceleration * delta)
+	_swim_velocity = _swim_velocity.move_toward(Vector2.ZERO, brake_deceleration * delta)
+	_burst_coast_velocity = _burst_coast_velocity.move_toward(Vector2.ZERO, brake_deceleration * delta)
 	_set_visual_rotation(0.0)
 	_set_animation(&"stop")
 	_stop_movement_audio()
 
 
 func _update_idle(delta: float) -> void:
-	_movement_velocity = _movement_velocity.move_toward(Vector2.ZERO, idle_momentum_deceleration * delta)
+	_swim_velocity = _swim_velocity.move_toward(Vector2.ZERO, idle_momentum_deceleration * delta)
+	if _has_burst_coast():
+		_set_visual_rotation(_direction_rotation(_burst_direction, vertical_burst_angle_degrees))
+		_set_animation(&"swim")
+		_stop_movement_audio()
+		return
 	_set_visual_rotation(0.0)
 	_set_animation(&"idle")
 	_stop_movement_audio()
 
 
-func _apply_motion(delta: float, idle: bool) -> void:
+func _has_burst_coast() -> bool:
+	return _burst_coast_velocity.length_squared() > 0.01
+
+
+func _apply_motion(motion_velocity: Vector2, idle: bool) -> void:
 	var current_velocity: Vector2 = Vector2(
 		current_base_velocity.x + sin(_current_time * current_sway_frequency * TAU) * current_sway_horizontal,
 		current_base_velocity.y + cos(_current_time * current_sway_frequency * TAU * 0.67) * current_sway_vertical,
 	)
 	if idle:
 		current_velocity.y += idle_sink_speed
-	velocity = _movement_velocity + current_velocity
+	velocity = motion_velocity + current_velocity
 	move_and_slide()
 	global_position = _clamp_to_world(global_position)
 
 
 func _begin_surface_jump() -> void:
 	_pending_surface_jump = false
+	_burst_active = false
+	_burst_elapsed = 0.0
 	_burst_remaining = 0.0
-	_movement_velocity = Vector2.ZERO
+	_swim_velocity = Vector2.ZERO
+	_burst_coast_velocity = Vector2.ZERO
+	_special_velocity = Vector2.ZERO
 	_jump_elapsed = 0.0001
 	_jump_start = Vector2(global_position.x, _swim_ceiling_y)
 	var facing_sign: float = -1.0 if _facing_left else 1.0
@@ -489,13 +557,25 @@ func _clamp_to_world(position_value: Vector2) -> Vector2:
 	)
 
 
+func _reset_motion_state() -> void:
+	_swim_velocity = Vector2.ZERO
+	_burst_coast_velocity = Vector2.ZERO
+	_special_velocity = Vector2.ZERO
+	_burst_active = false
+	_burst_elapsed = 0.0
+	_burst_remaining = 0.0
+	_burst_requires_release = false
+
+
 func get_debug_lines() -> Array[String]:
 	return [
 		"[Hylas]",
 		"position=(%.1f, %.1f)" % [global_position.x, global_position.y],
 		"facing_left=%s" % str(_facing_left),
 		"burst_charges=%d" % _burst_charges,
-		"burst_remaining=%.2f" % _burst_remaining,
+		"speed_swim_active=%s" % str(_burst_active),
+		"speed_swim_elapsed=%.2f / %.2f" % [_burst_elapsed, burst_max_duration],
+		"burst_coast_speed=%.1f" % _burst_coast_velocity.length(),
 		"tail_bubble_visible=%s" % str(_tail_bubble_burst.is_active()),
 		"tail_bubble_timer=%.2f" % _tail_bubble_burst.get_remaining_display_time(),
 	]
