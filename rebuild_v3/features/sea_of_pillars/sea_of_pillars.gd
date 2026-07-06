@@ -1,13 +1,10 @@
 class_name CotcSeaOfPillars
 extends Node2D
 
-const SEA_ATMOSPHERE_EFFECTS_SCENE: PackedScene = preload("res://rebuild_v3/features/sea_of_pillars/sea_atmosphere_effects.tscn")
-
 @export_category("Level")
 @export var auto_play_ambience: bool = true
 @export var auto_play_bubble_overlay: bool = true
 
-@onready var _background_layer: Node2D = $BackgroundLayer
 @onready var _hylas: CotcHylas = %Hylas
 @onready var _start_marker: Marker2D = %HylasStart
 @onready var _waterline_marker: Marker2D = %WaterlineMarker
@@ -22,7 +19,6 @@ const SEA_ATMOSPHERE_EFFECTS_SCENE: PackedScene = preload("res://rebuild_v3/feat
 var _active: bool = false
 
 func _ready() -> void:
-	_add_atmosphere_effects()
 	_underwater_ambience.process_mode = Node.PROCESS_MODE_ALWAYS
 	_hylas.normal_conch_used.connect(_on_hylas_normal_conch_used)
 	_hylas.surface_splash_requested.connect(_on_hylas_surface_splash_requested)
@@ -56,13 +52,6 @@ func deactivate() -> void:
 	_exit_surface_splash.stop_splash()
 	_entry_surface_splash.stop_splash()
 	hide()
-
-func _add_atmosphere_effects() -> void:
-	var atmosphere_effects: Node2D = SEA_ATMOSPHERE_EFFECTS_SCENE.instantiate() as Node2D
-	if atmosphere_effects == null:
-		push_error("Sea atmosphere effects scene must have a Node2D root.")
-		return
-	_background_layer.add_child(atmosphere_effects)
 
 func _play_underwater_ambience() -> void:
 	if not auto_play_ambience or _underwater_ambience.stream == null:
