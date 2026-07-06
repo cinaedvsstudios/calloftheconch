@@ -4,6 +4,7 @@ extends Node
 signal menu_requested
 
 @onready var _level: CotcSeaOfPillars = %SeaOfPillars
+@onready var _sea_environment: Node2D = $SeaEnvironment
 @onready var _gameplay_music: AudioStreamPlayer = %GameplayMusic
 @onready var _gameplay_ui: CanvasLayer = $GameplayUI
 @onready var _pause_overlay: CotcPauseOverlay = %PauseOverlay
@@ -15,11 +16,13 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_gameplay_music.process_mode = Node.PROCESS_MODE_ALWAYS
 	_pause_overlay.menu_requested.connect(_on_pause_menu_requested)
+	_sea_environment.hide()
 
 
 func activate() -> void:
 	_active = true
 	get_tree().paused = false
+	_sea_environment.show()
 	_gameplay_ui.visible = true
 	_pause_overlay.close_overlay()
 	_level.activate()
@@ -32,6 +35,7 @@ func deactivate() -> void:
 	_pause_overlay.close_overlay()
 	_gameplay_ui.visible = false
 	_gameplay_music.stop()
+	_sea_environment.hide()
 	_level.deactivate()
 
 
@@ -65,6 +69,7 @@ func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = [
 		"[GameplayContext]",
 		"active=%s" % str(_active),
+		"environment_visible=%s" % str(_sea_environment.visible),
 		"ui_visible=%s" % str(_gameplay_ui.visible),
 		"music_playing=%s" % str(_gameplay_music.playing),
 		"paused=%s" % str(get_tree().paused),
