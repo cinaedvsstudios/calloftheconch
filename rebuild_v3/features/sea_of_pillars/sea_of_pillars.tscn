@@ -154,17 +154,18 @@ offset_bottom = 18852.0
 texture = SubResource("GradientTexture2D_wx3we")
 
 [node name="sky gradient" type="TextureRect" parent="BackgroundLayer" unique_id=246411781]
-offset_left = 66.0
-offset_top = -19.0
-offset_right = 79585.0
-offset_bottom = 2119.0
+offset_left = 1.0
+offset_top = 847.0
+offset_right = 79520.0
+offset_bottom = 2178.0
 texture = SubResource("GradientTexture2D_fvo3l")
 
 [node name="horizon" type="TextureRect" parent="BackgroundLayer" unique_id=129300163]
-offset_left = 800.0
-offset_top = 2098.0
-offset_right = 80319.0
-offset_bottom = 2162.0
+visible = false
+offset_left = 812.0
+offset_top = 2127.0
+offset_right = 80331.0
+offset_bottom = 2191.0
 texture = SubResource("GradientTexture2D_qxwrb")
 
 [node name="seafloor" type="Polygon2D" parent="BackgroundLayer" unique_id=698187843]
@@ -177,13 +178,13 @@ metadata/_edit_lock_ = true
 
 [node name="Clouds2" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=127135539]
 material = SubResource("ShaderMaterial_b4nuo")
-position = Vector2(5261, 1008)
+position = Vector2(5077, 1441)
 texture = ExtResource("4_blq7k")
 metadata/_edit_group_ = true
 
 [node name="Clouds3" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=607278427]
 material = SubResource("ShaderMaterial_u7o2t")
-position = Vector2(8315, 817)
+position = Vector2(8147, 1228)
 scale = Vector2(2, 2)
 texture = ExtResource("5_qp71c")
 metadata/_edit_group_ = true
@@ -197,7 +198,7 @@ metadata/_edit_group_ = true
 
 [node name="Clouds5" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=1710645809]
 material = SubResource("ShaderMaterial_q5obt")
-position = Vector2(13394, 817)
+position = Vector2(13562, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("7_l3fif")
 metadata/_edit_group_ = true
@@ -210,7 +211,7 @@ metadata/_edit_group_ = true
 
 [node name="Clouds7" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=912967842]
 material = SubResource("ShaderMaterial_u7o2t")
-position = Vector2(22648, 1026)
+position = Vector2(22648, 1201)
 scale = Vector2(2, 2)
 texture = ExtResource("5_qp71c")
 metadata/_edit_group_ = true
@@ -224,20 +225,20 @@ metadata/_edit_group_ = true
 
 [node name="Clouds9" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=1709493790]
 material = SubResource("ShaderMaterial_q5obt")
-position = Vector2(27727, 1026)
+position = Vector2(27804, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("7_l3fif")
 metadata/_edit_group_ = true
 
 [node name="Clouds10" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=118788714]
 material = SubResource("ShaderMaterial_b4nuo")
-position = Vector2(33479, 1130)
+position = Vector2(33577, 1761)
 texture = ExtResource("4_blq7k")
 metadata/_edit_group_ = true
 
 [node name="Clouds11" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=434257612]
 material = SubResource("ShaderMaterial_u7o2t")
-position = Vector2(36533, 939)
+position = Vector2(36161, 1585)
 scale = Vector2(2, 2)
 texture = ExtResource("5_qp71c")
 metadata/_edit_group_ = true
@@ -251,20 +252,20 @@ metadata/_edit_group_ = true
 
 [node name="Clouds13" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=417666177]
 material = SubResource("ShaderMaterial_q5obt")
-position = Vector2(41612, 939)
+position = Vector2(41428, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("7_l3fif")
 metadata/_edit_group_ = true
 
 [node name="Clouds14" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=54023269]
 material = SubResource("ShaderMaterial_b4nuo")
-position = Vector2(47168, 1006)
+position = Vector2(46937, 1707)
 texture = ExtResource("4_blq7k")
 metadata/_edit_group_ = true
 
 [node name="Clouds15" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=1506086508]
 material = SubResource("ShaderMaterial_u7o2t")
-position = Vector2(50222, 815)
+position = Vector2(49902, 1228)
 scale = Vector2(2, 2)
 texture = ExtResource("5_qp71c")
 metadata/_edit_group_ = true
@@ -278,14 +279,14 @@ metadata/_edit_group_ = true
 
 [node name="Clouds17" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=1791051817]
 material = SubResource("ShaderMaterial_q5obt")
-position = Vector2(54961, 817)
+position = Vector2(54885, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("7_l3fif")
 metadata/_edit_group_ = true
 
 [node name="Clouds18" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=1751984061]
 material = SubResource("ShaderMaterial_b4nuo")
-position = Vector2(60728, 1217)
+position = Vector2(60804, 1585)
 texture = ExtResource("4_blq7k")
 metadata/_edit_group_ = true
 
@@ -298,26 +299,26 @@ metadata/_edit_group_ = true
 
 [node name="Clouds20" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=1283554871]
 material = SubResource("ShaderMaterial_mf02t")
-position = Vector2(66068, 817)
+position = Vector2(66026, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("6_i2hx2")
 metadata/_edit_group_ = true
 
 [node name="Clouds21" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=940795838]
 material = SubResource("ShaderMaterial_q5obt")
-position = Vector2(68634, 1228)
+position = Vector2(68588, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("7_l3fif")
 metadata/_edit_group_ = true
 
 [node name="Clouds22" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=1122297408]
 material = SubResource("ShaderMaterial_b4nuo")
-position = Vector2(74613, 1217)
+position = Vector2(74240, 1441)
 texture = ExtResource("4_blq7k")
 
 [node name="Clouds23" type="Sprite2D" parent="BackgroundLayer/clouds" unique_id=1440418218]
 material = SubResource("ShaderMaterial_u7o2t")
-position = Vector2(77667, 1026)
+position = Vector2(77956, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("5_qp71c")
 
@@ -1506,41 +1507,41 @@ position = Vector2(3810, 2388)
 
 [node name="Clouds1" type="Sprite2D" parent="." unique_id=1560572300]
 material = SubResource("ShaderMaterial_icb18")
-position = Vector2(2197, 817)
+position = Vector2(2130, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("42_pdr8f")
 metadata/_edit_group_ = true
 
 [node name="Clouds2" type="Sprite2D" parent="." unique_id=1792165530]
 material = SubResource("ShaderMaterial_icb18")
-position = Vector2(16530, 1026)
+position = Vector2(16470, 1228)
 scale = Vector2(2, 2)
 texture = ExtResource("42_pdr8f")
 metadata/_edit_group_ = true
 
 [node name="Clouds3" type="Sprite2D" parent="." unique_id=1414623807]
 material = SubResource("ShaderMaterial_icb18")
-position = Vector2(30415, 939)
+position = Vector2(30509, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("42_pdr8f")
 metadata/_edit_group_ = true
 
 [node name="Clouds4" type="Sprite2D" parent="." unique_id=775117846]
 material = SubResource("ShaderMaterial_icb18")
-position = Vector2(44104, 815)
+position = Vector2(44099, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("42_pdr8f")
 metadata/_edit_group_ = true
 
 [node name="Clouds5" type="Sprite2D" parent="." unique_id=1347774959]
 material = SubResource("ShaderMaterial_icb18")
-position = Vector2(57664, 1026)
+position = Vector2(57819, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("42_pdr8f")
 metadata/_edit_group_ = true
 
 [node name="Clouds6" type="Sprite2D" parent="." unique_id=2048120316]
 material = SubResource("ShaderMaterial_icb18")
-position = Vector2(71549, 1026)
+position = Vector2(71351, 1441)
 scale = Vector2(2, 2)
 texture = ExtResource("42_pdr8f")
