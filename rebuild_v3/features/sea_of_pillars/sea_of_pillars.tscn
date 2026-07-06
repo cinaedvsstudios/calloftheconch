@@ -50,8 +50,12 @@ colors = PackedColorArray(0.4392157, 0.9098039, 0.93333334, 1, 0.02745098, 0.243
 gradient = SubResource("Gradient_r8cdn")
 fill_to = Vector2(0, 1)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_xrivr"]
-gradient = SubResource("Gradient_r8cdn")
+[sub_resource type="Gradient" id="Gradient_wx3we"]
+offsets = PackedFloat32Array(0, 0.5296266, 1)
+colors = PackedColorArray(0, 0.36862746, 0.8862745, 1, 0.3529412, 0.7137255, 1, 1, 0.8117647, 0.9372549, 0.9882353, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_2tbem"]
+gradient = SubResource("Gradient_wx3we")
 fill_to = Vector2(0, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_13qdw"]
@@ -417,7 +421,7 @@ offset_left = 105.0
 offset_top = -105.0
 offset_right = 79624.0
 offset_bottom = 2033.0
-texture = SubResource("GradientTexture2D_xrivr")
+texture = SubResource("GradientTexture2D_2tbem")
 
 [node name="ParallaxLayer" type="Node2D" parent="." unique_id=986835539]
 z_index = -20
