@@ -1,20 +1,48 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Shader" path="res://rebuild_v3/features/sea_of_pillars/water_noise.gdshader" id="1_water_mottle"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_water_mottle"]
+resource_local_to_scene = true
+noise_type = 1
+seed = 427163
+frequency = 0.004
+fractal_type = 1
+fractal_octaves = 4
+fractal_lacunarity = 2.0
+fractal_gain = 0.5
+fractal_weighted_strength = 0.2
+domain_warp_enabled = true
+domain_warp_amplitude = 26.0
+domain_warp_frequency = 0.012
+domain_warp_fractal_type = 1
+domain_warp_fractal_octaves = 3
+domain_warp_fractal_lacunarity = 2.0
+domain_warp_fractal_gain = 0.5
+domain_warp_type = 0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_water_mottle"]
+resource_local_to_scene = true
+noise = SubResource("FastNoiseLite_water_mottle")
+seamless = true
+seamless_blend_skirt = 0.2
+width = 1024
+height = 1024
+generate_mipmaps = true
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_water_mottle"]
 resource_local_to_scene = true
 shader = ExtResource("1_water_mottle")
-shader_parameter/mottle_color = Color(0.015, 0.20, 0.34, 1)
-shader_parameter/opacity = 0.09
-shader_parameter/drift_speed = 0.006
-shader_parameter/pattern_scale = Vector2(330, 88)
-shader_parameter/drift_direction = Vector2(0.78, 0.18)
-shader_parameter/seed_offset = Vector2(13.4, 7.8)
-shader_parameter/warp_strength = 0.72
-shader_parameter/coverage = 0.47
-shader_parameter/softness = 0.26
-shader_parameter/depth_strength = 0.30
+shader_parameter/cloud_noise = SubResource("NoiseTexture2D_water_mottle")
+shader_parameter/mottle_color = Color(0.015, 0.19, 0.3, 1)
+shader_parameter/opacity = 0.04
+shader_parameter/tile_count = Vector2(48, 28)
+shader_parameter/flow_a = Vector2(0.007, 0.0015)
+shader_parameter/flow_b = Vector2(-0.004, 0.003)
+shader_parameter/evolution_speed = 0.024
+shader_parameter/threshold = 0.54
+shader_parameter/softness = 0.22
+shader_parameter/depth_strength = 0.16
 
 [node name="SeaAtmosphereEffects" type="Node2D"]
 z_index = 1
@@ -22,7 +50,7 @@ z_index = 1
 [node name="WaterMottle" type="ColorRect" parent="."]
 material = SubResource("ShaderMaterial_water_mottle")
 offset_left = 105.0
-offset_top = 2033.0
+offset_top = 2270.0
 offset_right = 79624.0
 offset_bottom = 17978.0
 mouse_filter = 2
