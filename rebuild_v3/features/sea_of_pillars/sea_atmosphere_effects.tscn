@@ -1,0 +1,64 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Shader" path="res://rebuild_v3/features/sea_of_pillars/sky_cloud_haze.gdshader" id="1_sky_haze"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/sea_of_pillars/sun_rays.gdshader" id="2_sun_rays"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/sea_of_pillars/surface_shimmer.gdshader" id="3_surface_shimmer"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sky_haze"]
+resource_local_to_scene = true
+shader = ExtResource("1_sky_haze")
+shader_parameter/haze_color = Color(0.93, 0.99, 1, 1)
+shader_parameter/opacity = 0.035
+shader_parameter/drift_speed = 0.006
+shader_parameter/pattern_scale = 1.1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sun_rays"]
+resource_local_to_scene = true
+shader = ExtResource("2_sun_rays")
+shader_parameter/ray_color = Color(0.29, 0.86, 1, 1)
+shader_parameter/intensity = 0.075
+shader_parameter/drift_speed = 0.035
+shader_parameter/ray_density = 3.5
+shader_parameter/depth_fade_power = 1.35
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_surface_shimmer"]
+resource_local_to_scene = true
+shader = ExtResource("3_surface_shimmer")
+shader_parameter/shimmer_color = Color(0.65, 0.96, 1, 1)
+shader_parameter/intensity = 0.17
+shader_parameter/drift_speed = 0.62
+shader_parameter/glint_density = 42.0
+shader_parameter/vertical_fade = 1.45
+
+[node name="SeaAtmosphereEffects" type="Node2D"]
+z_index = 1
+
+[node name="SkyCloudHaze" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_sky_haze")
+offset_left = 105.0
+offset_top = -105.0
+offset_right = 79624.0
+offset_bottom = 2033.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+metadata/_edit_lock_ = true
+
+[node name="SunRays" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_sun_rays")
+offset_left = 105.0
+offset_top = 2033.0
+offset_right = 79624.0
+offset_bottom = 17978.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+metadata/_edit_lock_ = true
+
+[node name="SurfaceShimmer" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_surface_shimmer")
+offset_left = 105.0
+offset_top = 2033.0
+offset_right = 79624.0
+offset_bottom = 2233.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+metadata/_edit_lock_ = true
