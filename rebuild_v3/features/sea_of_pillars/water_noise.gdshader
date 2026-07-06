@@ -1,13 +1,15 @@
 shader_type canvas_item;
 render_mode unshaded, blend_mix;
 
-uniform vec4 noise_color : source_color = vec4(0.24, 0.72, 0.92, 1.0);
-uniform float opacity : hint_range(0.0, 0.35, 0.001) = 0.05;
-uniform float drift_speed : hint_range(0.0, 0.25, 0.001) = 0.008;
-uniform vec2 pattern_scale = vec2(220.0, 55.0);
-uniform float contrast : hint_range(0.0, 1.0, 0.001) = 0.48;
+uniform vec4 noise_color : source_color = vec4(0.04, 0.31, 0.48, 1.0);
+uniform float opacity : hint_range(0.0, 0.30, 0.001) = 0.10;
+uniform float drift_speed : hint_range(0.0, 0.10, 0.001) = 0.010;
+uniform vec2 pattern_scale = vec2(210.0, 65.0);
 uniform vec2 drift_direction = vec2(0.8, 0.22);
-uniform float depth_strength : hint_range(0.0, 1.0, 0.001) = 0.35;
+uniform vec2 seed_offset = vec2(0.0, 0.0);
+uniform float threshold : hint_range(0.0, 1.0, 0.001) = 0.48;
+uniform float softness : hint_range(0.01, 0.50, 0.001) = 0.22;
+uniform float depth_strength : hint_range(0.0, 1.0, 0.001) = 0.30;
 
 float hash(vec2 point) {
 	return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453123);
@@ -23,7 +25,7 @@ float value_noise(vec2 point) {
 	return mix(lower, upper, local.y);
 }
 
-float layered_noise(vec2 point) {
+float fractal_noise(vec2 point) {
 	float value = value_noise(point);
 	value += value_noise(point * 2.03 + vec2(17.3, 9.2)) * 0.5;
 	value += value_noise(point * 4.11 + vec2(4.7, 31.8)) * 0.25;
@@ -31,11 +33,15 @@ float layered_noise(vec2 point) {
 }
 
 void fragment() {
-	vec2 direction = normalize(drift_direction);
-	vec2 animated_position = UV * pattern_scale + direction * TIME * drift_speed;
-	float noise_value = layered_noise(animated_position);
-	float noise_mask = smoothstep(contrast, 1.0, noise_value);
-	float depth_mask = mix(1.0 - depth_strength, 1.0, UV.y);
-	float alpha = noise_mask * depth_mask * opacity;
+	vec2 direction = drift_direction;
+	float direction_length = max(length(direction), 0.001);
+	direction /= direction_length;
+
+	vec2 animated_position = UV * pattern_scale + seed_offset + direction * TIME * drift_speed;
+	float noise_value = fractal_noise(animated_position);
+	float mottle = smoothstep(threshold - softness, threshold + softness, noise_value);
+	float depth_fade = mix(1.0 - depth_strength, 1.0, UV.y);
+	float alpha = mottle * depth_fade * opacity;
+
 	COLOR = vec4(noise_color.rgb, alpha);
 }
