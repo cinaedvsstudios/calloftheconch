@@ -1,17 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="Texture2D" uid="uid://cdkyoqxhngvnk" path="res://assets/backgrounds/rocktexture.jpeg" id="1_rock_texture"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_atmosphere_effects.tscn" id="2_atmosphere_effects"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_atmosphere_effects.tscn" id="1_atmosphere_effects"]
 
 [node name="SeaEnvironment" type="Node2D"]
 z_index = -29
 
-[node name="Seafloor" type="Polygon2D" parent="."]
-texture = ExtResource("1_rock_texture")
-texture_filter = 4
-texture_repeat = 2
-texture_scale = Vector2(0.24, 0.24)
-polygon = PackedVector2Array(-2851, 4557, 9821, 4527, 9910, 8504, 17418, 8800, 17329, 4497, 22849, 4379, 22680, 14183, 10593, 14301, 10909, 17738, 36505, 18212, 36821, 12484, 50250, 12129, 66958, 12445, 67037, 4545, 79677, 4782, 80112, 18686, 38611, 24224, 9485, 23377, -3639, 14148)
-uv = PackedVector2Array(-2851, 4557, 9821, 4527, 9910, 8504, 17418, 8800, 17329, 4497, 22849, 4379, 22680, 14183, 10593, 14301, 10909, 17738, 36505, 18212, 36821, 12484, 50250, 12129, 66958, 12445, 67037, 4545, 79677, 4782, 80112, 18686, 38611, 24224, 9485, 23377, -3639, 14148)
-
-[node name="AtmosphereEffects" parent="." instance=ExtResource("2_atmosphere_effects")]
+[node name="AtmosphereEffects" parent="." instance=ExtResource("1_atmosphere_effects")]
