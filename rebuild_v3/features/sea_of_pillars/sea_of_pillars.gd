@@ -5,7 +5,7 @@ const SEA_ATMOSPHERE_EFFECTS_SCENE: PackedScene = preload("res://rebuild_v3/feat
 
 @export_category("Level")
 @export var auto_play_ambience: bool = true
-@export var auto_play_bubble_overlay: bool = false
+@export var auto_play_bubble_overlay: bool = true
 
 @onready var _background_layer: Node2D = $BackgroundLayer
 @onready var _hylas: CotcHylas = %Hylas
