@@ -3,7 +3,7 @@ extends Node2D
 
 @export_category("Level")
 @export var auto_play_ambience: bool = true
-@export var auto_play_bubble_overlay: bool = true
+@export var auto_play_bubble_overlay: bool = false
 
 @onready var _hylas: CotcHylas = %Hylas
 @onready var _start_marker: Marker2D = %HylasStart
