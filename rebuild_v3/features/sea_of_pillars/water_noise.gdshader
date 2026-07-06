@@ -7,10 +7,10 @@ uniform float drift_speed : hint_range(0.0, 0.08, 0.001) = 0.006;
 uniform vec2 pattern_scale = vec2(330.0, 88.0);
 uniform vec2 drift_direction = vec2(0.78, 0.18);
 uniform vec2 seed_offset = vec2(0.0, 0.0);
-uniform float warp_strength : hint_range(0.0, 2.0, 0.001) = 0.72;
+uniform float warp_strength : hint_range(0.0, 5.0, 0.001) = 0.72;
 uniform float coverage : hint_range(0.0, 1.0, 0.001) = 0.47;
-uniform float softness : hint_range(0.01, 0.50, 0.001) = 0.26;
-uniform float depth_strength : hint_range(0.0, 1.0, 0.001) = 0.30;
+uniform float softness : hint_range(0.01, 9.50, 0.001) = 0.26;
+uniform float depth_strength : hint_range(0.0, 3.0, 0.001) = 0.30;
 
 float hash(vec2 point) {
 	return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453123);
