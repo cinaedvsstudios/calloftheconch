@@ -1,47 +1,26 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="Shader" path="res://rebuild_v3/features/sea_of_pillars/water_noise.gdshader" id="1_water_noise"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/sea_of_pillars/water_noise.gdshader" id="1_water_mottle"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_water_slow_noise"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_water_mottle"]
 resource_local_to_scene = true
-shader = ExtResource("1_water_noise")
-shader_parameter/noise_color = Color(0.035, 0.28, 0.45, 1)
-shader_parameter/opacity = 0.105
-shader_parameter/drift_speed = 0.01
-shader_parameter/pattern_scale = Vector2(210, 65)
-shader_parameter/drift_direction = Vector2(0.8, 0.22)
+shader = ExtResource("1_water_mottle")
+shader_parameter/mottle_color = Color(0.015, 0.20, 0.34, 1)
+shader_parameter/opacity = 0.09
+shader_parameter/drift_speed = 0.006
+shader_parameter/pattern_scale = Vector2(330, 88)
+shader_parameter/drift_direction = Vector2(0.78, 0.18)
 shader_parameter/seed_offset = Vector2(13.4, 7.8)
-shader_parameter/threshold = 0.48
-shader_parameter/softness = 0.22
-shader_parameter/depth_strength = 0.28
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_water_fine_noise"]
-resource_local_to_scene = true
-shader = ExtResource("1_water_noise")
-shader_parameter/noise_color = Color(0.10, 0.42, 0.60, 1)
-shader_parameter/opacity = 0.045
-shader_parameter/drift_speed = 0.028
-shader_parameter/pattern_scale = Vector2(760, 195)
-shader_parameter/drift_direction = Vector2(-0.72, 0.18)
-shader_parameter/seed_offset = Vector2(61.7, 24.1)
-shader_parameter/threshold = 0.53
-shader_parameter/softness = 0.19
-shader_parameter/depth_strength = 0.12
+shader_parameter/warp_strength = 0.72
+shader_parameter/coverage = 0.47
+shader_parameter/softness = 0.26
+shader_parameter/depth_strength = 0.30
 
 [node name="SeaAtmosphereEffects" type="Node2D"]
 z_index = 1
 
-[node name="WaterSlowNoise" type="ColorRect" parent="."]
-material = SubResource("ShaderMaterial_water_slow_noise")
-offset_left = 105.0
-offset_top = 2033.0
-offset_right = 79624.0
-offset_bottom = 17978.0
-mouse_filter = 2
-color = Color(1, 1, 1, 1)
-
-[node name="WaterFineNoise" type="ColorRect" parent="."]
-material = SubResource("ShaderMaterial_water_fine_noise")
+[node name="WaterMottle" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_water_mottle")
 offset_left = 105.0
 offset_top = 2033.0
 offset_right = 79624.0
