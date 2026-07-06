@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c3c10q6mvinl0"
-path="res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"
+uid="uid://cct588viitq0u"
+path="res://.godot/imported/passive_tide_anemone.png-e6ca0f7fd120a61e8449fa2c2a638a04.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/backgrounds/waterdeepbg2.jpg"
-dest_files=["res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"]
+source_file="res://assets/objects/passive_tide_anemone.png"
+dest_files=["res://.godot/imported/passive_tide_anemone.png-e6ca0f7fd120a61e8449fa2c2a638a04.ctex"]
 
 [params]
 

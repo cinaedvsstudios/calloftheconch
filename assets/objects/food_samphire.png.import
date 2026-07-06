@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c3c10q6mvinl0"
-path="res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"
+uid="uid://dkgtwua37u3ax"
+path="res://.godot/imported/food_samphire.png-08c2c2d5aa742ab3f350077a4378290b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/backgrounds/waterdeepbg2.jpg"
-dest_files=["res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"]
+source_file="res://assets/objects/food_samphire.png"
+dest_files=["res://.godot/imported/food_samphire.png-08c2c2d5aa742ab3f350077a4378290b.ctex"]
 
 [params]
 

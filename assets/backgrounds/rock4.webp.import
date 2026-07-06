@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c3c10q6mvinl0"
-path="res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"
+uid="uid://cuv0sfuhe7lha"
+path="res://.godot/imported/rock4.webp-63376a87984af05ef42a8019144c21b5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/backgrounds/waterdeepbg2.jpg"
-dest_files=["res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"]
+source_file="res://assets/backgrounds/rock4.webp"
+dest_files=["res://.godot/imported/rock4.webp-63376a87984af05ef42a8019144c21b5.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c3c10q6mvinl0"
-path="res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"
+uid="uid://74ag7cnie64h"
+path="res://.godot/imported/hazard_black_bloom2.png-54b155efd8f3896ad1319ed953771624.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/backgrounds/waterdeepbg2.jpg"
-dest_files=["res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"]
+source_file="res://assets/objects/hazard_black_bloom2.png"
+dest_files=["res://.godot/imported/hazard_black_bloom2.png-54b155efd8f3896ad1319ed953771624.ctex"]
 
 [params]
 

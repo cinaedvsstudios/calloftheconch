@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c3c10q6mvinl0"
-path="res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"
+uid="uid://wb745lq4f6op"
+path="res://.godot/imported/scenery_pillars_ruins06.png-db02e5e428d181b72fa9dd09ad0148bd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/backgrounds/waterdeepbg2.jpg"
-dest_files=["res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"]
+source_file="res://assets/objects/scenery_pillars_ruins06.png"
+dest_files=["res://.godot/imported/scenery_pillars_ruins06.png-db02e5e428d181b72fa9dd09ad0148bd.ctex"]
 
 [params]
 

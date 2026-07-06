@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c3c10q6mvinl0"
-path="res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"
+uid="uid://6tb6d2d25fhw"
+path="res://.godot/imported/rockwall.webp-3f420503b24f1880731915ffdc3ed0c0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/backgrounds/waterdeepbg2.jpg"
-dest_files=["res://.godot/imported/waterdeepbg2.jpg-69cdeec1d31179e39ea178f657c37d2d.ctex"]
+source_file="res://rebuild_v3/features/sea_of_pillars/rockwall.webp"
+dest_files=["res://.godot/imported/rockwall.webp-3f420503b24f1880731915ffdc3ed0c0.ctex"]
 
 [params]
 
