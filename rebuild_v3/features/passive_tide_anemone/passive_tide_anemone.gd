@@ -57,7 +57,8 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if not is_instance_valid(_hylas):
+	if not is_instance_valid(_hylas) or not overlaps_body(_hylas):
+		_remove_drift_from_hylas()
 		_hylas = null
 		set_physics_process(false)
 		return
