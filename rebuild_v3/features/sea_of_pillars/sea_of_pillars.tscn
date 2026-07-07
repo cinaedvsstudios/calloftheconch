@@ -195,7 +195,7 @@ polygon = PackedVector2Array(161, 2256, 998, 2666, 1925, 2975, 2840, 3078, 4099,
 
 [node name="SandOverlay04" type="Sprite2D" parent="TerrainArtLayer/ground/Sand" unique_id=1147334557]
 z_index = 20
-position = Vector2(6071, 1962)
+position = Vector2(1184, -585)
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("7_sand")
 centered = false
@@ -218,9 +218,9 @@ texture = ExtResource("14_u6ky2")
 [node name="Rock30" type="Sprite2D" parent="TerrainArtLayer/ground/rocks" unique_id=1748284003]
 z_index = 20
 texture_repeat = 2
-position = Vector2(-105, 1440.9999)
-rotation = -1.2520667
-scale = Vector2(2.1196618, 2.1131413)
+position = Vector2(6791, 3353.0002)
+rotation = -1.5707964
+scale = Vector2(1.4443084, 1.3243057)
 skew = -0.0052928925
 texture = ExtResource("20_025dw")
 flip_h = true
@@ -392,6 +392,5 @@ position = Vector2(2833, 2796)
 
 [node name="Vent1" parent="." unique_id=1281808122 instance=ExtResource("20_y4s8d")]
 z_index = -1
-position = Vector2(5793.9995, 4074)
-rotation = 0.6021386
+position = Vector2(5966, 3991)
 scale = Vector2(0.41, 0.41)
