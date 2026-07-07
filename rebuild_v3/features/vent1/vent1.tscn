@@ -1,0 +1,35 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/vent1/vent1.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/vent.webp" id="2_vent_sprite"]
+[ext_resource type="VideoStream" path="res://assets/effects/vent1.ogv" id="3_vent_video"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/vent1/vent1.gdshader" id="4_vent_shader"]
+
+[sub_resource type="ShaderMaterial" id="VentVideoMaterial"]
+shader = ExtResource("4_vent_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 5.0
+
+[node name="Vent1" type="Node2D"]
+z_index = 1
+script = ExtResource("1_controller")
+
+[node name="VentSprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("2_vent_sprite")
+
+[node name="VentVideo" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
+z_index = 1
+material = SubResource("VentVideoMaterial")
+offset_left = -640.0
+offset_top = -360.0
+offset_right = 640.0
+offset_bottom = 360.0
+scale = Vector2(1.5, 1.5)
+pivot_offset = Vector2(640, 360)
+mouse_filter = 2
+stream = ExtResource("3_vent_video")
+expand = true
+loop = true
