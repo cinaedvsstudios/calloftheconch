@@ -174,6 +174,11 @@ func _physics_process(delta: float) -> void:
 		_handle_conch_pressed(input_direction)
 	_update_pending_conch(delta)
 
+	if _is_braking(input_direction):
+		_cancel_to_brake()
+		_apply_motion(Vector2.ZERO, false)
+		return
+
 	if _tail_flip_remaining > 0.0:
 		_update_tail_flip(delta)
 		_apply_motion(_special_velocity, false)
@@ -194,8 +199,6 @@ func _physics_process(delta: float) -> void:
 		_update_idle(delta)
 	elif _can_start_burst(input_direction):
 		_start_burst(input_direction)
-	elif _is_braking(input_direction):
-		_update_brake(delta)
 	elif input_direction != Vector2.ZERO:
 		_update_swim(input_direction, delta)
 	else:
@@ -363,14 +366,6 @@ func _normal_swim_direction(input_direction: Vector2) -> Vector2:
 	return Vector2.LEFT if _facing_left else Vector2.RIGHT
 
 
-func _update_brake(delta: float) -> void:
-	_swim_velocity = _swim_velocity.move_toward(Vector2.ZERO, brake_deceleration * delta)
-	_burst_coast_velocity = _burst_coast_velocity.move_toward(Vector2.ZERO, brake_deceleration * delta)
-	_set_visual_rotation(0.0)
-	_set_animation(&"stop")
-	_stop_movement_audio()
-
-
 func _update_idle(delta: float) -> void:
 	_swim_velocity = _swim_velocity.move_toward(Vector2.ZERO, idle_momentum_deceleration * delta)
 	if _has_burst_coast():
@@ -385,6 +380,22 @@ func _update_idle(delta: float) -> void:
 
 func _has_burst_coast() -> bool:
 	return _burst_coast_velocity.length_squared() > 0.01
+
+
+func _cancel_to_brake() -> void:
+	_swim_velocity = Vector2.ZERO
+	_burst_coast_velocity = Vector2.ZERO
+	_special_velocity = Vector2.ZERO
+	_burst_active = false
+	_burst_elapsed = 0.0
+	_burst_remaining = 0.0
+	_pending_surface_jump = false
+	_tail_flip_remaining = 0.0
+	_conch_remaining = 0.0
+	_pending_conch_remaining = 0.0
+	_set_visual_rotation(0.0)
+	_set_animation(&"stop")
+	_stop_movement_audio()
 
 
 func _apply_motion(motion_velocity: Vector2, idle: bool) -> void:
@@ -442,7 +453,8 @@ func _update_surface_jump(delta: float) -> void:
 
 
 func _set_animation(animation_name: StringName) -> void:
-	if _animated_sprite.animation == animation_name and _animated_sprite.is_playing():
+	if _animated_sprite.animation == animation_name:
+		_animated_sprite.flip_h = _facing_left
 		return
 	_animated_sprite.animation = animation_name
 	_animated_sprite.play()
