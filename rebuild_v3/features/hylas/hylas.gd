@@ -225,6 +225,8 @@ func _can_start_burst(input_direction: Vector2) -> bool:
 
 func _start_burst(input_direction: Vector2) -> void:
 	var vertical_axis: float = _vertical_axis(input_direction)
+	if vertical_axis != 0.0:
+		_update_facing_from_held_horizontal_input()
 	if vertical_axis == 0.0 and _is_backward_input(input_direction):
 		return
 	if vertical_axis != 0.0:
@@ -352,11 +354,12 @@ func _update_swim(input_direction: Vector2, delta: float) -> void:
 
 
 func _normal_swim_direction(input_direction: Vector2) -> Vector2:
-	if absf(input_direction.x) > 0.01:
-		_facing_left = input_direction.x < 0.0
 	var vertical_axis: float = _vertical_axis(input_direction)
 	if vertical_axis != 0.0:
+		_update_facing_from_held_horizontal_input()
 		return _facing_tilted_direction(vertical_axis, normal_swim_vertical_angle_degrees)
+	if absf(input_direction.x) > 0.01:
+		_facing_left = input_direction.x < 0.0
 	return Vector2.LEFT if _facing_left else Vector2.RIGHT
 
 
@@ -547,6 +550,14 @@ func _vertical_axis(input_direction: Vector2) -> float:
 	return 0.0
 
 
+func _update_facing_from_held_horizontal_input() -> void:
+	var left_pressed: bool = Input.is_action_pressed(&"move_left")
+	var right_pressed: bool = Input.is_action_pressed(&"move_right")
+	if left_pressed == right_pressed:
+		return
+	_facing_left = left_pressed
+
+
 func _facing_tilted_direction(vertical_axis: float, degrees: float) -> Vector2:
 	var facing_axis: float = -1.0 if _facing_left else 1.0
 	var radians: float = deg_to_rad(degrees)
@@ -557,6 +568,7 @@ func _conch_direction(input_direction: Vector2) -> Vector2:
 	var vertical_axis: float = _vertical_axis(input_direction)
 	if vertical_axis == 0.0:
 		return Vector2.LEFT if _facing_left else Vector2.RIGHT
+	_update_facing_from_held_horizontal_input()
 	return _facing_tilted_direction(vertical_axis, conch_direction_angle_degrees)
 
 
