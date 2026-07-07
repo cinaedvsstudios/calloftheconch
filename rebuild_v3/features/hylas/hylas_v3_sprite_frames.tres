@@ -41,6 +41,7 @@
 [ext_resource type="Texture2D" uid="uid://d1xkjmivak3ey" path="res://assets/characters/hylas-idle_02.webp" id="39_idle_02"]
 [ext_resource type="Texture2D" uid="uid://oepq2uoms87a" path="res://assets/characters/hylas-idle_03.webp" id="40_idle_03"]
 [ext_resource type="Texture2D" uid="uid://k5i52j51sh26" path="res://assets/characters/hylas-idle_04.webp" id="41_idle_04"]
+[ext_resource type="Texture2D" path="res://assets/characters/hylas-stop_07.webp" id="42_stop_release"]
 
 [resource]
 animations = [{
@@ -149,6 +150,14 @@ animations = [{
 "loop": 0,
 "name": &"stop",
 "speed": 9.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("42_stop_release")
+}],
+"loop": 0,
+"name": &"stop_release",
+"speed": 1.0
 }, {
 "frames": [{
 "duration": 1.0,
