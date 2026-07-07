@@ -37,6 +37,10 @@
 [ext_resource type="Texture2D" uid="uid://ccf6a3tsats66" path="res://assets/characters/hylas-jump_04.webp" id="35_jump_04"]
 [ext_resource type="Texture2D" uid="uid://bo7fnqqi645ib" path="res://assets/characters/hylas-jump_01a.webp" id="36_jump_01a"]
 [ext_resource type="Texture2D" uid="uid://bqhmsbc8c6ff4" path="res://assets/characters/hylas-jump_03a.webp" id="37_jump_03a"]
+[ext_resource type="Texture2D" uid="uid://c6ppsxmqo1057" path="res://assets/characters/hylas-idle_01.webp" id="38_idle_01"]
+[ext_resource type="Texture2D" uid="uid://d1xkjmivak3ey" path="res://assets/characters/hylas-idle_02.webp" id="39_idle_02"]
+[ext_resource type="Texture2D" uid="uid://oepq2uoms87a" path="res://assets/characters/hylas-idle_03.webp" id="40_idle_03"]
+[ext_resource type="Texture2D" uid="uid://k5i52j51sh26" path="res://assets/characters/hylas-idle_04.webp" id="41_idle_04"]
 
 [resource]
 animations = [{
@@ -85,7 +89,16 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_swim_01")
+"texture": ExtResource("38_idle_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_idle_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_idle_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_idle_04")
 }],
 "loop": 1,
 "name": &"idle",
