@@ -9,6 +9,7 @@
 [ext_resource type="AudioStream" uid="uid://dyorkgg3nkflx" path="res://assets/audio/Super Conch_noise.mp3" id="7_conch_audio"]
 [ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="8_looping_audio"]
 [ext_resource type="Shader" uid="uid://gyqmlkjlqb1f" path="res://rebuild_v3/features/hylas/hylas_shadow_outline.gdshader" id="10_shadow_shader"]
+[ext_resource type="Script" path="res://rebuild_v3/features/hylas/hylas_shadow_sync.gd" id="11_shadow_sync"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
 shader = ExtResource("10_shadow_shader")
@@ -34,6 +35,7 @@ z_index = -2
 material = SubResource("ShaderMaterial_imwqt")
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("3_swim_idle")
+script = ExtResource("11_shadow_sync")
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=1603977457]
 unique_name_in_owner = true
