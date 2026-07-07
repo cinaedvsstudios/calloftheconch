@@ -7,15 +7,15 @@
 resource_local_to_scene = true
 shader = ExtResource("1_water_mottle")
 shader_parameter/cloud_noise = ExtResource("2_a5vxv")
-shader_parameter/mottle_color = Color(0.008794794, 0.13600394, 0.22530028, 1)
-shader_parameter/opacity = 0.20000000298023
+shader_parameter/mottle_color = Color(0.003432998, 0.08112054, 0.14219695, 1)
+shader_parameter/opacity = 0.29600001406
 shader_parameter/tile_count = Vector2(48, 28)
-shader_parameter/flow_a = Vector2(0.01, 0.002)
-shader_parameter/flow_b = Vector2(-0.004, 0.003)
-shader_parameter/evolution_speed = 0.10000000475
-shader_parameter/threshold = 0.54
-shader_parameter/softness = 0.5
-shader_parameter/depth_strength = 0.50000002375
+shader_parameter/flow_a = Vector2(0.01, 0.012)
+shader_parameter/flow_b = Vector2(-0.034, -0.032)
+shader_parameter/evolution_speed = 0.5950000282625
+shader_parameter/threshold = 0.2870000136325
+shader_parameter/softness = 0.34900001587898
+shader_parameter/depth_strength = 0.2210000104975
 
 [node name="SeaAtmosphereEffects" type="Node2D" unique_id=817062203]
 z_index = 1
