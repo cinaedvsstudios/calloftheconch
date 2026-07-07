@@ -35,6 +35,8 @@
 [ext_resource type="Texture2D" uid="uid://bfaleat75aikh" path="res://assets/characters/hylas-jump_02.webp" id="33_jump_02"]
 [ext_resource type="Texture2D" uid="uid://cr2mpx06ighic" path="res://assets/characters/hylas-jump_03.webp" id="34_jump_03"]
 [ext_resource type="Texture2D" uid="uid://ccf6a3tsats66" path="res://assets/characters/hylas-jump_04.webp" id="35_jump_04"]
+[ext_resource type="Texture2D" path="res://assets/characters/hylas-jump_01a.webp" id="36_jump_01a"]
+[ext_resource type="Texture2D" path="res://assets/characters/hylas-jump_03a.webp" id="37_jump_03a"]
 
 [resource]
 animations = [{
@@ -94,10 +96,16 @@ animations = [{
 "texture": ExtResource("32_jump_01")
 }, {
 "duration": 1.0,
+"texture": ExtResource("36_jump_01a")
+}, {
+"duration": 1.0,
 "texture": ExtResource("33_jump_02")
 }, {
 "duration": 1.0,
 "texture": ExtResource("34_jump_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_jump_03a")
 }, {
 "duration": 1.0,
 "texture": ExtResource("35_jump_04")
