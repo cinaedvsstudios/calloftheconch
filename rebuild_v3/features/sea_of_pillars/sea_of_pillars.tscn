@@ -48,7 +48,7 @@ fill_to = Vector2(0, 1)
 [sub_resource type="Gradient" id="Gradient_wx3we"]
 interpolation_mode = 2
 offsets = PackedFloat32Array(0.33913723, 0.47011435, 0.5096983, 0.59069645, 0.9316528)
-colors = PackedColorArray(0.78039217, 0.91764706, 0.99215686, 1, 0.98039217, 0.95686275, 0.93333334, 1, 1, 1, 1, 1, 0.28627452, 0.8352941, 0.91764706, 1, 0, 0.8901961, 0.88235295, 1)
+colors = PackedColorArray(0.78039217, 0.91764706, 0.99215686, 1, 0.98039216, 0.95686275, 0.93333334, 1, 1, 1, 1, 1, 0.28627452, 0.8352941, 0.91764706, 1, 0, 0.8901961, 0.88235295, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_qxwrb"]
 gradient = SubResource("Gradient_wx3we")
@@ -74,7 +74,7 @@ shader_parameter/brightness = 0.6899999622251198
 shader_parameter/lightness = -0.10000002011679998
 shader_parameter/tint = Color(1, 1, 1, 1)
 shader_parameter/black_threshold = 0.10000000475
-shader_parameter/black_softness = 0.10000000475000001
+shader_parameter/black_softness = 0.10000000475
 shader_parameter/drift_speed_x = 0.05000000889476999
 shader_parameter/drift_speed_y = 0.002
 shader_parameter/warp_strength_x = 0.015
@@ -304,6 +304,8 @@ scale = Vector2(0.97703815, 0.9683255)
 
 [node name="PassiveTideAnemone" parent="Enemies" unique_id=1569930813 instance=ExtResource("19_passive_tide_anemone")]
 position = Vector2(3981, 3362)
+drift_radius = 500.0
+drift_max_speed = 150.0
 
 [node name="ObjectsLayer" type="Node2D" parent="." unique_id=1657635660]
 
