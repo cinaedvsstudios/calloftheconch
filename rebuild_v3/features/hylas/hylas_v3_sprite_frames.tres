@@ -42,6 +42,10 @@
 [ext_resource type="Texture2D" uid="uid://oepq2uoms87a" path="res://assets/characters/hylas-idle_03.webp" id="40_idle_03"]
 [ext_resource type="Texture2D" uid="uid://k5i52j51sh26" path="res://assets/characters/hylas-idle_04.webp" id="41_idle_04"]
 [ext_resource type="Texture2D" path="res://assets/characters/hylas-stop_07.webp" id="42_stop_release"]
+[ext_resource type="Texture2D" uid="uid://c85xb0wm44x8" path="res://assets/characters/hylas-crawl_01.webp" id="43_crawl_01"]
+[ext_resource type="Texture2D" uid="uid://d078olauu8nfb" path="res://assets/characters/hylas-crawl_02.webp" id="44_crawl_02"]
+[ext_resource type="Texture2D" uid="uid://bqo5401phuado" path="res://assets/characters/hylas-crawl_03.webp" id="45_crawl_03"]
+[ext_resource type="Texture2D" uid="uid://bdfl7epsph2wo" path="res://assets/characters/hylas-crawl_04.webp" id="46_crawl_04"]
 
 [resource]
 animations = [{
@@ -87,6 +91,23 @@ animations = [{
 "loop": 0,
 "name": &"conch",
 "speed": 9.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("43_crawl_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_crawl_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_crawl_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("46_crawl_04")
+}],
+"loop": 1,
+"name": &"crawl",
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,
