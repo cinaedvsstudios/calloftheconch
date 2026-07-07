@@ -1,30 +1,36 @@
 [gd_scene format=3 uid="uid://d2sk0wsbeygtc"]
 
 [ext_resource type="Script" uid="uid://bmdr504j1dah7" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars.gd" id="1_controller"]
+[ext_resource type="Shader" uid="uid://bxpu675qf5ipy" path="res://cloudeffect.gdshader" id="2_dk7og"]
 [ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="2_looping_audio"]
-[ext_resource type="Shader" uid="uid://bloeckvndj11x" path="res://rebuild_v3/features/sea_of_pillars/clouds.gdshader" id="3_cuq28"]
 [ext_resource type="Texture2D" uid="uid://bprhpe7iqckhu" path="res://assets/backgrounds/clouds2.jpg" id="4_blq7k"]
 [ext_resource type="Texture2D" uid="uid://ekgn2xwn4eer" path="res://assets/backgrounds/watertile.jpg" id="4_bu74a"]
+[ext_resource type="Shader" uid="uid://dygdgs4nslevt" path="res://assets/backgrounds/waterline2.gdshader" id="4_dk7og"]
 [ext_resource type="Texture2D" uid="uid://c0gc4155a43db" path="res://assets/backgrounds/waterbgparalax.webp" id="4_lower_parallax"]
 [ext_resource type="Texture2D" uid="uid://bnh8y5pk6qa0j" path="res://assets/backgrounds/mountainoverlay03.webp" id="6_mountain_b"]
 [ext_resource type="Texture2D" uid="uid://dejgtuv4d265x" path="res://assets/backgrounds/sandoverlay.webp" id="7_sand"]
 [ext_resource type="PackedScene" uid="uid://c517thhqaggvs" path="res://rebuild_v3/features/hylas/hylas.tscn" id="8_hylas"]
+[ext_resource type="Texture2D" uid="uid://d14hlawr2op7b" path="res://assets/objects/scenery_pillars_ruins02.png" id="8_keobn"]
 [ext_resource type="Shader" uid="uid://drenylk7uthsm" path="res://rebuild_v3/features/sea_of_pillars/lower_water_fade_right.gdshader" id="8_n2rx5"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/conch_pulse.tscn" id="9_conch_pulse"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/surface_splash.tscn" id="10_surface_splash"]
 [ext_resource type="VideoStream" uid="uid://buw0jv63vxw0i" path="res://assets/effects/bubble_riser_field.ogv" id="12_bubble_overlay"]
 [ext_resource type="AudioStream" uid="uid://b1ok5tlb5fqkw" path="res://assets/audio/underwater_ambience.mp3" id="13_ambience"]
+[ext_resource type="Texture2D" uid="uid://cjmyafilkg07a" path="res://assets/backgrounds/beach.webp" id="14_u6ky2"]
+[ext_resource type="Texture2D" uid="uid://dkgtwua37u3ax" path="res://assets/objects/food_samphire.png" id="15_hsx8f"]
 [ext_resource type="Texture2D" uid="uid://cdkyoqxhngvnk" path="res://assets/backgrounds/rocktexture.jpeg" id="17_hsx8f"]
+[ext_resource type="Texture2D" uid="uid://cct588viitq0u" path="res://assets/objects/passive_tide_anemone.png" id="19_rgyev"]
 [ext_resource type="Texture2D" uid="uid://cuv0sfuhe7lha" path="res://assets/backgrounds/rock4.webp" id="20_025dw"]
 [ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="20_efaxg"]
-[ext_resource type="Texture2D" uid="uid://35w6bpfsthyv" path="res://rebuild_v3/features/sea_of_pillars/mountainoverlay05.webp" id="21_pg2vj"]
-[ext_resource type="Texture2D" uid="uid://db16rcixlbndf" path="res://rebuild_v3/features/sea_of_pillars/volcano.webp" id="22_n2rx5"]
 [ext_resource type="Texture2D" uid="uid://caunomx6a7vab" path="res://rebuild_v3/features/sea_of_pillars/vent1.webp" id="23_hsx8f"]
+[ext_resource type="Texture2D" uid="uid://dlmx2agxnmo3b" path="res://assets/backgrounds/volcano.webp" id="23_rgyev"]
+[ext_resource type="Texture2D" uid="uid://d2q81iotj6b8b" path="res://assets/backgrounds/rock11.webp" id="24_rgyev"]
+[ext_resource type="Texture2D" uid="uid://b8ro7tniglyln" path="res://assets/backgrounds/rock10.webp" id="25_y4s8d"]
+[ext_resource type="Texture2D" uid="uid://vroj5c1lm80y" path="res://assets/backgrounds/rock5.webp" id="26_3osi6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_y7jcd"]
 
 [sub_resource type="Gradient" id="Gradient_r8cdn"]
-interpolation_mode = 2
 offsets = PackedFloat32Array(0, 0.17130715, 0.7598183)
 colors = PackedColorArray(0, 0.88931584, 0.88330317, 1, 5.968213e-06, 0.13563246, 0.42747644, 1, 0.003921569, 0.043137256, 0.18431373, 1)
 
@@ -49,7 +55,7 @@ gradient = SubResource("Gradient_wx3we")
 fill_to = Vector2(0, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_xrivr"]
-shader = ExtResource("3_cuq28")
+shader = ExtResource("2_dk7og")
 shader_parameter/blend_mode = 0
 shader_parameter/opacity = 0.77999998256544
 shader_parameter/strength = 1.999999955296
@@ -60,21 +66,28 @@ shader_parameter/black_threshold = 0.008
 shader_parameter/black_softness = 0.025
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_13qdw"]
-shader = ExtResource("3_cuq28")
+shader = ExtResource("4_dk7og")
 shader_parameter/blend_mode = 0
-shader_parameter/opacity = 0.31999999284736
-shader_parameter/strength = 0.67999998480064
-shader_parameter/brightness = 0.0
-shader_parameter/lightness = -0.32000001519936006
+shader_parameter/opacity = 0.999999977648
+shader_parameter/strength = 0.83999998122432
+shader_parameter/brightness = 0.6899999622251198
+shader_parameter/lightness = -0.10000002011679998
 shader_parameter/tint = Color(1, 1, 1, 1)
-shader_parameter/black_threshold = 0.046000002185
-shader_parameter/black_softness = 0.054000002564999997
+shader_parameter/black_threshold = 0.10000000475
+shader_parameter/black_softness = 0.10000000475000001
+shader_parameter/drift_speed_x = 0.05000000889476999
+shader_parameter/drift_speed_y = 0.002
+shader_parameter/warp_strength_x = 0.015
+shader_parameter/warp_strength_y = 0.006
+shader_parameter/warp_frequency_x = 6.0
+shader_parameter/warp_frequency_y = 3.5
+shader_parameter/warp_speed = 0.3999999910592
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_65ai8"]
 shader = ExtResource("8_n2rx5")
 shader_parameter/strength = 0.55
-shader_parameter/fade_start = 0.5
-shader_parameter/fade_end = 1.0
+shader_parameter/fade_start = 1.0
+shader_parameter/fade_end = 0.6630000314925
 
 [sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
 shader = ExtResource("20_efaxg")
@@ -87,6 +100,7 @@ script = ExtResource("1_controller")
 
 [node name="BackgroundLayer" type="Node2D" parent="." unique_id=2109573204]
 z_index = -30
+metadata/_edit_lock_ = true
 
 [node name="sea gradient" type="TextureRect" parent="BackgroundLayer" unique_id=1705323228]
 material = SubResource("ShaderMaterial_y7jcd")
@@ -96,6 +110,7 @@ offset_right = 79679.0
 offset_bottom = 8403.0
 texture = SubResource("GradientTexture2D_wx3we")
 metadata/_edit_use_anchors_ = true
+metadata/_edit_lock_ = true
 
 [node name="sky gradient" type="TextureRect" parent="BackgroundLayer" unique_id=246411781]
 offset_left = -115.0
@@ -104,14 +119,16 @@ offset_right = 79690.0
 offset_bottom = 2241.0
 texture = SubResource("GradientTexture2D_fvo3l")
 metadata/_edit_use_anchors_ = true
+metadata/_edit_lock_ = true
 
 [node name="horizon" type="TextureRect" parent="BackgroundLayer" unique_id=129300163]
 offset_left = -31.0
 offset_top = 2237.0
-offset_right = 79488.0
+offset_right = 79683.0
 offset_bottom = 2301.0
 texture = SubResource("GradientTexture2D_qxwrb")
 metadata/_edit_use_anchors_ = true
+metadata/_edit_lock_ = true
 
 [node name="clouds" type="Node2D" parent="BackgroundLayer" unique_id=783510693]
 position = Vector2(-63, 148)
@@ -135,76 +152,104 @@ metadata/_edit_lock_ = true
 [node name="waterlines" type="TextureRect" parent="BackgroundLayer/water" unique_id=72150641]
 texture_repeat = 2
 material = SubResource("ShaderMaterial_13qdw")
-offset_left = -929.00006
-offset_top = 2271.0
-offset_right = 52813.0
-offset_bottom = 3450.5
-scale = Vector2(2, 2)
+offset_left = -903.0
+offset_top = 2272.0
+offset_right = 106573.0
+offset_bottom = 4773.333
+scale = Vector2(0.75, 0.75)
 texture = ExtResource("4_bu74a")
 stretch_mode = 1
+metadata/_edit_lock_ = true
 
 [node name="ParallaxLayer" type="Node2D" parent="." unique_id=986835539]
 z_index = -20
 
 [node name="LowerWaterParallax09" type="Sprite2D" parent="ParallaxLayer" unique_id=1137780990]
 material = SubResource("ShaderMaterial_65ai8")
-position = Vector2(10129, 5193)
+position = Vector2(4882, -1220.9998)
 scale = Vector2(1.868785, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
-flip_h = true
+
+[node name="SceneryPillarsRuins02" type="Sprite2D" parent="ParallaxLayer" unique_id=1150537233]
+z_index = 22
+position = Vector2(3049.9998, 2981.0002)
+rotation = 0.2617994
+texture = ExtResource("8_keobn")
 
 [node name="TerrainArtLayer" type="Node2D" parent="." unique_id=60207807]
 
 [node name="misc" type="Node2D" parent="TerrainArtLayer" unique_id=1578474541]
 
-[node name="Volcano" type="Sprite2D" parent="TerrainArtLayer/misc" unique_id=1777699351]
-position = Vector2(75603.75, 2804.75)
-scale = Vector2(1.0118998, 1.0639123)
-texture = ExtResource("22_n2rx5")
-
-[node name="Vent1" type="Sprite2D" parent="TerrainArtLayer/misc" unique_id=264285169]
-z_index = -1
-position = Vector2(74160.01, 3954.0044)
-scale = Vector2(1, 0.67213106)
-texture = ExtResource("23_hsx8f")
-
-[node name="Vent2" type="Sprite2D" parent="TerrainArtLayer/misc" unique_id=1410285595]
-z_index = -4
-position = Vector2(76569, 4041)
-rotation = 0.6981317
-scale = Vector2(0.99999994, 0.6721311)
-texture = ExtResource("23_hsx8f")
-
 [node name="ground" type="Node2D" parent="TerrainArtLayer" unique_id=1372488021]
 
 [node name="Polygon2D" type="Polygon2D" parent="TerrainArtLayer/ground" unique_id=1465868302]
 texture_repeat = 2
+position = Vector2(746, 320)
 texture = ExtResource("17_hsx8f")
 texture_scale = Vector2(0.25, 0.25)
-polygon = PackedVector2Array(161, 2256, 998, 2666, 1925, 2975, 2840, 3078, 4099, 3089, 4671, 3524, 5426, 4050, 5964, 4394, 7566, 4394, 7989, 4874, 8324, 5647, 8489, 6605, 8508, 7619, -871, 7619, -871, 1962)
+polygon = PackedVector2Array(161, 2256, 998, 2666, 1925, 2975, 2840, 3078, 4099, 3089, 4671, 3524, 5426, 4050, 6044, 4259, 7597, 4254, 7989, 4874, 8324, 5647, 8489, 6605, 8508, 7619, -871, 7619, -871, 1962)
 
 [node name="Sand" type="Node2D" parent="TerrainArtLayer/ground" unique_id=582435204]
 
 [node name="SandOverlay04" type="Sprite2D" parent="TerrainArtLayer/ground/Sand" unique_id=1147334557]
 z_index = 20
-position = Vector2(5034, 2964)
+position = Vector2(6071, 1962)
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("7_sand")
 centered = false
 
 [node name="SandOverlay32" type="Sprite2D" parent="TerrainArtLayer/ground/Sand" unique_id=1135889964]
 z_index = 20
-position = Vector2(70314.01, 4173.0005)
+position = Vector2(61996, -1525)
 scale = Vector2(1.7033492, 1.0028)
 texture = ExtResource("7_sand")
 centered = false
 
+[node name="Beach" type="Sprite2D" parent="TerrainArtLayer/ground/Sand" unique_id=1707590392]
+z_index = 1
+position = Vector2(1550, 2705)
+scale = Vector2(0.75, 1)
+texture = ExtResource("14_u6ky2")
+
 [node name="rocks" type="Node2D" parent="TerrainArtLayer/ground" unique_id=804311134]
+
+[node name="Rock30" type="Sprite2D" parent="TerrainArtLayer/ground/rocks" unique_id=1748284003]
+z_index = 20
+texture_repeat = 2
+position = Vector2(-105, 1440.9999)
+rotation = -1.2520667
+scale = Vector2(2.1196618, 2.1131413)
+skew = -0.0052928925
+texture = ExtResource("20_025dw")
+flip_h = true
+flip_v = true
+
+[node name="Rock11" type="Sprite2D" parent="TerrainArtLayer/ground/rocks" unique_id=106231806]
+position = Vector2(4000, 3437)
+texture = ExtResource("24_rgyev")
+
+[node name="Rock10" type="Sprite2D" parent="TerrainArtLayer/ground/rocks" unique_id=1901439071]
+position = Vector2(5321.0005, 3745.0002)
+rotation = 0.6597975
+texture = ExtResource("25_y4s8d")
+
+[node name="Rock4" type="Sprite2D" parent="TerrainArtLayer/ground/rocks" unique_id=1386811002]
+modulate = Color(0.926511, 0.926511, 0.926511, 1)
+position = Vector2(4624, 3331)
+scale = Vector2(0.7755525, 0.7679558)
+texture = ExtResource("20_025dw")
+
+[node name="Rock5" type="Sprite2D" parent="TerrainArtLayer/ground/rocks" unique_id=1080241722]
+modulate = Color(0.85814106, 0.85814106, 0.85814106, 1)
+position = Vector2(6194, 4321)
+rotation = 0.2617994
+scale = Vector2(0.99999994, 0.99999994)
+texture = ExtResource("26_3osi6")
 
 [node name="MountainOverlay02" type="Sprite2D" parent="TerrainArtLayer/ground/rocks" unique_id=1543005597]
 z_index = 20
-position = Vector2(10453, 2388)
+position = Vector2(8959, -3186)
 texture = ExtResource("6_mountain_b")
 centered = false
 
@@ -221,180 +266,55 @@ texture = ExtResource("6_mountain_b")
 centered = false
 flip_h = true
 
-[node name="Mountainoverlay16" type="Sprite2D" parent="TerrainArtLayer/ground/rocks" unique_id=1536349815]
-position = Vector2(16248, 8616)
-texture = ExtResource("21_pg2vj")
+[node name="landmarks" type="Node2D" parent="TerrainArtLayer/ground" unique_id=661967494]
 
-[node name="rockblock" type="Node2D" parent="TerrainArtLayer/ground" unique_id=864375533]
+[node name="Volcano" type="Sprite2D" parent="TerrainArtLayer/ground/landmarks" unique_id=943468834]
+position = Vector2(75176, 2926)
+texture = ExtResource("23_rgyev")
+
+[node name="Vents" type="Node2D" parent="TerrainArtLayer/ground" unique_id=864375533]
 scale = Vector2(0.97703815, 0.9683255)
 
-[node name="Rock23" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock" unique_id=1678830705]
-z_index = 20
-position = Vector2(61490.953, 9283.035)
-rotation = -0.12391838
-scale = Vector2(3.2131996, 2.86333)
-texture = ExtResource("20_025dw")
-flip_v = true
-
-[node name="Rock30" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock" unique_id=1748284003]
-z_index = 20
-texture_repeat = 2
-position = Vector2(-107.46774, 1488.1361)
-rotation = -1.2547227
-scale = Vector2(2.187088, 2.1646605)
-texture = ExtResource("20_025dw")
-flip_h = true
-flip_v = true
-
-[node name="Node2D" type="Node2D" parent="TerrainArtLayer/ground/rockblock" unique_id=950514919]
-visible = false
-
-[node name="Rocktexture8" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1328362950]
-z_index = -3
-position = Vector2(40374.293, 15356.07)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture25" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1282801807]
-z_index = -3
-position = Vector2(40374.06, 20620.13)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture26" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=655388056]
-z_index = -4
-position = Vector2(35597.383, 22101.04)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture10" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1620389847]
-z_index = -3
-position = Vector2(60553.652, 15456.243)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture27" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=913498430]
-z_index = -3
-position = Vector2(67144.766, 15449.35)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture28" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1413776174]
-z_index = -3
-position = Vector2(73814.92, 17545.75)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture12" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1962837297]
-z_index = -3
-position = Vector2(53827.2, 15454.177)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture13" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1999044752]
+[node name="Vent1" type="Sprite2D" parent="TerrainArtLayer/ground/Vents" unique_id=264285169]
 z_index = -1
-position = Vector2(78132.29, 7165.6416)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
+position = Vector2(75902.88, 4083.342)
+scale = Vector2(1.0235015, 0.69411683)
+texture = ExtResource("23_hsx8f")
 
-[node name="Rocktexture14" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1992000089]
-z_index = -3
-position = Vector2(78132.29, 12427.301)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
+[node name="Vent2" type="Sprite2D" parent="TerrainArtLayer/ground/Vents" unique_id=1410285595]
+z_index = -4
+position = Vector2(78368.484, 4173.183)
+rotation = 0.7025457
+scale = Vector2(1.0273163, 0.69156617)
+skew = -0.00882113
+texture = ExtResource("23_hsx8f")
 
-[node name="Rocktexture15" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=683140117]
-z_index = -3
-position = Vector2(71405.836, 7165.6416)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
+[node name="TerrainCollisionLayer" type="Node2D" parent="TerrainArtLayer/ground" unique_id=2073464158]
 
-[node name="Rocktexture16" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1091814165]
-z_index = -3
-position = Vector2(71405.836, 12427.301)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
+[node name="StaticBody2D" type="StaticBody2D" parent="TerrainArtLayer/ground/TerrainCollisionLayer" unique_id=630479912]
 
-[node name="Rocktexture" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1157764245]
-position = Vector2(7146.318, 7168.737)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="TerrainArtLayer/ground/TerrainCollisionLayer/StaticBody2D" unique_id=2042639595]
+visible = false
+polygon = PackedVector2Array(-183, -36, 266, 911, 426, 1083, 380, 1346, 460, 1609, 609, 2067, 872, 2318, 1330, 2547, 1524, 2673, 1639, 2822, 2108, 3005, 2338, 3053, 2362, 3187, 2562, 3309, 3019, 3443, 3352, 3519, 3542, 3526, 3798, 3440, 3961, 3424, 4042, 3390, 4264, 3336, 4407, 3227, 4639, 3157, 4746, 3084, 4863, 3138, 5023, 3312, 5236, 3555, 5552, 3836, 5755, 4031, 5925, 4108, 6124, 4045, 6323, 4113, 6488, 4186, 6639, 4268, 6765, 4482, 6830, 4577, 7221, 4655, 7689, 4702, 8057, 4632, 8330, 4663, 8760, 5312, 9018, 5929, 9198, 6804, 9244, 7853, 9259, 8416, -198, 8431, -792, 6741, -1416, 1472)
 
-[node name="Rocktexture2" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=901285450]
-z_index = -3
-position = Vector2(7146.318, 12432.474)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
+[node name="Node2D" type="Node2D" parent="TerrainArtLayer/ground" unique_id=950514919]
+scale = Vector2(0.97703815, 0.9683255)
 
-[node name="Rocktexture17" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=49954600]
-z_index = -3
-position = Vector2(20649.145, 7168.7397)
-scale = Vector2(3.896786, 3.6556144)
-texture = ExtResource("17_hsx8f")
-metadata/_edit_lock_ = true
+[node name="Enemies" type="Node2D" parent="." unique_id=1084087284]
 
-[node name="Rocktexture21" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=116888060]
-z_index = -3
-position = Vector2(14131.484, 11956.722)
-scale = Vector2(4.8155565, 4.244038)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture18" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=808942726]
-z_index = -3
-position = Vector2(20649.145, 12432.476)
-scale = Vector2(3.896786, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture22" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1065053015]
-z_index = -3
-position = Vector2(14087.985, 20601.46)
-scale = Vector2(4.8155565, 4.244038)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture29" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=773831831]
-z_index = -3
-position = Vector2(6939.341, 18087.926)
-scale = Vector2(4.8155565, 4.244038)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture23" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1249813544]
-z_index = -3
-position = Vector2(20611.781, 20957.502)
-scale = Vector2(3.896786, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture24" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1034634714]
-z_index = -3
-position = Vector2(29139.346, 21351.969)
-scale = Vector2(7.4355164, 4.16575)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture3" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=660426759]
-position = Vector2(419.86475, 7168.737)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture4" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=1982999866]
-z_index = -3
-position = Vector2(419.8667, 12430.402)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="Rocktexture6" type="Sprite2D" parent="TerrainArtLayer/ground/rockblock/Node2D" unique_id=778144043]
-z_index = -3
-position = Vector2(47100.75, 15358.137)
-scale = Vector2(4.469708, 3.6556144)
-texture = ExtResource("17_hsx8f")
-
-[node name="TerrainCollisionLayer" type="Node2D" parent="." unique_id=2073464158]
-
-[node name="StaticBody2D" type="StaticBody2D" parent="TerrainCollisionLayer" unique_id=630479912]
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="TerrainCollisionLayer/StaticBody2D" unique_id=1946795686]
-position = Vector2(-4656, 676)
-polygon = PackedVector2Array(145, 2136, 709, 2154, 2631, 2802, 3569, 3380, 4710, 3662, 6101, 3913, 6600, 4060, 6686, 4352, 8113, 4309, 8775, 3982, 9127, 4128, 9497, 4102, 9858, 3836, 10262, 3836, 10219, 4094, 10459, 4171, 11319, 4068, 11912, 4498, 12265, 5022, 12093, 5753, 11749, 6269, 11362, 6673, 10760, 6750, 10528, 7128, 10967, 7902, 11124, 11074, -370, 10995, -1752, -25, 170, 623)
+[node name="PassiveTideAnemone" type="Sprite2D" parent="Enemies" unique_id=1569930813]
+z_index = 1
+position = Vector2(3981, 3362)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("19_rgyev")
 
 [node name="ObjectsLayer" type="Node2D" parent="." unique_id=1657635660]
+
+[node name="FoodSamphire" type="Sprite2D" parent="ObjectsLayer" unique_id=631319943]
+z_index = -1
+position = Vector2(4270, 3252)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("15_hsx8f")
 
 [node name="TriggersLayer" type="Node2D" parent="." unique_id=177133980]
 
@@ -406,14 +326,14 @@ position = Vector2(1204, 2315)
 
 [node name="HylasStart" type="Marker2D" parent="SpawnPoints" unique_id=2099407237]
 unique_name_in_owner = true
-position = Vector2(3810, 2388)
+position = Vector2(2988, 3034)
 
 [node name="WorldTopLeft" type="Marker2D" parent="SpawnPoints" unique_id=1746992840]
 unique_name_in_owner = true
 
 [node name="WorldBottomRight" type="Marker2D" parent="SpawnPoints" unique_id=674130765]
 unique_name_in_owner = true
-position = Vector2(78517, 19277)
+position = Vector2(79684, 8480)
 
 [node name="Audio" type="Node2D" parent="." unique_id=1524100572]
 
@@ -468,4 +388,4 @@ metadata/_edit_lock_ = true
 [node name="Hylas" parent="." unique_id=1638166879 instance=ExtResource("8_hylas")]
 unique_name_in_owner = true
 z_index = 10
-position = Vector2(3791, 2388)
+position = Vector2(2833, 2796)

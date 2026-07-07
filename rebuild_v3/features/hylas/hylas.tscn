@@ -47,7 +47,7 @@ shape = SubResource("HylasCollisionShape")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=429748519]
 unique_name_in_owner = true
-zoom = Vector2(0.8, 0.8)
+zoom = Vector2(1.25, 1.25)
 position_smoothing_enabled = true
 position_smoothing_speed = 5.5
 
