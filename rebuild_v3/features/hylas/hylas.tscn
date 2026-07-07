@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c517thhqaggvs"]
 
-[ext_resource type="Script" uid="uid://c6i7kee688ybc" path="res://rebuild_v3/features/hylas/hylas.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/features/hylas/hylas_motion_presentation.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" uid="uid://bm6ve0lpyouwa" path="res://rebuild_v3/features/hylas/hylas_v3_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Texture2D" uid="uid://bj6kjlhmbunt7" path="res://assets/characters/hylas-swim_01.webp" id="3_swim_idle"]
 [ext_resource type="PackedScene" uid="uid://ood4cgs0bkqk" path="res://rebuild_v3/features/effects/bubble_burst.tscn" id="4_bubble_burst"]
@@ -78,7 +78,7 @@ stream = ExtResource("6_burst_audio")
 volume_db = -10.0
 script = ExtResource("8_looping_audio")
 
-[node name="ConchAudio" type="AudioStreamPlayer" parent="Audio" unique_id=1095997688]
+[node name="ConchAudio" type="AudioStreamPlayer" parent="Audio"]
 unique_name_in_owner = true
 stream = ExtResource("7_conch_audio")
 volume_db = -7.0
