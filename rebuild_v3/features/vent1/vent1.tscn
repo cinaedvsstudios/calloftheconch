@@ -1,9 +1,9 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://cwd3ikm7tnbp4"]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/vent1/vent1.gd" id="1_controller"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/vent.webp" id="2_vent_sprite"]
-[ext_resource type="VideoStream" path="res://assets/effects/vent1.ogv" id="3_vent_video"]
-[ext_resource type="Shader" path="res://rebuild_v3/features/vent1/vent1.gdshader" id="4_vent_shader"]
+[ext_resource type="Script" uid="uid://i7khllw8t3gw" path="res://rebuild_v3/features/vent1/vent1.gd" id="1_controller"]
+[ext_resource type="Texture2D" uid="uid://bu45keejdhp03" path="res://assets/backgrounds/vent.webp" id="2_vent_sprite"]
+[ext_resource type="VideoStream" uid="uid://cojdj436nhqwa" path="res://assets/effects/vent1.ogv" id="3_vent_video"]
+[ext_resource type="Shader" uid="uid://cled8u42wi0t2" path="res://rebuild_v3/features/vent1/vent1.gdshader" id="4_vent_shader"]
 
 [sub_resource type="ShaderMaterial" id="VentVideoMaterial"]
 shader = ExtResource("4_vent_shader")
@@ -11,24 +11,24 @@ shader_parameter/cut_off = 0.01
 shader_parameter/fade_width = 0.08
 shader_parameter/brightness = 5.0
 
-[node name="Vent1" type="Area2D"]
-collision_layer = 0
-collision_mask = 1
+[node name="Vent1" type="Area2D" unique_id=1723392711]
 z_index = 1
+collision_layer = 0
 script = ExtResource("1_controller")
+force_length = 700.0
 
-[node name="VentSprite" type="Sprite2D" parent="."]
+[node name="VentSprite" type="Sprite2D" parent="." unique_id=474044516]
 unique_name_in_owner = true
 texture = ExtResource("2_vent_sprite")
 
-[node name="VentVideo" type="VideoStreamPlayer" parent="."]
+[node name="VentVideo" type="VideoStreamPlayer" parent="." unique_id=1363274679]
 unique_name_in_owner = true
 z_index = 1
 material = SubResource("VentVideoMaterial")
-offset_left = -640.0
-offset_top = -360.0
-offset_right = 640.0
-offset_bottom = 360.0
+offset_left = -636.0
+offset_top = -1119.0
+offset_right = 644.0
+offset_bottom = -399.0
 scale = Vector2(1.5, 1.5)
 pivot_offset = Vector2(640, 360)
 mouse_filter = 2
@@ -36,5 +36,5 @@ stream = ExtResource("3_vent_video")
 expand = true
 loop = true
 
-[node name="ForceCollision" type="CollisionPolygon2D" parent="."]
+[node name="ForceCollision" type="CollisionPolygon2D" parent="." unique_id=771052063]
 unique_name_in_owner = true
