@@ -22,6 +22,7 @@
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/passive_tide_anemone/passive_tide_anemone.tscn" id="19_passive_tide_anemone"]
 [ext_resource type="Texture2D" uid="uid://cuv0sfuhe7lha" path="res://assets/backgrounds/rock4.webp" id="20_025dw"]
 [ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="20_efaxg"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/vent1/vent1.tscn" id="20_y4s8d"]
 [ext_resource type="Texture2D" uid="uid://caunomx6a7vab" path="res://rebuild_v3/features/sea_of_pillars/vent1.webp" id="23_hsx8f"]
 [ext_resource type="Texture2D" uid="uid://dlmx2agxnmo3b" path="res://assets/backgrounds/volcano.webp" id="23_rgyev"]
 [ext_resource type="Texture2D" uid="uid://d2q81iotj6b8b" path="res://assets/backgrounds/rock11.webp" id="24_rgyev"]
@@ -388,3 +389,9 @@ metadata/_edit_lock_ = true
 unique_name_in_owner = true
 z_index = 10
 position = Vector2(2833, 2796)
+
+[node name="Vent1" parent="." unique_id=1281808122 instance=ExtResource("20_y4s8d")]
+z_index = -1
+position = Vector2(5793.9995, 4074)
+rotation = 0.6021386
+scale = Vector2(0.41, 0.41)
