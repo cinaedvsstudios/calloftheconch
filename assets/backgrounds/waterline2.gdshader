@@ -55,7 +55,7 @@ void fragment() {
 
 	// Keep the working fade based on the TextureRect's local height
 	float box_v = clamp(local_y / 1179.5, 0.0, 1.0);
-	float vertical_fade = 1.0 - smoothstep(0.0, 0.5, box_v);
+	float vertical_fade = 1.0 - smoothstep(0.0, 1.0, box_v);
 
 	visible_mask *= vertical_fade;
 

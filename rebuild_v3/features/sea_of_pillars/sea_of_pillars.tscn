@@ -32,8 +32,8 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_y7jcd"]
 
 [sub_resource type="Gradient" id="Gradient_r8cdn"]
-offsets = PackedFloat32Array(0, 0.17130715, 0.7598183)
-colors = PackedColorArray(0, 0.88931584, 0.88330317, 1, 5.968213e-06, 0.13563246, 0.42747644, 1, 0.003921569, 0.043137256, 0.18431373, 1)
+offsets = PackedFloat32Array(0, 0.17130715, 0.645625, 0.950625)
+colors = PackedColorArray(0, 0.88931584, 0.88330317, 1, 5.968213e-06, 0.13563246, 0.42747644, 1, 0, 0.06311514, 0.13412923, 1, 0, 0.049527436, 0.043402955, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_wx3we"]
 gradient = SubResource("Gradient_r8cdn")
@@ -70,19 +70,19 @@ shader_parameter/black_softness = 0.025
 shader = ExtResource("4_dk7og")
 shader_parameter/blend_mode = 0
 shader_parameter/opacity = 0.999999977648
-shader_parameter/strength = 0.83999998122432
-shader_parameter/brightness = 0.6899999622251198
+shader_parameter/strength = 1.13999997451872
+shader_parameter/brightness = -0.22000001743456
 shader_parameter/lightness = -0.10000002011679998
 shader_parameter/tint = Color(1, 1, 1, 1)
-shader_parameter/black_threshold = 0.10000000475
-shader_parameter/black_softness = 0.10000000475
+shader_parameter/black_threshold = 0.1050000049875
+shader_parameter/black_softness = 0.1070000050825
 shader_parameter/drift_speed_x = 0.05000000889476999
 shader_parameter/drift_speed_y = 0.002
 shader_parameter/warp_strength_x = 0.015
 shader_parameter/warp_strength_y = 0.006
-shader_parameter/warp_frequency_x = 6.0
-shader_parameter/warp_frequency_y = 3.5
-shader_parameter/warp_speed = 0.3999999910592
+shader_parameter/warp_frequency_x = 8.5000001266602
+shader_parameter/warp_frequency_y = 10.90000016242308
+shader_parameter/warp_speed = 2.21999995037856
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_65ai8"]
 shader = ExtResource("8_n2rx5")
@@ -153,14 +153,13 @@ metadata/_edit_lock_ = true
 [node name="waterlines" type="TextureRect" parent="BackgroundLayer/water" unique_id=72150641]
 texture_repeat = 2
 material = SubResource("ShaderMaterial_13qdw")
-offset_left = -903.0
+offset_left = -948.0
 offset_top = 2272.0
-offset_right = 106573.0
-offset_bottom = 4773.333
+offset_right = 106588.65
+offset_bottom = 5076.0
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("4_bu74a")
 stretch_mode = 1
-metadata/_edit_lock_ = true
 
 [node name="ParallaxLayer" type="Node2D" parent="." unique_id=986835539]
 z_index = -20
