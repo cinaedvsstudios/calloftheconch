@@ -11,7 +11,9 @@ shader_parameter/cut_off = 0.01
 shader_parameter/fade_width = 0.08
 shader_parameter/brightness = 5.0
 
-[node name="Vent1" type="Node2D"]
+[node name="Vent1" type="Area2D"]
+collision_layer = 0
+collision_mask = 1
 z_index = 1
 script = ExtResource("1_controller")
 
@@ -33,3 +35,6 @@ mouse_filter = 2
 stream = ExtResource("3_vent_video")
 expand = true
 loop = true
+
+[node name="ForceCollision" type="CollisionPolygon2D" parent="."]
+unique_name_in_owner = true
