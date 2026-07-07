@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c517thhqaggvs"]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/hylas/hylas_motion_presentation.gd" id="1_controller"]
+[ext_resource type="Script" uid="uid://ywr08fve4qwi" path="res://rebuild_v3/features/hylas/hylas_motion_presentation.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" uid="uid://bm6ve0lpyouwa" path="res://rebuild_v3/features/hylas/hylas_v3_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Texture2D" uid="uid://bj6kjlhmbunt7" path="res://assets/characters/hylas-swim_01.webp" id="3_swim_idle"]
 [ext_resource type="PackedScene" uid="uid://ood4cgs0bkqk" path="res://rebuild_v3/features/effects/bubble_burst.tscn" id="4_bubble_burst"]
@@ -9,7 +9,7 @@
 [ext_resource type="AudioStream" uid="uid://dyorkgg3nkflx" path="res://assets/audio/Super Conch_noise.mp3" id="7_conch_audio"]
 [ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="8_looping_audio"]
 [ext_resource type="Shader" uid="uid://gyqmlkjlqb1f" path="res://rebuild_v3/features/hylas/hylas_shadow_outline.gdshader" id="10_shadow_shader"]
-[ext_resource type="Script" path="res://rebuild_v3/features/hylas/hylas_shadow_sync.gd" id="11_shadow_sync"]
+[ext_resource type="Script" uid="uid://wmnx6l5ols65" path="res://rebuild_v3/features/hylas/hylas_shadow_sync.gd" id="11_shadow_sync"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
 shader = ExtResource("10_shadow_shader")
@@ -55,6 +55,8 @@ position_smoothing_speed = 5.5
 
 [node name="TailBubbleBurst" parent="." unique_id=1945886857 instance=ExtResource("4_bubble_burst")]
 unique_name_in_owner = true
+visible = true
+scale = Vector2(0.8, 0.8)
 
 [node name="SurfaceSplashAnchor" type="Marker2D" parent="." unique_id=1966886696]
 unique_name_in_owner = true
@@ -78,7 +80,7 @@ stream = ExtResource("6_burst_audio")
 volume_db = -10.0
 script = ExtResource("8_looping_audio")
 
-[node name="ConchAudio" type="AudioStreamPlayer" parent="Audio"]
+[node name="ConchAudio" type="AudioStreamPlayer" parent="Audio" unique_id=342283525]
 unique_name_in_owner = true
 stream = ExtResource("7_conch_audio")
 volume_db = -7.0
