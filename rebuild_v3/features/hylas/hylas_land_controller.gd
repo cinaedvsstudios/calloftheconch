@@ -48,6 +48,10 @@ func _begin_surface_jump() -> void:
 func airborne_update(delta: float) -> void:
 	if not _play_enabled:
 		return
+	_current_time += delta
+	_update_cooldowns(delta)
+	_update_camera_shake(delta)
+	_update_shadow()
 	_jump_elapsed += delta
 	velocity.y += land_gravity * delta
 	move_and_slide()
@@ -133,6 +137,16 @@ func clamp_airborne_position(value: Vector2) -> Vector2:
 	return Vector2(
 		clampf(value.x, _world_bounds.position.x + player_edge_padding, _world_bounds.end.x - player_edge_padding),
 		clampf(value.y, _world_bounds.position.y + player_edge_padding, _world_bounds.end.y - player_edge_padding),
+	)
+
+
+func _clamp_to_world(value: Vector2) -> Vector2:
+	var minimum_y := _world_bounds.position.y + player_edge_padding
+	if not crawl_active and not airborne_active and _jump_elapsed <= 0.0:
+		minimum_y = maxf(minimum_y, _swim_ceiling_y)
+	return Vector2(
+		clampf(value.x, _world_bounds.position.x + player_edge_padding, _world_bounds.end.x - player_edge_padding),
+		clampf(value.y, minimum_y, _world_bounds.end.y - player_edge_padding),
 	)
 
 
