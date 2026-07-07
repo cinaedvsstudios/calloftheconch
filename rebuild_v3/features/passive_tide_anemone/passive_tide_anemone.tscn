@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/passive_tide_anemone/passive_tide_anemone.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/objects/passive_tide_anemone.png" id="2_texture"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/bubble_burst.tscn" id="3_bubble_burst"]
+
+[node name="PassiveTideAnemone" type="Area2D"]
+collision_layer = 0
+collision_mask = 1
+z_index = 1
+script = ExtResource("1_controller")
+
+[node name="VisualRoot" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="Sprite2D" type="Sprite2D" parent="VisualRoot"]
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("2_texture")
+
+[node name="BubbleBurst" parent="." instance=ExtResource("3_bubble_burst")]
+unique_name_in_owner = true
+
+[node name="DriftCollision" type="CollisionShape2D" parent="."]
+unique_name_in_owner = true

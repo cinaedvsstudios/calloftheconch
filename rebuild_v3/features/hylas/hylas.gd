@@ -75,6 +75,7 @@ var _current_time: float = 0.0
 var _swim_velocity: Vector2 = Vector2.ZERO
 var _burst_coast_velocity: Vector2 = Vector2.ZERO
 var _special_velocity: Vector2 = Vector2.ZERO
+var _external_currents: Dictionary[Node, Vector2] = {}
 
 var _burst_direction: Vector2 = Vector2.RIGHT
 var _burst_active: bool = false
@@ -143,6 +144,16 @@ func reset_to_start(start_position: Vector2) -> void:
 	_stop_movement_audio()
 	_set_visual_rotation(0.0)
 	_set_animation(&"idle")
+
+
+func set_external_current(source: Node, current_velocity: Vector2) -> void:
+	if not is_instance_valid(source):
+		return
+	_external_currents[source] = current_velocity
+
+
+func remove_external_current(source: Node) -> void:
+	_external_currents.erase(source)
 
 
 func _physics_process(delta: float) -> void:
@@ -380,9 +391,19 @@ func _apply_motion(motion_velocity: Vector2, idle: bool) -> void:
 	)
 	if idle:
 		current_velocity.y += idle_sink_speed
-	velocity = motion_velocity + current_velocity
+	velocity = motion_velocity + current_velocity + _get_external_current_velocity()
 	move_and_slide()
 	global_position = _clamp_to_world(global_position)
+
+
+func _get_external_current_velocity() -> Vector2:
+	var total_velocity: Vector2 = Vector2.ZERO
+	for source: Node in _external_currents:
+		if not is_instance_valid(source):
+			_external_currents.erase(source)
+			continue
+		total_velocity += _external_currents[source]
+	return total_velocity
 
 
 func _begin_surface_jump() -> void:
@@ -561,6 +582,7 @@ func _reset_motion_state() -> void:
 	_swim_velocity = Vector2.ZERO
 	_burst_coast_velocity = Vector2.ZERO
 	_special_velocity = Vector2.ZERO
+	_external_currents.clear()
 	_burst_active = false
 	_burst_elapsed = 0.0
 	_burst_remaining = 0.0
@@ -570,12 +592,9 @@ func _reset_motion_state() -> void:
 func get_debug_lines() -> Array[String]:
 	return [
 		"[Hylas]",
-		"position=(%.1f, %.1f)" % [global_position.x, global_position.y],
-		"facing_left=%s" % str(_facing_left),
-		"burst_charges=%d" % _burst_charges,
-		"speed_swim_active=%s" % str(_burst_active),
-		"speed_swim_elapsed=%.2f / %.2f" % [_burst_elapsed, burst_max_duration],
-		"burst_coast_speed=%.1f" % _burst_coast_velocity.length(),
-		"tail_bubble_visible=%s" % str(_tail_bubble_burst.is_active()),
-		"tail_bubble_timer=%.2f" % _tail_bubble_burst.get_remaining_display_time(),
+		"position=%s" % str(global_position),
+		"velocity=%s" % str(velocity),
+		"burst_active=%s" % str(_burst_active),
+		"burst_charges=%d/%d" % [_burst_charges, burst_max_charges],
+		"external_currents=%d" % _external_currents.size(),
 	]

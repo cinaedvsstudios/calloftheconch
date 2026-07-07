@@ -19,7 +19,7 @@
 [ext_resource type="Texture2D" uid="uid://cjmyafilkg07a" path="res://assets/backgrounds/beach.webp" id="14_u6ky2"]
 [ext_resource type="Texture2D" uid="uid://dkgtwua37u3ax" path="res://assets/objects/food_samphire.png" id="15_hsx8f"]
 [ext_resource type="Texture2D" uid="uid://cdkyoqxhngvnk" path="res://assets/backgrounds/rocktexture.jpeg" id="17_hsx8f"]
-[ext_resource type="Texture2D" uid="uid://cct588viitq0u" path="res://assets/objects/passive_tide_anemone.png" id="19_rgyev"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/passive_tide_anemone/passive_tide_anemone.tscn" id="19_passive_tide_anemone"]
 [ext_resource type="Texture2D" uid="uid://cuv0sfuhe7lha" path="res://assets/backgrounds/rock4.webp" id="20_025dw"]
 [ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="20_efaxg"]
 [ext_resource type="Texture2D" uid="uid://caunomx6a7vab" path="res://rebuild_v3/features/sea_of_pillars/vent1.webp" id="23_hsx8f"]
@@ -48,7 +48,7 @@ fill_to = Vector2(0, 1)
 [sub_resource type="Gradient" id="Gradient_wx3we"]
 interpolation_mode = 2
 offsets = PackedFloat32Array(0.33913723, 0.47011435, 0.5096983, 0.59069645, 0.9316528)
-colors = PackedColorArray(0.78039217, 0.91764706, 0.99215686, 1, 0.98039216, 0.95686275, 0.93333334, 1, 1, 1, 1, 1, 0.28627452, 0.8352941, 0.91764706, 1, 0, 0.8901961, 0.88235295, 1)
+colors = PackedColorArray(0.78039217, 0.91764706, 0.99215686, 1, 0.98039217, 0.95686275, 0.93333334, 1, 1, 1, 1, 1, 0.28627452, 0.8352941, 0.91764706, 1, 0, 0.8901961, 0.88235295, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_qxwrb"]
 gradient = SubResource("Gradient_wx3we")
@@ -302,11 +302,8 @@ scale = Vector2(0.97703815, 0.9683255)
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1084087284]
 
-[node name="PassiveTideAnemone" type="Sprite2D" parent="Enemies" unique_id=1569930813]
-z_index = 1
+[node name="PassiveTideAnemone" parent="Enemies" unique_id=1569930813 instance=ExtResource("19_passive_tide_anemone")]
 position = Vector2(3981, 3362)
-scale = Vector2(0.1, 0.1)
-texture = ExtResource("19_rgyev")
 
 [node name="ObjectsLayer" type="Node2D" parent="." unique_id=1657635660]
 
