@@ -15,7 +15,8 @@ shader_parameter/brightness = 5.0
 z_index = 1
 collision_layer = 0
 script = ExtResource("1_controller")
-force_length = 700.0
+force_length = 1500.0
+force_max_speed = 450.0
 
 [node name="VentSprite" type="Sprite2D" parent="." unique_id=474044516]
 unique_name_in_owner = true
