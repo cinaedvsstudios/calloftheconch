@@ -8,6 +8,7 @@ const BURST_STARTUP_FRAME_DURATION: float = 0.10
 const BURST_HOLD_START: float = 0.20
 const BURST_HOLD_END: float = 1.20
 const BURST_FINISH_FRAME_DURATION: float = 0.10
+const IDLE_ANIMATION_FPS: float = 2.50
 
 var _stop_pose_held: bool = false
 
@@ -15,6 +16,7 @@ var _stop_pose_held: bool = false
 func _ready() -> void:
 	burst_max_duration = BURST_DURATION
 	super._ready()
+	_animated_sprite.sprite_frames.set_animation_speed(&"idle", IDLE_ANIMATION_FPS)
 
 
 func _physics_process(delta: float) -> void:
