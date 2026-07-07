@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="8_looping_audio"]
 [ext_resource type="Shader" uid="uid://gyqmlkjlqb1f" path="res://rebuild_v3/features/hylas/hylas_shadow_outline.gdshader" id="10_shadow_shader"]
 [ext_resource type="Script" uid="uid://wmnx6l5ols65" path="res://rebuild_v3/features/hylas/hylas_shadow_sync.gd" id="11_shadow_sync"]
+[ext_resource type="Script" path="res://rebuild_v3/features/hylas/hylas_stop_release_transition.gd" id="12_stop_release"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
 shader = ExtResource("10_shadow_shader")
@@ -42,6 +43,7 @@ unique_name_in_owner = true
 scale = Vector2(1.3, 1.3)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
+script = ExtResource("12_stop_release")
 
 [node name="CollisionShape" type="CollisionShape2D" parent="." unique_id=2142548371]
 unique_name_in_owner = true
