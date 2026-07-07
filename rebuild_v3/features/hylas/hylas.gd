@@ -69,6 +69,7 @@ var _play_enabled: bool = false
 var _facing_left: bool = false
 var _visual_rotation: float = 0.0
 var _current_time: float = 0.0
+var _brake_active: bool = false
 
 # Standard movement is deliberately split so normal swimming can be added to
 # residual speed-swim momentum instead of replacing it.
@@ -170,14 +171,21 @@ func _physics_process(delta: float) -> void:
 
 	var input_direction: Vector2 = Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
 	_update_burst_release_latch(input_direction)
+
+	if _brake_active:
+		if Input.is_action_pressed(&"action_a"):
+			_apply_motion(Vector2.ZERO, false)
+			return
+		_brake_active = false
+
+	if _is_braking(input_direction):
+		_start_brake()
+		_apply_motion(Vector2.ZERO, false)
+		return
+
 	if Input.is_action_just_pressed(&"conch"):
 		_handle_conch_pressed(input_direction)
 	_update_pending_conch(delta)
-
-	if _is_braking(input_direction):
-		_cancel_to_brake()
-		_apply_motion(Vector2.ZERO, false)
-		return
 
 	if _tail_flip_remaining > 0.0:
 		_update_tail_flip(delta)
@@ -382,7 +390,8 @@ func _has_burst_coast() -> bool:
 	return _burst_coast_velocity.length_squared() > 0.01
 
 
-func _cancel_to_brake() -> void:
+func _start_brake() -> void:
+	_brake_active = true
 	_swim_velocity = Vector2.ZERO
 	_burst_coast_velocity = Vector2.ZERO
 	_special_velocity = Vector2.ZERO
@@ -611,6 +620,7 @@ func _reset_motion_state() -> void:
 	_burst_elapsed = 0.0
 	_burst_remaining = 0.0
 	_burst_requires_release = false
+	_brake_active = false
 
 
 func get_debug_lines() -> Array[String]:
