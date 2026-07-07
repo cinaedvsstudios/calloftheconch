@@ -1,20 +1,20 @@
 class_name CotcPassiveTideAnemone
 extends Area2D
 
-## A reusable passive sea creature with a subtle pulse, occasional bubbles,
+## A reusable passive sea creature with a visible slow pulse, occasional bubbles,
 ## and a soft outward water drift for Hylas.
 
 @export_category("Pulse")
-@export_range(0.10, 2.00, 0.01) var pulse_min_scale: float = 0.96
-@export_range(0.10, 2.00, 0.01) var pulse_max_scale: float = 1.06
-@export_range(0.10, 20.00, 0.05) var pulse_duration_min: float = 2.50
-@export_range(0.10, 20.00, 0.05) var pulse_duration_max: float = 4.50
-@export_range(0.00, 20.00, 0.05) var pulse_rest_duration_min: float = 0.50
-@export_range(0.00, 20.00, 0.05) var pulse_rest_duration_max: float = 2.00
+@export_range(0.10, 2.00, 0.01) var pulse_min_scale: float = 0.90
+@export_range(0.10, 2.00, 0.01) var pulse_max_scale: float = 1.12
+@export_range(0.10, 20.00, 0.05) var pulse_duration_min: float = 1.80
+@export_range(0.10, 20.00, 0.05) var pulse_duration_max: float = 3.00
+@export_range(0.00, 20.00, 0.05) var pulse_rest_duration_min: float = 0.20
+@export_range(0.00, 20.00, 0.05) var pulse_rest_duration_max: float = 0.80
 
 @export_category("Bubble Burst")
-@export_range(0.10, 60.00, 0.05) var bubble_delay_min: float = 4.00
-@export_range(0.10, 60.00, 0.05) var bubble_delay_max: float = 10.00
+@export_range(0.10, 60.00, 0.05) var bubble_delay_min: float = 2.75
+@export_range(0.10, 60.00, 0.05) var bubble_delay_max: float = 6.00
 
 @export_category("Outward Drift")
 @export_range(1.00, 1000.00, 1.00) var drift_radius: float = 200.00
@@ -34,8 +34,8 @@ var _centre_fallback_direction: Vector2 = Vector2.RIGHT
 func _ready() -> void:
 	_configure_drift_collision()
 	_centre_fallback_direction = Vector2.from_angle(randf_range(0.0, TAU))
-	_pulse_timer = randf_range(0.20, maxf(0.20, pulse_rest_duration_max))
-	_bubble_timer = randf_range(bubble_delay_min, bubble_delay_max)
+	_pulse_timer = randf_range(0.15, 0.60)
+	_bubble_timer = randf_range(1.00, 2.50)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	set_physics_process(false)
