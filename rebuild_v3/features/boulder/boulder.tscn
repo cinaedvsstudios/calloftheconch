@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/boulder/boulder.gd" id="1_controller"]
+[ext_resource type="Texture2D" uid="uid://bkq10eqrdx45j" path="res://assets/backgrounds/boulder.webp" id="2_texture"]
+
+[sub_resource type="CircleShape2D" id="SolidShape"]
+radius = 72.0
+
+[sub_resource type="CircleShape2D" id="TailFlipHitShape"]
+radius = 118.0
+
+[node name="Boulder" type="AnimatableBody2D"]
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("1_controller")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_texture")
+
+[node name="SolidCollision" type="CollisionShape2D" parent="."]
+shape = SubResource("SolidShape")
+
+[node name="TailFlipHitbox" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TailFlipHitbox"]
+shape = SubResource("TailFlipHitShape")
