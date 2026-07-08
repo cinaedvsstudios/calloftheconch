@@ -6,27 +6,26 @@ extends RigidBody2D
 @export var tail_flip_lateral_tolerance: float = 135.0
 @export var kick_impulse_right: float = 1150.0
 
+@onready var _sprite: Sprite2D = $Sprite2D
+@onready var _solid_collision: CollisionShape2D = $SolidCollision
+
 var _hylas: CotcHylas
 var _has_been_hit: bool = false
-var _starting_scale: Vector2 = Vector2.ONE
+var _instance_scale: Vector2 = Vector2.ONE
 
 
 func _ready() -> void:
-	_starting_scale = scale
+	_transfer_instance_scale_to_children()
 	call_deferred("_connect_to_hylas")
 
 
-func _physics_process(_delta: float) -> void:
-	_preserve_starting_scale()
-
-
-func _integrate_forces(_state: PhysicsDirectBodyState2D) -> void:
-	_preserve_starting_scale()
-
-
-func _preserve_starting_scale() -> void:
-	if scale != _starting_scale:
-		scale = _starting_scale
+func _transfer_instance_scale_to_children() -> void:
+	_instance_scale = scale
+	if _instance_scale == Vector2.ZERO:
+		_instance_scale = Vector2.ONE
+	_sprite.scale *= _instance_scale
+	_solid_collision.scale *= _instance_scale
+	scale = Vector2.ONE
 
 
 func _connect_to_hylas() -> void:
@@ -52,9 +51,7 @@ func _on_hylas_tail_flip_started(origin: Vector2, direction: Vector2) -> void:
 
 func _begin_tail_flip_response() -> void:
 	_has_been_hit = true
-	_preserve_starting_scale()
 	freeze = false
-	_preserve_starting_scale()
 	if _hylas != null and _hylas.has_method(&"play_land_impact_sound"):
 		_hylas.call(&"play_land_impact_sound")
 	apply_central_impulse(Vector2(kick_impulse_right, 0.0))
