@@ -29,7 +29,7 @@ size = Vector2(123, 49)
 [sub_resource type="CircleShape2D" id="HylasInteractionShape"]
 radius = 120.0
 
-[node name="Hylas" type="CharacterBody2D" unique_id=25639110]
+[node name="Hylas" type="CharacterBody2D" unique_id=25639110 groups=["hylas"]]
 script = ExtResource("1_controller")
 
 [node name="ShadowSprite" type="Sprite2D" parent="." unique_id=757591679]
