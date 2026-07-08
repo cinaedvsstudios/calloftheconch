@@ -14,13 +14,13 @@
 [ext_resource type="Shader" uid="uid://drenylk7uthsm" path="res://rebuild_v3/features/sea_of_pillars/lower_water_fade_right.gdshader" id="8_n2rx5"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/conch_pulse.tscn" id="9_conch_pulse"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/surface_splash.tscn" id="10_surface_splash"]
-[ext_resource type="Texture2D" uid="uid://bkq10eqrdx45j" path="res://assets/backgrounds/boulder.webp" id="12_3osi6"]
 [ext_resource type="VideoStream" uid="uid://buw0jv63vxw0i" path="res://assets/effects/bubble_riser_field.ogv" id="12_bubble_overlay"]
 [ext_resource type="AudioStream" uid="uid://b1ok5tlb5fqkw" path="res://assets/audio/underwater_ambience.mp3" id="13_ambience"]
 [ext_resource type="Texture2D" uid="uid://cjmyafilkg07a" path="res://assets/backgrounds/beach.webp" id="14_u6ky2"]
 [ext_resource type="Texture2D" uid="uid://dkgtwua37u3ax" path="res://assets/objects/food_samphire.png" id="15_hsx8f"]
 [ext_resource type="Texture2D" uid="uid://cdkyoqxhngvnk" path="res://assets/backgrounds/rocktexture.jpeg" id="17_hsx8f"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/passive_tide_anemone/passive_tide_anemone.tscn" id="19_passive_tide_anemone"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/boulder/boulder.tscn" id="20_3osi6"]
 [ext_resource type="Texture2D" uid="uid://cuv0sfuhe7lha" path="res://assets/backgrounds/rock4.webp" id="20_025dw"]
 [ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="20_efaxg"]
 [ext_resource type="PackedScene" uid="uid://cwd3ikm7tnbp4" path="res://rebuild_v3/features/vent1/vent1.tscn" id="20_y4s8d"]
@@ -214,12 +214,6 @@ texture = ExtResource("14_u6ky2")
 
 [node name="rocks" type="Node2D" parent="TerrainArtLayer/ground" unique_id=804311134]
 
-[node name="Boulder" type="Sprite2D" parent="TerrainArtLayer/ground/rocks" unique_id=2026502058]
-modulate = Color(0.779283, 1.0734388, 0.9812407, 1)
-position = Vector2(6585.999, 2326)
-scale = Vector2(0.11294434, 0.11470593)
-texture = ExtResource("12_3osi6")
-
 [node name="Rock30" type="Sprite2D" parent="TerrainArtLayer/ground/rocks" unique_id=1748284003]
 z_index = 20
 texture_repeat = 2
@@ -320,6 +314,10 @@ polygon = PackedVector2Array(-183, -36, 1234, 913, 607, 1278, 303, 1900, 330, 22
 
 [node name="Node2D" type="Node2D" parent="TerrainArtLayer/ground" unique_id=950514919]
 scale = Vector2(0.97703815, 0.9683255)
+
+[node name="Boulder" parent="TerrainArtLayer/ground" unique_id=1809975598 instance=ExtResource("20_3osi6")]
+position = Vector2(6587, 2334)
+scale = Vector2(0.1, 0.1)
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1084087284]
 
