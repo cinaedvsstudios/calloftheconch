@@ -1,29 +1,28 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://bkhlb31k0q74o"]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/boulder/boulder.gd" id="1_controller"]
+[ext_resource type="Script" uid="uid://c74lnub70grct" path="res://rebuild_v3/features/boulder/boulder.gd" id="1_controller"]
 [ext_resource type="Texture2D" uid="uid://bkq10eqrdx45j" path="res://assets/backgrounds/boulder.webp" id="2_texture"]
-
-[sub_resource type="CircleShape2D" id="SolidShape"]
-radius = 92.0
 
 [sub_resource type="PhysicsMaterial" id="BoulderPhysicsMaterial"]
 friction = 0.15
 bounce = 0.12
 
-[node name="Boulder" type="RigidBody2D"]
-collision_layer = 1
-collision_mask = 1
-mass = 1.0
+[sub_resource type="CircleShape2D" id="SolidShape"]
+radius = 87.909996
+
+[node name="Boulder" type="RigidBody2D" unique_id=730954845]
+physics_material_override = SubResource("BoulderPhysicsMaterial")
 gravity_scale = 0.16
-linear_damp = 3.0
+can_sleep = false
 lock_rotation = true
 freeze = true
-can_sleep = false
-physics_material_override = SubResource("BoulderPhysicsMaterial")
+linear_damp = 3.0
 script = ExtResource("1_controller")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=616051447]
 texture = ExtResource("2_texture")
 
-[node name="SolidCollision" type="CollisionShape2D" parent="."]
+[node name="SolidCollision" type="CollisionShape2D" parent="." unique_id=9686674]
+position = Vector2(0, 44)
+scale = Vector2(4.585, 4.98)
 shape = SubResource("SolidShape")
