@@ -4,17 +4,15 @@
 [ext_resource type="Texture2D" uid="uid://bkq10eqrdx45j" path="res://assets/backgrounds/boulder.webp" id="2_texture"]
 
 [sub_resource type="CircleShape2D" id="SolidShape"]
-radius = 87.909996
+radius = 99.76623
 
 [node name="Boulder" type="CharacterBody2D" unique_id=730954845]
-collision_layer = 1
-collision_mask = 1
 script = ExtResource("1_controller")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=616051447]
 texture = ExtResource("2_texture")
 
 [node name="SolidCollision" type="CollisionShape2D" parent="." unique_id=9686674]
-position = Vector2(0, 44)
+position = Vector2(13, 13)
 scale = Vector2(4.585, 4.98)
 shape = SubResource("SolidShape")

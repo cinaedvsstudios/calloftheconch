@@ -91,6 +91,10 @@ shader_parameter/strength = 0.55
 shader_parameter/fade_start = 1.0
 shader_parameter/fade_end = 0.6630000314925
 
+[sub_resource type="PhysicsMaterial" id="BoulderPhysicsMaterial"]
+friction = 0.15
+bounce = 0.12
+
 [sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
 shader = ExtResource("20_efaxg")
 shader_parameter/cut_off = 0.01
@@ -316,9 +320,19 @@ polygon = PackedVector2Array(-183, -36, 1234, 913, 607, 1278, 303, 1900, 330, 22
 scale = Vector2(0.97703815, 0.9683255)
 
 [node name="Boulder" parent="TerrainArtLayer/ground" unique_id=1809975598 instance=ExtResource("20_3osi6")]
-position = Vector2(6598, 2312)
+position = Vector2(6597, 2298)
 scale = Vector2(0.155, 0.155)
 mass = 25.0
+physics_material_override = SubResource("BoulderPhysicsMaterial")
+gravity_scale = 0.16
+can_sleep = false
+lock_rotation = true
+freeze = true
+linear_damp = 3.0
+kick_speed = 675.0
+drift_gravity = 190.0
+water_drag = 1.0
+terrain_bounce = 0.35
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1084087284]
 
