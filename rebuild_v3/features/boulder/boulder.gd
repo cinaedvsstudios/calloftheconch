@@ -1,12 +1,19 @@
 class_name CotcBoulder
-extends RigidBody2D
+extends CharacterBody2D
 
 @export_category("Tail Flip Response")
 @export var tail_flip_reach: float = 330.0
 @export var tail_flip_lateral_tolerance: float = 155.0
 @export var tail_flip_active_window: float = 0.55
 @export var tail_flip_hit_cooldown: float = 0.18
-@export var kick_impulse_strength: float = 1450.0
+@export var kick_speed: float = 620.0
+
+@export_category("Heavy Drift")
+@export var drift_gravity: float = 180.0
+@export var water_drag: float = 0.985
+@export var terrain_bounce: float = 0.16
+@export var max_drift_speed: float = 900.0
+@export var stop_speed: float = 6.0
 
 @onready var _sprite: Sprite2D = $Sprite2D
 @onready var _solid_collision: CollisionShape2D = $SolidCollision
@@ -16,6 +23,7 @@ var _instance_scale: Vector2 = Vector2.ONE
 var _tail_flip_active_until: float = 0.0
 var _active_tail_flip_direction: Vector2 = Vector2.RIGHT
 var _last_hit_time: float = -999.0
+var _is_drifting: bool = false
 
 
 func _ready() -> void:
@@ -23,9 +31,11 @@ func _ready() -> void:
 	call_deferred("_connect_to_hylas")
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if Time.get_ticks_msec() / 1000.0 <= _tail_flip_active_until:
 		_try_tail_flip_hit()
+	if _is_drifting:
+		_update_heavy_drift(delta)
 
 
 func _transfer_instance_scale_to_children() -> void:
@@ -80,7 +90,27 @@ func _get_effective_collision_radius() -> float:
 func _apply_tail_flip_hit() -> void:
 	_last_hit_time = Time.get_ticks_msec() / 1000.0
 	_tail_flip_active_until = 0.0
-	freeze = false
+	_is_drifting = true
+	velocity += _active_tail_flip_direction * kick_speed
+	velocity = velocity.limit_length(max_drift_speed)
 	if _hylas != null and _hylas.has_method(&"play_land_impact_sound"):
 		_hylas.call(&"play_land_impact_sound")
-	apply_central_impulse(_active_tail_flip_direction * kick_impulse_strength)
+
+
+func _update_heavy_drift(delta: float) -> void:
+	velocity.y += drift_gravity * delta
+	velocity *= pow(water_drag, delta * 60.0)
+	velocity = velocity.limit_length(max_drift_speed)
+
+	var remaining_motion: Vector2 = velocity * delta
+	for _bounce_index in 4:
+		var collision: KinematicCollision2D = move_and_collide(remaining_motion)
+		if collision == null:
+			break
+		var normal: Vector2 = collision.get_normal()
+		velocity = velocity.bounce(normal) * terrain_bounce
+		remaining_motion = collision.get_remainder().bounce(normal) * terrain_bounce
+		if velocity.length() <= stop_speed:
+			velocity = Vector2.ZERO
+			_is_drifting = false
+			break
