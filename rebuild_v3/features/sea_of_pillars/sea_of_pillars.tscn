@@ -20,7 +20,7 @@
 [ext_resource type="Texture2D" uid="uid://dkgtwua37u3ax" path="res://assets/objects/food_samphire.png" id="15_hsx8f"]
 [ext_resource type="Texture2D" uid="uid://cdkyoqxhngvnk" path="res://assets/backgrounds/rocktexture.jpeg" id="17_hsx8f"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/passive_tide_anemone/passive_tide_anemone.tscn" id="19_passive_tide_anemone"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/features/boulder/boulder.tscn" id="20_3osi6"]
+[ext_resource type="PackedScene" uid="uid://bkhlb31k0q74o" path="res://rebuild_v3/features/boulder/boulder.tscn" id="20_3osi6"]
 [ext_resource type="Texture2D" uid="uid://cuv0sfuhe7lha" path="res://assets/backgrounds/rock4.webp" id="20_025dw"]
 [ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="20_efaxg"]
 [ext_resource type="PackedScene" uid="uid://cwd3ikm7tnbp4" path="res://rebuild_v3/features/vent1/vent1.tscn" id="20_y4s8d"]
@@ -316,8 +316,9 @@ polygon = PackedVector2Array(-183, -36, 1234, 913, 607, 1278, 303, 1900, 330, 22
 scale = Vector2(0.97703815, 0.9683255)
 
 [node name="Boulder" parent="TerrainArtLayer/ground" unique_id=1809975598 instance=ExtResource("20_3osi6")]
-position = Vector2(6587, 2334)
-scale = Vector2(0.1, 0.1)
+position = Vector2(6598, 2312)
+scale = Vector2(0.155, 0.155)
+mass = 25.0
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1084087284]
 
