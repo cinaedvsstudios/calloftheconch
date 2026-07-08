@@ -54,16 +54,25 @@ func airborne_update(delta: float) -> void:
 	_update_shadow()
 	_jump_elapsed += delta
 	velocity.y += land_gravity * delta
+	var was_descending := velocity.y > 0.0
 	move_and_slide()
 	global_position = clamp_airborne_position(global_position)
 
 	if global_position.y < _swim_ceiling_y:
 		left_water = true
-	if is_on_floor():
+	if was_descending and _has_ground_collision():
 		begin_crawl()
 		return
 	if left_water and velocity.y > 0.0 and global_position.y >= _swim_ceiling_y:
 		enter_water()
+
+
+func _has_ground_collision() -> bool:
+	for collision_index in get_slide_collision_count():
+		var collision := get_slide_collision(collision_index)
+		if collision != null and collision.get_normal().y < -0.2:
+			return true
+	return false
 
 
 func begin_crawl() -> void:
