@@ -1,0 +1,55 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/black_bloom/hazard_black_bloom0.png" id="1_sleep"]
+[ext_resource type="Texture2D" path="res://assets/enemies/black_bloom/hazard_black_bloom1.png" id="2_frame_1"]
+[ext_resource type="Texture2D" path="res://assets/enemies/black_bloom/hazard_black_bloom2.png" id="3_frame_2"]
+[ext_resource type="Texture2D" path="res://assets/enemies/black_bloom/hazard_black_bloom3.png" id="4_frame_3"]
+[ext_resource type="Texture2D" path="res://assets/enemies/black_bloom/hazard_black_bloom4.png" id="5_frame_4"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_frame_1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_frame_2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_frame_3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_frame_4")
+}],
+"loop": 1,
+"name": &"active",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_sleep")
+}],
+"loop": 0,
+"name": &"sleep",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_sleep")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_frame_1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_frame_2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_frame_3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_frame_4")
+}],
+"loop": 0,
+"name": &"wake",
+"speed": 10.0
+}]
