@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dr0gpadvt8fah"
-path="res://.godot/imported/hazard_black_bloom0.png-2f8e47ffa4a9e9bbc709d9a70f33c37c.ctex"
+uid="uid://o4ytc2xu0xot"
+path="res://.godot/imported/hazard_black_bloom3.png-758a37e359e56d80080ee4f2ebc32500.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/objects/hazard_black_bloom0.png"
-dest_files=["res://.godot/imported/hazard_black_bloom0.png-2f8e47ffa4a9e9bbc709d9a70f33c37c.ctex"]
+source_file="res://assets/enemies/hazard_black_bloom3.png"
+dest_files=["res://.godot/imported/hazard_black_bloom3.png-758a37e359e56d80080ee4f2ebc32500.ctex"]
 
 [params]
 

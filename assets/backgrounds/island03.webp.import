@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://o4ytc2xu0xot"
-path="res://.godot/imported/hazard_black_bloom3.png-7dfc0e8e622fde8f4781acff6fdc804c.ctex"
+uid="uid://1nh5cux8i2h7"
+path="res://.godot/imported/island03.webp-07de7f108ae7f162c9d6acf75fdf6a21.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/objects/hazard_black_bloom3.png"
-dest_files=["res://.godot/imported/hazard_black_bloom3.png-7dfc0e8e622fde8f4781acff6fdc804c.ctex"]
+source_file="res://assets/backgrounds/island03.webp"
+dest_files=["res://.godot/imported/island03.webp-07de7f108ae7f162c9d6acf75fdf6a21.ctex"]
 
 [params]
 
