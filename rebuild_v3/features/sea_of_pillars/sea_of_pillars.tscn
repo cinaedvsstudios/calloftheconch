@@ -92,6 +92,7 @@ shader_parameter/fade_width = 0.08
 shader_parameter/brightness = 4.0
 
 [node name="SeaOfPillars" type="Node2D" unique_id=1981294601]
+position = Vector2(623, -218)
 script = ExtResource("1_controller")
 
 [node name="BackgroundLayer" type="Node2D" parent="." unique_id=2109573204]
@@ -423,7 +424,7 @@ metadata/_edit_lock_ = true
 [node name="Hylas" parent="." unique_id=1638166879 instance=ExtResource("8_hylas")]
 unique_name_in_owner = true
 z_index = 10
-position = Vector2(2990, 2681)
+position = Vector2(2399, 2907)
 
 [node name="BlackBloomHazard" parent="." unique_id=466782246 instance=ExtResource("31_025dw")]
 z_index = -1
