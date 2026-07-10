@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bmdr504j1dah7" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars.gd" id="1_controller"]
 [ext_resource type="Shader" uid="uid://bxpu675qf5ipy" path="res://cloudeffect.gdshader" id="2_dk7og"]
+[ext_resource type="Texture2D" uid="uid://twuyib7uslrq" path="res://assets/backgrounds/horizon.png" id="2_h5o2i"]
 [ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="2_looping_audio"]
 [ext_resource type="Texture2D" uid="uid://bprhpe7iqckhu" path="res://assets/backgrounds/clouds2.jpg" id="4_blq7k"]
 [ext_resource type="Texture2D" uid="uid://ekgn2xwn4eer" path="res://assets/backgrounds/watertile.jpg" id="4_bu74a"]
@@ -29,6 +30,7 @@
 [ext_resource type="Texture2D" uid="uid://d2q81iotj6b8b" path="res://assets/backgrounds/rock11.webp" id="24_rgyev"]
 [ext_resource type="Texture2D" uid="uid://b8ro7tniglyln" path="res://assets/backgrounds/rock10.webp" id="25_y4s8d"]
 [ext_resource type="Texture2D" uid="uid://vroj5c1lm80y" path="res://assets/backgrounds/rock5.webp" id="26_3osi6"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/black_bloom/black_bloom_hazard.tscn" id="31_025dw"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_y7jcd"]
 
@@ -47,10 +49,12 @@ colors = PackedColorArray(1.9348561e-05, 0.55007964, 0.8655462, 1, 0.7894599, 0.
 gradient = SubResource("Gradient_fyxxo")
 fill_to = Vector2(0, 1)
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_xrivr"]
+
 [sub_resource type="Gradient" id="Gradient_wx3we"]
 interpolation_mode = 2
-offsets = PackedFloat32Array(0.33913723, 0.47011435, 0.5096983, 0.59069645, 0.9316528)
-colors = PackedColorArray(0.78039217, 0.91764706, 0.99215686, 1, 0.98039216, 0.95686275, 0.93333334, 1, 1, 1, 1, 1, 0.28627452, 0.8352941, 0.91764706, 1, 0, 0.8901961, 0.88235295, 1)
+offsets = PackedFloat32Array(0.33913723, 0.47011435, 0.5096983, 0.5631029, 0.59069645, 0.9316528)
+colors = PackedColorArray(0.78039217, 0.91764706, 0.99215686, 1, 0.98039216, 0.95686275, 0.93333334, 1, 1, 1, 1, 1, 0.38431373, 0.6666667, 0.8980392, 1, 0.28627452, 0.8352941, 0.91764706, 1, 0, 0.8901961, 0.88235295, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_qxwrb"]
 gradient = SubResource("Gradient_wx3we")
@@ -91,10 +95,6 @@ shader_parameter/strength = 0.55
 shader_parameter/fade_start = 1.0
 shader_parameter/fade_end = 0.6630000314925
 
-[sub_resource type="PhysicsMaterial" id="BoulderPhysicsMaterial"]
-friction = 0.15
-bounce = 0.12
-
 [sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
 shader = ExtResource("20_efaxg")
 shader_parameter/cut_off = 0.01
@@ -127,7 +127,18 @@ texture = SubResource("GradientTexture2D_fvo3l")
 metadata/_edit_use_anchors_ = true
 metadata/_edit_lock_ = true
 
+[node name="horizon2" type="TextureRect" parent="BackgroundLayer" unique_id=1197241610]
+modulate = Color(1, 1, 1, 0.7882353)
+material = SubResource("CanvasItemMaterial_xrivr")
+offset_left = 65.0
+offset_top = 2002.0
+offset_right = 79733.0
+offset_bottom = 2490.0
+texture = ExtResource("2_h5o2i")
+stretch_mode = 1
+
 [node name="horizon" type="TextureRect" parent="BackgroundLayer" unique_id=129300163]
+z_index = -2
 offset_left = -31.0
 offset_top = 2237.0
 offset_right = 79683.0
@@ -156,12 +167,13 @@ metadata/_edit_lock_ = true
 [node name="water" type="Node2D" parent="BackgroundLayer" unique_id=30443269]
 
 [node name="waterlines" type="TextureRect" parent="BackgroundLayer/water" unique_id=72150641]
+z_index = 5
 texture_repeat = 2
 material = SubResource("ShaderMaterial_13qdw")
-offset_left = -948.0
-offset_top = 2272.0
-offset_right = 106588.65
-offset_bottom = 5076.0
+offset_left = -947.0
+offset_top = 2270.0
+offset_right = 106589.65
+offset_bottom = 5074.0
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("4_bu74a")
 stretch_mode = 1
@@ -322,13 +334,6 @@ scale = Vector2(0.97703815, 0.9683255)
 [node name="Boulder" parent="TerrainArtLayer/ground" unique_id=1809975598 instance=ExtResource("20_3osi6")]
 position = Vector2(6597, 2298)
 scale = Vector2(0.155, 0.155)
-mass = 25.0
-physics_material_override = SubResource("BoulderPhysicsMaterial")
-gravity_scale = 0.16
-can_sleep = false
-lock_rotation = true
-freeze = true
-linear_damp = 3.0
 kick_speed = 675.0
 drift_gravity = 190.0
 water_drag = 1.0
@@ -423,3 +428,9 @@ metadata/_edit_lock_ = true
 unique_name_in_owner = true
 z_index = 10
 position = Vector2(2990, 2681)
+
+[node name="BlackBloomHazard" parent="." unique_id=466782246 instance=ExtResource("31_025dw")]
+z_index = -1
+position = Vector2(5279.001, 3590.0005)
+rotation = 0.2617994
+scale = Vector2(0.3, 0.3)
