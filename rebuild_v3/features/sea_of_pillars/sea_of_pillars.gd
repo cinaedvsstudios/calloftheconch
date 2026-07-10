@@ -5,6 +5,9 @@ extends Node2D
 @export var auto_play_ambience: bool = true
 @export var auto_play_bubble_overlay: bool = true
 
+@export_category("Bubble Overlay")
+@export_range(0.001, 0.1, 0.001) var bubble_waterline_fade: float = 0.012
+
 @onready var _hylas: CotcHylas = %Hylas
 @onready var _start_marker: Marker2D = %HylasStart
 @onready var _waterline_marker: Marker2D = %WaterlineMarker
@@ -17,13 +20,19 @@ extends Node2D
 @onready var _entry_surface_splash: CotcSurfaceSplash = %EntrySurfaceSplash
 
 var _active: bool = false
+var _bubble_material: ShaderMaterial
 
 func _ready() -> void:
 	_underwater_ambience.process_mode = Node.PROCESS_MODE_ALWAYS
 	_hylas.normal_conch_used.connect(_on_hylas_normal_conch_used)
 	_hylas.surface_splash_requested.connect(_on_hylas_surface_splash_requested)
+	_prepare_bubble_material()
 	configure_player()
 	deactivate()
+
+func _process(_delta: float) -> void:
+	if _active:
+		_update_bubble_waterline_mask()
 
 func configure_player() -> void:
 	var top_left: Vector2 = _world_top_left.global_position
@@ -38,6 +47,7 @@ func activate() -> void:
 	_hylas.reset_to_start(_start_marker.global_position)
 	_hylas.set_play_enabled(true)
 	_play_underwater_ambience()
+	_update_bubble_waterline_mask()
 	if auto_play_bubble_overlay and _bubble_overlay.stream != null:
 		_bubble_overlay.show()
 		_bubble_overlay.play()
@@ -52,6 +62,24 @@ func deactivate() -> void:
 	_exit_surface_splash.stop_splash()
 	_entry_surface_splash.stop_splash()
 	hide()
+
+func _prepare_bubble_material() -> void:
+	var source_material: ShaderMaterial = _bubble_overlay.material as ShaderMaterial
+	if source_material == null:
+		return
+	_bubble_material = source_material.duplicate() as ShaderMaterial
+	_bubble_overlay.material = _bubble_material
+	_bubble_material.set_shader_parameter(&"waterline_fade", bubble_waterline_fade)
+
+func _update_bubble_waterline_mask() -> void:
+	if _bubble_material == null:
+		return
+	var viewport_height: float = get_viewport_rect().size.y
+	if viewport_height <= 0.0:
+		return
+	var waterline_screen_position: Vector2 = get_viewport().get_canvas_transform() * _waterline_marker.global_position
+	var waterline_screen_y: float = waterline_screen_position.y / viewport_height
+	_bubble_material.set_shader_parameter(&"waterline_screen_y", waterline_screen_y)
 
 func _play_underwater_ambience() -> void:
 	if not auto_play_ambience or _underwater_ambience.stream == null:
