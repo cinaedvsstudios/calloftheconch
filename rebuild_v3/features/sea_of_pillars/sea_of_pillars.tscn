@@ -92,7 +92,6 @@ shader_parameter/fade_width = 0.08
 shader_parameter/brightness = 4.0
 
 [node name="SeaOfPillars" type="Node2D" unique_id=1981294601]
-position = Vector2(623, -218)
 script = ExtResource("1_controller")
 
 [node name="BackgroundLayer" type="Node2D" parent="." unique_id=2109573204]
@@ -106,6 +105,7 @@ offset_top = 2271.0
 offset_right = 79679.0
 offset_bottom = 8404.0
 texture = SubResource("GradientTexture2D_wx3we")
+metadata/_edit_lock_ = true
 
 [node name="sky gradient" type="TextureRect" parent="BackgroundLayer" unique_id=246411781]
 offset_left = -115.0
@@ -113,6 +113,7 @@ offset_top = 940.0
 offset_right = 79690.0
 offset_bottom = 2271.0
 texture = SubResource("GradientTexture2D_fvo3l")
+metadata/_edit_lock_ = true
 
 [node name="horizon2" type="TextureRect" parent="BackgroundLayer" unique_id=1197241610]
 self_modulate = Color(0.94509804, 0.94509804, 0.94509804, 0.7019608)
@@ -124,9 +125,11 @@ offset_right = 79735.0
 offset_bottom = 2492.0
 texture = ExtResource("2_h5o2i")
 stretch_mode = 1
+metadata/_edit_lock_ = true
 
 [node name="clouds" type="Node2D" parent="BackgroundLayer" unique_id=783510693]
 position = Vector2(-63, 148)
+metadata/_edit_lock_ = true
 
 [node name="cloud effect" type="TextureRect" parent="BackgroundLayer/clouds" unique_id=1187715843]
 texture_repeat = 3
@@ -143,6 +146,7 @@ metadata/_edit_use_anchors_ = true
 metadata/_edit_lock_ = true
 
 [node name="water" type="Node2D" parent="BackgroundLayer" unique_id=30443269]
+metadata/_edit_lock_ = true
 
 [node name="ParallaxLayer" type="Node2D" parent="." unique_id=986835539]
 z_index = -20
@@ -153,12 +157,14 @@ position = Vector2(4882, -1220.9998)
 scale = Vector2(1.868785, 1.4917129)
 texture = ExtResource("4_lower_parallax")
 centered = false
+metadata/_edit_lock_ = true
 
 [node name="SceneryPillarsRuins02" type="Sprite2D" parent="ParallaxLayer" unique_id=1150537233]
 z_index = 22
 position = Vector2(3049.9998, 2981.0002)
 rotation = 0.2617994
 texture = ExtResource("8_keobn")
+metadata/_edit_lock_ = true
 
 [node name="waterlines" type="TextureRect" parent="ParallaxLayer" unique_id=72150641]
 z_index = -9
@@ -171,6 +177,7 @@ offset_bottom = 5075.0
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("4_bu74a")
 stretch_mode = 1
+metadata/_edit_lock_ = true
 
 [node name="TerrainArtLayer" type="Node2D" parent="." unique_id=60207807]
 
@@ -323,7 +330,11 @@ texture = ExtResource("26_3osi6")
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="TerrainArtLayer/ground/TerrainCollisionLayer/StaticBody2D" unique_id=2042639595]
 visible = false
-polygon = PackedVector2Array(-183, -36, 1234, 913, 607, 1278, 303, 1900, 330, 2226, 584, 2261, 729, 2253, 1010, 2273, 1016, 2331, 1493, 2614, 1650, 2754, 1782, 2836, 2058, 2938, 2397, 3055, 2452, 3212, 2592, 3286, 3022, 3425, 3387, 3496, 3507, 3491, 3551, 3360, 3583, 3307, 3654, 3311, 3706, 3351, 3786, 3313, 3850, 3368, 3881.2612, 3383.7717, 3900, 3361, 3980, 3408, 4050, 3388, 4071, 3353, 4102, 3321, 4169, 3316, 4186, 3284, 4228, 3275, 4273, 3307, 4314.99, 3267.2346, 4343, 3221, 4424, 3164, 4499, 3164, 4629, 3083, 4784, 3012, 4829, 3071, 4863, 3073, 4919, 3121, 4889, 3153, 4923, 3190, 4993, 3235, 5069, 3357, 5205, 3467, 5233, 3527, 5335, 3584, 5552, 3836, 5734, 3953, 5805, 4049, 5857, 4043, 5906, 3841, 5957, 3857, 6012, 3852, 6084.602, 4022.9927, 6130, 4017, 6323, 4050, 6377, 3758, 6269, 3517, 6248, 3245, 6380, 2809, 6418, 2705, 6465, 2663, 6469, 2539, 6495, 2473, 6545, 2395, 6591, 2368, 6638, 2406, 6664, 2438, 6694, 2498, 6714, 2559, 6787, 2559, 6832, 2633, 6899.776, 2804.9287, 6986, 2830, 7101, 3001, 7082, 3146, 7159.846, 3292.1113, 7233, 3348, 7342, 3634, 7167, 3860, 7055, 3887, 6971, 4038, 6639, 4268, 6765, 4482, 6830, 4577, 7221, 4655, 7689, 4702, 8057, 4632, 8330, 4663, 8760, 5312, 9018, 5929, 9198, 6804, 9244, 7853, 9259, 8416, -198, 8431, -792, 6741, -1416, 1472)
+polygon = PackedVector2Array(-183, -36, 1234, 913, 607, 1278, 303, 1900, 330, 2226, 584, 2261, 729, 2253, 1010, 2273, 1016, 2331, 1493, 2614, 1650, 2754, 1782, 2836, 2058, 2938, 2397, 3055, 2452, 3212, 2592, 3286, 3022, 3425, 3387, 3496, 3507, 3491, 3551, 3360, 3583, 3307, 3654, 3311, 3706, 3351, 3786, 3313, 3850, 3368, 3881.2612, 3383.7717, 3900, 3361, 3980, 3408, 4050, 3388, 4071, 3353, 4102, 3321, 4169, 3316, 4186, 3284, 4228, 3275, 4273, 3307, 4314.99, 3267.2346, 4343, 3221, 4424, 3164, 4499, 3164, 4629, 3083, 4784, 3012, 4829, 3071, 4863, 3073, 4919, 3121, 4889, 3153, 4923, 3190, 4993, 3235, 5069, 3357, 5205, 3467, 5233, 3527, 5335, 3584, 5502.546, 3778.569, 5552, 3836, 5734, 3953, 5805, 4049, 5857, 4043, 5906, 3841, 5957, 3857, 6012, 3852, 6100, 3855, 6127, 3828, 6227, 3777, 6377, 3758, 6570, 3659, 6953, 3846, 7095, 4132, 7170, 4253, 7012, 4414, 7088, 4452, 7483, 4496, 7935, 4500, 8064, 4402, 8459, 4339, 8898, 5399, 9018, 5929, 9198, 6804, 9244, 7853, 9259, 8416, -198, 8431, -792, 6741, -1416, 1472)
+
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="TerrainArtLayer/ground/TerrainCollisionLayer/StaticBody2D" unique_id=1463771990]
+polygon = PackedVector2Array(6734, 2420, 6703, 2475, 6640, 2493, 6575, 2654, 6484, 2694, 6415, 2865, 6419, 2949, 6309, 3076, 6244, 3270, 6360, 3423, 6524, 3594, 6524, 3707, 6134, 3831, 6027, 4054, 7060, 4146, 6900, 3913, 6861, 3719, 6963, 3608, 6987, 3535, 7012, 3317, 7055, 3118, 7055, 2991, 6987, 2700, 6896, 2550, 6879, 2413, 6833, 2394, 6834, 2340, 6799, 2335, 6756, 2377)
+metadata/_edit_lock_ = true
 
 [node name="Node2D" type="Node2D" parent="TerrainArtLayer/ground" unique_id=950514919]
 scale = Vector2(0.97703815, 0.9683255)
