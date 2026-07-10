@@ -26,24 +26,37 @@ shader_parameter/soft_opacity = 0.249999994412
 [sub_resource type="RectangleShape2D" id="HylasCollisionShape"]
 size = Vector2(123, 49)
 
+[sub_resource type="RectangleShape2D" id="HylasTailFlipCollisionShape"]
+size = Vector2(78, 92)
+
+[sub_resource type="RectangleShape2D" id="HylasConchCollisionShape"]
+size = Vector2(86, 82)
+
+[sub_resource type="RectangleShape2D" id="HylasStopCollisionShape"]
+size = Vector2(84, 94)
+
 [sub_resource type="CircleShape2D" id="HylasInteractionShape"]
 radius = 97.128784
 
 [node name="Hylas" type="CharacterBody2D" unique_id=25639110 groups=["hylas"]]
 script = ExtResource("1_controller")
+default_collision_shape = SubResource("HylasCollisionShape")
+tail_flip_collision_shape = SubResource("HylasTailFlipCollisionShape")
+conch_collision_shape = SubResource("HylasConchCollisionShape")
+stop_collision_shape = SubResource("HylasStopCollisionShape")
 
 [node name="ShadowSprite" type="Sprite2D" parent="." unique_id=757591679]
 unique_name_in_owner = true
 show_behind_parent = true
 z_index = -2
 material = SubResource("ShaderMaterial_imwqt")
-scale = Vector2(1.3, 1.3)
+scale = Vector2(0.16347688, 0.16347688)
 texture = ExtResource("3_swim_idle")
 script = ExtResource("11_shadow_sync")
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=1603977457]
 unique_name_in_owner = true
-scale = Vector2(1.3, 1.3)
+scale = Vector2(0.16347688, 0.16347688)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
 script = ExtResource("12_stop_release")
