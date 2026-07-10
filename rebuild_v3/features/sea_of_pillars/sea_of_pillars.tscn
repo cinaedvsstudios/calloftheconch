@@ -25,7 +25,6 @@
 [ext_resource type="Texture2D" uid="uid://cuv0sfuhe7lha" path="res://assets/backgrounds/rock4.webp" id="20_025dw"]
 [ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="20_efaxg"]
 [ext_resource type="PackedScene" uid="uid://cwd3ikm7tnbp4" path="res://rebuild_v3/features/vent1/vent1.tscn" id="20_y4s8d"]
-[ext_resource type="Texture2D" uid="uid://caunomx6a7vab" path="res://rebuild_v3/features/sea_of_pillars/vent1.webp" id="23_hsx8f"]
 [ext_resource type="Texture2D" uid="uid://dlmx2agxnmo3b" path="res://assets/backgrounds/volcano.webp" id="23_rgyev"]
 [ext_resource type="Texture2D" uid="uid://d2q81iotj6b8b" path="res://assets/backgrounds/rock11.webp" id="24_rgyev"]
 [ext_resource type="Texture2D" uid="uid://b8ro7tniglyln" path="res://assets/backgrounds/rock10.webp" id="25_y4s8d"]
@@ -50,15 +49,6 @@ gradient = SubResource("Gradient_fyxxo")
 fill_to = Vector2(0, 1)
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_xrivr"]
-
-[sub_resource type="Gradient" id="Gradient_wx3we"]
-interpolation_mode = 2
-offsets = PackedFloat32Array(0.33913723, 0.47011435, 0.5096983, 0.5631029, 0.59069645, 0.9316528)
-colors = PackedColorArray(0.78039217, 0.91764706, 0.99215686, 1, 0.98039216, 0.95686275, 0.93333334, 1, 1, 1, 1, 1, 0.38431373, 0.6666667, 0.8980392, 1, 0.28627452, 0.8352941, 0.91764706, 1, 0, 0.8901961, 0.88235295, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_qxwrb"]
-gradient = SubResource("Gradient_wx3we")
-fill_to = Vector2(0, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_xrivr"]
 shader = ExtResource("2_dk7og")
@@ -111,41 +101,27 @@ metadata/_edit_lock_ = true
 [node name="sea gradient" type="TextureRect" parent="BackgroundLayer" unique_id=1705323228]
 material = SubResource("ShaderMaterial_y7jcd")
 offset_left = 160.0
-offset_top = 2270.0
+offset_top = 2271.0
 offset_right = 79679.0
-offset_bottom = 8403.0
+offset_bottom = 8404.0
 texture = SubResource("GradientTexture2D_wx3we")
-metadata/_edit_use_anchors_ = true
-metadata/_edit_lock_ = true
 
 [node name="sky gradient" type="TextureRect" parent="BackgroundLayer" unique_id=246411781]
 offset_left = -115.0
-offset_top = 910.0
+offset_top = 940.0
 offset_right = 79690.0
-offset_bottom = 2241.0
+offset_bottom = 2271.0
 texture = SubResource("GradientTexture2D_fvo3l")
-metadata/_edit_use_anchors_ = true
-metadata/_edit_lock_ = true
 
 [node name="horizon2" type="TextureRect" parent="BackgroundLayer" unique_id=1197241610]
-modulate = Color(1, 1, 1, 0.7882353)
+self_modulate = Color(1, 1, 1, 0.7882353)
 material = SubResource("CanvasItemMaterial_xrivr")
-offset_left = 65.0
-offset_top = 2002.0
-offset_right = 79733.0
-offset_bottom = 2490.0
+offset_left = 67.0
+offset_top = 2004.0
+offset_right = 79735.0
+offset_bottom = 2492.0
 texture = ExtResource("2_h5o2i")
 stretch_mode = 1
-
-[node name="horizon" type="TextureRect" parent="BackgroundLayer" unique_id=129300163]
-z_index = -2
-offset_left = -31.0
-offset_top = 2237.0
-offset_right = 79683.0
-offset_bottom = 2301.0
-texture = SubResource("GradientTexture2D_qxwrb")
-metadata/_edit_use_anchors_ = true
-metadata/_edit_lock_ = true
 
 [node name="clouds" type="Node2D" parent="BackgroundLayer" unique_id=783510693]
 position = Vector2(-63, 148)
@@ -171,9 +147,9 @@ z_index = 5
 texture_repeat = 2
 material = SubResource("ShaderMaterial_13qdw")
 offset_left = -947.0
-offset_top = 2270.0
+offset_top = 2271.0
 offset_right = 106589.65
-offset_bottom = 5074.0
+offset_bottom = 5075.0
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("4_bu74a")
 stretch_mode = 1
@@ -296,7 +272,8 @@ flip_h = true
 [node name="landmarks" type="Node2D" parent="TerrainArtLayer/ground" unique_id=661967494]
 
 [node name="Volcano" type="Sprite2D" parent="TerrainArtLayer/ground/landmarks" unique_id=943468834]
-position = Vector2(75176, 2926)
+position = Vector2(35501, 2603)
+scale = Vector2(0.566, 0.5)
 texture = ExtResource("23_rgyev")
 
 [node name="Vents" type="Node2D" parent="TerrainArtLayer/ground" unique_id=864375533]
@@ -307,26 +284,12 @@ z_index = -1
 position = Vector2(6106.21, 4121.548)
 scale = Vector2(0.41963562, 0.4234113)
 
-[node name="Vent1" type="Sprite2D" parent="TerrainArtLayer/ground/Vents" unique_id=264285169]
-z_index = -1
-position = Vector2(75902.88, 4083.342)
-scale = Vector2(1.0235015, 0.69411683)
-texture = ExtResource("23_hsx8f")
-
-[node name="Vent2" type="Sprite2D" parent="TerrainArtLayer/ground/Vents" unique_id=1410285595]
-z_index = -4
-position = Vector2(78368.484, 4173.183)
-rotation = 0.7025457
-scale = Vector2(1.0273163, 0.69156617)
-skew = -0.00882113
-texture = ExtResource("23_hsx8f")
-
 [node name="TerrainCollisionLayer" type="Node2D" parent="TerrainArtLayer/ground" unique_id=2073464158]
 
 [node name="StaticBody2D" type="StaticBody2D" parent="TerrainArtLayer/ground/TerrainCollisionLayer" unique_id=630479912]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="TerrainArtLayer/ground/TerrainCollisionLayer/StaticBody2D" unique_id=2042639595]
-polygon = PackedVector2Array(-183, -36, 1234, 913, 607, 1278, 303, 1900, 330, 2226, 584, 2261, 729, 2253, 1010, 2273, 1057, 2340, 1493, 2614, 1650, 2754, 1782, 2836, 2058, 2938, 2397, 3055, 2452, 3212, 2592, 3286, 3022, 3425, 3387, 3496, 3507, 3491, 3551, 3360, 3583, 3307, 3654, 3311, 3706, 3351, 3786, 3313, 3850, 3368, 3881.2612, 3383.7717, 3900, 3361, 3980, 3408, 4050, 3388, 4071, 3353, 4102, 3321, 4169, 3316, 4186, 3284, 4228, 3275, 4273, 3307, 4314.99, 3267.2346, 4343, 3221, 4424, 3164, 4499, 3164, 4629, 3083, 4784, 3012, 4829, 3071, 4863, 3073, 4919, 3121, 4889, 3153, 4923, 3190, 4993, 3235, 5069, 3357, 5205, 3467, 5233, 3527, 5335, 3584, 5552, 3836, 5734, 3953, 5805, 4049, 5857, 4043, 5906, 3841, 5957, 3857, 6012, 3852, 6084.602, 4022.9927, 6130, 4017, 6323, 4050, 6377, 3758, 6269, 3517, 6248, 3245, 6380, 2809, 6471, 2709, 6504, 2477, 6570, 2393, 6664, 2438, 6688, 2552, 6778, 2577, 6899.776, 2804.9287, 6986, 2830, 7101, 3001, 7082, 3146, 7159.846, 3292.1113, 7233, 3348, 7342, 3634, 7167, 3860, 7055, 3887, 6971, 4038, 6639, 4268, 6765, 4482, 6830, 4577, 7221, 4655, 7689, 4702, 8057, 4632, 8330, 4663, 8760, 5312, 9018, 5929, 9198, 6804, 9244, 7853, 9259, 8416, -198, 8431, -792, 6741, -1416, 1472)
+polygon = PackedVector2Array(-183, -36, 1234, 913, 607, 1278, 303, 1900, 330, 2226, 584, 2261, 729, 2253, 1010, 2273, 1057, 2340, 1493, 2614, 1650, 2754, 1782, 2836, 2058, 2938, 2397, 3055, 2452, 3212, 2592, 3286, 3022, 3425, 3387, 3496, 3507, 3491, 3551, 3360, 3583, 3307, 3654, 3311, 3706, 3351, 3786, 3313, 3850, 3368, 3881.2612, 3383.7717, 3900, 3361, 3980, 3408, 4050, 3388, 4071, 3353, 4102, 3321, 4169, 3316, 4186, 3284, 4228, 3275, 4273, 3307, 4314.99, 3267.2346, 4343, 3221, 4424, 3164, 4499, 3164, 4629, 3083, 4784, 3012, 4829, 3071, 4863, 3073, 4919, 3121, 4889, 3153, 4923, 3190, 4993, 3235, 5069, 3357, 5205, 3467, 5233, 3527, 5335, 3584, 5552, 3836, 5734, 3953, 5805, 4049, 5857, 4043, 5906, 3841, 5957, 3857, 6012, 3852, 6084.602, 4022.9927, 6130, 4017, 6323, 4050, 6377, 3758, 6269, 3517, 6248, 3245, 6380, 2809, 6418, 2705, 6465, 2663, 6469, 2539, 6495, 2473, 6545, 2395, 6591, 2368, 6638, 2406, 6664, 2438, 6694, 2498, 6714, 2559, 6787, 2559, 6832, 2633, 6899.776, 2804.9287, 6986, 2830, 7101, 3001, 7082, 3146, 7159.846, 3292.1113, 7233, 3348, 7342, 3634, 7167, 3860, 7055, 3887, 6971, 4038, 6639, 4268, 6765, 4482, 6830, 4577, 7221, 4655, 7689, 4702, 8057, 4632, 8330, 4663, 8760, 5312, 9018, 5929, 9198, 6804, 9244, 7853, 9259, 8416, -198, 8431, -792, 6741, -1416, 1472)
 
 [node name="Node2D" type="Node2D" parent="TerrainArtLayer/ground" unique_id=950514919]
 scale = Vector2(0.97703815, 0.9683255)
