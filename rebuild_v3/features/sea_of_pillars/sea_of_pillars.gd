@@ -7,6 +7,9 @@ signal conch_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
 @export var auto_play_ambience: bool = true
 @export var auto_play_bubble_overlay: bool = true
 
+@export_category("Conch Pulse")
+@export_range(0.0, 300.0, 1.0) var conch_origin_forward_offset: float = 105.0
+
 @export_category("Bubble Overlay")
 @export_range(0.001, 0.1, 0.001) var bubble_waterline_fade: float = 0.012
 
@@ -101,8 +104,15 @@ func _play_underwater_ambience() -> void:
 
 
 func _on_hylas_normal_conch_used(origin: Vector2, direction: Vector2) -> void:
-	if _active:
-		_conch_pulse.trigger(origin, direction)
+	if not _active:
+		return
+	var pulse_direction: Vector2 = direction
+	if pulse_direction.length_squared() <= 0.0001:
+		pulse_direction = Vector2.RIGHT
+	else:
+		pulse_direction = pulse_direction.normalized()
+	var pulse_origin: Vector2 = origin + pulse_direction * conch_origin_forward_offset
+	_conch_pulse.trigger(pulse_origin, pulse_direction)
 
 
 func _on_conch_pulse_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int) -> void:
