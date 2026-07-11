@@ -48,6 +48,8 @@
 [ext_resource type="Texture2D" uid="uid://1nh5cux8i2h7" path="res://assets/backgrounds/island03.webp" id="46_mf02t"]
 [ext_resource type="Shader" uid="uid://djrkn605v8rov" path="res://rebuild_v3/features/sea_of_pillars/lower_water_fade_left.gdshader" id="47_q5obt"]
 [ext_resource type="Texture2D" uid="uid://c2gcu8b1ne6o6" path="res://assets/backgrounds/waterbgparalax2.webp" id="48_tp4nf"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/whale_travel/whale_travel.tscn" id="49_qxwrb"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/scatter_bubbles/scatter_bubble_vent1.tscn" id="50_u7o2t"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_y7jcd"]
 
@@ -1260,3 +1262,9 @@ texture = ExtResource("43_fvo3l")
 [node name="Lsland04" type="Sprite2D" parent="." unique_id=156289665]
 position = Vector2(9124, 2370)
 texture = ExtResource("45_u7o2t")
+
+[node name="WhaleTravel" parent="." unique_id=1644269751 instance=ExtResource("49_qxwrb")]
+position = Vector2(21988, 2778)
+
+[node name="ScatterBubbleVent1" parent="." unique_id=1153371410 instance=ExtResource("50_u7o2t")]
+position = Vector2(21413, 3785)
