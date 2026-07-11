@@ -1,15 +1,46 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/conch_pulse.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/effects/sonar.webp" id="2_sonar"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/effects/conch_pulse_arc.gdshader" id="3_arc_shader"]
+[ext_resource type="VideoStream" path="res://assets/effects/echopulse.ogv" id="4_flash_video"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/effects/conch_pulse_flash.gdshader" id="5_flash_shader"]
+
+[sub_resource type="ShaderMaterial" id="SonarArcMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("3_arc_shader")
+shader_parameter/arc_degrees = 45.0
+shader_parameter/edge_softness_degrees = 4.0
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 1.35
+
+[sub_resource type="ShaderMaterial" id="OriginFlashMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("5_flash_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 1.5
 
 [node name="ConchPulse" type="Node2D"]
 script = ExtResource("1_controller")
 
-[node name="Ring" type="Line2D" parent="."]
+[node name="SonarArc" type="Sprite2D" parent="."]
 unique_name_in_owner = true
-points = PackedVector2Array(100, 0, 92.388, 38.2683, 70.7107, 70.7107, 38.2683, 92.388, 0, 100, -38.2683, 92.388, -70.7107, 70.7107, -92.388, 38.2683, -100, 0, -92.388, -38.2683, -70.7107, -70.7107, -38.2683, -92.388, 0, -100, 38.2683, -92.388, 70.7107, -70.7107, 92.388, -38.2683, 100, 0)
-width = 5.0
-default_color = Color(0.62, 0.35, 1, 0.9)
-joint_mode = 2
-begin_cap_mode = 2
-end_cap_mode = 2
+material = SubResource("SonarArcMaterial")
+texture = ExtResource("2_sonar")
+
+[node name="OriginFlash" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
+z_index = 1
+material = SubResource("OriginFlashMaterial")
+offset_left = -960.0
+offset_top = -540.0
+offset_right = 960.0
+offset_bottom = 540.0
+pivot_offset = Vector2(960, 540)
+mouse_filter = 2
+stream = ExtResource("4_flash_video")
+volume_db = -80.0
+expand = true
+loop = false
