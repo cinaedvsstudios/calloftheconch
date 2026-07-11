@@ -1,4 +1,4 @@
-extends CotcConchPulse
+extends "res://rebuild_v3/features/effects/conch_pulse.gd"
 
 @export_category("Screen Range")
 @export_range(0.0, 200.0, 1.0) var screen_edge_padding: float = 36.0
