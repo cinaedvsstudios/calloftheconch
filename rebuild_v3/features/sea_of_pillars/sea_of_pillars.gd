@@ -1,6 +1,8 @@
 class_name CotcSeaOfPillars
 extends Node2D
 
+signal conch_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
+
 @export_category("Level")
 @export var auto_play_ambience: bool = true
 @export var auto_play_bubble_overlay: bool = true
@@ -22,23 +24,28 @@ extends Node2D
 var _active: bool = false
 var _bubble_material: ShaderMaterial
 
+
 func _ready() -> void:
 	_underwater_ambience.process_mode = Node.PROCESS_MODE_ALWAYS
 	_hylas.normal_conch_used.connect(_on_hylas_normal_conch_used)
 	_hylas.surface_splash_requested.connect(_on_hylas_surface_splash_requested)
+	_conch_pulse.target_hit.connect(_on_conch_pulse_target_hit)
 	_prepare_bubble_material()
 	configure_player()
 	deactivate()
 
+
 func _process(_delta: float) -> void:
 	if _active:
 		_update_bubble_waterline_mask()
+
 
 func configure_player() -> void:
 	var top_left: Vector2 = _world_top_left.global_position
 	var bottom_right: Vector2 = _world_bottom_right.global_position
 	var world_bounds: Rect2 = Rect2(top_left, bottom_right - top_left)
 	_hylas.configure_world(world_bounds, _waterline_marker.global_position.y, _start_marker.global_position)
+
 
 func activate() -> void:
 	_active = true
@@ -52,16 +59,18 @@ func activate() -> void:
 		_bubble_overlay.show()
 		_bubble_overlay.play()
 
+
 func deactivate() -> void:
 	_active = false
 	_hylas.set_play_enabled(false)
 	_underwater_ambience.stop()
 	_bubble_overlay.stop()
 	_bubble_overlay.hide()
-	_conch_pulse.hide()
+	_conch_pulse.stop()
 	_exit_surface_splash.stop_splash()
 	_entry_surface_splash.stop_splash()
 	hide()
+
 
 func _prepare_bubble_material() -> void:
 	var source_material: ShaderMaterial = _bubble_overlay.material as ShaderMaterial
@@ -70,6 +79,7 @@ func _prepare_bubble_material() -> void:
 	_bubble_material = source_material.duplicate() as ShaderMaterial
 	_bubble_overlay.material = _bubble_material
 	_bubble_material.set_shader_parameter(&"waterline_fade", bubble_waterline_fade)
+
 
 func _update_bubble_waterline_mask() -> void:
 	if _bubble_material == null:
@@ -81,6 +91,7 @@ func _update_bubble_waterline_mask() -> void:
 	var waterline_screen_y: float = waterline_screen_position.y / viewport_height
 	_bubble_material.set_shader_parameter(&"waterline_screen_y", waterline_screen_y)
 
+
 func _play_underwater_ambience() -> void:
 	if not auto_play_ambience or _underwater_ambience.stream == null:
 		return
@@ -88,9 +99,17 @@ func _play_underwater_ambience() -> void:
 	if not _underwater_ambience.playing:
 		_underwater_ambience.play()
 
+
 func _on_hylas_normal_conch_used(origin: Vector2, direction: Vector2) -> void:
 	if _active:
 		_conch_pulse.trigger(origin, direction)
+
+
+func _on_conch_pulse_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int) -> void:
+	if not _active:
+		return
+	conch_target_hit.emit(target, hit_position, pulse_index)
+
 
 func _on_hylas_surface_splash_requested(origin: Vector2, is_exit: bool) -> void:
 	if not _active:
@@ -100,6 +119,7 @@ func _on_hylas_surface_splash_requested(origin: Vector2, is_exit: bool) -> void:
 	else:
 		_entry_surface_splash.trigger(origin)
 
+
 func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = [
 		"[SeaOfPillars]",
@@ -107,5 +127,6 @@ func get_debug_lines() -> Array[String]:
 		"bubble_overlay_visible=%s" % str(_bubble_overlay.visible),
 		"ambience_playing=%s" % str(_underwater_ambience.playing),
 	]
+	lines.append_array(_conch_pulse.get_debug_lines())
 	lines.append_array(_hylas.get_debug_lines())
 	return lines
