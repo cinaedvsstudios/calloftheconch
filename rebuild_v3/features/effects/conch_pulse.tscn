@@ -1,10 +1,10 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://1rjm7chihb77"]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/effects/conch_pulse_screen_range.gd" id="1_controller"]
-[ext_resource type="Texture2D" path="res://assets/effects/sonar.webp" id="2_sonar"]
-[ext_resource type="Shader" path="res://rebuild_v3/features/effects/conch_pulse_arc.gdshader" id="3_arc_shader"]
-[ext_resource type="VideoStream" path="res://assets/effects/echopulse.ogv" id="4_flash_video"]
-[ext_resource type="Shader" path="res://rebuild_v3/features/effects/conch_pulse_flash.gdshader" id="5_flash_shader"]
+[ext_resource type="Script" uid="uid://bdeax78tc4o8i" path="res://rebuild_v3/features/effects/conch_pulse_screen_range.gd" id="1_controller"]
+[ext_resource type="Texture2D" uid="uid://d2h7vhb3wyh6x" path="res://assets/effects/sonar.webp" id="2_sonar"]
+[ext_resource type="Shader" uid="uid://cav0ro4ag7jey" path="res://rebuild_v3/features/effects/conch_pulse_arc.gdshader" id="3_arc_shader"]
+[ext_resource type="VideoStream" uid="uid://wtp4swvkaofx" path="res://assets/effects/echopulse.ogv" id="4_flash_video"]
+[ext_resource type="Shader" uid="uid://vp7nqtlaohv3" path="res://rebuild_v3/features/effects/conch_pulse_flash.gdshader" id="5_flash_shader"]
 
 [sub_resource type="ShaderMaterial" id="SonarArcMaterial"]
 resource_local_to_scene = true
@@ -22,25 +22,29 @@ shader_parameter/cut_off = 0.01
 shader_parameter/fade_width = 0.08
 shader_parameter/brightness = 1.5
 
-[node name="ConchPulse" type="Node2D"]
+[node name="ConchPulse" type="Node2D" unique_id=1758536679]
 script = ExtResource("1_controller")
 
-[node name="SonarArc" type="Sprite2D" parent="."]
+[node name="SonarArc" type="Sprite2D" parent="." unique_id=579649675]
 unique_name_in_owner = true
 material = SubResource("SonarArcMaterial")
+position = Vector2(-111, 0)
+scale = Vector2(1.6068498, 1.3276451)
 texture = ExtResource("2_sonar")
 
-[node name="OriginFlash" type="VideoStreamPlayer" parent="."]
+[node name="OriginFlash" type="VideoStreamPlayer" parent="." unique_id=1784732269]
 unique_name_in_owner = true
+self_modulate = Color(1, 1, 1, 0.6901961)
 z_index = 1
 material = SubResource("OriginFlashMaterial")
-offset_left = -960.0
-offset_top = -540.0
-offset_right = 960.0
-offset_bottom = 540.0
+offset_left = -586.0
+offset_top = -1277.0
+offset_right = -128.0
+offset_bottom = -979.0
+rotation = -1.5707964
 pivot_offset = Vector2(960, 540)
 mouse_filter = 2
 stream = ExtResource("4_flash_video")
 volume_db = -80.0
+speed_scale = 1.5
 expand = true
-loop = false
