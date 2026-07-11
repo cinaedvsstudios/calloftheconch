@@ -33,11 +33,7 @@ func _physics_process(delta: float) -> void:
 		airborne_update(delta)
 		return
 
-	_tail_flip_combo_frame = (
-		Input.is_action_pressed(&"action_a")
-		and Input.is_key_pressed(KEY_SPACE)
-		and Input.is_action_just_pressed(&"conch")
-	)
+	_tail_flip_combo_frame = Input.is_action_just_pressed(&"tail_flip")
 	if _tail_flip_combo_frame:
 		_try_start_tail_flip_combo()
 
