@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c517thhqaggvs"]
 
-[ext_resource type="Script" uid="uid://dk268mohwm413" path="res://rebuild_v3/features/hylas/hylas_land_controller.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/features/hylas/hylas_reliable_input.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" uid="uid://bm6ve0lpyouwa" path="res://rebuild_v3/features/hylas/hylas_v3_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Texture2D" uid="uid://bj6kjlhmbunt7" path="res://assets/characters/hylas-swim_01.webp" id="3_swim_idle"]
 [ext_resource type="PackedScene" uid="uid://ood4cgs0bkqk" path="res://rebuild_v3/features/effects/bubble_burst.tscn" id="4_bubble_burst"]
