@@ -9,6 +9,7 @@ radius = 420.0
 [node name="WhaleTravel" type="Node2D" groups=["travel_whale"]]
 z_index = 5
 script = ExtResource("1_controller")
+source_frames_face_left = false
 
 [node name="WhaleSprite" type="AnimatedSprite2D" parent="."]
 unique_name_in_owner = true
