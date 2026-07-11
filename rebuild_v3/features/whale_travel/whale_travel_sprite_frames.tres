@@ -1,0 +1,30 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/whale01.webp" id="1_whale01"]
+[ext_resource type="Texture2D" path="res://assets/characters/whale02.webp" id="2_whale02"]
+[ext_resource type="Texture2D" path="res://assets/characters/whale03.webp" id="3_whale03"]
+[ext_resource type="Texture2D" path="res://assets/characters/whale04.webp" id="4_whale04"]
+[ext_resource type="Texture2D" path="res://assets/characters/whale05.webp" id="5_whale05"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_whale01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_whale02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_whale03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_whale04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_whale05")
+}],
+"loop": true,
+"name": &"swim",
+"speed": 2.5
+}]
