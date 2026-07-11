@@ -886,6 +886,116 @@ position = Vector2(3981, 3362)
 drift_radius = 500.0
 drift_max_speed = 150.0
 
+[node name="PassiveTideAnemone2" parent="Enemies" unique_id=846704490 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(5184, 3389)
+rotation = 0.5235988
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone3" parent="Enemies" unique_id=669467957 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(6976, 2615)
+rotation = 0.5235988
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone4" parent="Enemies" unique_id=745830311 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(8913, 5325)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone5" parent="Enemies" unique_id=546651615 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(13406, 7360)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone6" parent="Enemies" unique_id=142962353 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(12830, 7141)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone7" parent="Enemies" unique_id=1031667797 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(15132, 7741)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone8" parent="Enemies" unique_id=862375927 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(17111, 6126)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone9" parent="Enemies" unique_id=1746132749 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(17871, 6160)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone10" parent="Enemies" unique_id=175164123 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(18820, 6305)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone11" parent="Enemies" unique_id=1209763779 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(19955, 6647)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone12" parent="Enemies" unique_id=940600344 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(21274, 8223)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone13" parent="Enemies" unique_id=2081348777 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(24874, 4560.001)
+rotation = 1.0471976
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone14" parent="Enemies" unique_id=1443961964 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(25252, 2537)
+rotation = 3.1415927
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone15" parent="Enemies" unique_id=561046719 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(26107, 2414)
+rotation = 3.1415927
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone16" parent="Enemies" unique_id=1113928975 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(28435, 3714)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone17" parent="Enemies" unique_id=236878781 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(20475, 4643)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone18" parent="Enemies" unique_id=357099077 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(19609, 4681)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone19" parent="Enemies" unique_id=1255899465 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(19436, 4689)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone20" parent="Enemies" unique_id=1288140348 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(18702, 4759)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone21" parent="Enemies" unique_id=694265082 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(18015, 4991)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone22" parent="Enemies" unique_id=2090950949 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(17433, 5276)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
 [node name="ObjectsLayer" type="Node2D" parent="." unique_id=1657635660]
 
 [node name="FoodSamphire" type="Sprite2D" parent="ObjectsLayer" unique_id=631319943]
@@ -1089,7 +1199,7 @@ scale = Vector2(0.8963261, 0.8085371)
 texture = ExtResource("26_3osi6")
 
 [node name="Rock13" type="Sprite2D" parent="." unique_id=374269176]
-position = Vector2(18727, 6376.0005)
+position = Vector2(18745.002, 6387.0005)
 rotation = -2.8797934
 texture = ExtResource("24_rgyev")
 
@@ -1120,6 +1230,13 @@ position = Vector2(24915, 5009)
 rotation = 1.5707964
 scale = Vector2(0.5255525, 0.51289135)
 texture = ExtResource("20_025dw")
+
+[node name="Rock16" type="Sprite2D" parent="." unique_id=635140888]
+position = Vector2(24624, 4626)
+rotation = 1.5707964
+scale = Vector2(0.5255525, 0.51289135)
+texture = ExtResource("20_025dw")
+flip_v = true
 
 [node name="Rock17" type="Sprite2D" parent="." unique_id=920091633]
 position = Vector2(25850, 7025.0005)
@@ -1183,7 +1300,7 @@ texture = ExtResource("43_fyxxo")
 
 [node name="SceneryPillarsRuins06" type="Sprite2D" parent="." unique_id=803543642]
 modulate = Color(0.68, 0.7493334, 1, 1)
-position = Vector2(17416.002, 6082)
+position = Vector2(17479, 6100)
 scale = Vector2(0.51275945, 0.4577354)
 texture = ExtResource("9_b4nuo")
 
@@ -1265,6 +1382,13 @@ texture = ExtResource("45_u7o2t")
 
 [node name="WhaleTravel" parent="." unique_id=1644269751 instance=ExtResource("49_qxwrb")]
 position = Vector2(21988, 2778)
+scale = Vector2(1.25, 1.25)
 
 [node name="ScatterBubbleVent1" parent="." unique_id=1153371410 instance=ExtResource("50_u7o2t")]
-position = Vector2(21413, 3785)
+position = Vector2(21275, 4207)
+
+[node name="ScatterBubbleVent3" parent="." unique_id=747066725 instance=ExtResource("50_u7o2t")]
+position = Vector2(22453, 4424)
+
+[node name="ScatterBubbleVent2" parent="." unique_id=908497315 instance=ExtResource("50_u7o2t")]
+position = Vector2(12210, 6747)
