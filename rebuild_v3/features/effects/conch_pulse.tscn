@@ -24,6 +24,7 @@ shader_parameter/brightness = 1.5
 
 [node name="ConchPulse" type="Node2D" unique_id=1758536679]
 script = ExtResource("1_controller")
+flash_scale = 1.0
 
 [node name="SonarArc" type="Sprite2D" parent="." unique_id=579649675]
 unique_name_in_owner = true
@@ -48,3 +49,4 @@ stream = ExtResource("4_flash_video")
 volume_db = -80.0
 speed_scale = 1.5
 expand = true
+loop = false
