@@ -12,6 +12,7 @@ signal conch_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
 
 @export_category("Bubble Overlay")
 @export_range(0.001, 0.1, 0.001) var bubble_waterline_fade: float = 0.012
+@export_range(0.1, 10.0, 0.1) var bubble_waterline_update_interval: float = 2.0
 
 @onready var _hylas: CotcHylas = %Hylas
 @onready var _start_marker: Marker2D = %HylasStart
@@ -26,6 +27,7 @@ signal conch_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
 
 var _active: bool = false
 var _bubble_material: ShaderMaterial
+var _bubble_waterline_update_elapsed: float = 0.0
 
 
 func _ready() -> void:
@@ -38,9 +40,12 @@ func _ready() -> void:
 	deactivate()
 
 
-func _process(_delta: float) -> void:
-	if _active:
-		_update_bubble_waterline_mask()
+func _process(delta: float) -> void:
+	_bubble_waterline_update_elapsed += delta
+	if _bubble_waterline_update_elapsed < bubble_waterline_update_interval:
+		return
+	_bubble_waterline_update_elapsed = 0.0
+	_update_bubble_waterline_mask()
 
 
 func configure_player() -> void:
@@ -57,7 +62,9 @@ func activate() -> void:
 	_hylas.reset_to_start(_start_marker.global_position)
 	_hylas.set_play_enabled(true)
 	_play_underwater_ambience()
+	_bubble_waterline_update_elapsed = 0.0
 	_update_bubble_waterline_mask()
+	set_process(true)
 	if auto_play_bubble_overlay and _bubble_overlay.stream != null:
 		_bubble_overlay.show()
 		_bubble_overlay.play()
@@ -65,6 +72,8 @@ func activate() -> void:
 
 func deactivate() -> void:
 	_active = false
+	set_process(false)
+	_bubble_waterline_update_elapsed = 0.0
 	_hylas.set_play_enabled(false)
 	_underwater_ambience.stop()
 	_bubble_overlay.stop()
@@ -135,6 +144,7 @@ func get_debug_lines() -> Array[String]:
 		"[SeaOfPillars]",
 		"active=%s" % str(_active),
 		"bubble_overlay_visible=%s" % str(_bubble_overlay.visible),
+		"bubble_waterline_update_interval=%.2f" % bubble_waterline_update_interval,
 		"ambience_playing=%s" % str(_underwater_ambience.playing),
 	]
 	lines.append_array(_conch_pulse.get_debug_lines())
