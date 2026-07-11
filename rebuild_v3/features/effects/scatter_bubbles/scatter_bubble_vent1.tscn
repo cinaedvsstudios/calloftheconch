@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/effects/scatter_bubbles/scatter_bubble_video.gd" id="1_controller"]
+[ext_resource type="VideoStream" path="res://assets/effects/vent1.ogv" id="2_video"]
+[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="3_shader"]
+
+[sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
+shader = ExtResource("3_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 4.0
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
+
+[node name="ScatterBubbleVent1" type="Node2D"]
+script = ExtResource("1_controller")
+
+[node name="BubbleVideo" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
+material = SubResource("BubbleVideoMaterial")
+offset_left = -640.0
+offset_top = -360.0
+offset_right = 640.0
+offset_bottom = 360.0
+pivot_offset = Vector2(640, 360)
+mouse_filter = 2
+stream = ExtResource("2_video")
+expand = true
+loop = true

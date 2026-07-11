@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/whale_travel/whale_travel.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" path="res://rebuild_v3/features/whale_travel/whale_travel_sprite_frames.tres" id="2_frames"]
+
+[sub_resource type="CircleShape2D" id="WhaleInteractionShape"]
+radius = 420.0
+
+[node name="WhaleTravel" type="Node2D" groups=["travel_whale"]]
+z_index = 5
+script = ExtResource("1_controller")
+
+[node name="WhaleSprite" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+scale = Vector2(0.45, 0.45)
+sprite_frames = ExtResource("2_frames")
+animation = &"swim"
+
+[node name="InteractionArea" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = true
+
+[node name="InteractionShape" type="CollisionShape2D" parent="InteractionArea"]
+unique_name_in_owner = true
+shape = SubResource("WhaleInteractionShape")
+
+[node name="InteractionPromptAnchor" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -190)
