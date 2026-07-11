@@ -103,7 +103,7 @@ func _update_heavy_drift(delta: float) -> void:
 	velocity = velocity.limit_length(max_drift_speed)
 
 	var remaining_motion: Vector2 = velocity * delta
-	for _bounce_index in 4:
+	for _bounce_index: int in range(4):
 		var collision: KinematicCollision2D = move_and_collide(remaining_motion)
 		if collision == null:
 			break
