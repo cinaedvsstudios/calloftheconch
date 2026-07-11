@@ -104,13 +104,13 @@ text = "Close Game"
 
 [node name="ControlHint" type="Label" parent="."]
 layout_mode = 0
-offset_left = 350.0
+offset_left = 210.0
 offset_top = 655.0
-offset_right = 930.0
+offset_right = 1070.0
 offset_bottom = 700.0
 theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
 theme_override_font_sizes/font_size = 18
-text = "Move: WASD / arrows   Burst / brake: Shift   Conch: Space or J"
+text = "Move: WASD / arrows   Burst / brake: Shift   Conch: Space or J   Tail flip: Shift + Space"
 horizontal_alignment = 1
 
 [node name="MainMusic" type="AudioStreamPlayer" parent="."]
