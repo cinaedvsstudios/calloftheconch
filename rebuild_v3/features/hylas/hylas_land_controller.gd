@@ -15,6 +15,7 @@ var crawl_active := false
 var airborne_active := false
 var left_water := false
 var entry_splash_done := false
+var _tail_flip_combo_frame: bool = false
 
 
 func _ready() -> void:
@@ -31,7 +32,39 @@ func _physics_process(delta: float) -> void:
 	if airborne_active:
 		airborne_update(delta)
 		return
+
+	_tail_flip_combo_frame = Input.is_action_pressed(&"action_a") and Input.is_action_just_pressed(&"conch")
+	if _tail_flip_combo_frame:
+		_try_start_tail_flip_combo()
+
 	super._physics_process(delta)
+	_tail_flip_combo_frame = false
+
+
+func _try_start_tail_flip_combo() -> void:
+	if _burst_active or _tail_flip_remaining > 0.0 or _conch_remaining > 0.0 or _jump_elapsed > 0.0:
+		return
+	if _tail_flip_cooldown_remaining > 0.0:
+		return
+	_brake_active = false
+	_pending_conch_remaining = 0.0
+	_start_tail_flip()
+
+
+func _is_braking(input_direction: Vector2) -> bool:
+	if _tail_flip_combo_frame:
+		return false
+	return super._is_braking(input_direction)
+
+
+func _handle_conch_pressed(input_direction: Vector2) -> void:
+	if _tail_flip_combo_frame:
+		return
+	if _burst_active or _tail_flip_remaining > 0.0 or _jump_elapsed > 0.0:
+		return
+	if _conch_cooldown_remaining <= 0.0:
+		_pending_conch_remaining = 0.0
+		_start_conch(_conch_direction(input_direction))
 
 
 func _begin_surface_jump() -> void:
