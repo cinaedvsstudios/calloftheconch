@@ -10,6 +10,7 @@ extends "res://scenes/characters/Hylas/hylas_motion_presentation.gd"
 @onready var splash: AudioStreamPlayer = %SplashAudio
 @onready var hurt_audio: AudioStreamPlayer = %HurtAudio
 @onready var land_impact_audio: AudioStreamPlayer = %LandImpactAudio
+@onready var fin_loss_audio: AudioStreamPlayer = %FinLossAudio
 
 var crawl_active := false
 var airborne_active := false
@@ -23,6 +24,7 @@ func _ready() -> void:
 	splash.process_mode = Node.PROCESS_MODE_ALWAYS
 	hurt_audio.process_mode = Node.PROCESS_MODE_ALWAYS
 	land_impact_audio.process_mode = Node.PROCESS_MODE_ALWAYS
+	fin_loss_audio.process_mode = Node.PROCESS_MODE_ALWAYS
 
 
 func _physics_process(delta: float) -> void:
@@ -202,6 +204,13 @@ func play_hurt_sound() -> void:
 	if hurt_audio.stream != null:
 		hurt_audio.stop()
 		hurt_audio.play()
+
+
+func play_fin_loss_sound() -> void:
+	play_hurt_sound()
+	if fin_loss_audio.stream != null:
+		fin_loss_audio.stop()
+		fin_loss_audio.play()
 
 
 func play_land_impact_sound() -> void:
