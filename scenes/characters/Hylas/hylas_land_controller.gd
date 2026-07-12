@@ -1,4 +1,4 @@
-extends "res://rebuild_v3/features/hylas/hylas_motion_presentation.gd"
+extends "res://scenes/characters/Hylas/hylas_motion_presentation.gd"
 
 @export_category("Land Movement")
 @export var land_gravity := 5800.0

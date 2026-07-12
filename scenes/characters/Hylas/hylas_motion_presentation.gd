@@ -1,4 +1,4 @@
-extends "res://rebuild_v3/features/hylas/hylas.gd"
+extends "res://scenes/characters/Hylas/hylas.gd"
 
 ## Presentation-only control for the timing-sensitive Hylas actions.
 ## Gameplay movement remains in the inherited CotcHylas script.

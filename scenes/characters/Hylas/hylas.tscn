@@ -1,0 +1,124 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_reliable_input.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" uid="uid://bm6ve0lpyouwa" path="res://scenes/characters/Hylas/hylas_v3_sprite_frames.tres" id="2_frames"]
+[ext_resource type="Texture2D" uid="uid://bj6kjlhmbunt7" path="res://assets/characters/hylas-swim_01.webp" id="3_swim_idle"]
+[ext_resource type="PackedScene" uid="uid://ood4cgs0bkqk" path="res://rebuild_v3/features/effects/bubble_burst.tscn" id="4_bubble_burst"]
+[ext_resource type="AudioStream" uid="uid://da2uioj66j0an" path="res://assets/audio/swim_noise.mp3" id="5_swim_audio"]
+[ext_resource type="AudioStream" uid="uid://d0npwfr2l2sa5" path="res://assets/audio/speed_noise.mp3" id="6_burst_audio"]
+[ext_resource type="AudioStream" uid="uid://dyorkgg3nkflx" path="res://assets/audio/Super Conch_noise.mp3" id="7_conch_audio"]
+[ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="8_looping_audio"]
+[ext_resource type="AudioStream" uid="uid://c52g7yiwhcs77" path="res://assets/audio/splash_in_ocean.mp3" id="9_splash_audio"]
+[ext_resource type="Shader" uid="uid://gyqmlkjlqb1f" path="res://scenes/characters/Hylas/hylas_shadow_outline.gdshader" id="10_shadow_shader"]
+[ext_resource type="Script" uid="uid://wmnx6l5ols65" path="res://scenes/characters/Hylas/hylas_shadow_sync.gd" id="11_shadow_sync"]
+[ext_resource type="Script" uid="uid://dk5nmlh0nvf3a" path="res://scenes/characters/Hylas/hylas_stop_release_transition.gd" id="12_stop_release"]
+[ext_resource type="AudioStream" uid="uid://csuk7u1shw354" path="res://assets/audio/ahh.mp3" id="13_hurt_audio"]
+[ext_resource type="AudioStream" uid="uid://bhb7h74vkj73s" path="res://assets/audio/fall on land.mp3" id="14_land_impact_audio"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
+shader = ExtResource("10_shadow_shader")
+shader_parameter/shadow_color = Color(0, 0.011764706, 0.05490196, 1)
+shader_parameter/core_radius = 10.000000149012
+shader_parameter/core_opacity = 0.499999988824
+shader_parameter/soft_radius = 32.0
+shader_parameter/soft_opacity = 0.249999994412
+
+[sub_resource type="RectangleShape2D" id="HylasCollisionShape"]
+size = Vector2(123, 49)
+
+[sub_resource type="RectangleShape2D" id="HylasTailFlipCollisionShape"]
+size = Vector2(78, 92)
+
+[sub_resource type="RectangleShape2D" id="HylasConchCollisionShape"]
+size = Vector2(86, 82)
+
+[sub_resource type="RectangleShape2D" id="HylasStopCollisionShape"]
+size = Vector2(84, 94)
+
+[sub_resource type="CircleShape2D" id="HylasInteractionShape"]
+radius = 97.128784
+
+[node name="Hylas" type="CharacterBody2D" unique_id=25639110 groups=["hylas"]]
+script = ExtResource("1_controller")
+tail_flip_speed = 0.0
+tail_flip_duration = 1.0
+conch_duration = 0.72
+default_collision_shape = SubResource("HylasCollisionShape")
+tail_flip_collision_shape = SubResource("HylasTailFlipCollisionShape")
+conch_collision_shape = SubResource("HylasConchCollisionShape")
+stop_collision_shape = SubResource("HylasStopCollisionShape")
+
+[node name="ShadowSprite" type="Sprite2D" parent="." unique_id=757591679]
+unique_name_in_owner = true
+show_behind_parent = true
+z_index = -2
+material = SubResource("ShaderMaterial_imwqt")
+scale = Vector2(0.16347688, 0.16347688)
+texture = ExtResource("3_swim_idle")
+script = ExtResource("11_shadow_sync")
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=1603977457]
+unique_name_in_owner = true
+scale = Vector2(0.16347688, 0.16347688)
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+script = ExtResource("12_stop_release")
+
+[node name="CollisionShape" type="CollisionShape2D" parent="." unique_id=2142548371]
+unique_name_in_owner = true
+scale = Vector2(1.3, 1.3)
+shape = SubResource("HylasCollisionShape")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=429748519]
+unique_name_in_owner = true
+zoom = Vector2(1.25, 1.25)
+position_smoothing_enabled = true
+position_smoothing_speed = 5.5
+
+[node name="TailBubbleBurst" parent="." unique_id=1945886857 instance=ExtResource("4_bubble_burst")]
+unique_name_in_owner = true
+visible = true
+scale = Vector2(0.8, 0.8)
+
+[node name="SurfaceSplashAnchor" type="Marker2D" parent="." unique_id=1966886696]
+unique_name_in_owner = true
+
+[node name="InteractionArea" type="Area2D" parent="." unique_id=1606279735]
+
+[node name="InteractionShape" type="CollisionShape2D" parent="InteractionArea" unique_id=1468405198]
+scale = Vector2(1, 0.75)
+shape = SubResource("HylasInteractionShape")
+
+[node name="Audio" type="Node2D" parent="." unique_id=1806009667]
+
+[node name="SwimAudio" type="AudioStreamPlayer" parent="Audio" unique_id=2022509480]
+unique_name_in_owner = true
+stream = ExtResource("5_swim_audio")
+volume_db = -16.0
+script = ExtResource("8_looping_audio")
+
+[node name="BurstAudio" type="AudioStreamPlayer" parent="Audio" unique_id=1311768458]
+unique_name_in_owner = true
+stream = ExtResource("6_burst_audio")
+volume_db = -10.0
+script = ExtResource("8_looping_audio")
+
+[node name="ConchAudio" type="AudioStreamPlayer" parent="Audio" unique_id=342283525]
+unique_name_in_owner = true
+stream = ExtResource("7_conch_audio")
+volume_db = -7.0
+
+[node name="SplashAudio" type="AudioStreamPlayer" parent="Audio" unique_id=1696013388]
+unique_name_in_owner = true
+stream = ExtResource("9_splash_audio")
+volume_db = -8.0
+
+[node name="HurtAudio" type="AudioStreamPlayer" parent="Audio" unique_id=1323070228]
+unique_name_in_owner = true
+stream = ExtResource("13_hurt_audio")
+volume_db = -6.0
+
+[node name="LandImpactAudio" type="AudioStreamPlayer" parent="Audio" unique_id=1304625525]
+unique_name_in_owner = true
+stream = ExtResource("14_land_impact_audio")
+volume_db = -6.0

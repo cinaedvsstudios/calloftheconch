@@ -1,4 +1,4 @@
-extends "res://rebuild_v3/features/hylas/hylas_land_controller.gd"
+extends "res://scenes/characters/Hylas/hylas_land_controller.gd"
 
 ## Captures the exact requested chord: hold Shift, then press Space.
 ## The chord remains locked for the whole physics frame so neither the normal
