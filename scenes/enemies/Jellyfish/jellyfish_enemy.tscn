@@ -1,0 +1,71 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scenes/enemies/Jellyfish/jellyfish_enemy.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" path="res://scenes/enemies/Jellyfish/jellyfish_enemy_sprite_frames.tres" id="2_frames"]
+[ext_resource type="Shader" path="res://scenes/enemies/Jellyfish/jellyfish_stun_opacity.gdshader" id="3_shader"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
+[ext_resource type="AudioStream" path="res://assets/audio/stun.mp3" id="5_stun_audio"]
+
+[sub_resource type="ShaderMaterial" id="JellyfishMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("3_shader")
+shader_parameter/glow_color = Color(0, 0.82, 1, 1)
+shader_parameter/stunned_amount = 0.0
+shader_parameter/pulse_speed = 4.5
+shader_parameter/glow_strength = 1.25
+shader_parameter/glow_radius = 5.0
+shader_parameter/opacity = 0.25
+
+[sub_resource type="RectangleShape2D" id="CurrentReceiverShape"]
+size = Vector2(220, 220)
+
+[sub_resource type="CircleShape2D" id="HurtShape"]
+radius = 78.0
+
+[node name="JellyfishEnemy" type="Area2D" groups=["conch_target", "current_receiver", "enemy"]]
+z_index = 4
+collision_layer = 1
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("1_controller")
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+material = SubResource("JellyfishMaterial")
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CurrentReceiverShape" type="CollisionShape2D" parent="."]
+shape = SubResource("CurrentReceiverShape")
+
+[node name="HurtArea" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+
+[node name="HurtShape" type="CollisionShape2D" parent="HurtArea"]
+shape = SubResource("HurtShape")
+
+[node name="FloorProbe" type="RayCast2D" parent="."]
+unique_name_in_owner = true
+enabled = false
+target_position = Vector2(0, 24)
+collision_mask = 1
+collide_with_areas = false
+collide_with_bodies = true
+hit_from_inside = true
+
+[node name="StunAudio" type="AudioStreamPlayer2D" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("5_stun_audio")
+volume_db = -3.0
+max_distance = 3000.0
+attenuation = 0.5
+
+[node name="DistanceActivator" type="Node" parent="."]
+script = ExtResource("4_distance_activator")
