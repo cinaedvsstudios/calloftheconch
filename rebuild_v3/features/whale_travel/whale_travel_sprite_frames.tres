@@ -26,5 +26,5 @@ animations = [{
 }],
 "loop": true,
 "name": &"swim",
-"speed": 2.5
+"speed": 5.0
 }]
