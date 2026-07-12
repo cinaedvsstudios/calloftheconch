@@ -40,6 +40,7 @@ radius = 97.128784
 
 [node name="Hylas" type="CharacterBody2D" unique_id=25639110 groups=["hylas"]]
 script = ExtResource("1_controller")
+tail_flip_speed = 0.0
 tail_flip_duration = 0.62
 conch_duration = 0.72
 default_collision_shape = SubResource("HylasCollisionShape")
