@@ -60,6 +60,7 @@ func _ready() -> void:
 	_sprite.play(&"normal")
 	body_entered.connect(_on_body_entered)
 	_find_hylas()
+	_connect_to_level_conch_signal()
 
 
 func _physics_process(delta: float) -> void:
@@ -147,6 +148,36 @@ func _find_hylas() -> void:
 	_hylas = get_tree().get_first_node_in_group(&"hylas") as Node2D
 
 
+func _connect_to_level_conch_signal() -> void:
+	var ancestor: Node = get_parent()
+	var callback := Callable(self, "_on_level_conch_target_hit")
+	while ancestor != null:
+		if ancestor.has_signal(&"conch_target_hit"):
+			if not ancestor.is_connected(&"conch_target_hit", callback):
+				ancestor.connect(&"conch_target_hit", callback)
+			return
+		ancestor = ancestor.get_parent()
+
+
+func _on_level_conch_target_hit(
+		target: Node2D,
+		hit_position: Vector2,
+		_pulse_index: int,
+	) -> void:
+	if target != self:
+		return
+	var origin: Vector2 = hit_position
+	var pulse_direction: Vector2 = Vector2.RIGHT
+	var hit_distance: float = 0.0
+	if is_instance_valid(_hylas):
+		origin = _hylas.global_position
+		var target_offset: Vector2 = hit_position - origin
+		hit_distance = target_offset.length()
+		if target_offset.length_squared() > 0.001:
+			pulse_direction = target_offset.normalized()
+	receive_conch_hit(origin, pulse_direction, hit_distance, 1.0)
+
+
 func _is_hylas_in_detection_range() -> bool:
 	if not is_instance_valid(_hylas):
 		return false
@@ -198,7 +229,8 @@ func _get_external_current_velocity() -> Vector2:
 		if not is_instance_valid(source):
 			_external_currents.erase(source)
 			continue
-		total_velocity += _external_currents[source] as Vector2
+		var source_velocity: Vector2 = _external_currents[source]
+		total_velocity += source_velocity
 	return total_velocity
 
 
