@@ -40,6 +40,9 @@ func refresh_now() -> void:
 	if not is_instance_valid(_target):
 		set_process(false)
 		return
+	if not _target.is_visible_in_tree():
+		_apply_distance_active(false)
+		return
 
 	var camera: Camera2D = get_viewport().get_camera_2d()
 	if camera == null:
