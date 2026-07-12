@@ -53,7 +53,8 @@ var _movement_velocity: Vector2 = Vector2.ZERO
 var _frozen_drift_velocity: Vector2 = Vector2.ZERO
 var _external_currents: Dictionary = {}
 var _hylas: Node2D
-var _frozen_remaining: float = 0.0
+var _freeze_ends_at_msec: int = 0
+var _frozen_visual_active: bool = false
 var _frozen_elapsed: float = 0.0
 var _elapsed: float = 0.0
 var _wander_phase: float = 0.0
@@ -89,7 +90,7 @@ func set_distance_active(is_active: bool) -> void:
 	monitoring = _distance_active
 	monitorable = _distance_active
 	if _distance_active:
-		_sprite.play()
+		_refresh_frozen_state_after_wake()
 		return
 	_sprite.pause()
 	_external_currents.clear()
@@ -100,9 +101,13 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(_hylas):
 		_find_hylas()
 
-	if _frozen_remaining > 0.0:
+	if is_frozen():
+		if not _frozen_visual_active:
+			_begin_frozen_state()
 		_update_frozen(delta)
 		return
+	if _frozen_visual_active:
+		_finish_frozen_state()
 
 	var pursuing_hylas: bool = _is_hylas_in_detection_range()
 	var movement_target: Vector2
@@ -156,30 +161,43 @@ func receive_conch_hit(
 		_distance: float,
 		_strength: float,
 	) -> void:
-	var was_already_frozen: bool = _frozen_remaining > 0.0
-	_frozen_remaining = freeze_duration
+	var was_already_frozen: bool = is_frozen()
+	_freeze_ends_at_msec = Time.get_ticks_msec() + int(round(freeze_duration * 1000.0))
 
-	if not was_already_frozen:
-		_frozen_elapsed = 0.0
-		var source_velocity: Vector2 = _movement_velocity
-		if source_velocity.length_squared() <= 4.0:
-			var moving_left: bool = _sprite.flip_h != source_faces_left
-			var drift_sign: float = -1.0 if moving_left else 1.0
-			source_velocity = Vector2(drift_sign * patrol_speed, 0.0)
-		_frozen_drift_velocity = source_velocity * frozen_drift_retention
-		frozen_started.emit()
-
-	_movement_velocity = Vector2.ZERO
-	_sprite.play(&"frozen")
-	_set_stun_glow_enabled(true)
+	if not was_already_frozen or not _frozen_visual_active:
+		_begin_frozen_state()
+	else:
+		_sprite.play(&"frozen")
+		_set_stun_glow_enabled(true)
 
 
 func is_frozen() -> bool:
-	return _frozen_remaining > 0.0
+	return Time.get_ticks_msec() < _freeze_ends_at_msec
+
+
+func get_frozen_time_remaining() -> float:
+	return maxf(
+		0.0,
+		float(_freeze_ends_at_msec - Time.get_ticks_msec()) / 1000.0,
+	)
+
+
+func _begin_frozen_state() -> void:
+	_frozen_visual_active = true
+	_frozen_elapsed = 0.0
+	var source_velocity: Vector2 = _movement_velocity
+	if source_velocity.length_squared() <= 4.0:
+		var moving_left: bool = _sprite.flip_h != source_faces_left
+		var drift_sign: float = -1.0 if moving_left else 1.0
+		source_velocity = Vector2(drift_sign * patrol_speed, 0.0)
+	_frozen_drift_velocity = source_velocity * frozen_drift_retention
+	_movement_velocity = Vector2.ZERO
+	_sprite.play(&"frozen")
+	_set_stun_glow_enabled(true)
+	frozen_started.emit()
 
 
 func _update_frozen(delta: float) -> void:
-	_frozen_remaining = maxf(0.0, _frozen_remaining - delta)
 	_frozen_elapsed += delta
 	_frozen_drift_velocity = _frozen_drift_velocity.move_toward(
 		Vector2.ZERO,
@@ -198,13 +216,31 @@ func _update_frozen(delta: float) -> void:
 	)
 	global_position += total_frozen_velocity * delta
 
-	if _frozen_remaining <= 0.0:
-		_set_stun_glow_enabled(false)
-		_sprite.play(&"normal")
-		_movement_velocity = _frozen_drift_velocity
-		_frozen_drift_velocity = Vector2.ZERO
-		_choose_next_patrol_target(true)
-		frozen_finished.emit()
+
+func _finish_frozen_state() -> void:
+	if not _frozen_visual_active:
+		return
+	_freeze_ends_at_msec = 0
+	_frozen_visual_active = false
+	_set_stun_glow_enabled(false)
+	_sprite.play(&"normal")
+	_movement_velocity = _frozen_drift_velocity
+	_frozen_drift_velocity = Vector2.ZERO
+	_choose_next_patrol_target(true)
+	frozen_finished.emit()
+
+
+func _refresh_frozen_state_after_wake() -> void:
+	if is_frozen():
+		_frozen_visual_active = true
+		_sprite.play(&"frozen")
+		_set_stun_glow_enabled(true)
+		return
+	if _frozen_visual_active:
+		_finish_frozen_state()
+		return
+	_sprite.play(&"normal")
+	_set_stun_glow_enabled(false)
 
 
 func _configure_stun_material() -> void:
@@ -321,7 +357,7 @@ func _update_facing(motion_velocity: Vector2) -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if _frozen_remaining > 0.0:
+	if is_frozen():
 		return
 	if body.is_in_group(&"hylas"):
 		hylas_contacted.emit(body)
