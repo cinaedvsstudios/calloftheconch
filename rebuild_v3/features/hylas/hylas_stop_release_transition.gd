@@ -14,6 +14,10 @@ func _process(delta: float) -> void:
 
 	if animation == &"stop" and shift_is_held:
 		_stop_was_active = true
+	elif animation != &"stop":
+		# Another action replaced the stop pose. Releasing Shift after Tail Flip,
+		# conch, burst, jump, swim, or idle must not trigger stop_release.
+		_stop_was_active = false
 
 	if _shift_was_held and not shift_is_held and _stop_was_active:
 		_stop_was_active = false
