@@ -35,6 +35,7 @@ var _conch_impulse: Vector2 = Vector2.ZERO
 var _external_currents: Dictionary = {}
 var _elapsed: float = 0.0
 var _wander_phase: float = 0.0
+var _distance_active: bool = true
 var _rng := RandomNumberGenerator.new()
 
 
@@ -49,7 +50,22 @@ func _ready() -> void:
 	_choose_next_patrol_target(true)
 	_apply_display_scale()
 	_sprite.play(&"idle")
+	set_physics_process(true)
+	monitorable = true
 	_connect_to_level_conch_signal()
+
+
+func set_distance_active(is_active: bool) -> void:
+	if _distance_active == is_active:
+		return
+	_distance_active = is_active
+	set_physics_process(_distance_active)
+	monitorable = _distance_active
+	if _distance_active:
+		_sprite.play()
+		return
+	_sprite.pause()
+	_external_currents.clear()
 
 
 func _physics_process(delta: float) -> void:
