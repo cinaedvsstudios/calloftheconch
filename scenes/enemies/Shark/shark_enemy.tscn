@@ -1,9 +1,11 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scenes/enemies/Shark/shark_enemy.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://scenes/enemies/Shark/shark_enemy_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Shader" path="res://scenes/enemies/Shark/shark_stun_glow.gdshader" id="3_stun_glow"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
+[ext_resource type="AudioStream" path="res://assets/audio/stun.mp3" id="5_stun_audio"]
+[ext_resource type="Script" path="res://scenes/enemies/Shark/shark_audio_feedback.gd" id="6_audio_feedback"]
 
 [sub_resource type="ShaderMaterial" id="SharkStunGlowMaterial"]
 resource_local_to_scene = true
@@ -32,6 +34,13 @@ autoplay = "normal"
 
 [node name="ContactShape" type="CollisionShape2D" parent="."]
 shape = SubResource("SharkContactShape")
+
+[node name="StunAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_stun_audio")
+volume_db = -3.0
+max_distance = 3000.0
+attenuation = 0.5
+script = ExtResource("6_audio_feedback")
 
 [node name="DistanceActivator" type="Node" parent="."]
 script = ExtResource("4_distance_activator")

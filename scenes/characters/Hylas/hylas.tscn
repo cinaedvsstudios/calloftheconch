@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://dk5nmlh0nvf3a" path="res://scenes/characters/Hylas/hylas_stop_release_transition.gd" id="12_stop_release"]
 [ext_resource type="AudioStream" uid="uid://csuk7u1shw354" path="res://assets/audio/ahh.mp3" id="13_hurt_audio"]
 [ext_resource type="AudioStream" uid="uid://bhb7h74vkj73s" path="res://assets/audio/fall on land.mp3" id="14_land_impact_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/powerdown1.mp3" id="15_powerdown_audio"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
 shader = ExtResource("10_shadow_shader")
@@ -122,3 +123,8 @@ volume_db = -6.0
 unique_name_in_owner = true
 stream = ExtResource("14_land_impact_audio")
 volume_db = -6.0
+
+[node name="FinLossAudio" type="AudioStreamPlayer" parent="Audio"]
+unique_name_in_owner = true
+stream = ExtResource("15_powerdown_audio")
+volume_db = -4.0
