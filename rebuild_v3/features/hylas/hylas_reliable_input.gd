@@ -4,6 +4,8 @@ extends "res://rebuild_v3/features/hylas/hylas_land_controller.gd"
 ## The chord remains locked for the whole physics frame so neither the normal
 ## Shift brake nor the Space conch action can cancel or replace Tail Flip.
 
+@export_range(0.0, 200.0, 1.0) var brake_minimum_speed: float = 5.0
+
 var _shift_space_tail_flip_requested: bool = false
 var _tail_flip_chord_active: bool = false
 
@@ -56,7 +58,16 @@ func _physics_process(delta: float) -> void:
 func _is_braking(input_direction: Vector2) -> bool:
 	if _tail_flip_chord_active or _tail_flip_remaining > 0.0:
 		return false
+	if not _has_brakeable_motion():
+		return false
 	return super._is_braking(input_direction)
+
+
+func _has_brakeable_motion() -> bool:
+	if _burst_active:
+		return true
+	var controlled_motion: Vector2 = _swim_velocity + _burst_coast_velocity + _special_velocity
+	return controlled_motion.length() >= brake_minimum_speed
 
 
 func _handle_conch_pressed(input_direction: Vector2) -> void:
@@ -69,4 +80,5 @@ func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = super.get_debug_lines()
 	lines.append("tail_flip_remaining=%.2f" % _tail_flip_remaining)
 	lines.append("tail_flip_chord_active=%s" % str(_tail_flip_chord_active))
+	lines.append("brakeable_motion=%s" % str(_has_brakeable_motion()))
 	return lines
