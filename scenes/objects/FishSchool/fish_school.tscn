@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/objects/FishSchool/fish_school.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" path="res://scenes/objects/FishSchool/fish_school_sprite_frames.tres" id="2_frames"]
+
+[sub_resource type="RectangleShape2D" id="FishCurrentReceiverShape"]
+size = Vector2(420, 180)
+
+[node name="FishSchool" type="Area2D" groups=["conch_target", "current_receiver", "scenery"]]
+collision_layer = 1
+collision_mask = 0
+monitoring = false
+script = ExtResource("1_controller")
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CurrentReceiverShape" type="CollisionShape2D" parent="."]
+shape = SubResource("FishCurrentReceiverShape")
