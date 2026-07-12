@@ -61,6 +61,12 @@ func _apply_collision_profile(animation_name: StringName) -> void:
 
 
 func _update_stop_pose_hold() -> void:
+	# Shift can remain held while another action starts. Never let the retained
+	# stop pose overwrite an active Tail Flip, conch, burst, or jump animation.
+	if _tail_flip_remaining > 0.0 or _conch_remaining > 0.0 or _burst_active or _jump_elapsed > 0.0:
+		_stop_pose_held = false
+		return
+
 	if _animated_sprite.animation == &"stop":
 		_stop_pose_held = true
 	if not Input.is_action_pressed(&"action_a"):
