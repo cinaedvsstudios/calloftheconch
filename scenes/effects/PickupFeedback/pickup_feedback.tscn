@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/effects/PickupFeedback/pickup_feedback.gd" id="1_controller"]
+[ext_resource type="VideoStream" path="res://assets/effects/pickupanim.ogv" id="2_video"]
+[ext_resource type="AudioStream" path="res://assets/audio/pickup5.mp3" id="3_audio"]
+[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="4_shader"]
+
+[sub_resource type="ShaderMaterial" id="PickupOverlayMaterial"]
+shader = ExtResource("4_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 4.0
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
+
+[node name="PickupFeedback" type="CanvasLayer" groups=["pickup_feedback_effect"]]
+layer = 35
+visible = false
+process_mode = 3
+script = ExtResource("1_controller")
+
+[node name="PickupVideo" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
+material = SubResource("PickupOverlayMaterial")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stream = ExtResource("2_video")
+expand = true
+
+[node name="PickupAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("3_audio")
+volume_db = -4.0
+
+[node name="Lifetime" type="Timer" parent="."]
+unique_name_in_owner = true
+one_shot = true

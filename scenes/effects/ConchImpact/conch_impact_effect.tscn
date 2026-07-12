@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/effects/ConchImpact/conch_impact_effect.gd" id="1_controller"]
+[ext_resource type="VideoStream" path="res://assets/effects/impact.ogv" id="2_video"]
+[ext_resource type="AudioStream" path="res://assets/audio/impact.mp3" id="3_audio"]
+[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="4_shader"]
+
+[sub_resource type="ShaderMaterial" id="ImpactMaterial"]
+shader = ExtResource("4_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 4.5
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
+
+[node name="ConchImpactEffect" type="Node2D" groups=["conch_impact_effect"]]
+visible = false
+z_index = 30
+script = ExtResource("1_controller")
+
+[node name="ImpactVideo" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
+material = SubResource("ImpactMaterial")
+offset_left = -640.0
+offset_top = -360.0
+offset_right = 640.0
+offset_bottom = 360.0
+scale = Vector2(0.45, 0.45)
+pivot_offset = Vector2(640, 360)
+mouse_filter = 2
+stream = ExtResource("2_video")
+expand = true
+
+[node name="ImpactAudio" type="AudioStreamPlayer2D" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("3_audio")
+volume_db = -3.0
+max_distance = 3000.0
+attenuation = 0.5
+
+[node name="Lifetime" type="Timer" parent="."]
+unique_name_in_owner = true
+one_shot = true

@@ -1,6 +1,10 @@
 class_name CotcSeaOfPillars
 extends Node2D
 
+const CONCH_IMPACT_SCENE: PackedScene = preload(
+	"res://scenes/effects/ConchImpact/conch_impact_effect.tscn"
+)
+
 signal conch_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
 
 @export_category("Level")
@@ -79,6 +83,7 @@ func deactivate() -> void:
 	_bubble_overlay.stop()
 	_bubble_overlay.hide()
 	_conch_pulse.stop()
+	_clear_conch_impacts()
 	_exit_surface_splash.stop_splash()
 	_entry_surface_splash.stop_splash()
 	hide()
@@ -127,7 +132,24 @@ func _on_hylas_normal_conch_used(origin: Vector2, direction: Vector2) -> void:
 func _on_conch_pulse_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int) -> void:
 	if not _active:
 		return
+	_spawn_conch_impact(hit_position)
 	conch_target_hit.emit(target, hit_position, pulse_index)
+
+
+func _spawn_conch_impact(hit_position: Vector2) -> void:
+	var impact: Node2D = CONCH_IMPACT_SCENE.instantiate() as Node2D
+	if impact == null:
+		return
+	add_child(impact)
+	impact.global_position = hit_position
+	if impact.has_method(&"play_effect"):
+		impact.call(&"play_effect")
+
+
+func _clear_conch_impacts() -> void:
+	for child: Node in get_children():
+		if child.is_in_group(&"conch_impact_effect"):
+			child.queue_free()
 
 
 func _on_hylas_surface_splash_requested(origin: Vector2, is_exit: bool) -> void:
