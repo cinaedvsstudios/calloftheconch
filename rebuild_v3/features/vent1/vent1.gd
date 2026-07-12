@@ -22,27 +22,45 @@ extends Area2D
 @onready var _force_collision: CollisionPolygon2D = %ForceCollision
 
 var _affected_receivers: Dictionary = {}
+var _distance_active: bool = true
+var _playback_requested: bool = true
 
 
 func _ready() -> void:
 	_configure_force_area()
 	_vent_video.loop = loop_video
-	if play_on_ready:
-		_vent_video.play()
+	_playback_requested = play_on_ready
+	monitoring = true
 	set_physics_process(true)
+	_apply_video_playback()
 
 
 func _exit_tree() -> void:
-	for receiver: Node in _affected_receivers.keys():
-		_remove_current_from_receiver(receiver)
-	_affected_receivers.clear()
+	_clear_affected_receivers()
 
 
 func set_vent_playing(should_play: bool) -> void:
-	if should_play:
-		_vent_video.play()
-	else:
-		_vent_video.stop()
+	_playback_requested = should_play
+	_apply_video_playback()
+
+
+func set_distance_active(is_active: bool) -> void:
+	if _distance_active == is_active:
+		return
+	_distance_active = is_active
+	set_physics_process(_distance_active)
+	monitoring = _distance_active
+	if not _distance_active:
+		_clear_affected_receivers()
+	_apply_video_playback()
+
+
+func _apply_video_playback() -> void:
+	if _distance_active and _playback_requested and _vent_video.stream != null:
+		if not _vent_video.is_playing():
+			_vent_video.play()
+		return
+	_vent_video.stop()
 
 
 func _physics_process(_delta: float) -> void:
@@ -110,6 +128,12 @@ func _get_current_velocity(receiver_position: Vector2) -> Vector2:
 	var force_speed: float = lerpf(force_max_speed, force_min_speed, distance_ratio)
 	var emission_direction: Vector2 = global_transform.basis_xform(Vector2.UP).normalized()
 	return emission_direction * force_speed
+
+
+func _clear_affected_receivers() -> void:
+	for receiver: Node in _affected_receivers.keys():
+		_remove_current_from_receiver(receiver)
+	_affected_receivers.clear()
 
 
 func _remove_current_from_receiver(receiver: Node) -> void:
