@@ -57,6 +57,7 @@ var _frozen_remaining: float = 0.0
 var _frozen_elapsed: float = 0.0
 var _elapsed: float = 0.0
 var _wander_phase: float = 0.0
+var _distance_active: bool = true
 var _rng := RandomNumberGenerator.new()
 
 
@@ -73,8 +74,25 @@ func _ready() -> void:
 	_configure_stun_material()
 	_sprite.play(&"normal")
 	body_entered.connect(_on_body_entered)
+	monitoring = true
+	monitorable = true
+	set_physics_process(true)
 	_find_hylas()
 	_connect_to_level_conch_signal()
+
+
+func set_distance_active(is_active: bool) -> void:
+	if _distance_active == is_active:
+		return
+	_distance_active = is_active
+	set_physics_process(_distance_active)
+	monitoring = _distance_active
+	monitorable = _distance_active
+	if _distance_active:
+		_sprite.play()
+		return
+	_sprite.pause()
+	_external_currents.clear()
 
 
 func _physics_process(delta: float) -> void:
