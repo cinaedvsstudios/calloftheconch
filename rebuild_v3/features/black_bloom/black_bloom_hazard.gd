@@ -1,7 +1,7 @@
 class_name CotcBlackBloomHazard
 extends Node2D
 
-## Emits this for the future health system. It does not subtract hearts yet.
+## Emits this for the future Fin health system. It does not subtract Fins yet.
 signal damage_requested(hylas: Node, amount: int)
 
 @export_category("Wake Range")
@@ -115,5 +115,5 @@ func _damage_hylas(hylas_body: Node2D) -> void:
 		return
 	_last_damage_time = now
 	damage_requested.emit(hylas_body, damage_amount)
-	if hylas_body.has_method(&"play_hurt_sound"):
-		hylas_body.call(&"play_hurt_sound")
+	if hylas_body.has_method(&"play_fin_loss_sound"):
+		hylas_body.call(&"play_fin_loss_sound")
