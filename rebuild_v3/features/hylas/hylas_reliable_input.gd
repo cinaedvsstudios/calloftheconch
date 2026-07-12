@@ -21,9 +21,14 @@ func _input(event: InputEvent) -> void:
 	)
 	if not is_space:
 		return
-	# Shift must already be held when Space is pressed.
-	if not Input.is_action_pressed(&"action_a"):
+
+	# Shift must already be held when the Space key-down event arrives. Check
+	# both the event modifier and the current Shift action so left/right Shift
+	# and keyboard-layout differences cannot prevent the chord.
+	var shift_is_held: bool = key_event.shift_pressed or Input.is_action_pressed(&"action_a") or Input.is_key_pressed(KEY_SHIFT)
+	if not shift_is_held:
 		return
+
 	_shift_space_tail_flip_requested = true
 	get_viewport().set_input_as_handled()
 
@@ -58,3 +63,10 @@ func _handle_conch_pressed(input_direction: Vector2) -> void:
 	if _tail_flip_chord_active:
 		return
 	super._handle_conch_pressed(input_direction)
+
+
+func get_debug_lines() -> Array[String]:
+	var lines: Array[String] = super.get_debug_lines()
+	lines.append("tail_flip_remaining=%.2f" % _tail_flip_remaining)
+	lines.append("tail_flip_chord_active=%s" % str(_tail_flip_chord_active))
+	return lines
