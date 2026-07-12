@@ -44,13 +44,14 @@ func refresh_now() -> void:
 		_apply_distance_active(false)
 		return
 
-	var camera: Camera2D = get_viewport().get_camera_2d()
+	var viewport: Viewport = get_viewport()
+	var camera: Camera2D = viewport.get_camera_2d()
 	if camera == null:
 		if stay_active_without_camera:
 			_apply_distance_active(true)
 		return
 
-	var viewport_size: Vector2 = get_viewport_rect().size
+	var viewport_size: Vector2 = viewport.get_visible_rect().size
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
 		return
 
