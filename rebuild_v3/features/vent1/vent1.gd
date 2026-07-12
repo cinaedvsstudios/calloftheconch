@@ -3,7 +3,8 @@ extends Area2D
 
 ## Reusable hydrothermal vent. Its force area begins at the visual mouth and
 ## follows the root node's local upward axis, so rotating the placed vent also
-## rotates the current direction.
+## rotates the current direction. Any overlapping body or area that implements
+## set_external_current() and remove_external_current() can receive the force.
 
 @export_category("Visual")
 @export var play_on_ready: bool = true
@@ -20,7 +21,7 @@ extends Area2D
 @onready var _vent_video: VideoStreamPlayer = %VentVideo
 @onready var _force_collision: CollisionPolygon2D = %ForceCollision
 
-var _hylas: CotcHylas
+var _affected_receivers: Dictionary = {}
 
 
 func _ready() -> void:
@@ -32,7 +33,9 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
-	_remove_current_from_hylas()
+	for receiver: Node in _affected_receivers.keys():
+		_remove_current_from_receiver(receiver)
+	_affected_receivers.clear()
 
 
 func set_vent_playing(should_play: bool) -> void:
@@ -43,12 +46,30 @@ func set_vent_playing(should_play: bool) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var detected_hylas: CotcHylas = _find_hylas_in_force_area()
-	if detected_hylas != _hylas:
-		_remove_current_from_hylas()
-		_hylas = detected_hylas
-	if is_instance_valid(_hylas):
-		_hylas.set_external_current(self, _get_current_velocity())
+	var detected_receivers: Dictionary = {}
+	for body: Node2D in get_overlapping_bodies():
+		_collect_receiver(body, detected_receivers)
+	for area: Area2D in get_overlapping_areas():
+		if area != self:
+			_collect_receiver(area, detected_receivers)
+
+	for previous_receiver: Node in _affected_receivers.keys():
+		if not detected_receivers.has(previous_receiver):
+			_remove_current_from_receiver(previous_receiver)
+
+	for receiver: Node in detected_receivers.keys():
+		if not is_instance_valid(receiver):
+			continue
+		var receiver_2d: Node2D = receiver as Node2D
+		if receiver_2d == null:
+			continue
+		receiver.call(
+			&"set_external_current",
+			self,
+			_get_current_velocity(receiver_2d.global_position),
+		)
+
+	_affected_receivers = detected_receivers
 
 
 func _configure_force_area() -> void:
@@ -63,22 +84,34 @@ func _configure_force_area() -> void:
 	])
 
 
-func _find_hylas_in_force_area() -> CotcHylas:
-	for body: Node2D in get_overlapping_bodies():
-		if body is CotcHylas:
-			return body as CotcHylas
+func _collect_receiver(candidate: Node, receivers: Dictionary) -> void:
+	var receiver: Node2D = _find_current_receiver(candidate)
+	if receiver != null and receiver != self:
+		receivers[receiver] = true
+
+
+func _find_current_receiver(candidate: Node) -> Node2D:
+	var current_node: Node = candidate
+	while current_node != null:
+		if (
+			current_node is Node2D
+			and current_node.has_method(&"set_external_current")
+			and current_node.has_method(&"remove_external_current")
+		):
+			return current_node as Node2D
+		current_node = current_node.get_parent()
 	return null
 
 
-func _get_current_velocity() -> Vector2:
-	var local_hylas_position: Vector2 = to_local(_hylas.global_position)
-	var distance_from_mouth: float = -(local_hylas_position.y - opening_local_y)
+func _get_current_velocity(receiver_position: Vector2) -> Vector2:
+	var local_receiver_position: Vector2 = to_local(receiver_position)
+	var distance_from_mouth: float = -(local_receiver_position.y - opening_local_y)
 	var distance_ratio: float = clampf(distance_from_mouth / force_length, 0.0, 1.0)
 	var force_speed: float = lerpf(force_max_speed, force_min_speed, distance_ratio)
 	var emission_direction: Vector2 = global_transform.basis_xform(Vector2.UP).normalized()
 	return emission_direction * force_speed
 
 
-func _remove_current_from_hylas() -> void:
-	if is_instance_valid(_hylas):
-		_hylas.remove_external_current(self)
+func _remove_current_from_receiver(receiver: Node) -> void:
+	if is_instance_valid(receiver) and receiver.has_method(&"remove_external_current"):
+		receiver.call(&"remove_external_current", self)
