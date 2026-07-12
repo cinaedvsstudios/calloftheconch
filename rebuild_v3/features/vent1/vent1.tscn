@@ -1,9 +1,10 @@
-[gd_scene format=3 uid="uid://cwd3ikm7tnbp4"]
+[gd_scene load_steps=6 format=3 uid="uid://cwd3ikm7tnbp4"]
 
 [ext_resource type="Script" uid="uid://i7khllw8t3gw" path="res://rebuild_v3/features/vent1/vent1.gd" id="1_controller"]
 [ext_resource type="Texture2D" uid="uid://bu45keejdhp03" path="res://assets/backgrounds/vent.webp" id="2_vent_sprite"]
 [ext_resource type="VideoStream" uid="uid://cojdj436nhqwa" path="res://assets/effects/vent1.ogv" id="3_vent_video"]
 [ext_resource type="Shader" uid="uid://cled8u42wi0t2" path="res://rebuild_v3/features/vent1/vent1.gdshader" id="4_vent_shader"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="5_distance_activator"]
 
 [sub_resource type="ShaderMaterial" id="VentVideoMaterial"]
 shader = ExtResource("4_vent_shader")
@@ -39,3 +40,6 @@ loop = true
 
 [node name="ForceCollision" type="CollisionPolygon2D" parent="." unique_id=771052063]
 unique_name_in_owner = true
+
+[node name="DistanceActivator" type="Node" parent="."]
+script = ExtResource("5_distance_activator")
