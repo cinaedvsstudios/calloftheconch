@@ -20,13 +20,31 @@ signal damage_requested(hylas: Node, amount: int)
 var _hylas: Node2D
 var _awake: bool = false
 var _last_damage_time: float = -999.0
+var _distance_active: bool = true
 
 
 func _ready() -> void:
 	_animated_sprite.animation_finished.connect(_on_animation_finished)
 	_wake_area.body_entered.connect(_on_wake_area_body_entered)
 	_hurt_area.body_entered.connect(_on_hurt_area_body_entered)
+	_wake_area.monitoring = true
+	_hurt_area.monitoring = true
+	set_process(true)
 	_go_to_sleep()
+
+
+func set_distance_active(is_active: bool) -> void:
+	if _distance_active == is_active:
+		return
+	_distance_active = is_active
+	set_process(_distance_active)
+	_wake_area.monitoring = _distance_active
+	_hurt_area.monitoring = _distance_active
+	if _distance_active:
+		return
+	_wake_bubble_burst.stop_burst()
+	_go_to_sleep()
+	_hylas = null
 
 
 func _process(_delta: float) -> void:
