@@ -1,0 +1,51 @@
+[gd_resource type="SpriteFrames" load_steps=10 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/shark1.webp" id="1_shark_01"]
+[ext_resource type="Texture2D" path="res://assets/enemies/shark2.webp" id="2_shark_02"]
+[ext_resource type="Texture2D" path="res://assets/enemies/shark3.webp" id="3_shark_03"]
+[ext_resource type="Texture2D" path="res://assets/enemies/shark4.webp" id="4_shark_04"]
+[ext_resource type="Texture2D" path="res://assets/enemies/shark5.webp" id="5_shark_05"]
+[ext_resource type="Texture2D" path="res://assets/enemies/shark6.webp" id="6_shark_06"]
+[ext_resource type="Texture2D" path="res://assets/enemies/shark7.webp" id="7_shark_07"]
+[ext_resource type="Texture2D" path="res://assets/enemies/shark8.webp" id="8_shark_08"]
+[ext_resource type="Texture2D" path="res://assets/enemies/shark9.webp" id="9_shark_09"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("7_shark_07")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_shark_08")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_shark_09")
+}],
+"loop": false,
+"name": &"frozen",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_shark_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_shark_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_shark_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_shark_04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_shark_05")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_shark_06")
+}],
+"loop": true,
+"name": &"normal",
+"speed": 8.0
+}]
