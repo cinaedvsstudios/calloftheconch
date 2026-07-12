@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/scatter_bubbles/scatter_bubble_video.gd" id="1_controller"]
 [ext_resource type="VideoStream" path="res://assets/effects/vent1.ogv" id="2_video"]
 [ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="3_shader"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
 
 [sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
 shader = ExtResource("3_shader")
@@ -27,3 +28,6 @@ mouse_filter = 2
 stream = ExtResource("2_video")
 expand = true
 loop = true
+
+[node name="DistanceActivator" type="Node" parent="."]
+script = ExtResource("4_distance_activator")
