@@ -28,20 +28,33 @@ signal frozen_finished()
 @export_range(0.0, 1200.0, 10.0) var intercept_lead_distance: float = 320.0
 
 @export_category("Conch Freeze")
-@export_range(0.1, 20.0, 0.1) var freeze_duration: float = 2.5
+@export_range(0.1, 20.0, 0.1) var freeze_duration: float = 10.0
+@export_range(0.0, 1.0, 0.01) var frozen_drift_retention: float = 0.28
+@export_range(0.0, 100.0, 0.5) var frozen_drift_drag: float = 2.0
+@export_range(0.0, 100.0, 1.0) var frozen_vertical_bob_speed: float = 10.0
+@export_range(0.01, 2.0, 0.01) var frozen_vertical_bob_frequency: float = 0.32
+
+@export_category("Stun Glow")
+@export var stun_glow_color: Color = Color(0.0, 0.82, 1.0, 1.0)
+@export_range(0.1, 12.0, 0.1) var stun_glow_pulse_speed: float = 4.5
+@export_range(0.0, 3.0, 0.05) var stun_glow_strength: float = 1.25
+@export_range(0.0, 12.0, 0.5) var stun_glow_radius: float = 5.0
 
 @export_category("Water Forces")
 @export_range(0.0, 2.0, 0.01) var current_influence: float = 0.22
 
 @onready var _sprite: AnimatedSprite2D = %AnimatedSprite
+@onready var _stun_material: ShaderMaterial = %AnimatedSprite.material as ShaderMaterial
 
 var _home_position: Vector2
 var _patrol_target: Vector2
 var _travel_sign: float = 1.0
 var _movement_velocity: Vector2 = Vector2.ZERO
+var _frozen_drift_velocity: Vector2 = Vector2.ZERO
 var _external_currents: Dictionary = {}
 var _hylas: Node2D
 var _frozen_remaining: float = 0.0
+var _frozen_elapsed: float = 0.0
 var _elapsed: float = 0.0
 var _wander_phase: float = 0.0
 var _rng := RandomNumberGenerator.new()
@@ -57,6 +70,7 @@ func _ready() -> void:
 	_wander_phase = _rng.randf_range(0.0, TAU)
 	_choose_next_patrol_target(true)
 	_apply_display_scale()
+	_configure_stun_material()
 	_sprite.play(&"normal")
 	body_entered.connect(_on_body_entered)
 	_find_hylas()
@@ -124,10 +138,22 @@ func receive_conch_hit(
 		_distance: float,
 		_strength: float,
 	) -> void:
+	var was_already_frozen: bool = _frozen_remaining > 0.0
 	_frozen_remaining = freeze_duration
+
+	if not was_already_frozen:
+		_frozen_elapsed = 0.0
+		var source_velocity: Vector2 = _movement_velocity
+		if source_velocity.length_squared() <= 4.0:
+			var moving_left: bool = _sprite.flip_h != source_faces_left
+			var drift_sign: float = -1.0 if moving_left else 1.0
+			source_velocity = Vector2(drift_sign * patrol_speed, 0.0)
+		_frozen_drift_velocity = source_velocity * frozen_drift_retention
+		frozen_started.emit()
+
 	_movement_velocity = Vector2.ZERO
 	_sprite.play(&"frozen")
-	frozen_started.emit()
+	_set_stun_glow_enabled(true)
 
 
 func is_frozen() -> bool:
@@ -136,12 +162,47 @@ func is_frozen() -> bool:
 
 func _update_frozen(delta: float) -> void:
 	_frozen_remaining = maxf(0.0, _frozen_remaining - delta)
-	var current_velocity: Vector2 = _get_external_current_velocity() * current_influence
-	global_position += current_velocity * delta
+	_frozen_elapsed += delta
+	_frozen_drift_velocity = _frozen_drift_velocity.move_toward(
+		Vector2.ZERO,
+		frozen_drift_drag * delta,
+	)
+
+	var vertical_bob: Vector2 = Vector2(
+		0.0,
+		sin(_frozen_elapsed * TAU * frozen_vertical_bob_frequency + _wander_phase)
+			* frozen_vertical_bob_speed,
+	)
+	var total_frozen_velocity: Vector2 = (
+		_frozen_drift_velocity
+		+ _get_external_current_velocity() * current_influence
+		+ vertical_bob
+	)
+	global_position += total_frozen_velocity * delta
+
 	if _frozen_remaining <= 0.0:
+		_set_stun_glow_enabled(false)
 		_sprite.play(&"normal")
+		_movement_velocity = _frozen_drift_velocity
+		_frozen_drift_velocity = Vector2.ZERO
 		_choose_next_patrol_target(true)
 		frozen_finished.emit()
+
+
+func _configure_stun_material() -> void:
+	if _stun_material == null:
+		return
+	_stun_material.set_shader_parameter(&"glow_color", stun_glow_color)
+	_stun_material.set_shader_parameter(&"pulse_speed", stun_glow_pulse_speed)
+	_stun_material.set_shader_parameter(&"glow_strength", stun_glow_strength)
+	_stun_material.set_shader_parameter(&"glow_radius", stun_glow_radius)
+	_stun_material.set_shader_parameter(&"stunned_amount", 0.0)
+
+
+func _set_stun_glow_enabled(enabled: bool) -> void:
+	if _stun_material == null:
+		return
+	_stun_material.set_shader_parameter(&"stunned_amount", 1.0 if enabled else 0.0)
 
 
 func _find_hylas() -> void:
