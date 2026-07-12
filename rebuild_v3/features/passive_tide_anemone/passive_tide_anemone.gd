@@ -27,6 +27,7 @@ var _pulse_tween: Tween
 var _pulse_growing: bool = true
 var _bubble_timer: float = 0.0
 var _centre_fallback_direction: Vector2 = Vector2.RIGHT
+var _distance_active: bool = true
 
 
 func _ready() -> void:
@@ -35,12 +36,33 @@ func _ready() -> void:
 	_visual_root.scale = Vector2.ONE * randf_range(pulse_min_scale, pulse_max_scale)
 	_pulse_growing = _visual_root.scale.x < (pulse_min_scale + pulse_max_scale) * 0.5
 	_bubble_timer = randf_range(1.00, 2.50)
+	monitoring = true
+	set_process(true)
 	set_physics_process(true)
 	_start_pulse()
 
 
 func _exit_tree() -> void:
+	_stop_pulse()
 	_remove_drift_from_hylas()
+
+
+func set_distance_active(is_active: bool) -> void:
+	if _distance_active == is_active:
+		return
+	_distance_active = is_active
+	set_process(_distance_active)
+	set_physics_process(_distance_active)
+	monitoring = _distance_active
+	if _distance_active:
+		if _bubble_timer <= 0.0:
+			_bubble_timer = randf_range(bubble_delay_min, bubble_delay_max)
+		_start_pulse()
+		return
+	_stop_pulse()
+	_bubble_burst.stop_burst()
+	_remove_drift_from_hylas()
+	_hylas = null
 
 
 func _process(delta: float) -> void:
@@ -61,6 +83,9 @@ func _physics_process(_delta: float) -> void:
 
 
 func _start_pulse() -> void:
+	if not _distance_active:
+		return
+	_stop_pulse()
 	var target_scale: float = pulse_max_scale if _pulse_growing else pulse_min_scale
 	var pulse_duration: float = randf_range(pulse_duration_min, pulse_duration_max)
 	_pulse_tween = create_tween()
@@ -70,7 +95,15 @@ func _start_pulse() -> void:
 	_pulse_tween.tween_callback(_continue_pulse)
 
 
+func _stop_pulse() -> void:
+	if _pulse_tween != null and _pulse_tween.is_valid():
+		_pulse_tween.kill()
+	_pulse_tween = null
+
+
 func _continue_pulse() -> void:
+	if not _distance_active:
+		return
 	_pulse_growing = not _pulse_growing
 	_start_pulse()
 
