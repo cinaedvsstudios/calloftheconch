@@ -49,6 +49,7 @@ func _ready() -> void:
 	_choose_next_patrol_target(true)
 	_apply_display_scale()
 	_sprite.play(&"idle")
+	_connect_to_level_conch_signal()
 
 
 func _physics_process(delta: float) -> void:
@@ -105,6 +106,46 @@ func receive_conch_hit(
 	_conch_impulse += away_direction.normalized() * conch_push_speed * applied_strength
 
 
+func _connect_to_level_conch_signal() -> void:
+	var ancestor: Node = get_parent()
+	var callback := Callable(self, "_on_level_conch_target_hit")
+	while ancestor != null:
+		if ancestor.has_signal(&"conch_target_hit"):
+			if not ancestor.is_connected(&"conch_target_hit", callback):
+				ancestor.connect(&"conch_target_hit", callback)
+			return
+		ancestor = ancestor.get_parent()
+
+
+func _on_level_conch_target_hit(
+		target: Node2D,
+		hit_position: Vector2,
+		_pulse_index: int,
+	) -> void:
+	if target != self:
+		return
+	var origin: Vector2 = hit_position
+	var pulse_direction: Vector2 = Vector2.RIGHT
+	var hylas: Node2D = get_tree().get_first_node_in_group(&"hylas") as Node2D
+	if hylas != null:
+		origin = hylas.global_position
+		var target_offset: Vector2 = hit_position - origin
+		if target_offset.length_squared() > 0.001:
+			pulse_direction = target_offset.normalized()
+		var visible_width: float = get_viewport_rect().size.x
+		var camera: Camera2D = get_viewport().get_camera_2d()
+		if camera != null:
+			visible_width /= maxf(0.01, absf(camera.zoom.x))
+		var hit_strength: float = clampf(
+			1.0 - target_offset.length() / maxf(1.0, visible_width),
+			0.18,
+			1.0,
+		)
+		receive_conch_hit(origin, pulse_direction, target_offset.length(), hit_strength)
+		return
+	receive_conch_hit(origin, pulse_direction, 0.0, 0.5)
+
+
 func _choose_next_patrol_target(initial_target: bool) -> void:
 	if not initial_target:
 		_travel_sign *= -1.0
@@ -132,7 +173,8 @@ func _get_external_current_velocity() -> Vector2:
 		if not is_instance_valid(source):
 			_external_currents.erase(source)
 			continue
-		total_velocity += _external_currents[source] as Vector2
+		var source_velocity: Vector2 = _external_currents[source]
+		total_velocity += source_velocity
 	return total_velocity
 
 
