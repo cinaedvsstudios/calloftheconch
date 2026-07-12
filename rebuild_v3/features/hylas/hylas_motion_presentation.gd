@@ -1,6 +1,6 @@
 extends "res://rebuild_v3/features/hylas/hylas.gd"
 
-## Presentation-only control for the two timing-sensitive Hylas actions.
+## Presentation-only control for the timing-sensitive Hylas actions.
 ## Gameplay movement remains in the inherited CotcHylas script.
 
 const BURST_DURATION: float = 1.50
@@ -9,6 +9,10 @@ const BURST_HOLD_START: float = 0.20
 const BURST_HOLD_END: float = 1.20
 const BURST_FINISH_FRAME_DURATION: float = 0.10
 const IDLE_ANIMATION_FPS: float = 2.50
+const TAIL_FLIP_ANIMATION_FPS: float = 8.0
+const TAIL_FLIP_MIDDLE_FRAME: int = 3
+const TAIL_FLIP_MIDDLE_FRAME_DURATION: float = 1.5
+const TAIL_FLIP_GAMEPLAY_DURATION: float = 0.96
 
 @export_category("Collision Profiles")
 @export var default_collision_shape: Shape2D
@@ -22,8 +26,15 @@ var _collision_profile_name: StringName = &"default"
 
 func _ready() -> void:
 	burst_max_duration = BURST_DURATION
+	tail_flip_duration = TAIL_FLIP_GAMEPLAY_DURATION
 	super._ready()
 	_animated_sprite.sprite_frames.set_animation_speed(&"idle", IDLE_ANIMATION_FPS)
+	_animated_sprite.sprite_frames.set_animation_speed(&"tail_flip", TAIL_FLIP_ANIMATION_FPS)
+	_animated_sprite.sprite_frames.set_frame_duration(
+		&"tail_flip",
+		TAIL_FLIP_MIDDLE_FRAME,
+		TAIL_FLIP_MIDDLE_FRAME_DURATION,
+	)
 	_apply_collision_profile(_animated_sprite.animation)
 
 
