@@ -13,6 +13,7 @@ const TAIL_FLIP_ANIMATION_FPS: float = 10.0
 const TAIL_FLIP_GAMEPLAY_DURATION: float = 1.0
 const CONCH_ANIMATION_FPS: float = 9.0
 const CONCH_GAMEPLAY_DURATION: float = 10.0 / CONCH_ANIMATION_FPS
+const STOP_ANIMATION_FPS: float = 9.0
 
 @export_category("Collision Profiles")
 @export var default_collision_shape: Shape2D
@@ -47,6 +48,11 @@ func _configure_action_animations() -> void:
 	var flip_05: Texture2D = sprite_frames.get_frame_texture(&"tail_flip", 4)
 	var flip_06: Texture2D = sprite_frames.get_frame_texture(&"tail_flip", 5)
 	var flip_07: Texture2D = sprite_frames.get_frame_texture(&"tail_flip", 6)
+	var stop_01: Texture2D = sprite_frames.get_frame_texture(&"stop", 0)
+	var stop_02: Texture2D = sprite_frames.get_frame_texture(&"stop", 1)
+	var stop_03: Texture2D = sprite_frames.get_frame_texture(&"stop", 2)
+	var stop_04: Texture2D = sprite_frames.get_frame_texture(&"stop", 3)
+	var stop_05: Texture2D = sprite_frames.get_frame_texture(&"stop", 4)
 	var stop_06: Texture2D = sprite_frames.get_frame_texture(&"stop", 5)
 	var stop_07: Texture2D = sprite_frames.get_frame_texture(&"stop_release", 0)
 
@@ -89,11 +95,29 @@ func _configure_action_animations() -> void:
 		stop_06,
 		stop_07,
 	]
+	if not _replace_animation_frames(
+			sprite_frames,
+			&"conch",
+			conch_sequence,
+			CONCH_ANIMATION_FPS,
+		):
+		return
+
+	var stop_sequence: Array[Texture2D] = [
+		stop_07,
+		stop_06,
+		stop_01,
+		stop_02,
+		stop_03,
+		stop_04,
+		stop_05,
+		stop_06,
+	]
 	_replace_animation_frames(
 		sprite_frames,
-		&"conch",
-		conch_sequence,
-		CONCH_ANIMATION_FPS,
+		&"stop",
+		stop_sequence,
+		STOP_ANIMATION_FPS,
 	)
 
 
