@@ -1,7 +1,17 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scenes/enemies/Shark/shark_enemy.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://scenes/enemies/Shark/shark_enemy_sprite_frames.tres" id="2_frames"]
+[ext_resource type="Shader" path="res://scenes/enemies/Shark/shark_stun_glow.gdshader" id="3_stun_glow"]
+
+[sub_resource type="ShaderMaterial" id="SharkStunGlowMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("3_stun_glow")
+shader_parameter/glow_color = Color(0, 0.82, 1, 1)
+shader_parameter/stunned_amount = 0.0
+shader_parameter/pulse_speed = 4.5
+shader_parameter/glow_strength = 1.25
+shader_parameter/glow_radius = 5.0
 
 [sub_resource type="RectangleShape2D" id="SharkContactShape"]
 size = Vector2(250, 105)
@@ -14,6 +24,7 @@ script = ExtResource("1_controller")
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
 unique_name_in_owner = true
+material = SubResource("SharkStunGlowMaterial")
 sprite_frames = ExtResource("2_frames")
 animation = &"normal"
 autoplay = "normal"
