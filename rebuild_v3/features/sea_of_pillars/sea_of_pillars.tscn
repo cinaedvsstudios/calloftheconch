@@ -8,11 +8,10 @@
 [ext_resource type="Texture2D" uid="uid://ekgn2xwn4eer" path="res://assets/backgrounds/watertile.jpg" id="4_bu74a"]
 [ext_resource type="Shader" uid="uid://dygdgs4nslevt" path="res://assets/backgrounds/waterline2.gdshader" id="4_dk7og"]
 [ext_resource type="Texture2D" uid="uid://bnh8y5pk6qa0j" path="res://assets/backgrounds/mountainoverlay03.webp" id="6_mountain_b"]
-[ext_resource type="Texture2D" uid="uid://dejgtuv4d265x" path="res://assets/backgrounds/sandoverlay.webp" id="7_sand"]
 [ext_resource type="PackedScene" uid="uid://c517thhqaggvs" path="res://rebuild_v3/features/hylas/hylas.tscn" id="8_hylas"]
 [ext_resource type="Texture2D" uid="uid://d14hlawr2op7b" path="res://assets/objects/scenery_pillars_ruins02.png" id="8_keobn"]
 [ext_resource type="Texture2D" uid="uid://wb745lq4f6op" path="res://assets/objects/scenery_pillars_ruins06.png" id="9_b4nuo"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/conch_pulse.tscn" id="9_conch_pulse"]
+[ext_resource type="PackedScene" uid="uid://1rjm7chihb77" path="res://rebuild_v3/features/effects/conch_pulse.tscn" id="9_conch_pulse"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/surface_splash.tscn" id="10_surface_splash"]
 [ext_resource type="VideoStream" uid="uid://buw0jv63vxw0i" path="res://assets/effects/bubble_riser_field.ogv" id="12_bubble_overlay"]
 [ext_resource type="AudioStream" uid="uid://b1ok5tlb5fqkw" path="res://assets/audio/underwater_ambience.mp3" id="13_ambience"]
@@ -50,6 +49,9 @@
 [ext_resource type="Texture2D" uid="uid://c2gcu8b1ne6o6" path="res://assets/backgrounds/waterbgparalax2.webp" id="48_tp4nf"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/whale_travel/whale_travel.tscn" id="49_qxwrb"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/scatter_bubbles/scatter_bubble_vent1.tscn" id="50_u7o2t"]
+[ext_resource type="PackedScene" path="res://scenes/objects/FishSchool/fish_school.tscn" id="51_q5obt"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/Shark/shark_enemy.tscn" id="52_tp4nf"]
+[ext_resource type="Texture2D" uid="uid://digvpvpifh44s" path="res://assets/backgrounds/rock6.webp" id="53_ngk3e"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_y7jcd"]
 
@@ -299,13 +301,6 @@ texture_scale = Vector2(0.25, 0.25)
 polygon = PackedVector2Array(-789, 3919, 690, 3412, 3063, 4178, 5125, 4676, 7060, 3036, 9463, 3207, 10223, 3698, 9905, 5096, 12136, 5096, 12627, 4286, 10910, 2839, 7347.792, 2256.0327, 8982, 1523, 10982, 1441, 12617, 1422, 12902, 635, 11779, 518, 11495, 133, 12428, -19, 13386, -13, 14183, 141, 15107, 1898, 13515, 2653, 14351, 4407, 15593.38, 4543.3066, 16035, 2922, 14992, 2990, 14829, 2785, 16173, 2494, 16501, 1185, 18728, 521, 18534, 838, 16885, 1551, 16350, 3602, 16101, 4599, 17238, 4630, 18694.71, 4587.1636, 19342, 3624, 18101, 2545, 19234, 1763, 21312, 1952, 21824.264, 2799.0767, 20583, 2896, 20664, 3651, 21500, 4541, 22327.133, 3630.6196, 22894, 4568, 23309.646, 4485.6616, 23487, 4450, 24050, 4339, 24759, 3962, 25216.916, 3020.7166, 24480.395, 3008.3518, 23750, 2996.0906, 23287, 3001, 23102, 3058, 22828.762, 2987.3284, 22315, 2972, 22617, 2784, 23335, 2507, 24430, 2482, 26066, 2494, 26003, 1865, 25512, 1814, 24895, 933, 25295, 465, 24379, -286, 24589, -484, 25444, -233, 25612, -207, 26574, -431, 26614, -267, 26880, 655, 27551, 1071, 28303, 2075, 29338, 2410, 30450, 2851, 34266, 763, 35293, -665, 46029, 817, 46207, 6671, -827, 5803)
 
 [node name="Sand" type="Node2D" parent="TerrainArtLayer/ground" unique_id=582435204]
-
-[node name="SandOverlay04" type="Sprite2D" parent="TerrainArtLayer/ground/Sand" unique_id=1147334557]
-z_index = 20
-position = Vector2(1184, -585)
-scale = Vector2(0.75, 0.75)
-texture = ExtResource("7_sand")
-centered = false
 
 [node name="Beach" type="Sprite2D" parent="TerrainArtLayer/ground/Sand" unique_id=1707590392]
 position = Vector2(1550, 2705)
@@ -816,6 +811,78 @@ z_index = -1
 position = Vector2(7568.7935, 4622.4126)
 scale = Vector2(0.41963562, 0.4234113)
 
+[node name="Vent12" parent="TerrainArtLayer/ground/Vents" unique_id=119186558 instance=ExtResource("20_y4s8d")]
+z_index = -1
+position = Vector2(13722.086, 3177.6506)
+rotation = -2.8797934
+scale = Vector2(0.41963562, 0.4234113)
+
+[node name="Vent13" parent="TerrainArtLayer/ground/Vents" unique_id=1213674482 instance=ExtResource("20_y4s8d")]
+z_index = -1
+position = Vector2(11059.957, 3045.4634)
+rotation = -4.4505897
+scale = Vector2(0.41963562, 0.4234113)
+
+[node name="Vent20" parent="TerrainArtLayer/ground/Vents" unique_id=1575713509 instance=ExtResource("20_y4s8d")]
+z_index = -11
+position = Vector2(11832.701, 4273.3564)
+rotation = -6.021386
+scale = Vector2(0.41963562, 0.4234113)
+
+[node name="Vent21" parent="TerrainArtLayer/ground/Vents" unique_id=1778134967 instance=ExtResource("20_y4s8d")]
+z_index = -11
+position = Vector2(10673.073, 3280.921)
+rotation = -8.901179
+scale = Vector2(0.41963562, 0.4234113)
+
+[node name="Vent22" parent="TerrainArtLayer/ground/Vents" unique_id=2052933639 instance=ExtResource("20_y4s8d")]
+z_index = -11
+position = Vector2(14576.707, 5612.7813)
+rotation = -8.377581
+scale = Vector2(0.41963562, 0.4234113)
+
+[node name="Vent23" parent="TerrainArtLayer/ground/Vents" unique_id=17891645 instance=ExtResource("20_y4s8d")]
+z_index = -11
+position = Vector2(11385.43, 4797.973)
+rotation = -10.471975
+scale = Vector2(0.41963562, 0.4234113)
+
+[node name="Vent14" parent="TerrainArtLayer/ground/Vents" unique_id=1541461510 instance=ExtResource("20_y4s8d")]
+z_index = -11
+position = Vector2(13837.739, 4880.5903)
+rotation = -6.806784
+scale = Vector2(0.41963562, 0.4234113)
+
+[node name="Vent15" parent="TerrainArtLayer/ground/Vents" unique_id=441050170 instance=ExtResource("20_y4s8d")]
+z_index = -11
+position = Vector2(15044.45, 5438.253)
+rotation = -10.210176
+scale = Vector2(0.41963562, 0.4234113)
+
+[node name="Vent16" parent="TerrainArtLayer/ground/Vents" unique_id=1380147115 instance=ExtResource("20_y4s8d")]
+z_index = -11
+position = Vector2(17281.824, 3471.9731)
+rotation = -7.853982
+scale = Vector2(0.41963562, 0.4234113)
+
+[node name="Vent17" parent="TerrainArtLayer/ground/Vents" unique_id=335794741 instance=ExtResource("20_y4s8d")]
+z_index = -11
+position = Vector2(19105.705, 3692.9731)
+rotation = -4.9741883
+scale = Vector2(0.41963562, 0.4234113)
+
+[node name="Vent18" parent="TerrainArtLayer/ground/Vents" unique_id=1622323090 instance=ExtResource("20_y4s8d")]
+z_index = -11
+position = Vector2(17978.828, 3730.1506)
+rotation = -3.1415927
+scale = Vector2(0.41963562, 0.4234113)
+
+[node name="Vent19" parent="TerrainArtLayer/ground/Vents" unique_id=1125305774 instance=ExtResource("20_y4s8d")]
+z_index = -11
+position = Vector2(16749.6, 4720.52)
+rotation = -3.1415927
+scale = Vector2(0.41963562, 0.4234113)
+
 [node name="Vent5" parent="TerrainArtLayer/ground/Vents" unique_id=605436097 instance=ExtResource("20_y4s8d")]
 z_index = -1
 position = Vector2(21550.846, 6587.66)
@@ -889,6 +956,104 @@ drift_max_speed = 150.0
 [node name="PassiveTideAnemone2" parent="Enemies" unique_id=846704490 instance=ExtResource("19_passive_tide_anemone")]
 position = Vector2(5184, 3389)
 rotation = 0.5235988
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone23" parent="Enemies" unique_id=1629780571 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(8673, 3181)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone24" parent="Enemies" unique_id=1390365526 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(8055, 3088)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone25" parent="Enemies" unique_id=1955188398 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(9353, 4230)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone26" parent="Enemies" unique_id=896767754 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(10558, 2563)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone27" parent="Enemies" unique_id=1023321879 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(12441, 3063)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone28" parent="Enemies" unique_id=1132586423 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(13968, 4482)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone29" parent="Enemies" unique_id=1147344295 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(13145, 4741)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone30" parent="Enemies" unique_id=2069263705 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(13786, 6290)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone31" parent="Enemies" unique_id=152830662 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(14374, 6169)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone32" parent="Enemies" unique_id=1378654543 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(16422, 3949)
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone33" parent="Enemies" unique_id=475088 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(15324, 4474)
+rotation = 0.5235988
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone34" parent="Enemies" unique_id=518768892 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(17858.998, 3428.9998)
+rotation = 0.2617994
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone35" parent="Enemies" unique_id=1267345270 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(17040, 3057.0002)
+rotation = 0.2617994
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone36" parent="Enemies" unique_id=989063042 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(17040, 3057.0002)
+rotation = 0.2617994
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone37" parent="Enemies" unique_id=1907831852 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(19162.998, 3575.9995)
+rotation = 0.2617994
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone38" parent="Enemies" unique_id=1085048597 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(21295, 3408.9993)
+rotation = -0.2617994
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone39" parent="Enemies" unique_id=932965361 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(20749, 3513.9998)
+rotation = -0.7853982
+drift_radius = 500.0
+drift_max_speed = 150.0
+
+[node name="PassiveTideAnemone40" parent="Enemies" unique_id=325825575 instance=ExtResource("19_passive_tide_anemone")]
+position = Vector2(26037.998, 5544)
+rotation = -0.5235988
 drift_radius = 500.0
 drift_max_speed = 150.0
 
@@ -1103,6 +1268,47 @@ position = Vector2(11014.001, 6590.0005)
 rotation = 0.5235988
 scale = Vector2(0.3, 0.3)
 
+[node name="BlackBloomHazard14" parent="." unique_id=1492957471 instance=ExtResource("31_025dw")]
+z_index = -1
+position = Vector2(14570.001, 4651)
+scale = Vector2(0.3, 0.3)
+
+[node name="BlackBloomHazard15" parent="." unique_id=1977613420 instance=ExtResource("31_025dw")]
+z_index = -1
+position = Vector2(16901, 3817)
+rotation = -0.7853982
+scale = Vector2(0.3, 0.3)
+
+[node name="BlackBloomHazard16" parent="." unique_id=312010616 instance=ExtResource("31_025dw")]
+z_index = -1
+position = Vector2(16060.001, 6903)
+rotation = -0.5235988
+scale = Vector2(0.3, 0.3)
+
+[node name="BlackBloomHazard17" parent="." unique_id=1801731714 instance=ExtResource("31_025dw")]
+z_index = -1
+position = Vector2(13551, 5064.0005)
+rotation = -3.1415927
+scale = Vector2(0.3, 0.3)
+
+[node name="BlackBloomHazard18" parent="." unique_id=341418235 instance=ExtResource("31_025dw")]
+z_index = -1
+position = Vector2(13142, 2998.9995)
+rotation = -1.0471976
+scale = Vector2(0.3, 0.3)
+
+[node name="BlackBloomHazard19" parent="." unique_id=1712258014 instance=ExtResource("31_025dw")]
+z_index = -1
+position = Vector2(10872, 3881.9998)
+rotation = 0.7853982
+scale = Vector2(0.3, 0.3)
+
+[node name="BlackBloomHazard20" parent="." unique_id=1218735820 instance=ExtResource("31_025dw")]
+z_index = -1
+position = Vector2(8390, 4340.9995)
+rotation = 0.7853982
+scale = Vector2(0.3, 0.3)
+
 [node name="BlackBloomHazard5" parent="." unique_id=24571654 instance=ExtResource("31_025dw")]
 z_index = -1
 position = Vector2(15552, 7506.9995)
@@ -1259,6 +1465,61 @@ rotation = -0.13439035
 texture = ExtResource("39_qp71c")
 flip_h = true
 
+[node name="Spikerock11" type="Sprite2D" parent="." unique_id=37295774]
+position = Vector2(26650.002, 6196)
+rotation = 1.8325958
+texture = ExtResource("39_qp71c")
+flip_h = true
+
+[node name="Spikerock4" type="Sprite2D" parent="." unique_id=1054182419]
+position = Vector2(16038, 4402.0005)
+rotation = -2.0943952
+scale = Vector2(0.54884607, 0.7996934)
+texture = ExtResource("39_qp71c")
+flip_h = true
+
+[node name="Spikerock9" type="Sprite2D" parent="." unique_id=1972653646]
+position = Vector2(19784.998, 5922.0005)
+rotation = -2.8797934
+scale = Vector2(0.54884607, 0.7996934)
+texture = ExtResource("39_qp71c")
+flip_h = true
+
+[node name="Spikerock10" type="Sprite2D" parent="." unique_id=2126596607]
+position = Vector2(20290.002, 7361.9995)
+rotation = -4.4505897
+scale = Vector2(0.54884607, 0.7996934)
+texture = ExtResource("39_qp71c")
+flip_h = true
+
+[node name="Spikerock5" type="Sprite2D" parent="." unique_id=114313152]
+position = Vector2(12481.001, 3534.0005)
+rotation = -2.0943952
+scale = Vector2(0.54884607, 0.7996934)
+texture = ExtResource("39_qp71c")
+flip_h = true
+
+[node name="Spikerock6" type="Sprite2D" parent="." unique_id=910876451]
+position = Vector2(10025.002, 5381)
+rotation = -3.0304291
+scale = Vector2(0.54884607, 0.7996934)
+texture = ExtResource("39_qp71c")
+flip_h = true
+
+[node name="Spikerock8" type="Sprite2D" parent="." unique_id=1793272511]
+position = Vector2(10146, 6545.0005)
+rotation = -0.2617994
+scale = Vector2(0.54884607, 0.7996934)
+texture = ExtResource("39_qp71c")
+flip_h = true
+
+[node name="Spikerock7" type="Sprite2D" parent="." unique_id=517393967]
+position = Vector2(10272, 4399)
+rotation = -0.4866586
+scale = Vector2(0.54884607, 0.7996934)
+texture = ExtResource("39_qp71c")
+flip_h = true
+
 [node name="Spikerock3" type="Sprite2D" parent="." unique_id=719433713]
 position = Vector2(28767.602, 5196.324)
 rotation = -0.5462881
@@ -1392,3 +1653,301 @@ position = Vector2(22453, 4424)
 
 [node name="ScatterBubbleVent2" parent="." unique_id=908497315 instance=ExtResource("50_u7o2t")]
 position = Vector2(12210, 6747)
+
+[node name="FishSchool" parent="." unique_id=22367701 instance=ExtResource("51_q5obt")]
+position = Vector2(5671, 2526)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool2" parent="." unique_id=612848180 instance=ExtResource("51_q5obt")]
+position = Vector2(4152, 2909)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool3" parent="." unique_id=507900647 instance=ExtResource("51_q5obt")]
+position = Vector2(8267, 2734)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool4" parent="." unique_id=1410079199 instance=ExtResource("51_q5obt")]
+position = Vector2(11964, 2837)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool5" parent="." unique_id=2116383808 instance=ExtResource("51_q5obt")]
+position = Vector2(18582, 2934)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool6" parent="." unique_id=1099410562 instance=ExtResource("51_q5obt")]
+position = Vector2(17060, 4767)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool10" parent="." unique_id=985175931 instance=ExtResource("51_q5obt")]
+position = Vector2(15591, 5814)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool8" parent="." unique_id=8586892 instance=ExtResource("51_q5obt")]
+position = Vector2(9488, 3885)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool11" parent="." unique_id=1009031596 instance=ExtResource("51_q5obt")]
+position = Vector2(12143, 5255)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool9" parent="." unique_id=784622802 instance=ExtResource("51_q5obt")]
+position = Vector2(14335, 3707)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool7" parent="." unique_id=294869086 instance=ExtResource("51_q5obt")]
+position = Vector2(20201, 3467)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool12" parent="." unique_id=1174590145 instance=ExtResource("51_q5obt")]
+position = Vector2(33602, 3819)
+scale = Vector2(0.5, 0.5)
+
+[node name="FishSchool13" parent="." unique_id=2139415685 instance=ExtResource("51_q5obt")]
+position = Vector2(29732, 3166)
+scale = Vector2(0.5, 0.5)
+
+[node name="SharkEnemy" parent="." unique_id=1884617479 instance=ExtResource("52_tp4nf")]
+position = Vector2(12818, 6031)
+
+[node name="SharkEnemy2" parent="." unique_id=1376343843 instance=ExtResource("52_tp4nf")]
+position = Vector2(15161, 3346)
+
+[node name="SharkEnemy3" parent="." unique_id=1553890951 instance=ExtResource("52_tp4nf")]
+position = Vector2(32365, 4766)
+
+[node name="SharkEnemy5" parent="." unique_id=747031020 instance=ExtResource("52_tp4nf")]
+position = Vector2(42707, 3811)
+
+[node name="SharkEnemy6" parent="." unique_id=938284589 instance=ExtResource("52_tp4nf")]
+position = Vector2(39357, 3769)
+
+[node name="SharkEnemy7" parent="." unique_id=249193420 instance=ExtResource("52_tp4nf")]
+position = Vector2(33667, 6953)
+
+[node name="SharkEnemy4" parent="." unique_id=487577069 instance=ExtResource("52_tp4nf")]
+position = Vector2(25595, 3478)
+
+[node name="Rock19" type="Sprite2D" parent="." unique_id=1918102737]
+position = Vector2(13778, 2850.0007)
+rotation = 2.6179938
+texture = ExtResource("26_cuq28")
+
+[node name="Rock21" type="Sprite2D" parent="." unique_id=328024110]
+position = Vector2(15043, 4490)
+rotation = 6.2831855
+texture = ExtResource("26_cuq28")
+
+[node name="Rock20" type="Sprite2D" parent="." unique_id=1664767197]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(14515, 5611)
+rotation = 1.5707964
+texture = ExtResource("24_rgyev")
+
+[node name="Rock27" type="Sprite2D" parent="." unique_id=1874480346]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(10808, 3900)
+rotation = 1.5707964
+texture = ExtResource("24_rgyev")
+
+[node name="Rock41" type="Sprite2D" parent="." unique_id=1797493585]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(8187, 3850)
+rotation = 1.5707964
+texture = ExtResource("24_rgyev")
+
+[node name="Rock42" type="Sprite2D" parent="." unique_id=1610677]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(8649, 3296)
+rotation = 3.1415927
+texture = ExtResource("24_rgyev")
+
+[node name="Rock43" type="Sprite2D" parent="." unique_id=1518301816]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(8983, 4418)
+rotation = 3.1415927
+texture = ExtResource("24_rgyev")
+
+[node name="Rock28" type="Sprite2D" parent="." unique_id=516031057]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(11162, 4363)
+rotation = 3.1415927
+texture = ExtResource("24_rgyev")
+
+[node name="Rock29" type="Sprite2D" parent="." unique_id=469502292]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(13541, 5006)
+rotation = 3.1415927
+texture = ExtResource("24_rgyev")
+
+[node name="Rock30" type="Sprite2D" parent="." unique_id=1935210136]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(12823, 4704.001)
+rotation = 4.1887903
+texture = ExtResource("24_rgyev")
+
+[node name="Rock47" type="Sprite2D" parent="." unique_id=376815606]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(11090, 5052.0005)
+rotation = 4.1887903
+texture = ExtResource("24_rgyev")
+
+[node name="Rock48" type="Sprite2D" parent="." unique_id=1257571681]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(11495, 5656.0005)
+rotation = 4.1887903
+texture = ExtResource("24_rgyev")
+
+[node name="Rock31" type="Sprite2D" parent="." unique_id=1457466759]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(10535, 3153.0005)
+rotation = 4.1887903
+texture = ExtResource("24_rgyev")
+
+[node name="Rock32" type="Sprite2D" parent="." unique_id=1623842864]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(13115, 3037.0002)
+rotation = 2.3561945
+texture = ExtResource("24_rgyev")
+
+[node name="Rock37" type="Sprite2D" parent="." unique_id=1309433500]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(16944, 3114.9998)
+rotation = 3.926991
+texture = ExtResource("24_rgyev")
+
+[node name="Rock38" type="Sprite2D" parent="." unique_id=1217447962]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(16912, 3841.0007)
+rotation = 5.759587
+texture = ExtResource("24_rgyev")
+
+[node name="Rock50" type="Sprite2D" parent="." unique_id=104355216]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(17942, 3599.0002)
+rotation = 3.6651917
+texture = ExtResource("24_rgyev")
+
+[node name="Rock51" type="Sprite2D" parent="." unique_id=1537230366]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(18780, 3734)
+rotation = 3.1415927
+texture = ExtResource("24_rgyev")
+
+[node name="Rock53" type="Sprite2D" parent="." unique_id=1909096617]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(21249, 3515)
+rotation = 3.1415927
+texture = ExtResource("24_rgyev")
+
+[node name="Rock25" type="Sprite2D" parent="." unique_id=1986032865]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(9926, 5202)
+rotation = 3.1415927
+texture = ExtResource("24_rgyev")
+
+[node name="Rock23" type="Sprite2D" parent="." unique_id=902790020]
+self_modulate = Color(0.7340654, 1.2715322, 1.142623, 1)
+z_index = -10
+position = Vector2(15011, 4954)
+rotation = 3.1415927
+texture = ExtResource("24_rgyev")
+
+[node name="Rock22" type="Sprite2D" parent="." unique_id=1392901196]
+position = Vector2(16380, 2659)
+scale = Vector2(0.5421271, 0.8756906)
+texture = ExtResource("53_ngk3e")
+
+[node name="Rock24" type="Sprite2D" parent="." unique_id=1204338659]
+position = Vector2(14201, 4876.9995)
+rotation = 0.7853982
+texture = ExtResource("20_025dw")
+
+[node name="Rock33" type="Sprite2D" parent="." unique_id=1385471307]
+position = Vector2(13054.001, 4999.0005)
+rotation = 0.7853982
+scale = Vector2(0.6398305, 0.827612)
+texture = ExtResource("20_025dw")
+
+[node name="Rock49" type="Sprite2D" parent="." unique_id=1345656741]
+position = Vector2(11276.001, 5292)
+rotation = 1.0471976
+scale = Vector2(0.6398305, 0.6379602)
+texture = ExtResource("20_025dw")
+
+[node name="Rock40" type="Sprite2D" parent="." unique_id=797592060]
+position = Vector2(16305.001, 4194.0005)
+rotation = 0.7853982
+scale = Vector2(0.6398305, 0.827612)
+texture = ExtResource("20_025dw")
+
+[node name="Rock39" type="Sprite2D" parent="." unique_id=1936081991]
+position = Vector2(17266, 3350.0007)
+rotation = 0.7853982
+scale = Vector2(0.6398305, 0.827612)
+texture = ExtResource("20_025dw")
+
+[node name="Rock52" type="Sprite2D" parent="." unique_id=168462658]
+position = Vector2(18276, 3663.999)
+rotation = 0.7853982
+scale = Vector2(0.6398305, 0.827612)
+texture = ExtResource("20_025dw")
+
+[node name="Rock34" type="Sprite2D" parent="." unique_id=1241348224]
+position = Vector2(11030.001, 4110.0005)
+rotation = 0.7853982
+scale = Vector2(0.6398305, 0.827612)
+texture = ExtResource("20_025dw")
+
+[node name="Rock44" type="Sprite2D" parent="." unique_id=1904954797]
+position = Vector2(8217.001, 3371.0002)
+rotation = 0.7853982
+scale = Vector2(0.6398305, 0.827612)
+texture = ExtResource("20_025dw")
+
+[node name="Rock45" type="Sprite2D" parent="." unique_id=1083762247]
+position = Vector2(11947, 4379)
+rotation = 1.8407457
+scale = Vector2(0.6398305, 0.827612)
+texture = ExtResource("20_025dw")
+
+[node name="Rock46" type="Sprite2D" parent="." unique_id=1832829968]
+position = Vector2(9471, 4476)
+rotation = 1.8407457
+scale = Vector2(0.35609266, 0.6132825)
+texture = ExtResource("20_025dw")
+
+[node name="Rock35" type="Sprite2D" parent="." unique_id=727918441]
+position = Vector2(10463.001, 2805.0005)
+rotation = 0.7853982
+scale = Vector2(0.6398305, 0.827612)
+texture = ExtResource("20_025dw")
+
+[node name="Rock36" type="Sprite2D" parent="." unique_id=280773244]
+position = Vector2(12732.001, 3335.0005)
+rotation = 0.7853982
+scale = Vector2(0.6398305, 0.827612)
+texture = ExtResource("20_025dw")
+
+[node name="Rock26" type="Sprite2D" parent="." unique_id=1480964825]
+position = Vector2(10498, 4848.001)
+rotation = 2.6179938
+scale = Vector2(1, 1.1343286)
+texture = ExtResource("20_025dw")

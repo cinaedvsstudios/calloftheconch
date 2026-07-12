@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://oaabxi1kimmo"
-path="res://.godot/imported/shark2.webp-e684b0e8074e1acce9856cfea1e5e1f2.ctex"
+uid="uid://k6tr1orvnctt"
+path="res://.godot/imported/shark8.webp-cb155d76115d4b959cd71eae7646298d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/enemies/shark2.webp"
-dest_files=["res://.godot/imported/shark2.webp-e684b0e8074e1acce9856cfea1e5e1f2.ctex"]
+source_file="res://assets/enemies/shark8.webp"
+dest_files=["res://.godot/imported/shark8.webp-cb155d76115d4b959cd71eae7646298d.ctex"]
 
 [params]
 

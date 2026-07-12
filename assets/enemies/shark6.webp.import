@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c3yidvxpyjslh"
-path="res://.godot/imported/shark6.webp-2094dbee481033454711f0fcd75b9fa6.ctex"
+path="res://.godot/imported/shark6.webp-3d01dd8610be18732321f4220d9350b9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/objects/shark6.webp"
-dest_files=["res://.godot/imported/shark6.webp-2094dbee481033454711f0fcd75b9fa6.ctex"]
+source_file="res://assets/enemies/shark6.webp"
+dest_files=["res://.godot/imported/shark6.webp-3d01dd8610be18732321f4220d9350b9.ctex"]
 
 [params]
 
