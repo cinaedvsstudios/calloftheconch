@@ -28,13 +28,20 @@ func _ready() -> void:
 	burst_max_duration = BURST_DURATION
 	tail_flip_duration = TAIL_FLIP_GAMEPLAY_DURATION
 	super._ready()
-	_animated_sprite.sprite_frames.set_animation_speed(&"idle", IDLE_ANIMATION_FPS)
-	_animated_sprite.sprite_frames.set_animation_speed(&"tail_flip", TAIL_FLIP_ANIMATION_FPS)
-	_animated_sprite.sprite_frames.set_frame_duration(
+	var sprite_frames: SpriteFrames = _animated_sprite.sprite_frames
+	sprite_frames.set_animation_speed(&"idle", IDLE_ANIMATION_FPS)
+	sprite_frames.set_animation_speed(&"tail_flip", TAIL_FLIP_ANIMATION_FPS)
+	var middle_texture: Texture2D = sprite_frames.get_frame_texture(
 		&"tail_flip",
 		TAIL_FLIP_MIDDLE_FRAME,
-		TAIL_FLIP_MIDDLE_FRAME_DURATION,
 	)
+	if middle_texture != null:
+		sprite_frames.set_frame(
+			&"tail_flip",
+			TAIL_FLIP_MIDDLE_FRAME,
+			middle_texture,
+			TAIL_FLIP_MIDDLE_FRAME_DURATION,
+		)
 	_apply_collision_profile(_animated_sprite.animation)
 
 
