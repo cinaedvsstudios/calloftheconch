@@ -11,6 +11,8 @@ const BURST_FINISH_FRAME_DURATION: float = 0.10
 const IDLE_ANIMATION_FPS: float = 2.50
 const TAIL_FLIP_ANIMATION_FPS: float = 10.0
 const TAIL_FLIP_GAMEPLAY_DURATION: float = 1.0
+const CONCH_ANIMATION_FPS: float = 9.0
+const CONCH_GAMEPLAY_DURATION: float = 10.0 / CONCH_ANIMATION_FPS
 
 @export_category("Collision Profiles")
 @export var default_collision_shape: Shape2D
@@ -25,15 +27,16 @@ var _collision_profile_name: StringName = &"default"
 func _ready() -> void:
 	burst_max_duration = BURST_DURATION
 	tail_flip_duration = TAIL_FLIP_GAMEPLAY_DURATION
+	conch_duration = CONCH_GAMEPLAY_DURATION
 	super._ready()
-	_configure_tail_flip_animation()
+	_configure_action_animations()
 	_animated_sprite.sprite_frames.set_animation_speed(&"idle", IDLE_ANIMATION_FPS)
 	_apply_collision_profile(_animated_sprite.animation)
 
 
-func _configure_tail_flip_animation() -> void:
-	# Use a local copy so rebuilding Hylas's Tail Flip does not modify any other
-	# scene that happens to reference the shared SpriteFrames resource.
+func _configure_action_animations() -> void:
+	# Use a local copy so rebuilding Hylas's action animations does not modify
+	# any other scene that happens to reference the shared SpriteFrames resource.
 	var sprite_frames: SpriteFrames = _animated_sprite.sprite_frames.duplicate(true) as SpriteFrames
 	_animated_sprite.sprite_frames = sprite_frames
 
@@ -45,8 +48,9 @@ func _configure_tail_flip_animation() -> void:
 	var flip_06: Texture2D = sprite_frames.get_frame_texture(&"tail_flip", 5)
 	var flip_07: Texture2D = sprite_frames.get_frame_texture(&"tail_flip", 6)
 	var stop_06: Texture2D = sprite_frames.get_frame_texture(&"stop", 5)
+	var stop_07: Texture2D = sprite_frames.get_frame_texture(&"stop_release", 0)
 
-	var sequence: Array[Texture2D] = [
+	var tail_flip_sequence: Array[Texture2D] = [
 		flip_01,
 		flip_02,
 		flip_03,
@@ -58,16 +62,58 @@ func _configure_tail_flip_animation() -> void:
 		flip_01,
 		stop_06,
 	]
+	if not _replace_animation_frames(
+			sprite_frames,
+			&"tail_flip",
+			tail_flip_sequence,
+			TAIL_FLIP_ANIMATION_FPS,
+		):
+		return
+
+	var conch_01: Texture2D = sprite_frames.get_frame_texture(&"conch", 0)
+	var conch_02: Texture2D = sprite_frames.get_frame_texture(&"conch", 1)
+	var conch_03: Texture2D = sprite_frames.get_frame_texture(&"conch", 2)
+	var conch_04: Texture2D = sprite_frames.get_frame_texture(&"conch", 3)
+	var conch_05: Texture2D = sprite_frames.get_frame_texture(&"conch", 4)
+	var conch_06: Texture2D = sprite_frames.get_frame_texture(&"conch", 5)
+
+	var conch_sequence: Array[Texture2D] = [
+		stop_07,
+		stop_06,
+		conch_01,
+		conch_02,
+		conch_03,
+		conch_04,
+		conch_05,
+		conch_06,
+		stop_06,
+		stop_07,
+	]
+	_replace_animation_frames(
+		sprite_frames,
+		&"conch",
+		conch_sequence,
+		CONCH_ANIMATION_FPS,
+	)
+
+
+func _replace_animation_frames(
+		sprite_frames: SpriteFrames,
+		animation_name: StringName,
+		sequence: Array[Texture2D],
+		animation_fps: float,
+	) -> bool:
 	for texture: Texture2D in sequence:
 		if texture == null:
-			push_error("Tail Flip animation is missing a required source frame.")
-			return
+			push_error("%s animation is missing a required source frame." % animation_name)
+			return false
 
-	sprite_frames.clear(&"tail_flip")
+	sprite_frames.clear(animation_name)
 	for texture: Texture2D in sequence:
-		sprite_frames.add_frame(&"tail_flip", texture, 1.0)
-	sprite_frames.set_animation_loop(&"tail_flip", false)
-	sprite_frames.set_animation_speed(&"tail_flip", TAIL_FLIP_ANIMATION_FPS)
+		sprite_frames.add_frame(animation_name, texture, 1.0)
+	sprite_frames.set_animation_loop(animation_name, false)
+	sprite_frames.set_animation_speed(animation_name, animation_fps)
+	return true
 
 
 func _physics_process(delta: float) -> void:
