@@ -21,8 +21,11 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": ExtResource("9_shark_09")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_shark_08")
 }],
-"loop": false,
+"loop": true,
 "name": &"frozen",
 "speed": 5.0
 }, {
