@@ -156,6 +156,8 @@ func build_debug_report() -> String:
 	lines.append("")
 	lines.append_array(_settings_context.get_debug_lines())
 	lines.append("")
+	lines.append_array(_game_state.get_debug_lines())
+	lines.append("")
 	lines.append_array(_get_save_debug_lines())
 	lines.append("")
 	lines.append_array(_gameplay_context.get_debug_lines())
@@ -171,8 +173,10 @@ func _get_save_debug_lines() -> Array[String]:
 		"level_id=%s" % String(_game_state.current_level_id),
 		"spawn_point_id=%s" % String(_game_state.current_spawn_point_id),
 		"playtime=%s" % _game_state.get_playtime_display(),
+		"fins=%d/%d" % [_game_state.current_fins, _game_state.max_fins],
 		"onos=%d" % _game_state.onos,
 		"inventory_item_types=%d" % _game_state.inventory.size(),
+		"collected_pickups=%d" % _game_state.collected_pickups.size(),
 	]
 
 
