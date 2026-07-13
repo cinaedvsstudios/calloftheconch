@@ -19,7 +19,7 @@ func play_background() -> void:
 	show()
 	if _video.stream == null:
 		return
-	_video.stream_paused = false
+	_video.paused = false
 	if not _video.is_playing():
 		_video.play()
 
