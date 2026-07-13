@@ -32,9 +32,11 @@ signal conch_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
 var _active: bool = false
 var _bubble_material: ShaderMaterial
 var _bubble_waterline_update_elapsed: float = 0.0
+var _base_camera_shake_strength: float = 10.0
 
 
 func _ready() -> void:
+	_base_camera_shake_strength = _hylas.camera_shake_strength
 	_underwater_ambience.process_mode = Node.PROCESS_MODE_ALWAYS
 	_hylas.normal_conch_used.connect(_on_hylas_normal_conch_used)
 	_hylas.surface_splash_requested.connect(_on_hylas_surface_splash_requested)
@@ -60,7 +62,7 @@ func configure_player() -> void:
 
 
 func set_screen_shake_scale(value: float) -> void:
-	_hylas.set_camera_shake_scale(value)
+	_hylas.camera_shake_strength = _base_camera_shake_strength * clampf(value, 0.0, 1.0)
 
 
 func activate() -> void:
