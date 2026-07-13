@@ -6,9 +6,12 @@ const CONCH_IMPACT_SCENE: PackedScene = preload(
 )
 const LEVEL_ID: StringName = &"sea_of_pillars"
 const DEFAULT_SPAWN_POINT_ID: StringName = &"sea_of_pillars_start"
+const WHALE_GROUND_SPAWN_POINT_ID: StringName = &"sea_of_pillars_whale_ground_01"
 
 signal conch_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
 signal greatfin_pickup_requested(pickup_type_id: StringName)
+signal death_sequence_requested
+signal whale_travel_requested
 
 @export_category("Level")
 @export var auto_play_ambience: bool = true
@@ -18,9 +21,8 @@ signal greatfin_pickup_requested(pickup_type_id: StringName)
 @export_range(0.0, 300.0, 1.0) var conch_origin_forward_offset: float = 105.0
 
 @export_category("Fin Damage and Respawn")
-@export_range(0.0, 10.0, 0.1) var damage_invulnerability_seconds: float = 1.0
-@export var auto_respawn_on_zero_fins: bool = true
-@export var restore_full_fins_on_respawn: bool = true
+@export_range(0.0, 10.0, 0.1) var damage_invulnerability_seconds: float = 4.0
+@export_range(0, 100, 1) var duplicate_crown_sea_grapes_onos: int = 5
 
 @export_category("Bubble Overlay")
 @export_range(0.001, 0.1, 0.001) var bubble_waterline_fade: float = 0.012
@@ -36,6 +38,7 @@ signal greatfin_pickup_requested(pickup_type_id: StringName)
 @onready var _conch_pulse: CotcConchPulse = %ConchPulse
 @onready var _exit_surface_splash: CotcSurfaceSplash = %ExitSurfaceSplash
 @onready var _entry_surface_splash: CotcSurfaceSplash = %EntrySurfaceSplash
+@onready var _whale_travel: CotcWhaleTravel = $WhaleTravel
 
 var _active: bool = false
 var _bubble_material: ShaderMaterial
@@ -53,10 +56,17 @@ func _ready() -> void:
 	_hylas.normal_conch_used.connect(_on_hylas_normal_conch_used)
 	_hylas.surface_splash_requested.connect(_on_hylas_surface_splash_requested)
 	_conch_pulse.target_hit.connect(_on_conch_pulse_target_hit)
+	_whale_travel.interaction_availability_changed.connect(_on_whale_interaction_availability_changed)
+	_whale_travel.travel_requested.connect(_on_whale_travel_requested)
+	if _hylas.has_signal(&"interaction_requested"):
+		var interaction_callback: Callable = Callable(self, "_on_hylas_interaction_requested")
+		if not _hylas.is_connected(&"interaction_requested", interaction_callback):
+			_hylas.connect(&"interaction_requested", interaction_callback)
 	_prepare_bubble_material()
 	configure_player()
 	_connect_spawn_checkpoints()
 	_connect_runtime_state_sources()
+	_set_hylas_interaction_available(false)
 	deactivate()
 
 
@@ -108,6 +118,7 @@ func activate(spawn_point_id: StringName = &"") -> void:
 	if _game_state != null:
 		_game_state.set_checkpoint(LEVEL_ID, _active_spawn_point_id)
 	_hylas.set_play_enabled(true)
+	_set_hylas_interaction_available(_whale_travel.is_hylas_in_interaction_range())
 	_play_underwater_ambience()
 	_bubble_waterline_update_elapsed = 0.0
 	_update_bubble_waterline_mask()
@@ -122,6 +133,7 @@ func deactivate() -> void:
 	_respawn_pending = false
 	set_process(false)
 	_bubble_waterline_update_elapsed = 0.0
+	_set_hylas_interaction_available(false)
 	_hylas.set_play_enabled(false)
 	_underwater_ambience.stop()
 	_bubble_overlay.stop()
@@ -138,13 +150,29 @@ func activate_checkpoint(spawn_point_id: StringName) -> void:
 	_active_spawn_point_id = resolved_id
 	if _game_state != null:
 		_game_state.set_checkpoint(LEVEL_ID, resolved_id)
-		_game_state.unlock_whale_ground(resolved_id)
+		if resolved_id == WHALE_GROUND_SPAWN_POINT_ID:
+			_game_state.register_whale_ground(resolved_id)
+
+
+func complete_death_respawn() -> void:
+	if not _active or not _respawn_pending or _game_state == null:
+		return
+	_active_spawn_point_id = WHALE_GROUND_SPAWN_POINT_ID
+	_game_state.respawn_after_defeat(LEVEL_ID, WHALE_GROUND_SPAWN_POINT_ID)
+	_hylas.reset_to_start(_resolve_spawn_position(_active_spawn_point_id))
+	_last_damage_time_msec = Time.get_ticks_msec()
+	_hylas.set_play_enabled(true)
+	_respawn_pending = false
+
+
+func is_death_sequence_pending() -> bool:
+	return _respawn_pending
 
 
 func _resolve_spawn_point_id(requested_id: StringName) -> StringName:
 	if String(requested_id).is_empty():
 		return DEFAULT_SPAWN_POINT_ID
-	if requested_id == DEFAULT_SPAWN_POINT_ID:
+	if requested_id == DEFAULT_SPAWN_POINT_ID or requested_id == WHALE_GROUND_SPAWN_POINT_ID:
 		return requested_id
 	for checkpoint: Node in get_tree().get_nodes_in_group(&"cotc_spawn_point"):
 		if not is_ancestor_of(checkpoint):
@@ -158,6 +186,8 @@ func _resolve_spawn_point_id(requested_id: StringName) -> StringName:
 func _resolve_spawn_position(spawn_point_id: StringName) -> Vector2:
 	if spawn_point_id == DEFAULT_SPAWN_POINT_ID:
 		return _start_marker.global_position
+	if spawn_point_id == WHALE_GROUND_SPAWN_POINT_ID:
+		return _whale_travel.global_position
 	for checkpoint: Node in get_tree().get_nodes_in_group(&"cotc_spawn_point"):
 		if not is_ancestor_of(checkpoint):
 			continue
@@ -221,7 +251,7 @@ func _apply_persistent_world_state() -> void:
 
 
 func _on_damage_requested(hylas_body: Node, amount: int) -> void:
-	if not _active or _game_state == null or hylas_body == null:
+	if not _active or _game_state == null or hylas_body == null or _respawn_pending:
 		return
 	if hylas_body != _hylas and not hylas_body.is_in_group(&"hylas"):
 		return
@@ -229,8 +259,9 @@ func _on_damage_requested(hylas_body: Node, amount: int) -> void:
 	var immunity_msec: int = roundi(maxf(0.0, damage_invulnerability_seconds) * 1000.0)
 	if now_msec - _last_damage_time_msec < immunity_msec:
 		return
+	var greatfin_was_active: bool = _game_state.greatfin_active
 	var applied_damage: int = _game_state.damage_fins(amount)
-	if applied_damage <= 0:
+	if applied_damage <= 0 and not greatfin_was_active:
 		return
 	_last_damage_time_msec = now_msec
 	if _hylas.has_method(&"play_fin_loss_sound"):
@@ -261,6 +292,13 @@ func _on_food_pickup_collected(
 	if _game_state.is_pickup_collected(persistent_id):
 		return
 
+	if activates_greatfin:
+		var activated: bool = _game_state.use_crown_sea_grapes(duplicate_crown_sea_grapes_onos)
+		if activated:
+			greatfin_pickup_requested.emit(pickup_type_id)
+		_game_state.mark_pickup_collected(persistent_id)
+		return
+
 	var healed_fins: int = 0
 	if restores_full:
 		healed_fins = _game_state.restore_fins()
@@ -268,8 +306,6 @@ func _on_food_pickup_collected(
 		healed_fins = _game_state.heal_fins(heal_amount)
 	if healed_fins <= 0 and full_health_onos_value > 0:
 		_game_state.add_onos(full_health_onos_value)
-	if activates_greatfin:
-		greatfin_pickup_requested.emit(pickup_type_id)
 	_game_state.mark_pickup_collected(persistent_id)
 
 
@@ -278,26 +314,42 @@ func _on_game_state_replaced(_reason: StringName) -> void:
 
 
 func _on_player_defeated() -> void:
-	if not _active or not auto_respawn_on_zero_fins or _respawn_pending:
+	if not _active or _respawn_pending or _game_state == null:
 		return
 	_respawn_pending = true
-	call_deferred(&"_respawn_at_tracked_checkpoint")
-
-
-func _respawn_at_tracked_checkpoint() -> void:
-	if not _active or _game_state == null:
-		_respawn_pending = false
-		return
+	_active_spawn_point_id = WHALE_GROUND_SPAWN_POINT_ID
+	_game_state.set_checkpoint(LEVEL_ID, WHALE_GROUND_SPAWN_POINT_ID)
+	_game_state.register_whale_ground(WHALE_GROUND_SPAWN_POINT_ID)
+	_set_hylas_interaction_available(false)
 	_hylas.set_play_enabled(false)
-	_active_spawn_point_id = _resolve_spawn_point_id(_game_state.current_spawn_point_id)
-	if restore_full_fins_on_respawn:
-		_game_state.restore_fins()
-	else:
-		_game_state.set_fin_state(1, _game_state.max_fins)
-	_hylas.reset_to_start(_resolve_spawn_position(_active_spawn_point_id))
-	_last_damage_time_msec = Time.get_ticks_msec()
-	_hylas.set_play_enabled(true)
-	_respawn_pending = false
+	death_sequence_requested.emit()
+
+
+func _on_whale_interaction_availability_changed(is_available: bool) -> void:
+	if not _active:
+		_set_hylas_interaction_available(false)
+		return
+	_set_hylas_interaction_available(is_available)
+	if not is_available or _game_state == null:
+		return
+	activate_checkpoint(WHALE_GROUND_SPAWN_POINT_ID)
+	_game_state.restore_fins()
+
+
+func _set_hylas_interaction_available(is_available: bool) -> void:
+	if _hylas.has_method(&"set_interaction_available"):
+		_hylas.call(&"set_interaction_available", is_available)
+
+
+func _on_hylas_interaction_requested() -> void:
+	if not _active or _respawn_pending:
+		return
+	if _whale_travel.is_hylas_in_interaction_range():
+		_whale_travel.request_travel()
+
+
+func _on_whale_travel_requested() -> void:
+	whale_travel_requested.emit()
 
 
 func _prepare_bubble_material() -> void:
@@ -381,9 +433,11 @@ func get_debug_lines() -> Array[String]:
 		"bubble_waterline_update_interval=%.2f" % bubble_waterline_update_interval,
 		"ambience_playing=%s" % str(_underwater_ambience.playing),
 		"respawn_pending=%s" % str(_respawn_pending),
+		"whale_interaction_available=%s" % str(_whale_travel.is_hylas_in_interaction_range()),
 	]
 	if _game_state != null:
 		lines.append("fins=%d/%d" % [_game_state.current_fins, _game_state.max_fins])
+		lines.append("greatfin_active=%s" % str(_game_state.greatfin_active))
 		lines.append("onos=%d" % _game_state.onos)
 		lines.append("collected_pickups=%d" % _game_state.collected_pickups.size())
 	lines.append_array(_conch_pulse.get_debug_lines())
