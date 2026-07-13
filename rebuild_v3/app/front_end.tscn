@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://7k4ddbc2l7bd"]
+[gd_scene load_steps=12 format=3 uid="uid://7k4ddbc2l7bd"]
 
 [ext_resource type="Script" uid="uid://dhpmytmlonihe" path="res://rebuild_v3/app/root_context.gd" id="1"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/menu/menu_context.tscn" id="2"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://rebuild_v3/app/services/save_service.gd" id="8_save_service"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/continue/continue_context.tscn" id="9_continue_context"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/intro/intro_context.tscn" id="10_intro_context"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/app/loading/loading_overlay.tscn" id="11_loading_overlay"]
 
 [node name="FrontEnd" type="Node" unique_id=1490050788]
 script = ExtResource("1")
@@ -51,6 +52,9 @@ unique_name_in_owner = true
 layer = 120
 
 [node name="IntroContext" parent="IntroLayer" instance=ExtResource("10_intro_context")]
+unique_name_in_owner = true
+
+[node name="LoadingOverlay" parent="." instance=ExtResource("11_loading_overlay")]
 unique_name_in_owner = true
 
 [node name="DeveloperAdminPanel" parent="." unique_id=1902729462 instance=ExtResource("4")]
