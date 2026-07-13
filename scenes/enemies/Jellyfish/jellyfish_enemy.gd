@@ -342,8 +342,6 @@ func _damage_touching_hylas_if_needed() -> void:
 		if body.is_in_group(&"hylas"):
 			_last_damage_time = now
 			damage_requested.emit(body, damage_amount)
-			if body.has_method(&"play_fin_loss_sound"):
-				body.call(&"play_fin_loss_sound")
 			return
 
 
