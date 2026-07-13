@@ -11,7 +11,7 @@ const BURST_FINISH_FRAME_DURATION: float = 0.10
 const IDLE_ANIMATION_FPS: float = 2.50
 const TAIL_FLIP_ANIMATION_FPS: float = 10.0
 const TAIL_FLIP_GAMEPLAY_DURATION: float = 1.0
-const CONCH_ANIMATION_FPS: float = 9.0
+const CONCH_ANIMATION_FPS: float = 18.0
 const CONCH_GAMEPLAY_DURATION: float = 10.0 / CONCH_ANIMATION_FPS
 const STOP_ANIMATION_FPS: float = 9.0
 
@@ -20,6 +20,9 @@ const STOP_ANIMATION_FPS: float = 9.0
 @export var tail_flip_collision_shape: Shape2D
 @export var conch_collision_shape: Shape2D
 @export var stop_collision_shape: Shape2D
+
+@export_category("Conch Steering")
+@export_range(10.0, 180.0, 1.0) var conch_steer_speed_degrees: float = 90.0
 
 var _stop_pose_held: bool = false
 var _collision_profile_name: StringName = &"default"
@@ -145,6 +148,30 @@ func _physics_process(delta: float) -> void:
 	_update_stop_pose_hold()
 	_update_burst_presentation()
 	_apply_collision_profile(_animated_sprite.animation)
+
+
+func _update_conch(delta: float) -> void:
+	_conch_remaining = maxf(0.0, _conch_remaining - delta)
+	_special_velocity = _special_velocity.move_toward(
+		Vector2.ZERO,
+		idle_momentum_deceleration * delta,
+	)
+
+	var vertical_input: float = Input.get_axis(&"move_up", &"move_down")
+	if absf(vertical_input) > 0.01:
+		var vertical_axis: float = -1.0 if vertical_input < 0.0 else 1.0
+		var facing_axis: float = -1.0 if _facing_left else 1.0
+		var target_rotation: float = (
+			vertical_axis
+			* facing_axis
+			* deg_to_rad(conch_direction_angle_degrees)
+		)
+		var rotation_step: float = deg_to_rad(conch_steer_speed_degrees) * delta
+		_set_visual_rotation(move_toward(_visual_rotation, target_rotation, rotation_step))
+
+	if _conch_remaining <= 0.0:
+		_set_visual_rotation(0.0)
+		_set_animation(&"idle")
 
 
 func _set_animation(animation_name: StringName) -> void:
