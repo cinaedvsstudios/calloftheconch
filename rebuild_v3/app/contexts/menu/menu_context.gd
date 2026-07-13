@@ -40,6 +40,7 @@ func _ready() -> void:
 	_main_music.process_mode = Node.PROCESS_MODE_ALWAYS
 	_impact_audio.process_mode = Node.PROCESS_MODE_ALWAYS
 	_menu_action_audio.process_mode = Node.PROCESS_MODE_ALWAYS
+	_set_menu_buttons_interactive()
 	_start_button.pressed.connect(_on_start_button_pressed)
 	_load_save_button.pressed.connect(_on_load_save_button_pressed)
 	_settings_button.pressed.connect(_on_settings_button_pressed)
@@ -178,6 +179,21 @@ func _kill_intro_tweens() -> void:
 	_title_tween = null
 	_button_tween = null
 	_pulse_tween = null
+
+
+func _set_menu_buttons_interactive() -> void:
+	_menu_buttons.mouse_filter = Control.MOUSE_FILTER_PASS
+	var buttons: Array[BaseButton] = [
+		_start_button,
+		_load_save_button,
+		_settings_button,
+	]
+	for button: BaseButton in buttons:
+		button.disabled = false
+		button.mouse_filter = Control.MOUSE_FILTER_STOP
+		for child: Node in button.get_children():
+			if child is Control:
+				(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _play_menu_action_sound() -> void:
