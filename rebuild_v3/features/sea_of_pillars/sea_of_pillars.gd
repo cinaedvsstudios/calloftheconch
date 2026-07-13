@@ -59,6 +59,10 @@ func configure_player() -> void:
 	_hylas.configure_world(world_bounds, _waterline_marker.global_position.y, _start_marker.global_position)
 
 
+func set_screen_shake_scale(value: float) -> void:
+	_hylas.set_camera_shake_scale(value)
+
+
 func activate() -> void:
 	_active = true
 	show()
