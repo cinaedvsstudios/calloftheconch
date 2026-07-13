@@ -1,17 +1,17 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene format=3 uid="uid://ja6ffolmb7fl"]
 
-[ext_resource type="Script" path="res://rebuild_v3/app/contexts/menu/menu_context.gd" id="1_controller"]
-[ext_resource type="VideoStream" path="res://assets/ui/Titlevideo.ogv" id="2_title_video"]
-[ext_resource type="Texture2D" path="res://assets/ui/title.png" id="3_title"]
-[ext_resource type="AudioStream" path="res://assets/audio/call of the conch music main theme.mp3" id="4_music"]
-[ext_resource type="Script" path="res://rebuild_v3/shared/looping_audio_player.gd" id="5_looping_audio"]
-[ext_resource type="VideoStream" path="res://assets/effects/echopulse.ogv" id="6_echo_pulse"]
-[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="7_screen_shader"]
-[ext_resource type="AudioStream" path="res://assets/audio/impact.mp3" id="8_impact_audio"]
-[ext_resource type="Texture2D" path="res://assets/ui/button1.webp" id="9_button_1"]
-[ext_resource type="Texture2D" path="res://assets/ui/button2.webp" id="10_button_2"]
-[ext_resource type="Texture2D" path="res://assets/ui/button3.webp" id="11_button_3"]
-[ext_resource type="AudioStream" path="res://assets/audio/Super Conch_noise.mp3" id="12_menu_action_audio"]
+[ext_resource type="Script" uid="uid://cgfbnv3ssp7w" path="res://rebuild_v3/app/contexts/menu/menu_context.gd" id="1_controller"]
+[ext_resource type="VideoStream" uid="uid://cxfnyorxmx67y" path="res://assets/ui/Titlevideo.ogv" id="2_title_video"]
+[ext_resource type="Texture2D" uid="uid://dudwepwrgft52" path="res://assets/ui/title.png" id="3_title"]
+[ext_resource type="AudioStream" uid="uid://wfhcb2xwhdko" path="res://assets/audio/call of the conch music main theme.mp3" id="4_music"]
+[ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="5_looping_audio"]
+[ext_resource type="VideoStream" uid="uid://wtp4swvkaofx" path="res://assets/effects/echopulse.ogv" id="6_echo_pulse"]
+[ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="7_screen_shader"]
+[ext_resource type="AudioStream" uid="uid://f6k652io5xma" path="res://assets/audio/impact.mp3" id="8_impact_audio"]
+[ext_resource type="Texture2D" uid="uid://bidsot2cuq0bh" path="res://assets/ui/button1.webp" id="9_button_1"]
+[ext_resource type="Texture2D" uid="uid://doww3wj6jisnv" path="res://assets/ui/button2.webp" id="10_button_2"]
+[ext_resource type="Texture2D" uid="uid://dwoos056r3dsd" path="res://assets/ui/button3.webp" id="11_button_3"]
+[ext_resource type="AudioStream" uid="uid://dyorkgg3nkflx" path="res://assets/audio/Super Conch_noise.mp3" id="12_menu_action_audio"]
 
 [sub_resource type="ShaderMaterial" id="EchoPulseMaterial"]
 shader = ExtResource("7_screen_shader")
@@ -22,24 +22,12 @@ shader_parameter/waterline_screen_y = -1.0
 shader_parameter/waterline_fade = 0.012
 
 [sub_resource type="StyleBoxFlat" id="CloseNormal"]
-bg_color = Color(0.015, 0.045, 0.10, 0.56)
+bg_color = Color(0.015, 0.045, 0.1, 0.56)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.24, 0.58, 0.78, 0.72)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_right = 28
-corner_radius_bottom_left = 28
-
-[sub_resource type="StyleBoxFlat" id="CloseHover"]
-bg_color = Color(0.03, 0.12, 0.22, 0.82)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.48, 0.82, 0.96, 0.95)
 corner_radius_top_left = 28
 corner_radius_top_right = 28
 corner_radius_bottom_right = 28
@@ -57,7 +45,19 @@ corner_radius_top_right = 28
 corner_radius_bottom_right = 28
 corner_radius_bottom_left = 28
 
-[node name="MenuContext" type="Control"]
+[sub_resource type="StyleBoxFlat" id="CloseHover"]
+bg_color = Color(0.03, 0.12, 0.22, 0.82)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.48, 0.82, 0.96, 0.95)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[node name="MenuContext" type="Control" unique_id=1545632250]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -66,7 +66,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_controller")
 
-[node name="BackgroundVideo" type="VideoStreamPlayer" parent="."]
+[node name="BackgroundVideo" type="VideoStreamPlayer" parent="." unique_id=1245706578]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -77,22 +77,22 @@ grow_vertical = 2
 mouse_filter = 2
 stream = ExtResource("2_title_video")
 volume_db = -80.0
-loop = true
 expand = true
+loop = true
 
-[node name="Shade" type="ColorRect" parent="."]
+[node name="Shade" type="ColorRect" parent="." unique_id=452517562]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+scale = Vector2(1.2, 1.2)
 mouse_filter = 2
 color = Color(0.005, 0.018, 0.055, 0.24)
 
-[node name="Title" type="TextureRect" parent="."]
+[node name="Title" type="TextureRect" parent="." unique_id=1901057130]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -106,27 +106,30 @@ offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 2
 pivot_offset = Vector2(390, 120)
+mouse_filter = 2
 texture = ExtResource("3_title")
 expand_mode = 1
 stretch_mode = 5
-mouse_filter = 2
 
-[node name="EchoPulse" type="VideoStreamPlayer" parent="."]
+[node name="EchoPulse" type="VideoStreamPlayer" parent="." unique_id=355966372]
 unique_name_in_owner = true
-visible = false
+material = SubResource("EchoPulseMaterial")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -10.0
+offset_top = -140.0
+offset_right = -10.0
+offset_bottom = -140.0
 grow_horizontal = 2
 grow_vertical = 2
-material = SubResource("EchoPulseMaterial")
 mouse_filter = 2
 stream = ExtResource("6_echo_pulse")
 volume_db = -80.0
 expand = true
 
-[node name="MenuButtons" type="VBoxContainer" parent="."]
+[node name="MenuButtons" type="VBoxContainer" parent="." unique_id=1630267178]
 unique_name_in_owner = true
 modulate = Color(1, 1, 1, 0)
 layout_mode = 1
@@ -135,96 +138,110 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -215.0
-offset_top = 35.0
-offset_right = 215.0
-offset_bottom = 325.0
+offset_left = -250.0
+offset_top = -47.5
+offset_right = 250.0
+offset_bottom = 335.5
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 4
 
-[node name="StartButton" type="TextureButton" parent="MenuButtons"]
+[node name="StartButton" type="TextureButton" parent="MenuButtons" unique_id=93302389]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(430, 92)
+custom_minimum_size = Vector2(500, 125)
 layout_mode = 2
+disabled = true
 texture_normal = ExtResource("9_button_1")
-texture_hover = ExtResource("9_button_1")
 texture_pressed = ExtResource("9_button_1")
+texture_hover = ExtResource("9_button_1")
 ignore_texture_size = true
-stretch_mode = 0
+stretch_mode = 5
 
-[node name="Label" type="Label" parent="MenuButtons/StartButton"]
+[node name="Label" type="Label" parent="MenuButtons/StartButton" unique_id=1184672102]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 4.0
+offset_bottom = 4.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.9, 0.96, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0.02, 0.08, 0.95)
+theme_override_colors/font_color = Color(0.8901961, 0.88235295, 0.88235295, 0.78431374)
+theme_override_colors/font_shadow_color = Color(0.28224933, 0.28224933, 0.28224933, 0.78431374)
+theme_override_colors/font_outline_color = Color(0.35686275, 0.35686275, 0.35686275, 0.5882353)
 theme_override_constants/shadow_offset_x = 3
 theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 1
 theme_override_font_sizes/font_size = 29
 text = "START"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="LoadSaveButton" type="TextureButton" parent="MenuButtons"]
+[node name="LoadSaveButton" type="TextureButton" parent="MenuButtons" unique_id=1419954387]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(430, 82)
+custom_minimum_size = Vector2(500, 125)
 layout_mode = 2
+disabled = true
 texture_normal = ExtResource("10_button_2")
-texture_hover = ExtResource("10_button_2")
 texture_pressed = ExtResource("10_button_2")
+texture_hover = ExtResource("10_button_2")
 ignore_texture_size = true
-stretch_mode = 0
+stretch_mode = 5
 
-[node name="Label" type="Label" parent="MenuButtons/LoadSaveButton"]
+[node name="Label" type="Label" parent="MenuButtons/LoadSaveButton" unique_id=193348975]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -6.0
+offset_right = -2.0
+offset_bottom = -6.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.9, 0.96, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0.02, 0.08, 0.95)
+theme_override_colors/font_color = Color(0.82378095, 0.8263858, 0.82812244, 0.78431374)
+theme_override_colors/font_shadow_color = Color(0.2937414, 0.2937414, 0.2937414, 0.78431374)
+theme_override_colors/font_outline_color = Color(0.33970964, 0.33970964, 0.33970964, 0.5882353)
 theme_override_constants/shadow_offset_x = 3
 theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 1
 theme_override_font_sizes/font_size = 27
 text = "LOAD / SAVE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="SettingsButton" type="TextureButton" parent="MenuButtons"]
+[node name="SettingsButton" type="TextureButton" parent="MenuButtons" unique_id=68017829]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(430, 92)
+custom_minimum_size = Vector2(500, 125)
 layout_mode = 2
+disabled = true
 texture_normal = ExtResource("11_button_3")
-texture_hover = ExtResource("11_button_3")
 texture_pressed = ExtResource("11_button_3")
+texture_hover = ExtResource("11_button_3")
 ignore_texture_size = true
-stretch_mode = 0
+stretch_mode = 5
 
-[node name="Label" type="Label" parent="MenuButtons/SettingsButton"]
+[node name="Label" type="Label" parent="MenuButtons/SettingsButton" unique_id=1797160438]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = -8.0
+offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.9, 0.96, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0.02, 0.08, 0.95)
+theme_override_colors/font_color = Color(0.91431296, 0.91431296, 0.91431296, 0.7921569)
+theme_override_colors/font_shadow_color = Color(0.40866202, 0.40866202, 0.40866202, 0.78431374)
+theme_override_colors/font_outline_color = Color(0.38431373, 0.38431373, 0.38431373, 0.57254905)
 theme_override_constants/shadow_offset_x = 3
 theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 1
 theme_override_font_sizes/font_size = 27
 text = "SETTINGS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ExitButton" type="Button" parent="."]
+[node name="ExitButton" type="Button" parent="." unique_id=1497685008]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
@@ -239,23 +256,23 @@ theme_override_colors/font_color = Color(0.88, 0.96, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("CloseNormal")
-theme_override_styles/hover = SubResource("CloseHover")
 theme_override_styles/pressed = SubResource("ClosePressed")
+theme_override_styles/hover = SubResource("CloseHover")
 theme_override_styles/focus = SubResource("CloseHover")
 text = "×"
 
-[node name="MainMusic" type="AudioStreamPlayer" parent="."]
+[node name="MainMusic" type="AudioStreamPlayer" parent="." unique_id=1708280768]
 unique_name_in_owner = true
 stream = ExtResource("4_music")
 volume_db = -8.0
 script = ExtResource("5_looping_audio")
 
-[node name="ImpactAudio" type="AudioStreamPlayer" parent="."]
+[node name="ImpactAudio" type="AudioStreamPlayer" parent="." unique_id=322511680]
 unique_name_in_owner = true
 stream = ExtResource("8_impact_audio")
 volume_db = -3.0
 
-[node name="MenuActionAudio" type="AudioStreamPlayer" parent="."]
+[node name="MenuActionAudio" type="AudioStreamPlayer" parent="." unique_id=163569877]
 unique_name_in_owner = true
 stream = ExtResource("12_menu_action_audio")
 volume_db = -7.0

@@ -52,6 +52,9 @@
 [ext_resource type="PackedScene" path="res://scenes/objects/FishSchool/fish_school.tscn" id="51_q5obt"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/Shark/shark_enemy.tscn" id="52_tp4nf"]
 [ext_resource type="Texture2D" uid="uid://digvpvpifh44s" path="res://assets/backgrounds/rock6.webp" id="53_ngk3e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/Jellyfish/jellyfish_enemy.tscn" id="53_q5obt"]
+[ext_resource type="PackedScene" path="res://scenes/objects/Pickups/food_scavenged_fish2_pickup.tscn" id="54_ngk3e"]
+[ext_resource type="PackedScene" path="res://scenes/objects/Pickups/food_scavenged_fish_pickup.tscn" id="55_nlqq6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_y7jcd"]
 
@@ -1011,7 +1014,7 @@ texture = ExtResource("23_rgyev")
 scale = Vector2(0.97703815, 0.9683255)
 
 [node name="Boulder" parent="TerrainArtLayer/ground/Vents" unique_id=1809975598 instance=ExtResource("20_3osi6")]
-position = Vector2(6960.8345, 2337.0242)
+position = Vector2(7020.197, 2353.5476)
 scale = Vector2(0.15864274, 0.16007014)
 kick_speed = 675.0
 drift_gravity = 190.0
@@ -2301,3 +2304,128 @@ position = Vector2(10498, 4848.001)
 rotation = 2.6179938
 scale = Vector2(1, 1.1343286)
 texture = ExtResource("20_025dw")
+
+[node name="JellyfishEnemy" parent="." unique_id=1502890757 instance=ExtResource("53_q5obt")]
+position = Vector2(7574, 3616)
+scale = Vector2(0.25, 0.25)
+
+[node name="JellyfishEnemy20" parent="." unique_id=1123693362 instance=ExtResource("53_q5obt")]
+position = Vector2(7654, 2464)
+scale = Vector2(0.2, 0.2)
+
+[node name="JellyfishEnemy2" parent="." unique_id=833525712 instance=ExtResource("53_q5obt")]
+position = Vector2(9747, 4171)
+scale = Vector2(0.25, 0.25)
+
+[node name="JellyfishEnemy3" parent="." unique_id=1989864905 instance=ExtResource("53_q5obt")]
+position = Vector2(11732, 5226)
+scale = Vector2(0.25, 0.25)
+
+[node name="JellyfishEnemy4" parent="." unique_id=1118004666 instance=ExtResource("53_q5obt")]
+position = Vector2(11724, 3265)
+scale = Vector2(0.25, 0.25)
+
+[node name="JellyfishEnemy5" parent="." unique_id=300855681 instance=ExtResource("53_q5obt")]
+position = Vector2(13217, 4027)
+scale = Vector2(0.25, 0.25)
+
+[node name="JellyfishEnemy6" parent="." unique_id=405010931 instance=ExtResource("53_q5obt")]
+position = Vector2(15859, 3430)
+scale = Vector2(0.25, 0.25)
+
+[node name="JellyfishEnemy7" parent="." unique_id=957514951 instance=ExtResource("53_q5obt")]
+position = Vector2(16426, 5868)
+scale = Vector2(0.25, 0.25)
+
+[node name="JellyfishEnemy8" parent="." unique_id=1270485025 instance=ExtResource("53_q5obt")]
+position = Vector2(15331, 6148)
+scale = Vector2(0.25, 0.25)
+
+[node name="JellyfishEnemy9" parent="." unique_id=889607090 instance=ExtResource("53_q5obt")]
+position = Vector2(21663, 7299)
+scale = Vector2(0.25, 0.25)
+
+[node name="JellyfishEnemy10" parent="." unique_id=219025418 instance=ExtResource("53_q5obt")]
+position = Vector2(20452, 6605)
+scale = Vector2(0.25, 0.25)
+
+[node name="JellyfishEnemy11" parent="." unique_id=2018799011 instance=ExtResource("53_q5obt")]
+position = Vector2(24116, 2838)
+scale = Vector2(0.25, 0.25)
+
+[node name="JellyfishEnemy12" parent="." unique_id=67983829 instance=ExtResource("53_q5obt")]
+position = Vector2(24730, 2783)
+scale = Vector2(0.2, 0.2)
+
+[node name="JellyfishEnemy13" parent="." unique_id=339924123 instance=ExtResource("53_q5obt")]
+position = Vector2(24437, 3123)
+scale = Vector2(0.3, 0.3)
+
+[node name="JellyfishEnemy14" parent="." unique_id=500877610 instance=ExtResource("53_q5obt")]
+position = Vector2(20727, 2892.0002)
+scale = Vector2(0.3, 0.3)
+
+[node name="JellyfishEnemy15" parent="." unique_id=1678178999 instance=ExtResource("53_q5obt")]
+position = Vector2(20609, 3268)
+scale = Vector2(0.2, 0.2)
+
+[node name="JellyfishEnemy16" parent="." unique_id=1653693894 instance=ExtResource("53_q5obt")]
+position = Vector2(20398, 2986)
+scale = Vector2(0.2, 0.2)
+
+[node name="JellyfishEnemy17" parent="." unique_id=1539109895 instance=ExtResource("53_q5obt")]
+position = Vector2(30516, 3527)
+scale = Vector2(0.2, 0.2)
+
+[node name="JellyfishEnemy18" parent="." unique_id=2076810676 instance=ExtResource("53_q5obt")]
+position = Vector2(30340, 3794)
+scale = Vector2(0.2, 0.2)
+
+[node name="JellyfishEnemy19" parent="." unique_id=1125659541 instance=ExtResource("53_q5obt")]
+position = Vector2(30148, 3426)
+scale = Vector2(0.2, 0.2)
+
+[node name="FoodScavengedFish2Pickup" parent="." unique_id=2076732380 instance=ExtResource("54_ngk3e")]
+position = Vector2(3785, 3300.0002)
+rotation = 0.35833552
+scale = Vector2(0.3, 0.3)
+
+[node name="FoodScavengedFishPickup" parent="." unique_id=1140086037 instance=ExtResource("55_nlqq6")]
+position = Vector2(6020, 3857)
+rotation = -0.7853982
+scale = Vector2(0.3, 0.3)
+
+[node name="FoodScavengedFishPickup7" parent="." unique_id=2023404146 instance=ExtResource("55_nlqq6")]
+position = Vector2(4706.0005, 2979.9998)
+rotation = -0.5235988
+scale = Vector2(0.3, 0.3)
+
+[node name="FoodScavengedFishPickup8" parent="." unique_id=311001233 instance=ExtResource("55_nlqq6")]
+position = Vector2(5346.0005, 3541.0002)
+rotation = 0.5235988
+scale = Vector2(0.3, 0.3)
+
+[node name="FoodScavengedFishPickup2" parent="." unique_id=573103405 instance=ExtResource("55_nlqq6")]
+position = Vector2(7215, 4348)
+rotation = -0.7853982
+scale = Vector2(0.3, 0.3)
+
+[node name="FoodScavengedFishPickup3" parent="." unique_id=1397396367 instance=ExtResource("55_nlqq6")]
+position = Vector2(9249, 2709)
+rotation = -0.7853982
+scale = Vector2(0.3, 0.3)
+
+[node name="FoodScavengedFishPickup4" parent="." unique_id=111345090 instance=ExtResource("55_nlqq6")]
+position = Vector2(11300.001, 3887)
+rotation = 0.2617994
+scale = Vector2(0.3, 0.3)
+
+[node name="FoodScavengedFishPickup5" parent="." unique_id=694172723 instance=ExtResource("55_nlqq6")]
+position = Vector2(11424.999, 6676)
+rotation = 0.2617994
+scale = Vector2(0.3, 0.3)
+
+[node name="FoodScavengedFishPickup6" parent="." unique_id=1847681724 instance=ExtResource("55_nlqq6")]
+position = Vector2(15271, 7646)
+rotation = -0.5235988
+scale = Vector2(0.3, 0.3)
