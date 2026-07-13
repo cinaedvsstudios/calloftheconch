@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/menu/menu_context.gd" id="1_controller"]
 [ext_resource type="VideoStream" path="res://assets/ui/Titlevideo.ogv" id="2_title_video"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/button1.webp" id="9_button_1"]
 [ext_resource type="Texture2D" path="res://assets/ui/button2.webp" id="10_button_2"]
 [ext_resource type="Texture2D" path="res://assets/ui/button3.webp" id="11_button_3"]
+[ext_resource type="AudioStream" path="res://assets/audio/Super Conch_noise.mp3" id="12_menu_action_audio"]
 
 [sub_resource type="ShaderMaterial" id="EchoPulseMaterial"]
 shader = ExtResource("7_screen_shader")
@@ -253,3 +254,8 @@ script = ExtResource("5_looping_audio")
 unique_name_in_owner = true
 stream = ExtResource("8_impact_audio")
 volume_db = -3.0
+
+[node name="MenuActionAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("12_menu_action_audio")
+volume_db = -7.0
