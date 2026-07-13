@@ -174,9 +174,16 @@ func _select_index(index: int) -> void:
 	for row_index: int in range(_save_rows.size()):
 		var selected: bool = row_index == _selected_index
 		_save_rows[row_index].modulate = Color(1.0, 0.90, 0.55, 1.0) if selected else Color(0.86, 0.91, 0.96, 0.92)
-		_save_rows[row_index].button_pressed = selected
 	_set_action_buttons_enabled(true)
-	_save_scroll.ensure_control_visible(_save_rows[_selected_index])
+	call_deferred(&"_ensure_selected_visible")
+
+
+func _ensure_selected_visible() -> void:
+	if not _active or _selected_index < 0 or _selected_index >= _save_rows.size():
+		return
+	var selected_row: Button = _save_rows[_selected_index]
+	if is_instance_valid(selected_row):
+		_save_scroll.ensure_control_visible(selected_row)
 
 
 func _set_action_buttons_enabled(enabled: bool) -> void:
