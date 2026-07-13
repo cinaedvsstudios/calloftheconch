@@ -3,6 +3,8 @@ extends Node
 
 signal settings_requested
 signal menu_requested
+signal death_sequence_requested
+signal whale_travel_requested
 
 @onready var _level: CotcSeaOfPillars = %SeaOfPillars
 @onready var _sea_environment: Node2D = $SeaEnvironment
@@ -20,6 +22,8 @@ func _ready() -> void:
 	_gameplay_music.process_mode = Node.PROCESS_MODE_ALWAYS
 	_pause_overlay.settings_requested.connect(_on_pause_settings_requested)
 	_pause_overlay.menu_requested.connect(_on_pause_menu_requested)
+	_level.death_sequence_requested.connect(_on_level_death_sequence_requested)
+	_level.whale_travel_requested.connect(_on_level_whale_travel_requested)
 	_sea_environment.hide()
 
 
@@ -65,6 +69,14 @@ func is_game_active() -> bool:
 	return _active
 
 
+func is_death_sequence_pending() -> bool:
+	return _level.is_death_sequence_pending()
+
+
+func complete_death_respawn() -> void:
+	_level.complete_death_respawn()
+
+
 func apply_accessibility_settings(show_control_hints: bool, screen_shake_scale: float) -> void:
 	_hint.visible = show_control_hints
 	_level.set_screen_shake_scale(screen_shake_scale)
@@ -103,6 +115,14 @@ func _on_pause_menu_requested() -> void:
 	menu_requested.emit()
 
 
+func _on_level_death_sequence_requested() -> void:
+	death_sequence_requested.emit()
+
+
+func _on_level_whale_travel_requested() -> void:
+	whale_travel_requested.emit()
+
+
 func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = [
 		"[GameplayContext]",
@@ -112,11 +132,13 @@ func get_debug_lines() -> Array[String]:
 		"control_hint_visible=%s" % str(_hint.visible),
 		"music_playing=%s" % str(_gameplay_music.playing),
 		"paused=%s" % str(get_tree().paused),
+		"death_sequence_pending=%s" % str(_level.is_death_sequence_pending()),
 	]
 	if _game_state != null:
 		lines.append("level_id=%s" % String(_game_state.current_level_id))
 		lines.append("spawn_point_id=%s" % String(_game_state.current_spawn_point_id))
 		lines.append("onos=%d" % _game_state.onos)
-		lines.append("inventory_items=%d" % _game_state.inventory.size())
+		lines.append("limited_use_inventory_items=%d" % _game_state.inventory.size())
+		lines.append("permanent_inventory_items=%d" % _game_state.permanent_inventory_items.size())
 	lines.append_array(_level.get_debug_lines())
 	return lines

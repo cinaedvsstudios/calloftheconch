@@ -1,13 +1,20 @@
 extends "res://scenes/characters/Hylas/hylas_land_controller.gd"
 
-## Captures the exact requested chord: hold Shift, then press Space.
-## The chord remains locked for the whole physics frame so neither the normal
-## Shift brake nor the Space conch action can cancel or replace Tail Flip.
+## Owns the timing-sensitive Space input rules. A single Space press uses the
+## nearby interaction, while a second press inside the short window ignores the
+## interaction and fires the conch. Shift+Space remains reserved for Tail Flip.
+
+signal interaction_requested
+signal interaction_availability_changed(is_available: bool)
 
 @export_range(0.0, 200.0, 1.0) var brake_minimum_speed: float = 5.0
+@export_range(0.05, 0.5, 0.01) var interaction_double_tap_window: float = 0.20
 
 var _shift_space_tail_flip_requested: bool = false
 var _tail_flip_chord_active: bool = false
+var _space_action_pressed_this_frame: bool = false
+var _interaction_available: bool = false
+var _pending_interaction_remaining: float = 0.0
 
 
 func _input(event: InputEvent) -> void:
@@ -24,15 +31,17 @@ func _input(event: InputEvent) -> void:
 	if not is_space:
 		return
 
-	# Shift must already be held when the Space key-down event arrives. Check
-	# both the event modifier and the current Shift action so left/right Shift
-	# and keyboard-layout differences cannot prevent the chord.
-	var shift_is_held: bool = key_event.shift_pressed or Input.is_action_pressed(&"action_a") or Input.is_key_pressed(KEY_SHIFT)
-	if not shift_is_held:
+	var shift_is_held: bool = (
+		key_event.shift_pressed
+		or Input.is_action_pressed(&"action_a")
+		or Input.is_key_pressed(KEY_SHIFT)
+	)
+	if shift_is_held:
+		_shift_space_tail_flip_requested = true
+		get_viewport().set_input_as_handled()
 		return
 
-	_shift_space_tail_flip_requested = true
-	get_viewport().set_input_as_handled()
+	_space_action_pressed_this_frame = true
 
 
 func _physics_process(delta: float) -> void:
@@ -42,6 +51,7 @@ func _physics_process(delta: float) -> void:
 	if _tail_flip_chord_active:
 		_brake_active = false
 		_pending_conch_remaining = 0.0
+		_pending_interaction_remaining = 0.0
 		if (
 			not _burst_active
 			and _tail_flip_remaining <= 0.0
@@ -52,7 +62,26 @@ func _physics_process(delta: float) -> void:
 			_start_tail_flip()
 
 	super._physics_process(delta)
+	_update_pending_interaction(delta)
+	_space_action_pressed_this_frame = false
 	_tail_flip_chord_active = false
+
+
+func set_interaction_available(is_available: bool) -> void:
+	if _interaction_available == is_available:
+		return
+	_interaction_available = is_available
+	if not _interaction_available:
+		_pending_interaction_remaining = 0.0
+	interaction_availability_changed.emit(_interaction_available)
+
+
+func is_interaction_available() -> bool:
+	return _interaction_available
+
+
+func cancel_pending_interaction() -> void:
+	_pending_interaction_remaining = 0.0
 
 
 func _is_braking(input_direction: Vector2) -> bool:
@@ -73,7 +102,27 @@ func _has_brakeable_motion() -> bool:
 func _handle_conch_pressed(input_direction: Vector2) -> void:
 	if _tail_flip_chord_active:
 		return
-	super._handle_conch_pressed(input_direction)
+
+	# J and other direct conch bindings bypass interaction routing. Only the raw
+	# Space press recorded in _input() participates in this single/double rule.
+	if not _space_action_pressed_this_frame or not _interaction_available:
+		super._handle_conch_pressed(input_direction)
+		return
+
+	if _pending_interaction_remaining > 0.0:
+		_pending_interaction_remaining = 0.0
+		super._handle_conch_pressed(input_direction)
+		return
+
+	_pending_interaction_remaining = interaction_double_tap_window
+
+
+func _update_pending_interaction(delta: float) -> void:
+	if _pending_interaction_remaining <= 0.0:
+		return
+	_pending_interaction_remaining = maxf(0.0, _pending_interaction_remaining - delta)
+	if _pending_interaction_remaining <= 0.0 and _interaction_available:
+		interaction_requested.emit()
 
 
 func get_debug_lines() -> Array[String]:
@@ -81,4 +130,6 @@ func get_debug_lines() -> Array[String]:
 	lines.append("tail_flip_remaining=%.2f" % _tail_flip_remaining)
 	lines.append("tail_flip_chord_active=%s" % str(_tail_flip_chord_active))
 	lines.append("brakeable_motion=%s" % str(_has_brakeable_motion()))
+	lines.append("interaction_available=%s" % str(_interaction_available))
+	lines.append("pending_interaction=%.2f" % _pending_interaction_remaining)
 	return lines
