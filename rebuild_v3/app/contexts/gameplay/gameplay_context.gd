@@ -22,6 +22,7 @@ var _game_state: CotcGameState
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_gameplay_music.process_mode = Node.PROCESS_MODE_ALWAYS
+	_hint.hide()
 	_pause_overlay.settings_requested.connect(_on_pause_settings_requested)
 	_pause_overlay.menu_requested.connect(_on_pause_menu_requested)
 	_death_overlay.continue_requested.connect(_on_death_continue_requested)
@@ -42,6 +43,7 @@ func activate() -> void:
 	get_tree().paused = false
 	_sea_environment.show()
 	_gameplay_ui.visible = true
+	_hint.hide()
 	_pause_overlay.close_overlay()
 	_death_overlay.close_overlay()
 	if _game_state != null:
@@ -85,8 +87,8 @@ func complete_death_respawn() -> void:
 	_level.complete_death_respawn()
 
 
-func apply_accessibility_settings(show_control_hints: bool, screen_shake_scale: float) -> void:
-	_hint.visible = show_control_hints
+func apply_accessibility_settings(_show_control_hints: bool, screen_shake_scale: float) -> void:
+	_hint.hide()
 	_level.set_screen_shake_scale(screen_shake_scale)
 
 
@@ -163,7 +165,7 @@ func get_debug_lines() -> Array[String]:
 		"active=%s" % str(_active),
 		"environment_visible=%s" % str(_sea_environment.visible),
 		"ui_visible=%s" % str(_gameplay_ui.visible),
-		"control_hint_visible=%s" % str(_hint.visible),
+		"control_hint_visible=false",
 		"music_playing=%s" % str(_gameplay_music.playing),
 		"paused=%s" % str(get_tree().paused),
 		"death_sequence_pending=%s" % str(_level.is_death_sequence_pending()),
