@@ -1,0 +1,249 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/pillars_city/pillars_city.gd" id="1_controller"]
+[ext_resource type="VideoStream" path="res://assets/effects/bubble_riser_field.ogv" id="2_bubbles"]
+[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="3_shader"]
+
+[sub_resource type="ShaderMaterial" id="BubbleMaterial"]
+shader = ExtResource("3_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 3.2
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
+
+[sub_resource type="StyleBoxEmpty" id="HotspotNormal"]
+
+[sub_resource type="StyleBoxFlat" id="HotspotHover"]
+bg_color = Color(0.08, 0.92, 1, 0.10)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.25, 0.95, 1, 0.75)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="LocationPanelStyle"]
+bg_color = Color(0.015, 0.04, 0.09, 0.94)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.42, 0.76, 0.86, 0.8)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+
+[sub_resource type="SystemFont" id="CityFont"]
+font_names = PackedStringArray("Cinzel", "Trajan Pro", "Times New Roman", "Georgia", "Noto Serif")
+font_weight = 600
+
+[node name="PillarsCity" type="CanvasLayer"]
+layer = 10
+process_mode = 3
+script = ExtResource("1_controller")
+
+[node name="FallbackBackground" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.11, 0.25, 1)
+mouse_filter = 2
+
+[node name="CityBackground" type="TextureRect" parent="."]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="BubbleOverlay" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
+material = SubResource("BubbleMaterial")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stream = ExtResource("2_bubbles")
+loop = true
+expand = true
+
+[node name="Hotspots" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ExitGateButton" type="Button" parent="Hotspots"]
+unique_name_in_owner = true
+offset_left = 18.0
+offset_top = 146.0
+offset_right = 318.0
+offset_bottom = 565.0
+focus_neighbor_right = NodePath("../MenuBuildingButton")
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("HotspotNormal")
+theme_override_styles/hover = SubResource("HotspotHover")
+theme_override_styles/pressed = SubResource("HotspotHover")
+theme_override_styles/focus = SubResource("HotspotHover")
+text = ""
+tooltip_text = "Return to The Sea of Pillars"
+
+[node name="MenuBuildingButton" type="Button" parent="Hotspots"]
+unique_name_in_owner = true
+offset_left = 332.0
+offset_top = 265.0
+offset_right = 560.0
+offset_bottom = 545.0
+focus_neighbor_left = NodePath("../ExitGateButton")
+focus_neighbor_right = NodePath("../AgoraButton")
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("HotspotNormal")
+theme_override_styles/hover = SubResource("HotspotHover")
+theme_override_styles/pressed = SubResource("HotspotHover")
+theme_override_styles/focus = SubResource("HotspotHover")
+text = ""
+tooltip_text = "Menu"
+
+[node name="AgoraButton" type="Button" parent="Hotspots"]
+unique_name_in_owner = true
+offset_left = 552.0
+offset_top = 250.0
+offset_right = 760.0
+offset_bottom = 548.0
+focus_neighbor_left = NodePath("../MenuBuildingButton")
+focus_neighbor_right = NodePath("../OracleButton")
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("HotspotNormal")
+theme_override_styles/hover = SubResource("HotspotHover")
+theme_override_styles/pressed = SubResource("HotspotHover")
+theme_override_styles/focus = SubResource("HotspotHover")
+text = ""
+tooltip_text = "The Agora of Myra"
+
+[node name="OracleButton" type="Button" parent="Hotspots"]
+unique_name_in_owner = true
+offset_left = 766.0
+offset_top = 250.0
+offset_right = 992.0
+offset_bottom = 548.0
+focus_neighbor_left = NodePath("../AgoraButton")
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("HotspotNormal")
+theme_override_styles/hover = SubResource("HotspotHover")
+theme_override_styles/pressed = SubResource("HotspotHover")
+theme_override_styles/focus = SubResource("HotspotHover")
+text = ""
+tooltip_text = "The Hieron of the Oracle"
+
+[node name="InteractionHint" type="Label" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -320.0
+offset_top = -52.0
+offset_right = 320.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.85, 0.96, 1, 0.92)
+theme_override_colors/font_outline_color = Color(0, 0.03, 0.09, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Select a doorway with the mouse or arrow keys, then press Space"
+horizontal_alignment = 1
+
+[node name="LocationOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="Shade" type="ColorRect" parent="LocationOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.015, 0.05, 0.72)
+mouse_filter = 0
+
+[node name="Panel" type="PanelContainer" parent="LocationOverlay"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -380.0
+offset_top = -225.0
+offset_right = 380.0
+offset_bottom = 225.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("LocationPanelStyle")
+
+[node name="Margin" type="MarginContainer" parent="LocationOverlay/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 38
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 38
+theme_override_constants/margin_bottom = 30
+
+[node name="Content" type="VBoxContainer" parent="LocationOverlay/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="LocationSign" type="TextureRect" parent="LocationOverlay/Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 145)
+layout_mode = 2
+expand_mode = 3
+stretch_mode = 5
+
+[node name="LocationTitle" type="Label" parent="LocationOverlay/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.92, 0.95, 1)
+theme_override_colors/font_outline_color = Color(0, 0.02, 0.06, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = SubResource("CityFont")
+theme_override_font_sizes/font_size = 31
+text = "THE AGORA OF MYRA"
+horizontal_alignment = 1
+
+[node name="LocationSubtitle" type="Label" parent="LocationOverlay/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.88, 0.94, 1)
+theme_override_font_sizes/font_size = 19
+text = "Trade, supplies and the city’s working marketplace."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ReturnButton" type="Button" parent="LocationOverlay/Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "RETURN TO CITY"
