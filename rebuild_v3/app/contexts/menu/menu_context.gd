@@ -22,6 +22,7 @@ signal exit_requested
 @onready var _menu_buttons: VBoxContainer = %MenuButtons
 @onready var _main_music: AudioStreamPlayer = %MainMusic
 @onready var _impact_audio: AudioStreamPlayer = %ImpactAudio
+@onready var _menu_action_audio: AudioStreamPlayer = %MenuActionAudio
 @onready var _start_button: TextureButton = %StartButton
 @onready var _load_save_button: TextureButton = %LoadSaveButton
 @onready var _settings_button: TextureButton = %SettingsButton
@@ -38,6 +39,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_main_music.process_mode = Node.PROCESS_MODE_ALWAYS
 	_impact_audio.process_mode = Node.PROCESS_MODE_ALWAYS
+	_menu_action_audio.process_mode = Node.PROCESS_MODE_ALWAYS
 	_start_button.pressed.connect(_on_start_button_pressed)
 	_load_save_button.pressed.connect(_on_load_save_button_pressed)
 	_settings_button.pressed.connect(_on_settings_button_pressed)
@@ -55,11 +57,12 @@ func activate() -> void:
 	_start_button.grab_focus()
 
 
-func deactivate() -> void:
+func deactivate(stop_music: bool = true) -> void:
 	_active = false
 	_intro_generation += 1
 	_kill_intro_tweens()
-	_main_music.stop()
+	if stop_music:
+		_main_music.stop()
 	_background_video.stop()
 	_echo_pulse.stop()
 	_echo_pulse.hide()
@@ -177,15 +180,24 @@ func _kill_intro_tweens() -> void:
 	_pulse_tween = null
 
 
+func _play_menu_action_sound() -> void:
+	if _menu_action_audio.stream == null:
+		return
+	_menu_action_audio.stop()
+	_menu_action_audio.play()
+
+
 func _on_echo_pulse_finished() -> void:
 	_echo_pulse.hide()
 
 
 func _on_start_button_pressed() -> void:
+	_play_menu_action_sound()
 	start_game_requested.emit()
 
 
 func _on_load_save_button_pressed() -> void:
+	_play_menu_action_sound()
 	load_save_requested.emit()
 
 
