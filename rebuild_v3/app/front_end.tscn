@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://7k4ddbc2l7bd"]
+[gd_scene load_steps=11 format=3 uid="uid://7k4ddbc2l7bd"]
 
 [ext_resource type="Script" uid="uid://dhpmytmlonihe" path="res://rebuild_v3/app/root_context.gd" id="1"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/menu/menu_context.tscn" id="2"]
@@ -6,18 +6,39 @@
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/developer_admin/developer_admin_panel.tscn" id="4"]
 [ext_resource type="Script" path="res://rebuild_v3/app/services/settings_service.gd" id="5_settings_service"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/settings/settings_context.tscn" id="6_settings_context"]
+[ext_resource type="Script" path="res://rebuild_v3/app/services/game_state.gd" id="7_game_state"]
+[ext_resource type="Script" path="res://rebuild_v3/app/services/save_service.gd" id="8_save_service"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/continue/continue_context.tscn" id="9_continue_context"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/intro/intro_context.tscn" id="10_intro_context"]
 
 [node name="FrontEnd" type="Node" unique_id=1490050788]
 script = ExtResource("1")
+
+[node name="GameState" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("7_game_state")
+
+[node name="SaveService" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("8_save_service")
 
 [node name="SettingsService" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("5_settings_service")
 
+[node name="GameplayContext" parent="." unique_id=1348535612 instance=ExtResource("3")]
+unique_name_in_owner = true
+
 [node name="MenuLayer" type="CanvasLayer" parent="." unique_id=1411222316]
 layer = 100
 
 [node name="MenuContext" parent="MenuLayer" unique_id=412859640 instance=ExtResource("2")]
+unique_name_in_owner = true
+
+[node name="ContinueLayer" type="CanvasLayer" parent="."]
+layer = 105
+
+[node name="ContinueContext" parent="ContinueLayer" instance=ExtResource("9_continue_context")]
 unique_name_in_owner = true
 
 [node name="SettingsLayer" type="CanvasLayer" parent="."]
@@ -26,7 +47,10 @@ layer = 110
 [node name="SettingsContext" parent="SettingsLayer" instance=ExtResource("6_settings_context")]
 unique_name_in_owner = true
 
-[node name="GameplayContext" parent="." unique_id=1348535612 instance=ExtResource("3")]
+[node name="IntroLayer" type="CanvasLayer" parent="."]
+layer = 120
+
+[node name="IntroContext" parent="IntroLayer" instance=ExtResource("10_intro_context")]
 unique_name_in_owner = true
 
 [node name="DeveloperAdminPanel" parent="." unique_id=1902729462 instance=ExtResource("4")]
