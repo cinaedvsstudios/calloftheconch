@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_context.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars.tscn" id="2_level"]
@@ -7,6 +7,8 @@
 [ext_resource type="Script" path="res://rebuild_v3/shared/looping_audio_player.gd" id="5_looping_audio"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_environment.tscn" id="6_environment"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/death_overlay.tscn" id="7_death"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/gameplay_hud.tscn" id="8_hud"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/pillars_city/pillars_city.tscn" id="9_city"]
 
 [node name="GameplayContext" type="Node"]
 script = ExtResource("1_controller")
@@ -15,6 +17,9 @@ script = ExtResource("1_controller")
 unique_name_in_owner = true
 
 [node name="SeaEnvironment" parent="." instance=ExtResource("6_environment")]
+
+[node name="PillarsCity" parent="." instance=ExtResource("9_city")]
+unique_name_in_owner = true
 
 [node name="GameplayMusic" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
@@ -25,11 +30,21 @@ script = ExtResource("5_looping_audio")
 [node name="GameplayUI" type="CanvasLayer" parent="."]
 layer = 20
 
+[node name="GameplayHud" parent="GameplayUI" instance=ExtResource("8_hud")]
+unique_name_in_owner = true
+
 [node name="Hint" type="Label" parent="GameplayUI"]
+visible = false
+anchors_preset = 3
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
 offset_left = 24.0
-offset_top = 22.0
-offset_right = 800.0
-offset_bottom = 54.0
+offset_top = -48.0
+offset_right = -24.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
 theme_override_colors/font_color = Color(0.85, 0.92, 1, 0.9)
 theme_override_font_sizes/font_size = 18
 text = "WASD / arrows: swim | Shift: burst or brake | Space / J: conch | Esc: pause"
