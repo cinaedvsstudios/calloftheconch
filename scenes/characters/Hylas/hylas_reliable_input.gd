@@ -104,6 +104,22 @@ func _physics_process(delta: float) -> void:
 		):
 			_start_tail_flip()
 
+	# Shift by itself owns the stop pose. As soon as any movement direction is
+	# held, that same Shift press becomes the speed-run modifier regardless of
+	# which input was pressed first.
+	var movement_input: Vector2 = Input.get_vector(
+		&"move_left",
+		&"move_right",
+		&"move_up",
+		&"move_down",
+	)
+	if (
+		_brake_active
+		and Input.is_action_pressed(&"action_a")
+		and movement_input.length_squared() > 0.0001
+	):
+		_brake_active = false
+
 	super._physics_process(delta)
 	_update_pending_interaction(delta)
 	_space_action_pressed_this_frame = false
