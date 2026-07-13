@@ -186,6 +186,7 @@ func _on_level_city_entry_requested() -> void:
 	if not _active or _in_city:
 		return
 	_in_city = true
+	_level.activate_checkpoint(CotcSeaOfPillars.CITY_GATE_SPAWN_POINT_ID)
 	_level.deactivate()
 	_sea_environment.hide()
 	_city.activate()
