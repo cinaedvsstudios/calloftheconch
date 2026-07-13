@@ -10,10 +10,6 @@ signal pickup_collected(
 	full_health_onos_value: int,
 )
 
-const PICKUP_FEEDBACK_SCENE: PackedScene = preload(
-	"res://scenes/effects/PickupFeedback/pickup_feedback.tscn"
-)
-
 @export_category("Pickup Identity")
 @export var pickup_type_id: StringName = &"food"
 @export var pickup_instance_id: StringName = &""
@@ -92,17 +88,6 @@ func _collect() -> void:
 		activates_greatfin,
 		full_health_onos_value,
 	)
-	_spawn_pickup_feedback()
-
-
-func _spawn_pickup_feedback() -> void:
-	var feedback: Node = PICKUP_FEEDBACK_SCENE.instantiate()
-	var scene_root: Node = get_tree().current_scene
-	if scene_root == null:
-		scene_root = get_tree().root
-	scene_root.add_child(feedback)
-	if feedback.has_method(&"play_feedback"):
-		feedback.call(&"play_feedback")
 
 
 func _apply_display_scale() -> void:
