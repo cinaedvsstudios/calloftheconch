@@ -198,8 +198,6 @@ func _damage_hylas(hylas_body: Node2D) -> void:
 		return
 	_last_damage_time = now
 	damage_requested.emit(hylas_body, damage_amount)
-	if hylas_body.has_method(&"play_fin_loss_sound"):
-		hylas_body.call(&"play_fin_loss_sound")
 
 
 func _connect_to_level_conch_signal() -> void:

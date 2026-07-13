@@ -26,6 +26,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_gameplay_music.process_mode = Node.PROCESS_MODE_ALWAYS
 	_hint.hide()
+	_pause_overlay.resume_requested.connect(_on_pause_resume_requested)
 	_pause_overlay.settings_requested.connect(_on_pause_settings_requested)
 	_pause_overlay.menu_requested.connect(_on_pause_menu_requested)
 	_death_overlay.continue_requested.connect(_on_death_continue_requested)
@@ -133,6 +134,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+func _on_pause_resume_requested() -> void:
+	if not _active:
+		return
+	get_tree().paused = false
+
+
 func _on_pause_settings_requested() -> void:
 	if not _active:
 		return
@@ -179,6 +186,7 @@ func _on_level_city_entry_requested() -> void:
 	if not _active or _in_city:
 		return
 	_in_city = true
+	_level.activate_checkpoint(CotcSeaOfPillars.CITY_GATE_SPAWN_POINT_ID)
 	_level.deactivate()
 	_sea_environment.hide()
 	_city.activate()
