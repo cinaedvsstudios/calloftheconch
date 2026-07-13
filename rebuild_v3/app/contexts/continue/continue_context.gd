@@ -4,14 +4,41 @@ extends Control
 signal load_requested(save_id: String)
 signal back_requested
 
-const CYAN_GLOW: Color = Color(0.20, 1.0, 1.0, 1.0)
-const SAVE_ROW_TEXT: Color = Color(0.88, 0.95, 1.0, 1.0)
-const SAVE_ROW_BACKGROUND: Color = Color(0.015, 0.045, 0.075, 0.46)
-const SAVE_ROW_SELECTED_BACKGROUND: Color = Color(0.015, 0.16, 0.20, 0.72)
-const SAVE_LIST_WIDTH: float = 320.0
-const SAVE_FRAME_WIDTH: float = 630.0
+@export_category("Save Entry Layout")
+@export_range(120.0, 620.0, 1.0) var save_entry_width: float = 320.0
+@export_range(48.0, 240.0, 1.0) var save_entry_height: float = 112.0
+@export_range(0, 64, 1) var save_entry_spacing: int = 12
+@export_range(0.0, 240.0, 1.0) var save_list_top_margin: float = 86.0
+@export_range(0.0, 240.0, 1.0) var save_list_bottom_margin: float = 112.0
+@export_range(8, 48, 1) var save_entry_font_size: int = 16
+@export var save_entry_content_margins: Vector4 = Vector4(12.0, 8.0, 12.0, 8.0)
+@export_range(0, 40, 1) var save_entry_corner_radius: int = 8
+
+@export_category("Save Entry Colours")
+@export var save_text_color: Color = Color(0.88, 0.95, 1.0, 1.0)
+@export var save_hover_text_color: Color = Color.WHITE
+@export var save_text_shadow_color: Color = Color(0.0, 0.0, 0.0, 0.9)
+@export var save_text_shadow_offset: Vector2i = Vector2i(2, 2)
+@export var save_background_color: Color = Color(0.015, 0.045, 0.075, 0.46)
+@export var save_selected_background_color: Color = Color(0.015, 0.16, 0.20, 0.72)
+@export var save_hover_border_color: Color = Color(0.20, 0.62, 0.68, 0.60)
+@export var save_selected_border_color: Color = Color(0.20, 1.0, 1.0, 1.0)
+@export_range(0, 12, 1) var save_hover_border_width: int = 1
+@export_range(0, 12, 1) var save_selected_border_width: int = 3
+@export var save_selected_glow_color: Color = Color(0.15, 1.0, 1.0, 0.55)
+@export_range(0, 32, 1) var save_selected_glow_size: int = 8
+
+@export_category("Action Button Glow")
+@export var action_glow_outline_color: Color = Color(0.12, 1.0, 1.0, 0.95)
+@export var action_rest_outline_color: Color = Color(0.0, 0.0, 0.0, 0.82)
+@export_range(0, 16, 1) var action_glow_outline_size: int = 7
+@export_range(0, 16, 1) var action_rest_outline_size: int = 2
+@export var action_glow_shadow_color: Color = Color(0.12, 1.0, 1.0, 0.72)
+@export var action_rest_shadow_color: Color = Color(0.0, 0.0, 0.0, 0.9)
+@export var action_rest_shadow_offset: Vector2i = Vector2i(2, 2)
 
 @onready var _water_background: CotcWaterVideoBackground = %WaterVideoBackground
+@onready var _save_frame: TextureRect = $SaveFrame
 @onready var _save_scroll: ScrollContainer = %SaveScroll
 @onready var _save_list: VBoxContainer = %SaveList
 @onready var _empty_label: Label = %EmptyLabel
@@ -29,11 +56,14 @@ var _save_entries: Array[Dictionary] = []
 var _save_rows: Array[Button] = []
 var _selected_index: int = -1
 var _active: bool = false
+var _resolved_save_entry_width: float = 320.0
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_configure_save_list_geometry()
+	if not _save_frame.resized.is_connected(_configure_save_list_geometry):
+		_save_frame.resized.connect(_configure_save_list_geometry)
 	_load_button.pressed.connect(_request_selected_load)
 	_delete_button.pressed.connect(_open_delete_confirmation)
 	_back_button.pressed.connect(_request_back)
@@ -60,6 +90,7 @@ func activate() -> void:
 	_water_background.play_background()
 	_confirm_overlay.hide()
 	_status_label.text = ""
+	_configure_save_list_geometry()
 	_refresh_saves()
 	if _save_entries.is_empty():
 		_back_button.grab_focus()
@@ -101,10 +132,19 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _configure_save_list_geometry() -> void:
-	var side_margin: float = maxf(0.0, (SAVE_FRAME_WIDTH - SAVE_LIST_WIDTH) * 0.5)
+	var frame_width: float = _save_frame.size.x
+	if frame_width <= 0.0:
+		frame_width = absf(_save_frame.offset_right - _save_frame.offset_left)
+	_resolved_save_entry_width = clampf(save_entry_width, 80.0, maxf(80.0, frame_width))
+	var side_margin: float = maxf(0.0, (frame_width - _resolved_save_entry_width) * 0.5)
 	_save_scroll.offset_left = side_margin
 	_save_scroll.offset_right = -side_margin
-	_save_list.custom_minimum_size = Vector2(SAVE_LIST_WIDTH, 0.0)
+	_save_scroll.offset_top = save_list_top_margin
+	_save_scroll.offset_bottom = -save_list_bottom_margin
+	_save_list.custom_minimum_size = Vector2(_resolved_save_entry_width, 0.0)
+	_save_list.add_theme_constant_override(&"separation", save_entry_spacing)
+	for row: Button in _save_rows:
+		row.custom_minimum_size = Vector2(_resolved_save_entry_width, save_entry_height)
 
 
 func _refresh_saves() -> void:
@@ -130,19 +170,19 @@ func _refresh_saves() -> void:
 
 func _create_save_row(save_data: Dictionary, index: int) -> Button:
 	var row: Button = Button.new()
-	row.custom_minimum_size = Vector2(SAVE_LIST_WIDTH, 112.0)
+	row.custom_minimum_size = Vector2(_resolved_save_entry_width, save_entry_height)
 	row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	row.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	row.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	row.focus_mode = Control.FOCUS_NONE
 	row.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	row.add_theme_font_size_override(&"font_size", 16)
-	row.add_theme_color_override(&"font_color", SAVE_ROW_TEXT)
-	row.add_theme_color_override(&"font_hover_color", Color.WHITE)
-	row.add_theme_color_override(&"font_pressed_color", Color.WHITE)
-	row.add_theme_color_override(&"font_shadow_color", Color(0.0, 0.0, 0.0, 0.9))
-	row.add_theme_constant_override(&"shadow_offset_x", 2)
-	row.add_theme_constant_override(&"shadow_offset_y", 2)
+	row.add_theme_font_size_override(&"font_size", save_entry_font_size)
+	row.add_theme_color_override(&"font_color", save_text_color)
+	row.add_theme_color_override(&"font_hover_color", save_hover_text_color)
+	row.add_theme_color_override(&"font_pressed_color", save_hover_text_color)
+	row.add_theme_color_override(&"font_shadow_color", save_text_shadow_color)
+	row.add_theme_constant_override(&"shadow_offset_x", save_text_shadow_offset.x)
+	row.add_theme_constant_override(&"shadow_offset_y", save_text_shadow_offset.y)
 	row.text = _format_save_row(save_data)
 	row.mouse_entered.connect(_on_save_row_hovered.bind(index))
 	row.pressed.connect(_on_save_row_pressed.bind(index))
@@ -177,24 +217,24 @@ func _format_save_row(save_data: Dictionary) -> String:
 
 func _make_save_row_style(selected: bool, hovered: bool = false) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = SAVE_ROW_SELECTED_BACKGROUND if selected else SAVE_ROW_BACKGROUND
-	style.border_color = CYAN_GLOW if selected else Color(0.20, 0.62, 0.68, 0.60 if hovered else 0.22)
-	var border_width: int = 3 if selected else (1 if hovered else 0)
+	style.bg_color = save_selected_background_color if selected else save_background_color
+	style.border_color = save_selected_border_color if selected else save_hover_border_color
+	var border_width: int = save_selected_border_width if selected else (save_hover_border_width if hovered else 0)
 	style.border_width_left = border_width
 	style.border_width_top = border_width
 	style.border_width_right = border_width
 	style.border_width_bottom = border_width
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
-	style.content_margin_left = 12.0
-	style.content_margin_top = 8.0
-	style.content_margin_right = 12.0
-	style.content_margin_bottom = 8.0
+	style.corner_radius_top_left = save_entry_corner_radius
+	style.corner_radius_top_right = save_entry_corner_radius
+	style.corner_radius_bottom_left = save_entry_corner_radius
+	style.corner_radius_bottom_right = save_entry_corner_radius
+	style.content_margin_left = save_entry_content_margins.x
+	style.content_margin_top = save_entry_content_margins.y
+	style.content_margin_right = save_entry_content_margins.z
+	style.content_margin_bottom = save_entry_content_margins.w
 	if selected:
-		style.shadow_color = Color(0.15, 1.0, 1.0, 0.55)
-		style.shadow_size = 8
+		style.shadow_color = save_selected_glow_color
+		style.shadow_size = save_selected_glow_size
 	return style
 
 
@@ -262,15 +302,18 @@ func _refresh_action_button_glow(button: TextureButton) -> void:
 	var active: bool = button.is_hovered() or button.has_focus()
 	label.add_theme_color_override(
 		&"font_outline_color",
-		Color(0.12, 1.0, 1.0, 0.95) if active else Color(0.0, 0.0, 0.0, 0.82),
+		action_glow_outline_color if active else action_rest_outline_color,
 	)
-	label.add_theme_constant_override(&"outline_size", 7 if active else 2)
+	label.add_theme_constant_override(
+		&"outline_size",
+		action_glow_outline_size if active else action_rest_outline_size,
+	)
 	label.add_theme_color_override(
 		&"font_shadow_color",
-		Color(0.12, 1.0, 1.0, 0.72) if active else Color(0.0, 0.0, 0.0, 0.9),
+		action_glow_shadow_color if active else action_rest_shadow_color,
 	)
-	label.add_theme_constant_override(&"shadow_offset_x", 0 if active else 2)
-	label.add_theme_constant_override(&"shadow_offset_y", 0 if active else 2)
+	label.add_theme_constant_override(&"shadow_offset_x", 0 if active else action_rest_shadow_offset.x)
+	label.add_theme_constant_override(&"shadow_offset_y", 0 if active else action_rest_shadow_offset.y)
 
 
 func _set_action_buttons_enabled(enabled: bool) -> void:
@@ -331,6 +374,7 @@ func get_debug_lines() -> Array[String]:
 		"visible=%s" % str(visible),
 		"save_count=%d" % _save_entries.size(),
 		"selected_index=%d" % _selected_index,
-		"save_list_width=%.0f" % SAVE_LIST_WIDTH,
+		"save_entry_width=%.0f" % _resolved_save_entry_width,
+		"save_entry_height=%.0f" % save_entry_height,
 		"background_playing=%s" % str(_water_background.is_background_playing()),
 	]
