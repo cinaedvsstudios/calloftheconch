@@ -7,6 +7,8 @@ signal close_game_requested
 signal death_sequence_requested
 signal whale_travel_requested
 
+const CITY_GATE_RUNTIME_RADIUS: float = 560.0
+
 @onready var _level: CotcSeaOfPillars = %SeaOfPillars
 @onready var _city: CotcPillarsCity = %PillarsCity
 @onready var _sea_environment: Node2D = $SeaEnvironment
@@ -39,6 +41,7 @@ func _ready() -> void:
 	_city.exit_requested.connect(_on_city_exit_requested)
 	_city.menu_requested.connect(_on_city_menu_requested)
 	_city.location_changed.connect(_on_city_location_changed)
+	_configure_city_gate_interaction()
 	_city.deactivate()
 	_sea_environment.hide()
 
@@ -107,6 +110,26 @@ func complete_death_respawn() -> void:
 func apply_accessibility_settings(_show_control_hints: bool, screen_shake_scale: float) -> void:
 	_hint.hide()
 	_level.set_screen_shake_scale(screen_shake_scale)
+
+
+func _configure_city_gate_interaction() -> void:
+	# The exterior return point sits farther from the gate centre than the old
+	# 300-pixel trigger. Enlarge the existing level-owned Area2D rather than
+	# introducing a second Space listener or a competing interaction route.
+	_level.city_gate_interaction_radius = CITY_GATE_RUNTIME_RADIUS
+	var gate_area: Area2D = _level.get_node_or_null("CityGateInteraction") as Area2D
+	if gate_area == null:
+		push_warning("City gate interaction area was not created before GameplayContext setup.")
+		return
+	var collision_shape: CollisionShape2D = gate_area.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collision_shape == null:
+		push_warning("City gate interaction area is missing its CollisionShape2D.")
+		return
+	var circle: CircleShape2D = collision_shape.shape as CircleShape2D
+	if circle == null:
+		push_warning("City gate interaction requires a CircleShape2D.")
+		return
+	circle.radius = CITY_GATE_RUNTIME_RADIUS
 
 
 func _play_gameplay_music() -> void:
@@ -232,6 +255,7 @@ func get_debug_lines() -> Array[String]:
 		"paused=%s" % str(get_tree().paused),
 		"death_sequence_pending=%s" % str(_level.is_death_sequence_pending()),
 		"death_overlay_open=%s" % str(_death_overlay.is_open()),
+		"city_gate_interaction_radius=%.1f" % CITY_GATE_RUNTIME_RADIUS,
 	]
 	if _game_state != null:
 		lines.append("level_id=%s" % String(_game_state.current_level_id))
