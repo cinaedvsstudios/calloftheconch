@@ -5,21 +5,48 @@ signal exit_requested
 signal menu_requested
 signal location_changed(location_name: String)
 
-const CITY_BACKGROUND_PATH: String = "res://assets/backgrounds/bg_pillars_city.jpg"
-const AGORA_SIGN_PATH: String = "res://assets/ui/ui_location_agora_of_myra.webp"
-const CITY_HYLAS_SCENE: PackedScene = preload(
-	"res://rebuild_v3/features/hylas/hylas.tscn"
-)
-const CITY_NAME: String = "Neresithoppos"
 const TARGET_EXIT: StringName = &"exit"
 const TARGET_MENU: StringName = &"menu"
 const TARGET_AGORA: StringName = &"agora"
 const TARGET_ORACLE: StringName = &"oracle"
 
+@export_category("City Artwork")
+@export var city_background_texture: Texture2D = preload(
+	"res://assets/backgrounds/bg_pillars_city.jpg"
+)
+@export var agora_sign_texture: Texture2D = preload(
+	"res://assets/ui/ui_location_agora_of_myra.webp"
+)
+
 @export_category("City Hylas")
+@export var city_hylas_scene: PackedScene = preload(
+	"res://rebuild_v3/features/hylas/hylas.tscn"
+)
 @export_range(60.0, 220.0, 1.0) var hylas_display_height: float = 118.0
 @export_range(40.0, 220.0, 1.0) var doorway_interaction_radius: float = 105.0
 @export var hylas_spawn_ratio: Vector2 = Vector2(0.50, 0.78)
+@export_range(-20, 20, 1) var hylas_z_index: int = 0
+@export_range(0.0, 240.0, 1.0) var hylas_edge_padding: float = 48.0
+
+@export_category("City Hylas Movement")
+@export_range(1.0, 2000.0, 1.0) var hylas_swim_speed: float = 320.0
+@export_range(1.0, 5000.0, 1.0) var hylas_swim_acceleration: float = 1600.0
+@export_range(1.0, 5000.0, 1.0) var hylas_idle_momentum_deceleration: float = 300.0
+@export_range(1.0, 8000.0, 1.0) var hylas_brake_deceleration: float = 2800.0
+@export_range(0.0, 100.0, 0.5) var hylas_idle_sink_speed: float = 4.0
+@export var hylas_current_base_velocity: Vector2 = Vector2.ZERO
+@export_range(0.0, 100.0, 0.5) var hylas_current_sway_horizontal: float = 2.0
+@export_range(0.0, 100.0, 0.5) var hylas_current_sway_vertical: float = 1.0
+@export_range(0.0, 5.0, 0.01) var hylas_current_sway_frequency: float = 0.24
+
+@export_category("City Interaction Text")
+@export var city_name: String = "Neresithoppos"
+@export var exit_prompt_text: String = "Press Space to leave the city"
+@export var doorway_prompt_template: String = "Press Space to enter %s"
+@export var agora_title: String = "The Agora of Myra"
+@export_multiline var agora_subtitle: String = "Trade, supplies and the city’s working marketplace."
+@export var oracle_title: String = "The Hieron of the Oracle"
+@export_multiline var oracle_subtitle: String = "The sacred chamber of the city oracle."
 
 @onready var _background: TextureRect = %CityBackground
 @onready var _bubble_overlay: VideoStreamPlayer = %BubbleOverlay
@@ -44,7 +71,7 @@ var _hotspot_labels: Array[String] = []
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_load_optional_artwork()
+	_apply_artwork()
 	_prepare_hotspots()
 	_create_city_hylas()
 	_return_button.pressed.connect(_close_location)
@@ -58,7 +85,7 @@ func activate() -> void:
 	_active = true
 	show()
 	_location_overlay.hide()
-	location_changed.emit(CITY_NAME)
+	location_changed.emit(city_name)
 	if is_instance_valid(_city_hylas):
 		_configure_city_hylas_for_viewport(true)
 		_set_city_hylas_play_enabled(true)
@@ -103,13 +130,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _load_optional_artwork() -> void:
-	if ResourceLoader.exists(CITY_BACKGROUND_PATH, "Texture2D"):
-		_background.texture = ResourceLoader.load(CITY_BACKGROUND_PATH, "Texture2D") as Texture2D
-	else:
-		push_warning("Pillars city background is missing: %s" % CITY_BACKGROUND_PATH)
-	if ResourceLoader.exists(AGORA_SIGN_PATH, "Texture2D"):
-		_location_sign.texture = ResourceLoader.load(AGORA_SIGN_PATH, "Texture2D") as Texture2D
+func _apply_artwork() -> void:
+	_background.texture = city_background_texture
+	_location_sign.texture = agora_sign_texture
+	if _background.texture == null:
+		push_warning("Pillars city background texture is not assigned in the Inspector.")
 
 
 func _prepare_hotspots() -> void:
@@ -128,8 +153,8 @@ func _prepare_hotspots() -> void:
 	_hotspot_labels = [
 		"EXIT THE CITY",
 		"MENU",
-		"THE AGORA OF MYRA",
-		"THE HIERON OF THE ORACLE",
+		agora_title.to_upper(),
+		oracle_title.to_upper(),
 	]
 	for button: Button in _hotspot_buttons:
 		button.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -138,19 +163,27 @@ func _prepare_hotspots() -> void:
 
 
 func _create_city_hylas() -> void:
-	_city_hylas = CITY_HYLAS_SCENE.instantiate() as CotcHylas
+	if city_hylas_scene == null:
+		push_error("City Hylas scene is not assigned in the Pillars City Inspector.")
+		return
+	_city_hylas = city_hylas_scene.instantiate() as CotcHylas
 	if _city_hylas == null:
 		push_error("Could not create Hylas for the Pillars city.")
 		return
 	_city_hylas.name = "CityHylas"
 	_city_hylas.process_mode = Node.PROCESS_MODE_PAUSABLE
-	_city_hylas.z_index = 0
+	_city_hylas.z_index = hylas_z_index
 	_city_hylas.display_height = hylas_display_height
-	_city_hylas.player_edge_padding = 48.0
-	_city_hylas.current_base_velocity = Vector2.ZERO
-	_city_hylas.current_sway_horizontal = 2.0
-	_city_hylas.current_sway_vertical = 1.0
-	_city_hylas.idle_sink_speed = 4.0
+	_city_hylas.player_edge_padding = hylas_edge_padding
+	_city_hylas.swim_speed = hylas_swim_speed
+	_city_hylas.swim_acceleration = hylas_swim_acceleration
+	_city_hylas.idle_momentum_deceleration = hylas_idle_momentum_deceleration
+	_city_hylas.brake_deceleration = hylas_brake_deceleration
+	_city_hylas.current_base_velocity = hylas_current_base_velocity
+	_city_hylas.current_sway_horizontal = hylas_current_sway_horizontal
+	_city_hylas.current_sway_vertical = hylas_current_sway_vertical
+	_city_hylas.current_sway_frequency = hylas_current_sway_frequency
+	_city_hylas.idle_sink_speed = hylas_idle_sink_speed
 	add_child(_city_hylas)
 	move_child(_city_hylas, _bubble_overlay.get_index() + 1)
 	var city_camera: Camera2D = _city_hylas.get_node_or_null("Camera2D") as Camera2D
@@ -173,8 +206,8 @@ func _configure_city_hylas_for_viewport(reset_position: bool) -> void:
 		viewport_size = Vector2(1280.0, 720.0)
 	var world_bounds: Rect2 = Rect2(Vector2.ZERO, viewport_size)
 	var spawn_position: Vector2 = Vector2(
-		viewport_size.x * hylas_spawn_ratio.x,
-		viewport_size.y * hylas_spawn_ratio.y,
+		viewport_size.x * clampf(hylas_spawn_ratio.x, 0.0, 1.0),
+		viewport_size.y * clampf(hylas_spawn_ratio.y, 0.0, 1.0),
 	)
 	_city_hylas.configure_world(world_bounds, -10000.0, spawn_position)
 	if reset_position:
@@ -203,9 +236,9 @@ func _update_doorway_interaction() -> void:
 		_interaction_hint.hide()
 		return
 	if _active_hotspot_id == TARGET_EXIT:
-		_interaction_hint.text = "Press Space to leave the city"
+		_interaction_hint.text = exit_prompt_text
 	else:
-		_interaction_hint.text = "Press Space to enter %s" % nearest_target_label
+		_interaction_hint.text = doorway_prompt_template % nearest_target_label
 	_interaction_hint.show()
 
 
@@ -231,17 +264,9 @@ func _on_city_hylas_interaction_requested() -> void:
 		TARGET_MENU:
 			menu_requested.emit()
 		TARGET_AGORA:
-			_open_location(
-				"The Agora of Myra",
-				"Trade, supplies and the city’s working marketplace.",
-				true,
-			)
+			_open_location(agora_title, agora_subtitle, true)
 		TARGET_ORACLE:
-			_open_location(
-				"The Hieron of the Oracle",
-				"The sacred chamber of the city oracle.",
-				false,
-			)
+			_open_location(oracle_title, oracle_subtitle, false)
 
 
 func _open_location(title: String, subtitle: String, show_agora_sign: bool) -> void:
@@ -260,7 +285,7 @@ func _open_location(title: String, subtitle: String, show_agora_sign: bool) -> v
 
 func _close_location() -> void:
 	_location_overlay.hide()
-	location_changed.emit(CITY_NAME)
+	location_changed.emit(city_name)
 	if is_instance_valid(_city_hylas):
 		_city_hylas.show()
 	_set_city_hylas_play_enabled(true)
@@ -275,5 +300,7 @@ func get_debug_lines() -> Array[String]:
 		"bubble_overlay_playing=%s" % str(_bubble_overlay.is_playing()),
 		"location_overlay_visible=%s" % str(_location_overlay.visible),
 		"city_hylas_loaded=%s" % str(is_instance_valid(_city_hylas)),
+		"hylas_display_height=%.1f" % hylas_display_height,
+		"doorway_radius=%.1f" % doorway_interaction_radius,
 		"active_hotspot=%s" % String(_active_hotspot_id),
 	]
