@@ -1,6 +1,7 @@
 class_name CotcGameplayContext
 extends Node
 
+signal settings_requested
 signal menu_requested
 
 @onready var _level: CotcSeaOfPillars = %SeaOfPillars
@@ -11,13 +12,20 @@ signal menu_requested
 @onready var _pause_overlay: CotcPauseOverlay = %PauseOverlay
 
 var _active: bool = false
+var _game_state: CotcGameState
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_gameplay_music.process_mode = Node.PROCESS_MODE_ALWAYS
+	_pause_overlay.settings_requested.connect(_on_pause_settings_requested)
 	_pause_overlay.menu_requested.connect(_on_pause_menu_requested)
 	_sea_environment.hide()
+
+
+func bind_game_state(game_state: CotcGameState) -> void:
+	_game_state = game_state
+	_level.bind_game_state(game_state)
 
 
 func activate() -> void:
@@ -26,7 +34,11 @@ func activate() -> void:
 	_sea_environment.show()
 	_gameplay_ui.visible = true
 	_pause_overlay.close_overlay()
-	_level.activate()
+	if _game_state != null:
+		_game_state.set_gameplay_active(true)
+		_level.activate(_game_state.current_spawn_point_id)
+	else:
+		_level.activate()
 	_play_gameplay_music()
 
 
@@ -38,6 +50,19 @@ func deactivate() -> void:
 	_gameplay_music.stop()
 	_sea_environment.hide()
 	_level.deactivate()
+	if _game_state != null:
+		_game_state.set_gameplay_active(false)
+
+
+func return_to_pause_menu() -> void:
+	if not _active:
+		return
+	get_tree().paused = true
+	_pause_overlay.open_overlay()
+
+
+func is_game_active() -> bool:
+	return _active
 
 
 func apply_accessibility_settings(show_control_hints: bool, screen_shake_scale: float) -> void:
@@ -66,6 +91,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+func _on_pause_settings_requested() -> void:
+	if not _active:
+		return
+	get_tree().paused = true
+	settings_requested.emit()
+
+
 func _on_pause_menu_requested() -> void:
 	get_tree().paused = false
 	menu_requested.emit()
@@ -81,5 +113,10 @@ func get_debug_lines() -> Array[String]:
 		"music_playing=%s" % str(_gameplay_music.playing),
 		"paused=%s" % str(get_tree().paused),
 	]
+	if _game_state != null:
+		lines.append("level_id=%s" % String(_game_state.current_level_id))
+		lines.append("spawn_point_id=%s" % String(_game_state.current_spawn_point_id))
+		lines.append("onos=%d" % _game_state.onos)
+		lines.append("inventory_items=%d" % _game_state.inventory.size())
 	lines.append_array(_level.get_debug_lines())
 	return lines
