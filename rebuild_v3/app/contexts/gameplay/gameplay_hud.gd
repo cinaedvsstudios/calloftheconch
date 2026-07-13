@@ -69,14 +69,11 @@ func pulse_conch() -> void:
 func _load_textures() -> void:
 	_fin_state_textures.clear()
 	for path: String in FIN_STATE_PATHS:
-		var texture: Texture2D
+		var texture: Texture2D = null
 		if ResourceLoader.exists(path, "Texture2D"):
 			texture = ResourceLoader.load(path, "Texture2D") as Texture2D
 		_fin_state_textures.append(texture)
-	var loaded_panel_count: int = 0
-	for texture: Texture2D in _fin_state_textures:
-		if texture != null:
-			loaded_panel_count += 1
+	var loaded_panel_count: int = _get_loaded_panel_count()
 	_fallback_panel.visible = loaded_panel_count == 0
 	_panel_texture.visible = loaded_panel_count > 0
 	if loaded_panel_count != FIN_STATE_PATHS.size():
@@ -87,6 +84,14 @@ func _load_textures() -> void:
 	if ResourceLoader.exists(NORMAL_CONCH_PATH, "Texture2D"):
 		_conch_icon.texture = ResourceLoader.load(NORMAL_CONCH_PATH, "Texture2D") as Texture2D
 		_conch_glow.texture = _conch_icon.texture
+
+
+func _get_loaded_panel_count() -> int:
+	var loaded_count: int = 0
+	for texture: Texture2D in _fin_state_textures:
+		if texture != null:
+			loaded_count += 1
+	return loaded_count
 
 
 func _sync_from_state() -> void:
@@ -171,6 +176,6 @@ func get_debug_lines() -> Array[String]:
 	return [
 		"[GameplayHud]",
 		"location=%s" % _location_name,
-		"loaded_fin_panels=%d/%d" % [_fin_state_textures.filter(func(texture: Texture2D) -> bool: return texture != null).size(), FIN_STATE_PATHS.size()],
+		"loaded_fin_panels=%d/%d" % [_get_loaded_panel_count(), FIN_STATE_PATHS.size()],
 		"conch_icon_loaded=%s" % str(_conch_icon.texture != null),
 	]
