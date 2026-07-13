@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/WaterVideoBackground/water_video_background.gd" id="1_controller"]
+[ext_resource type="VideoStream" path="res://assets/ui/waterbg.ogv" id="2_water_video"]
+
+[node name="WaterVideoBackground" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_controller")
+
+[node name="WaterBackgroundVideo" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stream = ExtResource("2_water_video")
+volume_db = -80.0
+loop = true
+expand = true
