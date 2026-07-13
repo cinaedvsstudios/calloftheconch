@@ -12,6 +12,7 @@ const SETTINGS_ORIGIN_GAMEPLAY: StringName = &"gameplay"
 @onready var _intro_context: CotcIntroContext = %IntroContext
 @onready var _settings_context: CotcSettingsContext = %SettingsContext
 @onready var _gameplay_context: CotcGameplayContext = %GameplayContext
+@onready var _loading_overlay: CotcLoadingOverlay = %LoadingOverlay
 @onready var _developer_admin_panel: CotcDeveloperAdminPanel = %DeveloperAdminPanel
 
 var _settings_origin: StringName = SETTINGS_ORIGIN_MENU
@@ -37,11 +38,13 @@ func _ready() -> void:
 	_settings_service.settings_changed.connect(_apply_runtime_settings)
 	_gameplay_context.settings_requested.connect(_on_gameplay_settings_requested)
 	_gameplay_context.menu_requested.connect(_on_menu_requested)
+	_gameplay_context.close_game_requested.connect(_on_exit_requested)
 
 	_continue_context.deactivate()
 	_intro_context.deactivate()
 	_settings_context.deactivate()
 	_gameplay_context.deactivate()
+	_loading_overlay.hide_loading()
 	_apply_runtime_settings()
 	_menu_context.activate()
 
@@ -54,9 +57,13 @@ func _on_new_game_requested() -> void:
 
 
 func _on_intro_finished() -> void:
+	_loading_overlay.show_loading()
+	await get_tree().process_frame
 	_intro_context.deactivate()
 	_game_state.start_new_game()
 	_gameplay_context.activate()
+	await get_tree().process_frame
+	_loading_overlay.hide_loading()
 
 
 func _on_continue_requested() -> void:
@@ -71,13 +78,18 @@ func _on_continue_back_requested() -> void:
 
 
 func _on_load_requested(save_id: String) -> void:
+	_loading_overlay.show_loading()
+	await get_tree().process_frame
 	if not _save_service.load_save(save_id):
+		_loading_overlay.hide_loading()
 		_continue_context.show_load_error(_save_service.last_error_message)
 		return
 	_continue_context.deactivate()
 	_settings_context.deactivate()
 	_menu_context.deactivate(true)
 	_gameplay_context.activate()
+	await get_tree().process_frame
+	_loading_overlay.hide_loading()
 
 
 func _on_menu_settings_requested() -> void:
@@ -113,12 +125,16 @@ func _on_save_game_requested(save_name: String) -> void:
 
 
 func _on_menu_requested() -> void:
+	_loading_overlay.show_loading()
+	await get_tree().process_frame
 	_gameplay_context.deactivate()
 	_continue_context.deactivate()
 	_intro_context.deactivate()
 	_settings_context.deactivate()
 	_settings_origin = SETTINGS_ORIGIN_MENU
 	_menu_context.activate()
+	await get_tree().process_frame
+	_loading_overlay.hide_loading()
 
 
 func _on_exit_requested() -> void:
@@ -159,6 +175,8 @@ func build_debug_report() -> String:
 	lines.append_array(_game_state.get_debug_lines())
 	lines.append("")
 	lines.append_array(_get_save_debug_lines())
+	lines.append("")
+	lines.append_array(_loading_overlay.get_debug_lines())
 	lines.append("")
 	lines.append_array(_gameplay_context.get_debug_lines())
 	return "\n".join(lines)
