@@ -40,13 +40,39 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	_apply_display_scale()
 	_configure_collision()
-	monitoring = true
 	monitorable = false
+	_apply_collection_state()
+
+
+func assign_persistent_id(level_id: StringName) -> StringName:
+	if not String(pickup_instance_id).is_empty():
+		return pickup_instance_id
+	var level_key: String = String(level_id)
+	if level_key.is_empty():
+		level_key = "unknown_level"
+	pickup_instance_id = StringName("%s:%s" % [level_key, String(name)])
+	return pickup_instance_id
+
+
+func set_persistently_collected(is_collected: bool) -> void:
+	_collected = is_collected
+	_apply_collection_state()
+
+
+func is_collected() -> bool:
+	return _collected
 
 
 func set_distance_active(is_active: bool) -> void:
 	_distance_active = is_active
+	_apply_collection_state()
+
+
+func _apply_collection_state() -> void:
+	visible = not _collected
 	monitoring = _distance_active and not _collected
+	if is_instance_valid(_collision_shape):
+		_collision_shape.set_deferred(&"disabled", _collected or not _distance_active)
 
 
 func _on_body_entered(body: Node2D) -> void:
@@ -57,9 +83,7 @@ func _on_body_entered(body: Node2D) -> void:
 
 func _collect() -> void:
 	_collected = true
-	monitoring = false
-	_collision_shape.set_deferred(&"disabled", true)
-	hide()
+	_apply_collection_state()
 	pickup_collected.emit(
 		pickup_type_id,
 		pickup_instance_id,
@@ -69,7 +93,6 @@ func _collect() -> void:
 		full_health_onos_value,
 	)
 	_spawn_pickup_feedback()
-	queue_free()
 
 
 func _spawn_pickup_feedback() -> void:
