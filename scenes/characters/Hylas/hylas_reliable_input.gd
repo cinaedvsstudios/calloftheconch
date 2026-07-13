@@ -29,6 +29,8 @@ signal death_landed
 @export_range(1.0, 30.0, 0.5) var death_intro_fps: float = 6.0
 @export_range(1.0, 30.0, 0.5) var death_drift_fps: float = 3.0
 @export_range(1.0, 500.0, 1.0) var death_drift_speed: float = 85.0
+@export_range(-400.0, 0.0, 1.0) var death_camera_vertical_offset: float = -130.0
+@export_range(0.05, 5.0, 0.05) var death_camera_recenter_seconds: float = 1.20
 
 var _shift_space_tail_flip_requested: bool = false
 var _tail_flip_chord_active: bool = false
@@ -38,10 +40,14 @@ var _pending_interaction_remaining: float = 0.0
 var _death_sequence_active: bool = false
 var _death_drift_active: bool = false
 var _death_body_landed: bool = false
+var _normal_camera_rest_offset: Vector2 = Vector2.ZERO
+var _death_camera_start_offset: Vector2 = Vector2.ZERO
+var _death_camera_elapsed: float = 0.0
 
 
 func _ready() -> void:
 	super._ready()
+	_normal_camera_rest_offset = _camera_rest_offset
 	_configure_death_animations()
 	if not _animated_sprite.animation_finished.is_connected(_on_animation_finished):
 		_animated_sprite.animation_finished.connect(_on_animation_finished)
@@ -112,6 +118,8 @@ func start_death_sequence() -> void:
 	_death_sequence_active = true
 	_death_drift_active = false
 	_death_body_landed = false
+	_death_camera_elapsed = 0.0
+	_death_camera_start_offset = _camera_rest_offset
 	_play_enabled = false
 	crawl_active = false
 	airborne_active = false
@@ -223,6 +231,7 @@ func _configure_death_animations() -> void:
 
 func _update_death_sequence(delta: float) -> void:
 	_current_time += delta
+	_update_death_camera(delta)
 	_update_camera_shake(delta)
 	_update_shadow()
 	if not _death_drift_active or _death_body_landed:
@@ -236,6 +245,24 @@ func _update_death_sequence(delta: float) -> void:
 		_death_body_landed = true
 		velocity = Vector2.ZERO
 		death_landed.emit()
+
+
+func _update_death_camera(delta: float) -> void:
+	_death_camera_elapsed = minf(
+		death_camera_recenter_seconds,
+		_death_camera_elapsed + delta,
+	)
+	var progress: float = clampf(
+		_death_camera_elapsed / maxf(0.05, death_camera_recenter_seconds),
+		0.0,
+		1.0,
+	)
+	var eased_progress: float = progress * progress * (3.0 - 2.0 * progress)
+	var target_offset: Vector2 = _normal_camera_rest_offset + Vector2(
+		0.0,
+		death_camera_vertical_offset,
+	)
+	_camera_rest_offset = _death_camera_start_offset.lerp(target_offset, eased_progress)
 
 
 func _has_death_floor_collision() -> bool:
@@ -258,7 +285,11 @@ func _clear_death_state(reset_visual: bool) -> void:
 	_death_sequence_active = false
 	_death_drift_active = false
 	_death_body_landed = false
+	_death_camera_elapsed = 0.0
 	velocity = Vector2.ZERO
+	_camera_rest_offset = _normal_camera_rest_offset
+	if is_instance_valid(_camera):
+		_camera.offset = _normal_camera_rest_offset
 	if reset_visual and is_instance_valid(_animated_sprite):
 		_set_visual_rotation(0.0)
 		_set_animation(&"idle")
@@ -275,4 +306,5 @@ func get_debug_lines() -> Array[String]:
 	lines.append("death_sequence_active=%s" % str(_death_sequence_active))
 	lines.append("death_drift_active=%s" % str(_death_drift_active))
 	lines.append("death_body_landed=%s" % str(_death_body_landed))
+	lines.append("death_camera_offset=%s" % str(_camera_rest_offset))
 	return lines
