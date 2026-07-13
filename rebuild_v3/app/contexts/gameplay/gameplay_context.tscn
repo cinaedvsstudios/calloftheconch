@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_context.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars.tscn" id="2_level"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/pause_overlay.gd" id="4_pause"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/looping_audio_player.gd" id="5_looping_audio"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_environment.tscn" id="6_environment"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/death_overlay.tscn" id="7_death"]
 
 [node name="GameplayContext" type="Node"]
 script = ExtResource("1_controller")
@@ -81,3 +82,6 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Menu"
+
+[node name="DeathOverlay" parent="GameplayUI" instance=ExtResource("7_death")]
+unique_name_in_owner = true
