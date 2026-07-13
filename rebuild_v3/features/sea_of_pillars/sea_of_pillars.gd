@@ -4,6 +4,8 @@ extends Node2D
 const CONCH_IMPACT_SCENE: PackedScene = preload(
 	"res://scenes/effects/ConchImpact/conch_impact_effect.tscn"
 )
+const LEVEL_ID: StringName = &"sea_of_pillars"
+const DEFAULT_SPAWN_POINT_ID: StringName = &"sea_of_pillars_start"
 
 signal conch_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
 
@@ -33,6 +35,8 @@ var _active: bool = false
 var _bubble_material: ShaderMaterial
 var _bubble_waterline_update_elapsed: float = 0.0
 var _base_camera_shake_strength: float = 10.0
+var _game_state: CotcGameState
+var _active_spawn_point_id: StringName = DEFAULT_SPAWN_POINT_ID
 
 
 func _ready() -> void:
@@ -43,6 +47,7 @@ func _ready() -> void:
 	_conch_pulse.target_hit.connect(_on_conch_pulse_target_hit)
 	_prepare_bubble_material()
 	configure_player()
+	_connect_spawn_checkpoints()
 	deactivate()
 
 
@@ -52,6 +57,10 @@ func _process(delta: float) -> void:
 		return
 	_bubble_waterline_update_elapsed = 0.0
 	_update_bubble_waterline_mask()
+
+
+func bind_game_state(game_state: CotcGameState) -> void:
+	_game_state = game_state
 
 
 func configure_player() -> void:
@@ -65,11 +74,15 @@ func set_screen_shake_scale(value: float) -> void:
 	_hylas.camera_shake_strength = _base_camera_shake_strength * clampf(value, 0.0, 1.0)
 
 
-func activate() -> void:
+func activate(spawn_point_id: StringName = &"") -> void:
 	_active = true
 	show()
 	configure_player()
-	_hylas.reset_to_start(_start_marker.global_position)
+	_active_spawn_point_id = _resolve_spawn_point_id(spawn_point_id)
+	var spawn_position: Vector2 = _resolve_spawn_position(_active_spawn_point_id)
+	_hylas.reset_to_start(spawn_position)
+	if _game_state != null:
+		_game_state.set_checkpoint(LEVEL_ID, _active_spawn_point_id)
 	_hylas.set_play_enabled(true)
 	_play_underwater_ambience()
 	_bubble_waterline_update_elapsed = 0.0
@@ -93,6 +106,58 @@ func deactivate() -> void:
 	_exit_surface_splash.stop_splash()
 	_entry_surface_splash.stop_splash()
 	hide()
+
+
+func activate_checkpoint(spawn_point_id: StringName) -> void:
+	var resolved_id: StringName = _resolve_spawn_point_id(spawn_point_id)
+	_active_spawn_point_id = resolved_id
+	if _game_state != null:
+		_game_state.set_checkpoint(LEVEL_ID, resolved_id)
+
+
+func _resolve_spawn_point_id(requested_id: StringName) -> StringName:
+	if String(requested_id).is_empty():
+		return DEFAULT_SPAWN_POINT_ID
+	if requested_id == DEFAULT_SPAWN_POINT_ID:
+		return requested_id
+	for checkpoint: Node in get_tree().get_nodes_in_group(&"cotc_spawn_point"):
+		if not is_ancestor_of(checkpoint):
+			continue
+		if StringName(str(checkpoint.get("spawn_point_id"))) == requested_id:
+			return requested_id
+	push_warning("Unknown Sea of Pillars spawn point '%s'; using the level start." % String(requested_id))
+	return DEFAULT_SPAWN_POINT_ID
+
+
+func _resolve_spawn_position(spawn_point_id: StringName) -> Vector2:
+	if spawn_point_id == DEFAULT_SPAWN_POINT_ID:
+		return _start_marker.global_position
+	for checkpoint: Node in get_tree().get_nodes_in_group(&"cotc_spawn_point"):
+		if not is_ancestor_of(checkpoint):
+			continue
+		if StringName(str(checkpoint.get("spawn_point_id"))) != spawn_point_id:
+			continue
+		var checkpoint_2d: Node2D = checkpoint as Node2D
+		if checkpoint_2d != null:
+			return checkpoint_2d.global_position
+	return _start_marker.global_position
+
+
+func _connect_spawn_checkpoints() -> void:
+	for checkpoint: Node in get_tree().get_nodes_in_group(&"cotc_spawn_point"):
+		if not is_ancestor_of(checkpoint):
+			continue
+		if checkpoint.has_signal(&"checkpoint_activated") and not checkpoint.is_connected(
+			&"checkpoint_activated",
+			_on_spawn_checkpoint_activated,
+		):
+			checkpoint.connect(&"checkpoint_activated", _on_spawn_checkpoint_activated)
+
+
+func _on_spawn_checkpoint_activated(level_id: StringName, spawn_point_id: StringName) -> void:
+	if level_id != LEVEL_ID:
+		return
+	activate_checkpoint(spawn_point_id)
 
 
 func _prepare_bubble_material() -> void:
@@ -171,6 +236,7 @@ func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = [
 		"[SeaOfPillars]",
 		"active=%s" % str(_active),
+		"spawn_point_id=%s" % String(_active_spawn_point_id),
 		"bubble_overlay_visible=%s" % str(_bubble_overlay.visible),
 		"bubble_waterline_update_interval=%.2f" % bubble_waterline_update_interval,
 		"ambience_playing=%s" % str(_underwater_ambience.playing),
