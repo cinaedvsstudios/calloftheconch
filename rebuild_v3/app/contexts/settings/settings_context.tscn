@@ -1,0 +1,279 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/app/contexts/settings/settings_context.gd" id="1_controller"]
+[ext_resource type="PackedScene" path="res://scenes/ui/WaterVideoBackground/water_video_background.tscn" id="2_water_background"]
+
+[node name="SettingsContext" type="Control"]
+visible = false
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_controller")
+
+[node name="WaterVideoBackground" parent="." instance=ExtResource("2_water_background")]
+unique_name_in_owner = true
+auto_play_on_ready = false
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.005, 0.018, 0.055, 0.46)
+
+[node name="SettingsPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -425.0
+offset_top = -320.0
+offset_right = 425.0
+offset_bottom = 320.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="SettingsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 42
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 42
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="SettingsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="SettingsPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.94, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.02, 0.08, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 38
+text = "SETTINGS"
+horizontal_alignment = 1
+
+[node name="TitleRule" type="HSeparator" parent="SettingsPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="SettingsScroll" type="ScrollContainer" parent="SettingsPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 470)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="SettingsVBox" type="VBoxContainer" parent="SettingsPanel/Margin/Content/SettingsScroll"]
+custom_minimum_size = Vector2(740, 0)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="AudioHeader" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.84, 1, 1)
+theme_override_font_sizes/font_size = 25
+text = "AUDIO"
+
+[node name="AudioGrid" type="GridContainer" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 10
+columns = 3
+
+[node name="MasterLabel" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Master volume"
+
+[node name="MasterSlider" type="HSlider" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(430, 0)
+layout_mode = 2
+max_value = 100.0
+step = 1.0
+value = 85.0
+
+[node name="MasterValue" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "85%"
+horizontal_alignment = 2
+
+[node name="MusicLabel" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Music volume"
+
+[node name="MusicSlider" type="HSlider" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100.0
+step = 1.0
+value = 80.0
+
+[node name="MusicValue" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "80%"
+horizontal_alignment = 2
+
+[node name="EffectsLabel" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Effects volume"
+
+[node name="EffectsSlider" type="HSlider" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100.0
+step = 1.0
+value = 90.0
+
+[node name="EffectsValue" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "90%"
+horizontal_alignment = 2
+
+[node name="MuteSpacer" type="Control" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+layout_mode = 2
+
+[node name="MuteCheck" type="CheckButton" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Mute all audio"
+
+[node name="MuteValueSpacer" type="Control" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AudioGrid"]
+layout_mode = 2
+
+[node name="AudioRule" type="HSeparator" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox"]
+layout_mode = 2
+
+[node name="DisplayHeader" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.84, 1, 1)
+theme_override_font_sizes/font_size = 25
+text = "DISPLAY"
+
+[node name="DisplayGrid" type="GridContainer" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="DisplayModeLabel" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/DisplayGrid"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Display mode"
+
+[node name="DisplayModeOption" type="OptionButton" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/DisplayGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(380, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+
+[node name="ResolutionLabel" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/DisplayGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Window resolution"
+
+[node name="ResolutionOption" type="OptionButton" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/DisplayGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+
+[node name="VSyncLabel" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/DisplayGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Vertical sync"
+
+[node name="VSyncCheck" type="CheckButton" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/DisplayGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Enabled"
+
+[node name="DisplayRule" type="HSeparator" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox"]
+layout_mode = 2
+
+[node name="AccessibilityHeader" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.84, 1, 1)
+theme_override_font_sizes/font_size = 25
+text = "ACCESSIBILITY"
+
+[node name="AccessibilityGrid" type="GridContainer" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 10
+columns = 3
+
+[node name="ShakeLabel" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AccessibilityGrid"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Screen shake"
+
+[node name="ShakeSlider" type="HSlider" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AccessibilityGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(430, 0)
+layout_mode = 2
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="ShakeValue" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AccessibilityGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "100%"
+horizontal_alignment = 2
+
+[node name="HintsLabel" type="Label" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AccessibilityGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Control hints"
+
+[node name="ControlHintsCheck" type="CheckButton" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AccessibilityGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Show during gameplay"
+
+[node name="HintsSpacer" type="Control" parent="SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox/AccessibilityGrid"]
+layout_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="SettingsPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 2
+
+[node name="ResetButton" type="Button" parent="SettingsPanel/Margin/Content/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 46)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "RESET DEFAULTS"
+
+[node name="BackButton" type="Button" parent="SettingsPanel/Margin/Content/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 46)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "BACK"
