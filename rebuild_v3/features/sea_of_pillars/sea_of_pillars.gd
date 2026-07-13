@@ -4,14 +4,22 @@ extends Node2D
 const CONCH_IMPACT_SCENE: PackedScene = preload(
 	"res://scenes/effects/ConchImpact/conch_impact_effect.tscn"
 )
+const PICKUP_FEEDBACK_SCENE: PackedScene = preload(
+	"res://scenes/effects/PickupFeedback/pickup_feedback.tscn"
+)
 const LEVEL_ID: StringName = &"sea_of_pillars"
 const DEFAULT_SPAWN_POINT_ID: StringName = &"sea_of_pillars_start"
 const WHALE_GROUND_SPAWN_POINT_ID: StringName = &"sea_of_pillars_whale_ground_01"
+const CITY_GATE_SPAWN_POINT_ID: StringName = &"sea_of_pillars_city_gate"
+const PICKUP_REWARD_FIN: StringName = &"fin"
+const PICKUP_REWARD_ONOS: StringName = &"onos"
 
 signal conch_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
+signal conch_used
 signal greatfin_pickup_requested(pickup_type_id: StringName)
 signal death_sequence_requested
 signal whale_travel_requested
+signal city_entry_requested
 
 @export_category("Level")
 @export var auto_play_ambience: bool = true
@@ -19,6 +27,11 @@ signal whale_travel_requested
 
 @export_category("Conch Pulse")
 @export_range(0.0, 300.0, 1.0) var conch_origin_forward_offset: float = 105.0
+
+@export_category("City Gate")
+@export var city_gate_texture_offset: Vector2 = Vector2(0.42, 0.05)
+@export_range(80.0, 600.0, 5.0) var city_gate_interaction_radius: float = 300.0
+@export var city_gate_return_offset: Vector2 = Vector2(390.0, 20.0)
 
 @export_category("Fin Damage and Respawn")
 @export_range(0.0, 10.0, 0.1) var damage_invulnerability_seconds: float = 4.0
@@ -39,6 +52,7 @@ signal whale_travel_requested
 @onready var _exit_surface_splash: CotcSurfaceSplash = %ExitSurfaceSplash
 @onready var _entry_surface_splash: CotcSurfaceSplash = %EntrySurfaceSplash
 @onready var _whale_travel: CotcWhaleTravel = $WhaleTravel
+@onready var _city_art: Sprite2D = $Citymain
 
 var _active: bool = false
 var _bubble_material: ShaderMaterial
@@ -48,6 +62,8 @@ var _game_state: CotcGameState
 var _active_spawn_point_id: StringName = DEFAULT_SPAWN_POINT_ID
 var _last_damage_time_msec: int = -1000000
 var _respawn_pending: bool = false
+var _city_gate_area: Area2D
+var _city_gate_in_range: bool = false
 
 
 func _ready() -> void:
@@ -66,6 +82,7 @@ func _ready() -> void:
 		var death_callback: Callable = Callable(self, "_on_hylas_death_drift_started")
 		if not _hylas.is_connected(&"death_drift_started", death_callback):
 			_hylas.connect(&"death_drift_started", death_callback)
+	_create_city_gate_interaction()
 	_prepare_bubble_material()
 	configure_player()
 	_connect_spawn_checkpoints()
@@ -111,6 +128,7 @@ func set_screen_shake_scale(value: float) -> void:
 func activate(spawn_point_id: StringName = &"") -> void:
 	_active = true
 	_respawn_pending = false
+	_city_gate_in_range = false
 	_last_damage_time_msec = -1000000
 	show()
 	configure_player()
@@ -122,7 +140,8 @@ func activate(spawn_point_id: StringName = &"") -> void:
 	if _game_state != null:
 		_game_state.set_checkpoint(LEVEL_ID, _active_spawn_point_id)
 	_hylas.set_play_enabled(true)
-	_set_hylas_interaction_available(_whale_travel.is_hylas_in_interaction_range())
+	_refresh_hylas_interaction_available()
+	call_deferred(&"_refresh_interaction_ranges")
 	_play_underwater_ambience()
 	_bubble_waterline_update_elapsed = 0.0
 	_update_bubble_waterline_mask()
@@ -135,6 +154,7 @@ func activate(spawn_point_id: StringName = &"") -> void:
 func deactivate() -> void:
 	_active = false
 	_respawn_pending = false
+	_city_gate_in_range = false
 	set_process(false)
 	_bubble_waterline_update_elapsed = 0.0
 	_set_hylas_interaction_available(false)
@@ -175,10 +195,18 @@ func is_death_sequence_pending() -> bool:
 	return _respawn_pending
 
 
+func get_city_gate_spawn_position() -> Vector2:
+	return _get_city_gate_position() + city_gate_return_offset
+
+
 func _resolve_spawn_point_id(requested_id: StringName) -> StringName:
 	if String(requested_id).is_empty():
 		return DEFAULT_SPAWN_POINT_ID
-	if requested_id == DEFAULT_SPAWN_POINT_ID or requested_id == WHALE_GROUND_SPAWN_POINT_ID:
+	if (
+		requested_id == DEFAULT_SPAWN_POINT_ID
+		or requested_id == WHALE_GROUND_SPAWN_POINT_ID
+		or requested_id == CITY_GATE_SPAWN_POINT_ID
+	):
 		return requested_id
 	for checkpoint: Node in get_tree().get_nodes_in_group(&"cotc_spawn_point"):
 		if not is_ancestor_of(checkpoint):
@@ -194,6 +222,8 @@ func _resolve_spawn_position(spawn_point_id: StringName) -> Vector2:
 		return _start_marker.global_position
 	if spawn_point_id == WHALE_GROUND_SPAWN_POINT_ID:
 		return _whale_travel.global_position
+	if spawn_point_id == CITY_GATE_SPAWN_POINT_ID:
+		return get_city_gate_spawn_position()
 	for checkpoint: Node in get_tree().get_nodes_in_group(&"cotc_spawn_point"):
 		if not is_ancestor_of(checkpoint):
 			continue
@@ -203,6 +233,61 @@ func _resolve_spawn_position(spawn_point_id: StringName) -> Vector2:
 		if checkpoint_2d != null:
 			return checkpoint_2d.global_position
 	return _start_marker.global_position
+
+
+func _create_city_gate_interaction() -> void:
+	_city_gate_area = Area2D.new()
+	_city_gate_area.name = "CityGateInteraction"
+	_city_gate_area.collision_layer = 0
+	_city_gate_area.collision_mask = 1
+	_city_gate_area.monitoring = true
+	_city_gate_area.monitorable = false
+	add_child(_city_gate_area)
+	_city_gate_area.global_position = _get_city_gate_position()
+	var collision_shape: CollisionShape2D = CollisionShape2D.new()
+	var circle: CircleShape2D = CircleShape2D.new()
+	circle.radius = city_gate_interaction_radius
+	collision_shape.shape = circle
+	_city_gate_area.add_child(collision_shape)
+	_city_gate_area.body_entered.connect(_on_city_gate_body_entered)
+	_city_gate_area.body_exited.connect(_on_city_gate_body_exited)
+
+
+func _get_city_gate_position() -> Vector2:
+	if not is_instance_valid(_city_art) or _city_art.texture == null:
+		return Vector2(22780.0, 4400.0)
+	var texture_size: Vector2 = _city_art.texture.get_size()
+	var scaled_offset: Vector2 = Vector2(
+		texture_size.x * _city_art.scale.x * city_gate_texture_offset.x,
+		texture_size.y * _city_art.scale.y * city_gate_texture_offset.y,
+	)
+	return _city_art.global_position + scaled_offset
+
+
+func _refresh_interaction_ranges() -> void:
+	if not _active:
+		return
+	_city_gate_in_range = false
+	if is_instance_valid(_city_gate_area):
+		for body: Node2D in _city_gate_area.get_overlapping_bodies():
+			if body == _hylas or body.is_in_group(&"hylas"):
+				_city_gate_in_range = true
+				break
+	_refresh_hylas_interaction_available()
+
+
+func _on_city_gate_body_entered(body: Node2D) -> void:
+	if body != _hylas and not body.is_in_group(&"hylas"):
+		return
+	_city_gate_in_range = true
+	_refresh_hylas_interaction_available()
+
+
+func _on_city_gate_body_exited(body: Node2D) -> void:
+	if body != _hylas and not body.is_in_group(&"hylas"):
+		return
+	_city_gate_in_range = false
+	_refresh_hylas_interaction_available()
 
 
 func _connect_spawn_checkpoints() -> void:
@@ -302,6 +387,9 @@ func _on_food_pickup_collected(
 		var activated: bool = _game_state.use_crown_sea_grapes(duplicate_crown_sea_grapes_onos)
 		if activated:
 			greatfin_pickup_requested.emit(pickup_type_id)
+			_spawn_pickup_feedback(PICKUP_REWARD_FIN)
+		else:
+			_spawn_pickup_feedback(PICKUP_REWARD_ONOS)
 		_game_state.mark_pickup_collected(persistent_id)
 		return
 
@@ -310,9 +398,19 @@ func _on_food_pickup_collected(
 		healed_fins = _game_state.restore_fins()
 	else:
 		healed_fins = _game_state.heal_fins(heal_amount)
-	if healed_fins <= 0 and full_health_onos_value > 0:
+	if healed_fins > 0:
+		_spawn_pickup_feedback(PICKUP_REWARD_FIN)
+	elif full_health_onos_value > 0:
 		_game_state.add_onos(full_health_onos_value)
+		_spawn_pickup_feedback(PICKUP_REWARD_ONOS)
 	_game_state.mark_pickup_collected(persistent_id)
+
+
+func _spawn_pickup_feedback(reward_kind: StringName) -> void:
+	var feedback: Node = PICKUP_FEEDBACK_SCENE.instantiate()
+	add_child(feedback)
+	if feedback.has_method(&"play_feedback"):
+		feedback.call(&"play_feedback", _hylas, reward_kind)
 
 
 func _on_game_state_replaced(_reason: StringName) -> void:
@@ -342,13 +440,20 @@ func _on_hylas_death_drift_started() -> void:
 
 func _on_whale_interaction_availability_changed(is_available: bool) -> void:
 	if not _active:
-		_set_hylas_interaction_available(false)
+		_refresh_hylas_interaction_available()
 		return
-	_set_hylas_interaction_available(is_available)
+	_refresh_hylas_interaction_available()
 	if not is_available or _game_state == null:
 		return
 	activate_checkpoint(WHALE_GROUND_SPAWN_POINT_ID)
 	_game_state.restore_fins()
+
+
+func _refresh_hylas_interaction_available() -> void:
+	var interaction_available: bool = false
+	if _active:
+		interaction_available = _city_gate_in_range or _whale_travel.is_hylas_in_interaction_range()
+	_set_hylas_interaction_available(interaction_available)
 
 
 func _set_hylas_interaction_available(is_available: bool) -> void:
@@ -358,6 +463,9 @@ func _set_hylas_interaction_available(is_available: bool) -> void:
 
 func _on_hylas_interaction_requested() -> void:
 	if not _active or _respawn_pending:
+		return
+	if _city_gate_in_range:
+		city_entry_requested.emit()
 		return
 	if _whale_travel.is_hylas_in_interaction_range():
 		_whale_travel.request_travel()
@@ -404,23 +512,26 @@ func _on_hylas_normal_conch_used(origin: Vector2, direction: Vector2) -> void:
 	else:
 		pulse_direction = pulse_direction.normalized()
 	var pulse_origin: Vector2 = origin + pulse_direction * conch_origin_forward_offset
-	_conch_pulse.trigger(pulse_origin, pulse_direction)
+	_conch_pulse.trigger_from_player(pulse_origin, pulse_direction, origin)
+	conch_used.emit()
 
 
 func _on_conch_pulse_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int) -> void:
 	if not _active:
 		return
-	_spawn_conch_impact(hit_position)
+	_spawn_conch_impact(target, hit_position)
 	conch_target_hit.emit(target, hit_position, pulse_index)
 
 
-func _spawn_conch_impact(hit_position: Vector2) -> void:
+func _spawn_conch_impact(target: Node2D, hit_position: Vector2) -> void:
 	var impact: Node2D = CONCH_IMPACT_SCENE.instantiate() as Node2D
 	if impact == null:
 		return
 	add_child(impact)
 	impact.global_position = hit_position
-	if impact.has_method(&"play_effect"):
+	if impact.has_method(&"play_attached"):
+		impact.call(&"play_attached", target, hit_position)
+	elif impact.has_method(&"play_effect"):
 		impact.call(&"play_effect")
 
 
@@ -449,6 +560,8 @@ func get_debug_lines() -> Array[String]:
 		"ambience_playing=%s" % str(_underwater_ambience.playing),
 		"respawn_pending=%s" % str(_respawn_pending),
 		"whale_interaction_available=%s" % str(_whale_travel.is_hylas_in_interaction_range()),
+		"city_gate_position=%s" % str(_get_city_gate_position()),
+		"city_gate_in_range=%s" % str(_city_gate_in_range),
 	]
 	if _game_state != null:
 		lines.append("fins=%d/%d" % [_game_state.current_fins, _game_state.max_fins])
