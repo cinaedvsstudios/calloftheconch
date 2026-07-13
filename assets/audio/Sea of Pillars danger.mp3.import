@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bjgk1scej4exv"
+path="res://.godot/imported/Sea of Pillars danger.mp3-741de32221d0ffda3540fda7fcff27ae.mp3str"
+
+[deps]
+
+source_file="res://assets/audio/Sea of Pillars danger.mp3"
+dest_files=["res://.godot/imported/Sea of Pillars danger.mp3-741de32221d0ffda3540fda7fcff27ae.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
