@@ -1,6 +1,7 @@
 class_name CotcPauseOverlay
 extends Control
 
+signal resume_requested
 signal settings_requested
 signal menu_requested
 
@@ -11,7 +12,7 @@ signal menu_requested
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_resume_button.pressed.connect(close_overlay)
+	_resume_button.pressed.connect(_resume)
 	_settings_button.pressed.connect(_open_settings)
 	_menu_button.pressed.connect(_menu)
 	hide()
@@ -24,6 +25,11 @@ func open_overlay() -> void:
 
 func close_overlay() -> void:
 	hide()
+
+
+func _resume() -> void:
+	hide()
+	resume_requested.emit()
 
 
 func _open_settings() -> void:
