@@ -117,13 +117,13 @@ func _run_intro_after_delay(generation: int) -> void:
 	_title_tween = create_tween()
 	_title_tween.tween_property(
 		_title,
-		&"scale",
+		^"scale",
 		Vector2.ONE * title_burst_scale,
 		title_burst_duration,
 	).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	_title_tween.tween_property(
 		_title,
-		&"scale",
+		^"scale",
 		Vector2.ONE,
 		title_settle_duration,
 	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -132,7 +132,7 @@ func _run_intro_after_delay(generation: int) -> void:
 	_button_tween.tween_interval(title_burst_duration * 0.65)
 	_button_tween.tween_property(
 		_menu_buttons,
-		&"modulate:a",
+		^"modulate:a",
 		1.0,
 		button_fade_duration,
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
@@ -149,13 +149,13 @@ func _start_title_pulse() -> void:
 	_pulse_tween = create_tween().set_loops()
 	_pulse_tween.tween_property(
 		_title,
-		&"scale",
+		^"scale",
 		Vector2.ONE * title_pulse_scale,
 		title_pulse_half_duration,
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_pulse_tween.tween_property(
 		_title,
-		&"scale",
+		^"scale",
 		Vector2.ONE,
 		title_pulse_half_duration,
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
