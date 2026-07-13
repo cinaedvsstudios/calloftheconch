@@ -10,6 +10,31 @@ const RESOLUTIONS: Array[Vector2i] = [
 	Vector2i(1600, 900),
 	Vector2i(1920, 1080),
 ]
+const KEYBINDING_ACTIONS: Array[StringName] = [
+	&"move_left",
+	&"move_right",
+	&"move_up",
+	&"move_down",
+	&"action_a",
+	&"conch",
+	&"utility_item",
+	&"inventory",
+	&"tail_flip",
+	&"pause",
+]
+const KEYBINDING_LABELS: Dictionary = {
+	&"move_left": "Swim left",
+	&"move_right": "Swim right",
+	&"move_up": "Swim up",
+	&"move_down": "Swim down",
+	&"action_a": "Burst / brake",
+	&"conch": "Use Item A",
+	&"utility_item": "Use Item B",
+	&"inventory": "Open inventory",
+	&"tail_flip": "Tail Flip",
+	&"pause": "Pause / back",
+}
+const MAX_KEYBINDING_SLOTS: int = 2
 
 const DEFAULT_MASTER_VOLUME: float = 0.85
 const DEFAULT_MUSIC_VOLUME: float = 0.80
@@ -21,7 +46,7 @@ const DEFAULT_FULLSCREEN: bool = false
 const DEFAULT_RESOLUTION_INDEX: int = 0
 const DEFAULT_VSYNC_ENABLED: bool = true
 const DEFAULT_SCREEN_SHAKE_SCALE: float = 1.0
-const DEFAULT_SHOW_CONTROL_HINTS: bool = true
+const DEFAULT_SHOW_CONTROL_HINTS: bool = false
 
 var master_volume: float = DEFAULT_MASTER_VOLUME
 var music_volume: float = DEFAULT_MUSIC_VOLUME
@@ -32,10 +57,14 @@ var resolution_index: int = DEFAULT_RESOLUTION_INDEX
 var vsync_enabled: bool = DEFAULT_VSYNC_ENABLED
 var screen_shake_scale: float = DEFAULT_SCREEN_SHAKE_SCALE
 var show_control_hints: bool = DEFAULT_SHOW_CONTROL_HINTS
+var last_keybinding_error: String = ""
+
+var _default_keyboard_bindings: Dictionary = {}
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_capture_default_keybindings()
 	_ensure_audio_bus(&"Music")
 	_ensure_audio_bus(&"SFX")
 	_load_settings()
@@ -99,9 +128,74 @@ func set_screen_shake_scale(value: float) -> void:
 	_save_and_emit()
 
 
-func set_show_control_hints(enabled: bool) -> void:
-	show_control_hints = enabled
+func set_show_control_hints(_enabled: bool) -> void:
+	show_control_hints = false
 	_save_and_emit()
+
+
+func get_keybinding_action_label(action: StringName) -> String:
+	return str(KEYBINDING_LABELS.get(action, String(action).capitalize()))
+
+
+func get_keybinding_event(action: StringName, slot_index: int) -> InputEventKey:
+	var keyboard_events: Array = _get_keyboard_events(action)
+	if slot_index < 0 or slot_index >= keyboard_events.size():
+		return null
+	return keyboard_events[slot_index].duplicate() as InputEventKey
+
+
+func get_keybinding_text(action: StringName, slot_index: int) -> String:
+	var key_event: InputEventKey = get_keybinding_event(action, slot_index)
+	if key_event == null:
+		return "UNBOUND"
+	var display_text: String = key_event.as_text_keycode()
+	if display_text.is_empty():
+		display_text = key_event.as_text_physical_keycode()
+	if display_text.is_empty():
+		display_text = key_event.as_text()
+	return display_text.to_upper()
+
+
+func set_keybinding_slot(action: StringName, slot_index: int, source_event: InputEventKey) -> bool:
+	last_keybinding_error = ""
+	if not InputMap.has_action(action):
+		last_keybinding_error = "That action is not available."
+		return false
+	if slot_index < 0 or slot_index >= MAX_KEYBINDING_SLOTS:
+		last_keybinding_error = "That binding slot is not available."
+		return false
+	var normalized_event: InputEventKey = _normalize_key_event(source_event)
+	if normalized_event == null:
+		last_keybinding_error = "Press a keyboard key."
+		return false
+	var conflict_action: StringName = _find_keybinding_conflict(action, slot_index, normalized_event)
+	if conflict_action != &"":
+		last_keybinding_error = "That key is already assigned to %s." % get_keybinding_action_label(conflict_action)
+		return false
+
+	var keyboard_events: Array = _get_keyboard_events(action)
+	while keyboard_events.size() <= slot_index:
+		keyboard_events.append(null)
+	keyboard_events[slot_index] = normalized_event
+	while not keyboard_events.is_empty() and keyboard_events.back() == null:
+		keyboard_events.pop_back()
+	_replace_keyboard_events(action, keyboard_events)
+	_save_and_emit()
+	return true
+
+
+func clear_keybinding_slot(action: StringName, slot_index: int) -> bool:
+	last_keybinding_error = ""
+	if not InputMap.has_action(action):
+		last_keybinding_error = "That action is not available."
+		return false
+	var keyboard_events: Array = _get_keyboard_events(action)
+	if slot_index < 0 or slot_index >= keyboard_events.size():
+		return true
+	keyboard_events.remove_at(slot_index)
+	_replace_keyboard_events(action, keyboard_events)
+	_save_and_emit()
+	return true
 
 
 func reset_defaults() -> void:
@@ -114,6 +208,7 @@ func reset_defaults() -> void:
 	vsync_enabled = DEFAULT_VSYNC_ENABLED
 	screen_shake_scale = DEFAULT_SCREEN_SHAKE_SCALE
 	show_control_hints = DEFAULT_SHOW_CONTROL_HINTS
+	_restore_default_keybindings()
 	apply_all_settings()
 	_save_settings()
 
@@ -124,6 +219,30 @@ func get_resolution_options() -> Array[Vector2i]:
 
 func get_selected_resolution() -> Vector2i:
 	return RESOLUTIONS[clampi(resolution_index, 0, RESOLUTIONS.size() - 1)]
+
+
+func _capture_default_keybindings() -> void:
+	_default_keyboard_bindings.clear()
+	for action: StringName in KEYBINDING_ACTIONS:
+		if not InputMap.has_action(action):
+			continue
+		var default_events: Array = []
+		for key_event: InputEventKey in _get_keyboard_events(action):
+			default_events.append(key_event.duplicate() as InputEventKey)
+		_default_keyboard_bindings[action] = default_events
+
+
+func _restore_default_keybindings() -> void:
+	for action: StringName in KEYBINDING_ACTIONS:
+		if not InputMap.has_action(action):
+			continue
+		var default_events: Array = _default_keyboard_bindings.get(action, [])
+		var copied_events: Array = []
+		for event_variant: Variant in default_events:
+			var key_event: InputEventKey = event_variant as InputEventKey
+			if key_event != null:
+				copied_events.append(key_event.duplicate() as InputEventKey)
+		_replace_keyboard_events(action, copied_events)
 
 
 func _load_settings() -> void:
@@ -158,9 +277,26 @@ func _load_settings() -> void:
 		0.0,
 		1.0,
 	)
-	show_control_hints = bool(
-		config.get_value("accessibility", "show_control_hints", DEFAULT_SHOW_CONTROL_HINTS)
-	)
+	show_control_hints = false
+	_load_keybindings(config)
+
+
+func _load_keybindings(config: ConfigFile) -> void:
+	for action: StringName in KEYBINDING_ACTIONS:
+		var action_key: String = String(action)
+		if not InputMap.has_action(action) or not config.has_section_key("keybindings", action_key):
+			continue
+		var stored_value: Variant = config.get_value("keybindings", action_key, [])
+		if not stored_value is Array:
+			continue
+		var loaded_events: Array = []
+		for event_payload: Variant in stored_value as Array:
+			if not event_payload is Dictionary:
+				continue
+			var key_event: InputEventKey = _deserialize_key_event(event_payload as Dictionary)
+			if key_event != null:
+				loaded_events.append(key_event)
+		_replace_keyboard_events(action, loaded_events)
 
 
 func _save_settings() -> void:
@@ -174,10 +310,130 @@ func _save_settings() -> void:
 	config.set_value("display", "resolution_index", resolution_index)
 	config.set_value("display", "vsync_enabled", vsync_enabled)
 	config.set_value("accessibility", "screen_shake_scale", screen_shake_scale)
-	config.set_value("accessibility", "show_control_hints", show_control_hints)
+	_save_keybindings(config)
 	var save_error: Error = config.save(CONFIG_PATH)
 	if save_error != OK:
 		push_warning("Could not save settings to %s. Error %d." % [CONFIG_PATH, save_error])
+
+
+func _save_keybindings(config: ConfigFile) -> void:
+	for action: StringName in KEYBINDING_ACTIONS:
+		if not InputMap.has_action(action):
+			continue
+		var serialized_events: Array = []
+		for key_event: InputEventKey in _get_keyboard_events(action):
+			serialized_events.append(_serialize_key_event(key_event))
+		config.set_value("keybindings", String(action), serialized_events)
+
+
+func _serialize_key_event(key_event: InputEventKey) -> Dictionary:
+	return {
+		"keycode": int(key_event.keycode),
+		"physical_keycode": int(key_event.physical_keycode),
+		"key_label": int(key_event.key_label),
+		"location": int(key_event.location),
+		"shift": key_event.shift_pressed,
+		"ctrl": key_event.ctrl_pressed,
+		"alt": key_event.alt_pressed,
+		"meta": key_event.meta_pressed,
+	}
+
+
+func _deserialize_key_event(payload: Dictionary) -> InputEventKey:
+	var key_event := InputEventKey.new()
+	key_event.keycode = int(payload.get("keycode", 0))
+	key_event.physical_keycode = int(payload.get("physical_keycode", 0))
+	key_event.key_label = int(payload.get("key_label", 0))
+	key_event.location = int(payload.get("location", 0))
+	key_event.shift_pressed = bool(payload.get("shift", false))
+	key_event.ctrl_pressed = bool(payload.get("ctrl", false))
+	key_event.alt_pressed = bool(payload.get("alt", false))
+	key_event.meta_pressed = bool(payload.get("meta", false))
+	return _normalize_key_event(key_event)
+
+
+func _normalize_key_event(source_event: InputEventKey) -> InputEventKey:
+	if source_event == null:
+		return null
+	var key_event := InputEventKey.new()
+	key_event.keycode = source_event.keycode
+	key_event.physical_keycode = source_event.physical_keycode
+	key_event.key_label = source_event.key_label
+	key_event.location = source_event.location
+	key_event.shift_pressed = source_event.shift_pressed
+	key_event.ctrl_pressed = source_event.ctrl_pressed
+	key_event.alt_pressed = source_event.alt_pressed
+	key_event.meta_pressed = source_event.meta_pressed
+	key_event.pressed = false
+	key_event.echo = false
+	if key_event.keycode == 0 and key_event.physical_keycode == 0:
+		return null
+	match key_event.keycode:
+		KEY_SHIFT:
+			key_event.shift_pressed = false
+		KEY_CTRL:
+			key_event.ctrl_pressed = false
+		KEY_ALT:
+			key_event.alt_pressed = false
+		KEY_META:
+			key_event.meta_pressed = false
+	return key_event
+
+
+func _find_keybinding_conflict(
+		action: StringName,
+		slot_index: int,
+		candidate: InputEventKey,
+	) -> StringName:
+	for other_action: StringName in KEYBINDING_ACTIONS:
+		if not InputMap.has_action(other_action):
+			continue
+		var other_events: Array = _get_keyboard_events(other_action)
+		for other_slot: int in range(other_events.size()):
+			if other_action == action and other_slot == slot_index:
+				continue
+			var other_event: InputEventKey = other_events[other_slot] as InputEventKey
+			if other_event != null and _key_events_match(candidate, other_event):
+				return other_action
+	return &""
+
+
+func _key_events_match(first: InputEventKey, second: InputEventKey) -> bool:
+	return (
+		first.keycode == second.keycode
+		and first.physical_keycode == second.physical_keycode
+		and first.shift_pressed == second.shift_pressed
+		and first.ctrl_pressed == second.ctrl_pressed
+		and first.alt_pressed == second.alt_pressed
+		and first.meta_pressed == second.meta_pressed
+	)
+
+
+func _get_keyboard_events(action: StringName) -> Array:
+	var keyboard_events: Array = []
+	if not InputMap.has_action(action):
+		return keyboard_events
+	for input_event: InputEvent in InputMap.action_get_events(action):
+		var key_event: InputEventKey = input_event as InputEventKey
+		if key_event != null:
+			keyboard_events.append(key_event)
+	return keyboard_events
+
+
+func _replace_keyboard_events(action: StringName, keyboard_events: Array) -> void:
+	if not InputMap.has_action(action):
+		return
+	var non_keyboard_events: Array[InputEvent] = []
+	for input_event: InputEvent in InputMap.action_get_events(action):
+		if not input_event is InputEventKey:
+			non_keyboard_events.append(input_event)
+	InputMap.action_erase_events(action)
+	for event_variant: Variant in keyboard_events:
+		var key_event: InputEventKey = event_variant as InputEventKey
+		if key_event != null:
+			InputMap.action_add_event(action, key_event)
+	for input_event: InputEvent in non_keyboard_events:
+		InputMap.action_add_event(action, input_event)
 
 
 func _save_and_emit() -> void:
