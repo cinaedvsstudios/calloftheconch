@@ -7,6 +7,7 @@ signal menu_requested
 @onready var _sea_environment: Node2D = $SeaEnvironment
 @onready var _gameplay_music: AudioStreamPlayer = %GameplayMusic
 @onready var _gameplay_ui: CanvasLayer = $GameplayUI
+@onready var _hint: Label = $GameplayUI/Hint
 @onready var _pause_overlay: CotcPauseOverlay = %PauseOverlay
 
 var _active: bool = false
@@ -37,6 +38,11 @@ func deactivate() -> void:
 	_gameplay_music.stop()
 	_sea_environment.hide()
 	_level.deactivate()
+
+
+func apply_accessibility_settings(show_control_hints: bool, screen_shake_scale: float) -> void:
+	_hint.visible = show_control_hints
+	_level.set_screen_shake_scale(screen_shake_scale)
 
 
 func _play_gameplay_music() -> void:
@@ -71,6 +77,7 @@ func get_debug_lines() -> Array[String]:
 		"active=%s" % str(_active),
 		"environment_visible=%s" % str(_sea_environment.visible),
 		"ui_visible=%s" % str(_gameplay_ui.visible),
+		"control_hint_visible=%s" % str(_hint.visible),
 		"music_playing=%s" % str(_gameplay_music.playing),
 		"paused=%s" % str(get_tree().paused),
 	]
