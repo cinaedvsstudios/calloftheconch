@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/features/black_bloom/black_bloom_hazard.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://rebuild_v3/features/black_bloom/black_bloom_sprite_frames.tres" id="2_frames"]
 [ext_resource type="PackedScene" uid="uid://ood4cgs0bkqk" path="res://rebuild_v3/features/effects/bubble_burst.tscn" id="3_bubble_burst"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
+[ext_resource type="AudioStream" path="res://assets/audio/stun.mp3" id="5_stun_audio"]
 
 [sub_resource type="CircleShape2D" id="WakeShape"]
 radius = 560.0
@@ -26,6 +27,10 @@ unique_name_in_owner = true
 position = Vector2(0, -210)
 scale = Vector2(1.25, 1.25)
 
+[node name="ConchTarget" type="Node2D" parent="." groups=["conch_target"]]
+unique_name_in_owner = true
+position = Vector2(0, -610)
+
 [node name="WakeArea" type="Area2D" parent="."]
 unique_name_in_owner = true
 collision_layer = 0
@@ -47,6 +52,15 @@ monitorable = false
 [node name="HurtCollision" type="CollisionShape2D" parent="HurtArea"]
 position = Vector2(0, -610)
 shape = SubResource("HurtShape")
+
+[node name="StunAudio" type="AudioStreamPlayer2D" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+position = Vector2(0, -610)
+stream = ExtResource("5_stun_audio")
+volume_db = -3.0
+max_distance = 3000.0
+attenuation = 0.5
 
 [node name="DistanceActivator" type="Node" parent="."]
 script = ExtResource("4_distance_activator")
