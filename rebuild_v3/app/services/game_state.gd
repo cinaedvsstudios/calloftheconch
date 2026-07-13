@@ -5,31 +5,44 @@ signal state_changed
 signal state_replaced(reason: StringName)
 signal checkpoint_changed(level_id: StringName, spawn_id: StringName)
 signal fins_changed(current_value: int, maximum_value: int, delta: int)
+signal greatfin_changed(is_active: bool)
+signal defeat_state_changed(is_defeated: bool)
 signal onos_changed(current_value: int, delta: int)
 signal inventory_changed(item_id: StringName, quantity: int, delta: int)
+signal permanent_inventory_changed(item_id: StringName, owned: bool)
 signal shells_changed
 signal star_pieces_changed
 signal pickup_collection_changed(instance_id: StringName, collected: bool)
 signal progression_changed(category: StringName, entry_id: StringName)
 signal player_defeated
+signal player_respawned(level_id: StringName, spawn_id: StringName)
 
-const STATE_SCHEMA_VERSION: int = 2
+const STATE_SCHEMA_VERSION: int = 3
 const DEFAULT_LEVEL_ID: StringName = &"sea_of_pillars"
 const DEFAULT_SPAWN_POINT_ID: StringName = &"sea_of_pillars_start"
 const DEFAULT_FINS: int = 4
+const MAXIMUM_FINS: int = 8
+const NORMAL_CONCH_ID: String = "normal_conch"
 
 var current_level_id: StringName = DEFAULT_LEVEL_ID
 var current_spawn_point_id: StringName = DEFAULT_SPAWN_POINT_ID
 var current_fins: int = DEFAULT_FINS
 var max_fins: int = DEFAULT_FINS
+var greatfin_active: bool = false
+var player_is_defeated: bool = false
 var onos: int = 0
+
+# Limited-use inventory items are stored as item_id -> remaining uses.
 var inventory: Dictionary = {}
-var owned_shells: Array[String] = []
+# Permanent inventory items are stored once and can never be consumed.
+var permanent_inventory_items: Array[String] = []
+var owned_shells: Array[String] = [NORMAL_CONCH_ID]
 var permanent_upgrades: Dictionary = {}
 var star_pieces: Array[String] = []
 var story_flags: Dictionary = {}
 var collected_pickups: Dictionary = {}
 var defeated_bosses: Dictionary = {}
+# This records visited whale grounds for save/respawn metadata. It never gates travel.
 var unlocked_whale_grounds: Array[String] = []
 var shop_purchases: Dictionary = {}
 var playtime_seconds: float = 0.0
@@ -54,9 +67,12 @@ func start_new_game() -> void:
 	current_spawn_point_id = DEFAULT_SPAWN_POINT_ID
 	current_fins = DEFAULT_FINS
 	max_fins = DEFAULT_FINS
+	greatfin_active = false
+	player_is_defeated = false
 	onos = 0
 	inventory.clear()
-	owned_shells.clear()
+	permanent_inventory_items.clear()
+	owned_shells = [NORMAL_CONCH_ID]
 	permanent_upgrades.clear()
 	star_pieces.clear()
 	story_flags.clear()
@@ -88,7 +104,22 @@ func set_checkpoint(level_id: StringName, spawn_point_id: StringName) -> bool:
 
 func damage_fins(amount: int) -> int:
 	var requested_damage: int = maxi(0, amount)
-	if requested_damage <= 0 or current_fins <= 0:
+	if requested_damage <= 0 or player_is_defeated:
+		return 0
+
+	# Greatfin acts as a protective fifth state. The first hostile hit removes
+	# Greatfin and returns Hylas to his full normal Fin state without losing one.
+	if greatfin_active:
+		greatfin_active = false
+		var previous_fins: int = current_fins
+		current_fins = max_fins
+		greatfin_changed.emit(false)
+		if current_fins != previous_fins:
+			fins_changed.emit(current_fins, max_fins, current_fins - previous_fins)
+		state_changed.emit()
+		return 0
+
+	if current_fins <= 0:
 		return 0
 	var previous_fins: int = current_fins
 	current_fins = maxi(0, current_fins - requested_damage)
@@ -96,13 +127,15 @@ func damage_fins(amount: int) -> int:
 	fins_changed.emit(current_fins, max_fins, -applied_damage)
 	state_changed.emit()
 	if current_fins <= 0:
+		player_is_defeated = true
+		defeat_state_changed.emit(true)
 		player_defeated.emit()
 	return applied_damage
 
 
 func heal_fins(amount: int) -> int:
 	var requested_healing: int = maxi(0, amount)
-	if requested_healing <= 0 or current_fins >= max_fins:
+	if requested_healing <= 0 or player_is_defeated or current_fins >= max_fins:
 		return 0
 	var previous_fins: int = current_fins
 	current_fins = mini(max_fins, current_fins + requested_healing)
@@ -116,24 +149,70 @@ func restore_fins() -> int:
 	return heal_fins(max_fins - current_fins)
 
 
+func activate_greatfin() -> bool:
+	if player_is_defeated or greatfin_active:
+		return false
+	restore_fins()
+	greatfin_active = true
+	greatfin_changed.emit(true)
+	state_changed.emit()
+	return true
+
+
+func use_crown_sea_grapes(duplicate_onos_value: int = 5) -> bool:
+	if player_is_defeated:
+		return false
+	if greatfin_active:
+		add_onos(maxi(0, duplicate_onos_value))
+		return false
+	return activate_greatfin()
+
+
+func respawn_after_defeat(
+		level_id: StringName = &"",
+		spawn_point_id: StringName = &"",
+	) -> void:
+	var resolved_level: StringName = level_id if not String(level_id).is_empty() else current_level_id
+	var resolved_spawn: StringName = spawn_point_id if not String(spawn_point_id).is_empty() else current_spawn_point_id
+	current_level_id = resolved_level
+	current_spawn_point_id = resolved_spawn
+	var previous_fins: int = current_fins
+	current_fins = mini(DEFAULT_FINS, max_fins)
+	var greatfin_was_active: bool = greatfin_active
+	greatfin_active = false
+	player_is_defeated = false
+	checkpoint_changed.emit(current_level_id, current_spawn_point_id)
+	if greatfin_was_active:
+		greatfin_changed.emit(false)
+	fins_changed.emit(current_fins, max_fins, current_fins - previous_fins)
+	defeat_state_changed.emit(false)
+	state_changed.emit()
+	player_respawned.emit(current_level_id, current_spawn_point_id)
+
+
 func set_fin_state(new_current_fins: int, new_max_fins: int) -> void:
 	var previous_fins: int = current_fins
-	var resolved_maximum: int = maxi(1, new_max_fins)
+	var resolved_maximum: int = clampi(new_max_fins, DEFAULT_FINS, MAXIMUM_FINS)
 	var resolved_current: int = clampi(new_current_fins, 0, resolved_maximum)
 	if max_fins == resolved_maximum and current_fins == resolved_current:
 		return
 	max_fins = resolved_maximum
 	current_fins = resolved_current
 	fins_changed.emit(current_fins, max_fins, current_fins - previous_fins)
-	state_changed.emit()
-	if current_fins <= 0 and previous_fins > 0:
+	if current_fins <= 0 and not player_is_defeated:
+		player_is_defeated = true
+		defeat_state_changed.emit(true)
 		player_defeated.emit()
+	elif current_fins > 0 and player_is_defeated:
+		player_is_defeated = false
+		defeat_state_changed.emit(false)
+	state_changed.emit()
 
 
 func set_max_fins(new_max_fins: int, fill_added_capacity: bool = false) -> void:
 	var previous_maximum: int = max_fins
 	var previous_current: int = current_fins
-	max_fins = maxi(1, new_max_fins)
+	max_fins = clampi(new_max_fins, DEFAULT_FINS, MAXIMUM_FINS)
 	if fill_added_capacity and max_fins > previous_maximum:
 		current_fins += max_fins - previous_maximum
 	current_fins = clampi(current_fins, 0, max_fins)
@@ -221,6 +300,21 @@ func has_inventory_item(item_id: StringName, quantity: int = 1) -> bool:
 	return quantity >= 0 and get_inventory_quantity(item_id) >= quantity
 
 
+func grant_permanent_inventory_item(item_id: StringName) -> bool:
+	var key: String = String(item_id)
+	if key.is_empty() or permanent_inventory_items.has(key):
+		return false
+	permanent_inventory_items.append(key)
+	permanent_inventory_changed.emit(item_id, true)
+	progression_changed.emit(&"permanent_inventory", item_id)
+	state_changed.emit()
+	return true
+
+
+func has_permanent_inventory_item(item_id: StringName) -> bool:
+	return permanent_inventory_items.has(String(item_id))
+
+
 func unlock_shell(shell_id: StringName) -> bool:
 	var key: String = String(shell_id)
 	if key.is_empty() or owned_shells.has(key):
@@ -276,14 +370,19 @@ func mark_boss_defeated(boss_id: StringName) -> bool:
 	return true
 
 
-func unlock_whale_ground(whale_ground_id: StringName) -> bool:
+func register_whale_ground(whale_ground_id: StringName) -> bool:
 	var key: String = String(whale_ground_id)
 	if key.is_empty() or unlocked_whale_grounds.has(key):
 		return false
 	unlocked_whale_grounds.append(key)
-	progression_changed.emit(&"whale_ground", whale_ground_id)
+	progression_changed.emit(&"whale_ground_visited", whale_ground_id)
 	state_changed.emit()
 	return true
+
+
+func unlock_whale_ground(whale_ground_id: StringName) -> bool:
+	# Compatibility alias. Whale destinations are not locked by this list.
+	return register_whale_ground(whale_ground_id)
 
 
 func record_shop_purchase(purchase_id: StringName, quantity: int = 1) -> int:
@@ -304,8 +403,10 @@ func to_save_dictionary() -> Dictionary:
 		"current_spawn_point_id": String(current_spawn_point_id),
 		"current_fins": current_fins,
 		"max_fins": max_fins,
+		"greatfin_active": greatfin_active,
 		"onos": onos,
 		"inventory": inventory.duplicate(true),
+		"permanent_inventory_items": permanent_inventory_items.duplicate(),
 		"owned_shells": owned_shells.duplicate(),
 		"permanent_upgrades": permanent_upgrades.duplicate(true),
 		"star_pieces": star_pieces.duplicate(),
@@ -321,11 +422,21 @@ func to_save_dictionary() -> Dictionary:
 func load_from_save_dictionary(data: Dictionary) -> void:
 	current_level_id = StringName(str(data.get("current_level_id", String(DEFAULT_LEVEL_ID))))
 	current_spawn_point_id = StringName(str(data.get("current_spawn_point_id", String(DEFAULT_SPAWN_POINT_ID))))
-	max_fins = maxi(1, int(data.get("max_fins", DEFAULT_FINS)))
+	max_fins = clampi(int(data.get("max_fins", DEFAULT_FINS)), DEFAULT_FINS, MAXIMUM_FINS)
 	current_fins = clampi(int(data.get("current_fins", max_fins)), 0, max_fins)
+	greatfin_active = bool(data.get("greatfin_active", false))
+	player_is_defeated = false
+	if current_fins <= 0:
+		current_fins = mini(DEFAULT_FINS, max_fins)
+		greatfin_active = false
+	elif greatfin_active:
+		current_fins = max_fins
 	onos = maxi(0, int(data.get("onos", data.get("money", 0))))
 	inventory = _dictionary_value(data.get("inventory", {}))
-	owned_shells = _string_array_value(data.get("owned_shells", []))
+	permanent_inventory_items = _string_array_value(data.get("permanent_inventory_items", []))
+	owned_shells = _string_array_value(data.get("owned_shells", [NORMAL_CONCH_ID]))
+	if not owned_shells.has(NORMAL_CONCH_ID):
+		owned_shells.push_front(NORMAL_CONCH_ID)
 	permanent_upgrades = _dictionary_value(data.get("permanent_upgrades", {}))
 	star_pieces = _string_array_value(data.get("star_pieces", []))
 	story_flags = _dictionary_value(data.get("story_flags", {}))
@@ -358,13 +469,16 @@ func get_debug_lines() -> Array[String]:
 		"[GameState]",
 		"schema_version=%d" % STATE_SCHEMA_VERSION,
 		"fins=%d/%d" % [current_fins, max_fins],
+		"greatfin_active=%s" % str(greatfin_active),
+		"player_is_defeated=%s" % str(player_is_defeated),
 		"onos=%d" % onos,
-		"inventory=%s" % str(inventory),
+		"limited_use_inventory=%s" % str(inventory),
+		"permanent_inventory=%s" % str(permanent_inventory_items),
 		"owned_shells=%s" % str(owned_shells),
 		"star_pieces=%s" % str(star_pieces),
 		"collected_pickups=%d" % collected_pickups.size(),
 		"defeated_bosses=%d" % defeated_bosses.size(),
-		"unlocked_whale_grounds=%s" % str(unlocked_whale_grounds),
+		"visited_whale_grounds=%s" % str(unlocked_whale_grounds),
 	]
 
 
@@ -372,6 +486,8 @@ func _emit_replaced_state(reason: StringName) -> void:
 	state_replaced.emit(reason)
 	checkpoint_changed.emit(current_level_id, current_spawn_point_id)
 	fins_changed.emit(current_fins, max_fins, 0)
+	greatfin_changed.emit(greatfin_active)
+	defeat_state_changed.emit(player_is_defeated)
 	onos_changed.emit(onos, 0)
 	shells_changed.emit()
 	star_pieces_changed.emit()
