@@ -40,6 +40,7 @@ func _ready() -> void:
 	_main_music.process_mode = Node.PROCESS_MODE_ALWAYS
 	_impact_audio.process_mode = Node.PROCESS_MODE_ALWAYS
 	_menu_action_audio.process_mode = Node.PROCESS_MODE_ALWAYS
+	_set_menu_labels()
 	_set_menu_buttons_interactive()
 	_start_button.pressed.connect(_on_start_button_pressed)
 	_load_save_button.pressed.connect(_on_load_save_button_pressed)
@@ -179,6 +180,15 @@ func _kill_intro_tweens() -> void:
 	_title_tween = null
 	_button_tween = null
 	_pulse_tween = null
+
+
+func _set_menu_labels() -> void:
+	var new_game_label: Label = _start_button.get_node("Label") as Label
+	var continue_label: Label = _load_save_button.get_node("Label") as Label
+	if new_game_label != null:
+		new_game_label.text = "NEW GAME"
+	if continue_label != null:
+		continue_label.text = "CONTINUE"
 
 
 func _set_menu_buttons_interactive() -> void:
