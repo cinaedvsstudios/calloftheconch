@@ -62,6 +62,10 @@ func _ready() -> void:
 		var interaction_callback: Callable = Callable(self, "_on_hylas_interaction_requested")
 		if not _hylas.is_connected(&"interaction_requested", interaction_callback):
 			_hylas.connect(&"interaction_requested", interaction_callback)
+	if _hylas.has_signal(&"death_drift_started"):
+		var death_callback: Callable = Callable(self, "_on_hylas_death_drift_started")
+		if not _hylas.is_connected(&"death_drift_started", death_callback):
+			_hylas.connect(&"death_drift_started", death_callback)
 	_prepare_bubble_material()
 	configure_player()
 	_connect_spawn_checkpoints()
@@ -134,6 +138,8 @@ func deactivate() -> void:
 	set_process(false)
 	_bubble_waterline_update_elapsed = 0.0
 	_set_hylas_interaction_available(false)
+	if _hylas.has_method(&"cancel_death_sequence"):
+		_hylas.call(&"cancel_death_sequence")
 	_hylas.set_play_enabled(false)
 	_underwater_ambience.stop()
 	_bubble_overlay.stop()
@@ -322,6 +328,15 @@ func _on_player_defeated() -> void:
 	_game_state.register_whale_ground(WHALE_GROUND_SPAWN_POINT_ID)
 	_set_hylas_interaction_available(false)
 	_hylas.set_play_enabled(false)
+	if _hylas.has_method(&"start_death_sequence"):
+		_hylas.call(&"start_death_sequence")
+		return
+	death_sequence_requested.emit()
+
+
+func _on_hylas_death_drift_started() -> void:
+	if not _active or not _respawn_pending:
+		return
 	death_sequence_requested.emit()
 
 

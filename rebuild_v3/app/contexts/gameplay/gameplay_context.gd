@@ -3,6 +3,7 @@ extends Node
 
 signal settings_requested
 signal menu_requested
+signal close_game_requested
 signal death_sequence_requested
 signal whale_travel_requested
 
@@ -12,6 +13,7 @@ signal whale_travel_requested
 @onready var _gameplay_ui: CanvasLayer = $GameplayUI
 @onready var _hint: Label = $GameplayUI/Hint
 @onready var _pause_overlay: CotcPauseOverlay = %PauseOverlay
+@onready var _death_overlay: CotcDeathOverlay = %DeathOverlay
 
 var _active: bool = false
 var _game_state: CotcGameState
@@ -22,6 +24,9 @@ func _ready() -> void:
 	_gameplay_music.process_mode = Node.PROCESS_MODE_ALWAYS
 	_pause_overlay.settings_requested.connect(_on_pause_settings_requested)
 	_pause_overlay.menu_requested.connect(_on_pause_menu_requested)
+	_death_overlay.continue_requested.connect(_on_death_continue_requested)
+	_death_overlay.menu_requested.connect(_on_death_menu_requested)
+	_death_overlay.exit_requested.connect(_on_death_exit_requested)
 	_level.death_sequence_requested.connect(_on_level_death_sequence_requested)
 	_level.whale_travel_requested.connect(_on_level_whale_travel_requested)
 	_sea_environment.hide()
@@ -38,6 +43,7 @@ func activate() -> void:
 	_sea_environment.show()
 	_gameplay_ui.visible = true
 	_pause_overlay.close_overlay()
+	_death_overlay.close_overlay()
 	if _game_state != null:
 		_game_state.set_gameplay_active(true)
 		_level.activate(_game_state.current_spawn_point_id)
@@ -50,6 +56,7 @@ func deactivate() -> void:
 	_active = false
 	get_tree().paused = false
 	_pause_overlay.close_overlay()
+	_death_overlay.close_overlay()
 	_gameplay_ui.visible = false
 	_gameplay_music.stop()
 	_sea_environment.hide()
@@ -59,7 +66,7 @@ func deactivate() -> void:
 
 
 func return_to_pause_menu() -> void:
-	if not _active:
+	if not _active or _death_overlay.is_open():
 		return
 	get_tree().paused = true
 	_pause_overlay.open_overlay()
@@ -74,6 +81,7 @@ func is_death_sequence_pending() -> bool:
 
 
 func complete_death_respawn() -> void:
+	_death_overlay.close_overlay()
 	_level.complete_death_respawn()
 
 
@@ -92,6 +100,10 @@ func _play_gameplay_music() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not _active:
+		return
+	if _death_overlay.is_open():
+		if event.is_action_pressed(&"pause"):
+			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed(&"pause"):
 		if get_tree().paused:
@@ -115,7 +127,29 @@ func _on_pause_menu_requested() -> void:
 	menu_requested.emit()
 
 
+func _on_death_continue_requested() -> void:
+	if not _active or not _level.is_death_sequence_pending():
+		return
+	complete_death_respawn()
+
+
+func _on_death_menu_requested() -> void:
+	if not _active:
+		return
+	_death_overlay.close_overlay()
+	get_tree().paused = false
+	menu_requested.emit()
+
+
+func _on_death_exit_requested() -> void:
+	close_game_requested.emit()
+
+
 func _on_level_death_sequence_requested() -> void:
+	if not _active:
+		return
+	_pause_overlay.close_overlay()
+	_death_overlay.open_overlay()
 	death_sequence_requested.emit()
 
 
@@ -133,6 +167,7 @@ func get_debug_lines() -> Array[String]:
 		"music_playing=%s" % str(_gameplay_music.playing),
 		"paused=%s" % str(get_tree().paused),
 		"death_sequence_pending=%s" % str(_level.is_death_sequence_pending()),
+		"death_overlay_open=%s" % str(_death_overlay.is_open()),
 	]
 	if _game_state != null:
 		lines.append("level_id=%s" % String(_game_state.current_level_id))
