@@ -1,9 +1,11 @@
-[gd_scene format=3 uid="uid://cd1atslru6s4j"]
+[gd_scene load_steps=7 format=3 uid="uid://cd1atslru6s4j"]
 
 [ext_resource type="Script" uid="uid://by21fsrjakwub" path="res://scenes/effects/PickupFeedback/pickup_feedback.gd" id="1_controller"]
 [ext_resource type="VideoStream" uid="uid://bl827b43q764o" path="res://assets/effects/pickupanim.ogv" id="2_video"]
 [ext_resource type="AudioStream" uid="uid://dj4fgxnp3pu1k" path="res://assets/audio/pickup5.mp3" id="3_audio"]
 [ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="4_shader"]
+[ext_resource type="Texture2D" path="res://assets/ui/item_fish_tail_reserve.png" id="5_fin_icon"]
+[ext_resource type="Texture2D" path="res://assets/ui/01_ancient_greek_coins.png" id="6_coin_icon"]
 
 [sub_resource type="ShaderMaterial" id="PickupOverlayMaterial"]
 shader = ExtResource("4_shader")
@@ -13,38 +15,48 @@ shader_parameter/brightness = 4.0
 shader_parameter/waterline_screen_y = -1.0
 shader_parameter/waterline_fade = 0.012
 
-[node name="PickupFeedback" type="CanvasLayer" unique_id=1635568539 groups=["pickup_feedback_effect"]]
+[node name="PickupFeedback" type="CanvasLayer" groups=["pickup_feedback_effect"]]
 process_mode = 3
 layer = 35
 visible = false
-scale = Vector2(0.75, 0.75)
-transform = Transform2D(0.75, 0, 0, 0.75, 0, 0)
 script = ExtResource("1_controller")
+fin_icon = ExtResource("5_fin_icon")
+coin_icon = ExtResource("6_coin_icon")
 
-[node name="PickupVideo" type="VideoStreamPlayer" parent="." unique_id=732287473]
+[node name="Anchor" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="PickupVideo" type="VideoStreamPlayer" parent="Anchor"]
 unique_name_in_owner = true
 material = SubResource("PickupOverlayMaterial")
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -320.0
-offset_top = -180.0
-offset_right = 320.0
-offset_bottom = 180.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_left = -150.0
+offset_top = -85.0
+offset_right = 150.0
+offset_bottom = 85.0
 mouse_filter = 2
 stream = ExtResource("2_video")
-speed_scale = 1.993
+speed_scale = 2.0
 expand = true
 
-[node name="PickupAudio" type="AudioStreamPlayer" parent="." unique_id=314035709]
+[node name="RewardIcon" type="TextureRect" parent="Anchor"]
+unique_name_in_owner = true
+offset_left = -38.0
+offset_top = -38.0
+offset_right = 38.0
+offset_bottom = 38.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+pivot_offset = Vector2(38, 38)
+
+[node name="PickupAudio" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
 stream = ExtResource("3_audio")
 volume_db = -4.0
 
-[node name="Lifetime" type="Timer" parent="." unique_id=967379994]
+[node name="Lifetime" type="Timer" parent="."]
 unique_name_in_owner = true
 one_shot = true
