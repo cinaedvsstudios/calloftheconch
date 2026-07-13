@@ -25,6 +25,9 @@ signal death_landed
 @export_range(0.0, 200.0, 1.0) var brake_minimum_speed: float = 5.0
 @export_range(0.05, 0.5, 0.01) var interaction_double_tap_window: float = 0.20
 
+@export_category("Pickup Feedback")
+@export var pickup_feedback_hand_offset: Vector2 = Vector2(48.0, -18.0)
+
 @export_category("Death Sequence")
 @export_range(1.0, 30.0, 0.5) var death_intro_fps: float = 6.0
 @export_range(1.0, 30.0, 0.5) var death_drift_fps: float = 3.0
@@ -149,6 +152,13 @@ func is_death_sequence_active() -> bool:
 
 func has_death_body_landed() -> bool:
 	return _death_body_landed
+
+
+func get_pickup_feedback_anchor_position() -> Vector2:
+	var local_offset: Vector2 = pickup_feedback_hand_offset
+	if _facing_left:
+		local_offset.x = -local_offset.x
+	return global_position + local_offset.rotated(_visual_rotation)
 
 
 func set_interaction_available(is_available: bool) -> void:
