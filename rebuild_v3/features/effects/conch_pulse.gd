@@ -45,6 +45,8 @@ var _sequence_hit_targets: Dictionary = {}
 var _last_hit_count: int = 0
 var _last_trigger_origin: Vector2 = Vector2.ZERO
 var _last_player_origin: Vector2 = Vector2.ZERO
+var _player_source: Node2D
+var _player_forward_offset: float = 0.0
 
 
 func _ready() -> void:
@@ -67,6 +69,8 @@ func trigger_from_player(origin: Vector2, direction: Vector2, player_origin: Vec
 	global_position = origin
 	_last_trigger_origin = origin
 	_last_player_origin = player_origin
+	_player_source = _find_player_source(player_origin)
+	_player_forward_offset = origin.distance_to(player_origin)
 	_pulse_direction = direction
 	if _pulse_direction.length_squared() <= 0.0001:
 		_pulse_direction = Vector2.RIGHT
@@ -79,8 +83,7 @@ func trigger_from_player(origin: Vector2, direction: Vector2, player_origin: Vec
 	_sequence_hit_targets.clear()
 	_reset_pulse_state()
 	_track_close_range_targets(player_origin)
-	for pulse_sprite: Sprite2D in _pulse_sprites:
-		pulse_sprite.rotation = _pulse_direction.angle()
+	_apply_pulse_direction()
 
 	show()
 	_play_origin_flash()
@@ -92,6 +95,8 @@ func stop() -> void:
 	_sequence_active = false
 	_flash_active = false
 	_sequence_elapsed = 0.0
+	_player_source = null
+	_player_forward_offset = 0.0
 	_origin_flash.stop()
 	_origin_flash.hide()
 	for pulse_sprite: Sprite2D in _pulse_sprites:
@@ -104,6 +109,7 @@ func _process(delta: float) -> void:
 	if not _sequence_active:
 		return
 
+	_update_player_tracking()
 	_sequence_elapsed += delta
 	_update_pulse_stream()
 	var final_pulse_delay: float = float(maxi(0, _pulse_sprites.size() - 1)) * pulse_interval
@@ -163,6 +169,43 @@ func _reset_pulse_state() -> void:
 		var pulse_sprite: Sprite2D = _pulse_sprites[pulse_index]
 		pulse_sprite.modulate.a = 0.0
 		pulse_sprite.hide()
+
+
+func _find_player_source(player_origin: Vector2) -> Node2D:
+	var closest_source: Node2D = null
+	var closest_distance_squared: float = INF
+	for node: Node in get_tree().get_nodes_in_group(&"hylas"):
+		var candidate: Node2D = node as Node2D
+		if candidate == null or not is_instance_valid(candidate):
+			continue
+		var distance_squared: float = candidate.global_position.distance_squared_to(player_origin)
+		if distance_squared >= closest_distance_squared:
+			continue
+		closest_source = candidate
+		closest_distance_squared = distance_squared
+	return closest_source
+
+
+func _update_player_tracking() -> void:
+	if not is_instance_valid(_player_source):
+		return
+	var player_sprite: AnimatedSprite2D = _player_source.get_node_or_null("AnimatedSprite") as AnimatedSprite2D
+	if player_sprite == null or player_sprite.animation != &"conch":
+		return
+
+	var facing_direction: Vector2 = Vector2.LEFT if player_sprite.flip_h else Vector2.RIGHT
+	var updated_direction: Vector2 = facing_direction.rotated(player_sprite.rotation)
+	if updated_direction.length_squared() <= 0.0001:
+		return
+	_pulse_direction = updated_direction.normalized()
+	_last_player_origin = _player_source.global_position
+	global_position = _last_player_origin + _pulse_direction * _player_forward_offset
+	_apply_pulse_direction()
+
+
+func _apply_pulse_direction() -> void:
+	for pulse_sprite: Sprite2D in _pulse_sprites:
+		pulse_sprite.rotation = _pulse_direction.angle()
 
 
 func _track_close_range_targets(player_origin: Vector2) -> void:
@@ -296,6 +339,7 @@ func get_debug_lines() -> Array[String]:
 		"direction=%s" % str(_pulse_direction),
 		"last_origin=%s" % str(_last_trigger_origin),
 		"last_player_origin=%s" % str(_last_player_origin),
+		"player_tracking=%s" % str(is_instance_valid(_player_source)),
 		"last_hit_events=%d" % _last_hit_count,
 		"target_group=%s" % str(target_group),
 	]
