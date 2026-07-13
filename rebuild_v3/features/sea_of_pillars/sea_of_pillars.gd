@@ -233,7 +233,8 @@ func _on_damage_requested(hylas_body: Node, amount: int) -> void:
 	if applied_damage <= 0:
 		return
 	_last_damage_time_msec = now_msec
-	_hylas.play_fin_loss_sound()
+	if _hylas.has_method(&"play_fin_loss_sound"):
+		_hylas.call(&"play_fin_loss_sound")
 
 
 func _on_shark_contacted(hylas_body: Node2D) -> void:
