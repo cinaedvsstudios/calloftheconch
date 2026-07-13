@@ -2,12 +2,12 @@ class_name CotcGameplayHud
 extends Control
 
 const FIN_STATE_PATHS: Array[String] = [
-	"res://assets/ui/hud_fin_state_1.webp",
-	"res://assets/ui/hud_fin_state_2.webp",
-	"res://assets/ui/hud_fin_state_3.webp",
-	"res://assets/ui/hud_fin_state_4.webp",
-	"res://assets/ui/hud_fin_state_5.webp",
-	"res://assets/ui/hud_fin_state_6.webp",
+	"res://assets/ui/UI1.webp",
+	"res://assets/ui/UI2.webp",
+	"res://assets/ui/UI3.webp",
+	"res://assets/ui/UI4.webp",
+	"res://assets/ui/UI5.webp",
+	"res://assets/ui/UI6.webp",
 ]
 const NORMAL_CONCH_PATH: String = "res://assets/ui/shell_normal_conch.png"
 
@@ -78,7 +78,7 @@ func _load_textures() -> void:
 	_panel_texture.visible = loaded_panel_count > 0
 	if loaded_panel_count != FIN_STATE_PATHS.size():
 		push_warning(
-			"Gameplay HUD found %d of %d fin-state panel images. Add hud_fin_state_1.webp through hud_fin_state_6.webp to assets/ui."
+			"Gameplay HUD found %d of %d fin-state panel images. Add UI1.webp through UI6.webp to assets/ui."
 			% [loaded_panel_count, FIN_STATE_PATHS.size()]
 		)
 	if ResourceLoader.exists(NORMAL_CONCH_PATH, "Texture2D"):
