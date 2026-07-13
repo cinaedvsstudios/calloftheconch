@@ -4,6 +4,7 @@ extends Node
 signal settings_changed
 
 const CONFIG_PATH: String = "user://settings.cfg"
+const SETTINGS_SCHEMA_VERSION: int = 2
 const RESOLUTIONS: Array[Vector2i] = [
 	Vector2i(1280, 720),
 	Vector2i(1600, 900),
@@ -12,7 +13,9 @@ const RESOLUTIONS: Array[Vector2i] = [
 
 const DEFAULT_MASTER_VOLUME: float = 0.85
 const DEFAULT_MUSIC_VOLUME: float = 0.80
-const DEFAULT_EFFECTS_VOLUME: float = 0.90
+const LEGACY_DEFAULT_EFFECTS_VOLUME: float = 0.90
+const EFFECTS_BALANCE_MULTIPLIER: float = 0.75
+const DEFAULT_EFFECTS_VOLUME: float = LEGACY_DEFAULT_EFFECTS_VOLUME * EFFECTS_BALANCE_MULTIPLIER
 const DEFAULT_MUTE_ALL: bool = false
 const DEFAULT_FULLSCREEN: bool = false
 const DEFAULT_RESOLUTION_INDEX: int = 0
@@ -36,6 +39,8 @@ func _ready() -> void:
 	_ensure_audio_bus(&"Music")
 	_ensure_audio_bus(&"SFX")
 	_load_settings()
+	# Persist migrations immediately so the 25% SFX rebalance is applied only once.
+	_save_settings()
 	_route_audio_tree(get_tree().root)
 	get_tree().node_added.connect(_on_node_added)
 	call_deferred(&"apply_all_settings")
@@ -125,9 +130,21 @@ func _load_settings() -> void:
 	var config := ConfigFile.new()
 	if config.load(CONFIG_PATH) != OK:
 		return
+	var stored_schema_version: int = int(
+		config.get_value("meta", "settings_schema_version", 1)
+	)
 	master_volume = clampf(float(config.get_value("audio", "master_volume", DEFAULT_MASTER_VOLUME)), 0.0, 1.0)
 	music_volume = clampf(float(config.get_value("audio", "music_volume", DEFAULT_MUSIC_VOLUME)), 0.0, 1.0)
-	effects_volume = clampf(float(config.get_value("audio", "effects_volume", DEFAULT_EFFECTS_VOLUME)), 0.0, 1.0)
+	var loaded_effects_volume: float = float(
+		config.get_value(
+			"audio",
+			"effects_volume",
+			LEGACY_DEFAULT_EFFECTS_VOLUME if stored_schema_version < SETTINGS_SCHEMA_VERSION else DEFAULT_EFFECTS_VOLUME,
+		)
+	)
+	if stored_schema_version < SETTINGS_SCHEMA_VERSION:
+		loaded_effects_volume *= EFFECTS_BALANCE_MULTIPLIER
+	effects_volume = clampf(loaded_effects_volume, 0.0, 1.0)
 	mute_all = bool(config.get_value("audio", "mute_all", DEFAULT_MUTE_ALL))
 	fullscreen = bool(config.get_value("display", "fullscreen", DEFAULT_FULLSCREEN))
 	resolution_index = clampi(
@@ -148,6 +165,7 @@ func _load_settings() -> void:
 
 func _save_settings() -> void:
 	var config := ConfigFile.new()
+	config.set_value("meta", "settings_schema_version", SETTINGS_SCHEMA_VERSION)
 	config.set_value("audio", "master_volume", master_volume)
 	config.set_value("audio", "music_volume", music_volume)
 	config.set_value("audio", "effects_volume", effects_volume)
