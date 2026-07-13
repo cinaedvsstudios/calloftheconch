@@ -20,6 +20,9 @@ signal target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
 @export var target_group: StringName = &"conch_target"
 @export_range(0.0, 200.0, 1.0) var target_radius_padding: float = 30.0
 @export var hit_once_per_trigger: bool = true
+@export_range(20.0, 400.0, 1.0) var close_range_radius: float = 185.0
+@export_range(0.0, 250.0, 1.0) var point_blank_radius: float = 95.0
+@export_range(1.0, 180.0, 1.0) var close_range_arc_degrees: float = 120.0
 
 @export_category("Origin Flash")
 @export_range(0.05, 2.0, 0.01) var flash_scale: float = 0.35
@@ -41,6 +44,7 @@ var _pulse_hit_targets: Array[Dictionary] = []
 var _sequence_hit_targets: Dictionary = {}
 var _last_hit_count: int = 0
 var _last_trigger_origin: Vector2 = Vector2.ZERO
+var _last_player_origin: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
@@ -56,8 +60,13 @@ func _ready() -> void:
 
 
 func trigger(origin: Vector2, direction: Vector2) -> void:
+	trigger_from_player(origin, direction, origin)
+
+
+func trigger_from_player(origin: Vector2, direction: Vector2, player_origin: Vector2) -> void:
 	global_position = origin
 	_last_trigger_origin = origin
+	_last_player_origin = player_origin
 	_pulse_direction = direction
 	if _pulse_direction.length_squared() <= 0.0001:
 		_pulse_direction = Vector2.RIGHT
@@ -69,6 +78,7 @@ func trigger(origin: Vector2, direction: Vector2) -> void:
 	_last_hit_count = 0
 	_sequence_hit_targets.clear()
 	_reset_pulse_state()
+	_track_close_range_targets(player_origin)
 	for pulse_sprite: Sprite2D in _pulse_sprites:
 		pulse_sprite.rotation = _pulse_direction.angle()
 
@@ -155,6 +165,24 @@ func _reset_pulse_state() -> void:
 		pulse_sprite.hide()
 
 
+func _track_close_range_targets(player_origin: Vector2) -> void:
+	if target_group == &"":
+		return
+	var minimum_dot: float = cos(deg_to_rad(close_range_arc_degrees * 0.5))
+	for node: Node in get_tree().get_nodes_in_group(target_group):
+		var target: Node2D = node as Node2D
+		if target == null or not is_instance_valid(target):
+			continue
+		var target_offset: Vector2 = target.global_position - player_origin
+		var target_distance: float = target_offset.length()
+		if target_distance > close_range_radius + target_radius_padding:
+			continue
+		if target_distance > point_blank_radius and target_offset.length_squared() > 0.0001:
+			if _pulse_direction.dot(target_offset.normalized()) < minimum_dot:
+				continue
+		_register_target_hit(target, 0)
+
+
 func _update_pulse_stream() -> void:
 	for pulse_index: int in range(_pulse_sprites.size()):
 		if _pulse_finished[pulse_index]:
@@ -225,9 +253,16 @@ func _track_pulse_targets(pulse_index: int, previous_radius: float, current_radi
 				continue
 
 		_pulse_hit_targets[pulse_index][target_id] = true
-		_sequence_hit_targets[target_id] = true
-		_last_hit_count += 1
-		target_hit.emit(target, target.global_position, pulse_index)
+		_register_target_hit(target, pulse_index)
+
+
+func _register_target_hit(target: Node2D, pulse_index: int) -> void:
+	var target_id: int = target.get_instance_id()
+	if hit_once_per_trigger and _sequence_hit_targets.has(target_id):
+		return
+	_sequence_hit_targets[target_id] = true
+	_last_hit_count += 1
+	target_hit.emit(target, target.global_position, pulse_index)
 
 
 func _play_origin_flash() -> void:
@@ -260,6 +295,7 @@ func get_debug_lines() -> Array[String]:
 		"pulse_interval=%.2f" % pulse_interval,
 		"direction=%s" % str(_pulse_direction),
 		"last_origin=%s" % str(_last_trigger_origin),
+		"last_player_origin=%s" % str(_last_player_origin),
 		"last_hit_events=%d" % _last_hit_count,
 		"target_group=%s" % str(target_group),
 	]
