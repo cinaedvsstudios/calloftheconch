@@ -4,7 +4,10 @@ extends Control
 signal save_game_requested(save_name: String)
 signal back_requested
 
+const KEYBIND_SLOT_COUNT: int = 2
+
 @onready var _water_background: CotcWaterVideoBackground = %WaterVideoBackground
+@onready var _settings_vbox: VBoxContainer = $SettingsPanel/Margin/Content/SettingsScroll/SettingsVBox
 @onready var _master_slider: HSlider = %MasterSlider
 @onready var _master_value: Label = %MasterValue
 @onready var _music_slider: HSlider = %MusicSlider
@@ -17,7 +20,6 @@ signal back_requested
 @onready var _vsync_check: CheckButton = %VSyncCheck
 @onready var _shake_slider: HSlider = %ShakeSlider
 @onready var _shake_value: Label = %ShakeValue
-@onready var _control_hints_check: CheckButton = %ControlHintsCheck
 @onready var _save_game_button: Button = %SaveGameButton
 @onready var _save_status_label: Label = %SaveStatusLabel
 @onready var _reset_button: Button = %ResetButton
@@ -33,10 +35,17 @@ var _save_service: CotcSaveService
 var _syncing_controls: bool = false
 var _in_game: bool = false
 var _overwrite_confirmation_name: String = ""
+var _keybind_buttons: Dictionary = {}
+var _keybind_status_label: Label
+var _listening_action: StringName = &""
+var _listening_slot: int = -1
+var _listening_button: Button
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_hide_old_control_hint_setting()
+	_build_keybinding_controls()
 	_populate_display_options()
 	_master_slider.value_changed.connect(_on_master_volume_changed)
 	_music_slider.value_changed.connect(_on_music_volume_changed)
@@ -46,7 +55,6 @@ func _ready() -> void:
 	_resolution_option.item_selected.connect(_on_resolution_selected)
 	_vsync_check.toggled.connect(_on_vsync_toggled)
 	_shake_slider.value_changed.connect(_on_shake_changed)
-	_control_hints_check.toggled.connect(_on_control_hints_toggled)
 	_save_game_button.pressed.connect(_open_save_dialog)
 	_save_confirm_button.pressed.connect(_confirm_save_name)
 	_save_cancel_button.pressed.connect(_close_save_dialog)
@@ -62,6 +70,7 @@ func bind_settings(settings_service: CotcSettingsService) -> void:
 	if is_node_ready():
 		_populate_resolution_options()
 		_sync_from_settings()
+		_refresh_keybinding_buttons()
 
 
 func bind_save_service(save_service: CotcSaveService) -> void:
@@ -74,15 +83,20 @@ func activate(in_game: bool = false) -> void:
 	_water_background.play_background()
 	_populate_resolution_options()
 	_sync_from_settings()
+	_refresh_keybinding_buttons()
+	_cancel_key_capture(false)
 	_save_game_button.visible = _in_game
 	_save_game_button.disabled = not _in_game
 	_save_status_label.text = ""
+	if _keybind_status_label != null:
+		_keybind_status_label.text = ""
 	_save_dialog.hide()
 	_overwrite_confirmation_name = ""
 	_back_button.grab_focus()
 
 
 func deactivate() -> void:
+	_cancel_key_capture(false)
 	_save_dialog.hide()
 	_water_background.stop_background()
 	hide()
@@ -101,9 +115,168 @@ func show_save_result(success: bool, message: String) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
+	if _listening_action != &"":
+		var key_event: InputEventKey = event as InputEventKey
+		if key_event == null or not key_event.pressed or key_event.echo:
+			return
+		get_viewport().set_input_as_handled()
+		if key_event.keycode == KEY_ESCAPE:
+			_cancel_key_capture(true)
+			return
+		if key_event.keycode == KEY_DELETE or key_event.keycode == KEY_BACKSPACE:
+			_clear_current_keybinding()
+			return
+		_commit_keybinding(key_event)
+		return
 	if event.is_action_pressed(&"ui_cancel") and _save_dialog.visible:
 		_close_save_dialog()
 		get_viewport().set_input_as_handled()
+
+
+func _hide_old_control_hint_setting() -> void:
+	for node_name: String in ["HintsLabel", "ControlHintsCheck", "HintsSpacer"]:
+		var old_control: Control = find_child(node_name, true, false) as Control
+		if old_control != null:
+			old_control.hide()
+
+
+func _build_keybinding_controls() -> void:
+	var section_rule := HSeparator.new()
+	_settings_vbox.add_child(section_rule)
+
+	var section_header := Label.new()
+	section_header.text = "KEY MAPPING"
+	section_header.add_theme_color_override("font_color", Color(0.55, 0.84, 1.0, 1.0))
+	section_header.add_theme_font_size_override("font_size", 25)
+	_settings_vbox.add_child(section_header)
+
+	var help_label := Label.new()
+	help_label.text = "Select a binding, then press a key. Delete clears it; Esc cancels."
+	help_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	help_label.add_theme_color_override("font_color", Color(0.78, 0.88, 0.94, 1.0))
+	help_label.add_theme_font_size_override("font_size", 17)
+	_settings_vbox.add_child(help_label)
+
+	var controls_grid := GridContainer.new()
+	controls_grid.columns = 3
+	controls_grid.add_theme_constant_override("h_separation", 14)
+	controls_grid.add_theme_constant_override("v_separation", 8)
+	_settings_vbox.add_child(controls_grid)
+
+	var action_header := Label.new()
+	action_header.text = "ACTION"
+	action_header.add_theme_font_size_override("font_size", 16)
+	controls_grid.add_child(action_header)
+	for heading_text: String in ["PRIMARY", "ALTERNATE"]:
+		var heading := Label.new()
+		heading.text = heading_text
+		heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		heading.add_theme_font_size_override("font_size", 16)
+		controls_grid.add_child(heading)
+
+	for action: StringName in CotcSettingsService.KEYBINDING_ACTIONS:
+		var action_label := Label.new()
+		action_label.custom_minimum_size = Vector2(230.0, 42.0)
+		action_label.text = str(CotcSettingsService.KEYBINDING_LABELS.get(action, String(action).capitalize()))
+		action_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		action_label.add_theme_font_size_override("font_size", 18)
+		controls_grid.add_child(action_label)
+
+		var action_buttons: Array = []
+		for slot_index: int in range(KEYBIND_SLOT_COUNT):
+			var binding_button := Button.new()
+			binding_button.custom_minimum_size = Vector2(210.0, 42.0)
+			binding_button.focus_mode = Control.FOCUS_ALL
+			binding_button.add_theme_font_size_override("font_size", 16)
+			binding_button.pressed.connect(
+				_on_keybind_button_pressed.bind(action, slot_index, binding_button)
+			)
+			controls_grid.add_child(binding_button)
+			action_buttons.append(binding_button)
+		_keybind_buttons[action] = action_buttons
+
+	_keybind_status_label = Label.new()
+	_keybind_status_label.custom_minimum_size = Vector2(0.0, 28.0)
+	_keybind_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_keybind_status_label.add_theme_color_override("font_color", Color(0.58, 0.96, 0.94, 1.0))
+	_keybind_status_label.add_theme_font_size_override("font_size", 17)
+	_settings_vbox.add_child(_keybind_status_label)
+	_refresh_keybinding_buttons()
+
+
+func _refresh_keybinding_buttons() -> void:
+	for action: StringName in CotcSettingsService.KEYBINDING_ACTIONS:
+		if not _keybind_buttons.has(action):
+			continue
+		var action_buttons: Array = _keybind_buttons[action]
+		for slot_index: int in range(action_buttons.size()):
+			var binding_button: Button = action_buttons[slot_index] as Button
+			if binding_button == null:
+				continue
+			binding_button.text = (
+				_settings.get_keybinding_text(action, slot_index)
+				if _settings != null
+				else "UNBOUND"
+			)
+
+
+func _on_keybind_button_pressed(
+		action: StringName,
+		slot_index: int,
+		binding_button: Button,
+	) -> void:
+	if _settings == null:
+		return
+	_cancel_key_capture(false)
+	_listening_action = action
+	_listening_slot = slot_index
+	_listening_button = binding_button
+	_listening_button.text = "PRESS A KEY…"
+	if _keybind_status_label != null:
+		_keybind_status_label.text = "Waiting for %s." % _settings.get_keybinding_action_label(action)
+
+
+func _commit_keybinding(key_event: InputEventKey) -> void:
+	if _settings == null or _listening_action == &"":
+		return
+	if _settings.set_keybinding_slot(_listening_action, _listening_slot, key_event):
+		var action_label: String = _settings.get_keybinding_action_label(_listening_action)
+		_finish_key_capture("%s updated." % action_label)
+		return
+	if _keybind_status_label != null:
+		_keybind_status_label.text = _settings.last_keybinding_error
+	if is_instance_valid(_listening_button):
+		_listening_button.text = "PRESS A DIFFERENT KEY"
+
+
+func _clear_current_keybinding() -> void:
+	if _settings == null or _listening_action == &"":
+		return
+	var action_label: String = _settings.get_keybinding_action_label(_listening_action)
+	if _settings.clear_keybinding_slot(_listening_action, _listening_slot):
+		_finish_key_capture("%s binding cleared." % action_label)
+		return
+	if _keybind_status_label != null:
+		_keybind_status_label.text = _settings.last_keybinding_error
+
+
+func _finish_key_capture(status_message: String) -> void:
+	_listening_action = &""
+	_listening_slot = -1
+	_listening_button = null
+	_refresh_keybinding_buttons()
+	if _keybind_status_label != null:
+		_keybind_status_label.text = status_message
+
+
+func _cancel_key_capture(show_message: bool) -> void:
+	var was_listening: bool = _listening_action != &""
+	_listening_action = &""
+	_listening_slot = -1
+	_listening_button = null
+	_refresh_keybinding_buttons()
+	if show_message and was_listening and _keybind_status_label != null:
+		_keybind_status_label.text = "Key change cancelled."
 
 
 func _populate_display_options() -> void:
@@ -136,7 +309,6 @@ func _sync_from_settings() -> void:
 	_resolution_option.disabled = _settings.fullscreen
 	_vsync_check.button_pressed = _settings.vsync_enabled
 	_shake_slider.value = _settings.screen_shake_scale * 100.0
-	_control_hints_check.button_pressed = _settings.show_control_hints
 	_syncing_controls = false
 	_update_value_labels()
 
@@ -232,19 +404,21 @@ func _on_shake_changed(value: float) -> void:
 		_settings.set_screen_shake_scale(value / 100.0)
 
 
-func _on_control_hints_toggled(enabled: bool) -> void:
-	if not _syncing_controls and _settings != null:
-		_settings.set_show_control_hints(enabled)
-
-
 func _on_reset_pressed() -> void:
 	if _settings == null:
 		return
+	_cancel_key_capture(false)
 	_settings.reset_defaults()
 	_sync_from_settings()
+	_refresh_keybinding_buttons()
+	if _keybind_status_label != null:
+		_keybind_status_label.text = "Settings and key mappings restored to defaults."
 
 
 func _on_back_pressed() -> void:
+	if _listening_action != &"":
+		_cancel_key_capture(true)
+		return
 	if _save_dialog.visible:
 		_close_save_dialog()
 		return
@@ -257,5 +431,6 @@ func get_debug_lines() -> Array[String]:
 		"visible=%s" % str(visible),
 		"in_game=%s" % str(_in_game),
 		"save_dialog_visible=%s" % str(_save_dialog.visible),
+		"key_capture_action=%s" % String(_listening_action),
 		"background_playing=%s" % str(_water_background.is_background_playing()),
 	]
