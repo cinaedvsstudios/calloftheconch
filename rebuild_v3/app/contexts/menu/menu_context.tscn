@@ -1,18 +1,60 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/menu/menu_context.gd" id="1_controller"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_pillars_city.jpg" id="2_background"]
+[ext_resource type="VideoStream" path="res://assets/ui/Titlevideo.ogv" id="2_title_video"]
 [ext_resource type="Texture2D" path="res://assets/ui/title.png" id="3_title"]
 [ext_resource type="AudioStream" path="res://assets/audio/call of the conch music main theme.mp3" id="4_music"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/looping_audio_player.gd" id="5_looping_audio"]
-[ext_resource type="VideoStream" path="res://assets/effects/bubble_riser_field.ogv" id="6_bubbles"]
-[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="7_bubble_shader"]
+[ext_resource type="VideoStream" path="res://assets/effects/echopulse.ogv" id="6_echo_pulse"]
+[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="7_screen_shader"]
+[ext_resource type="AudioStream" path="res://assets/audio/impact.mp3" id="8_impact_audio"]
+[ext_resource type="Texture2D" path="res://assets/ui/button1.webp" id="9_button_1"]
+[ext_resource type="Texture2D" path="res://assets/ui/button2.webp" id="10_button_2"]
+[ext_resource type="Texture2D" path="res://assets/ui/button3.webp" id="11_button_3"]
 
-[sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
-shader = ExtResource("7_bubble_shader")
+[sub_resource type="ShaderMaterial" id="EchoPulseMaterial"]
+shader = ExtResource("7_screen_shader")
 shader_parameter/cut_off = 0.01
 shader_parameter/fade_width = 0.08
-shader_parameter/brightness = 4.0
+shader_parameter/brightness = 4.5
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
+
+[sub_resource type="StyleBoxFlat" id="CloseNormal"]
+bg_color = Color(0.015, 0.045, 0.10, 0.56)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24, 0.58, 0.78, 0.72)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="StyleBoxFlat" id="CloseHover"]
+bg_color = Color(0.03, 0.12, 0.22, 0.82)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.48, 0.82, 0.96, 0.95)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="StyleBoxFlat" id="ClosePressed"]
+bg_color = Color(0.01, 0.025, 0.07, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.48, 0.7, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
 
 [node name="MenuContext" type="Control"]
 layout_mode = 3
@@ -23,17 +65,19 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_controller")
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="BackgroundVideo" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_background")
-expand_mode = 1
-stretch_mode = 6
 mouse_filter = 2
+stream = ExtResource("2_title_video")
+volume_db = -80.0
+loop = true
+expand = true
 
 [node name="Shade" type="ColorRect" parent="."]
 layout_mode = 1
@@ -43,78 +87,169 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.01, 0.03, 0.10, 0.35)
+color = Color(0.005, 0.018, 0.055, 0.24)
 
-[node name="BubbleOverlay" type="VideoStreamPlayer" parent="."]
+[node name="Title" type="TextureRect" parent="."]
 unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -390.0
+offset_top = -280.0
+offset_right = 390.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(390, 120)
+texture = ExtResource("3_title")
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="EchoPulse" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-material = SubResource("BubbleVideoMaterial")
-stream = ExtResource("6_bubbles")
+material = SubResource("EchoPulseMaterial")
 mouse_filter = 2
-autoplay = true
-loop = true
+stream = ExtResource("6_echo_pulse")
+volume_db = -80.0
 expand = true
 
-[node name="Title" type="TextureRect" parent="."]
+[node name="MenuButtons" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0)
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 78.0
-offset_bottom = 300.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -215.0
+offset_top = 35.0
+offset_right = 215.0
+offset_bottom = 325.0
 grow_horizontal = 2
-texture = ExtResource("3_title")
-expand_mode = 1
-stretch_mode = 5
+grow_vertical = 2
+theme_override_constants/separation = 4
+
+[node name="StartButton" type="TextureButton" parent="MenuButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(430, 92)
+layout_mode = 2
+texture_normal = ExtResource("9_button_1")
+texture_hover = ExtResource("9_button_1")
+texture_pressed = ExtResource("9_button_1")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="MenuButtons/StartButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
-
-[node name="MenuPanel" type="PanelContainer" parent="."]
-layout_mode = 0
-offset_left = 475.0
-offset_top = 445.0
-offset_right = 805.0
-offset_bottom = 620.0
-
-[node name="Margin" type="MarginContainer" parent="MenuPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
-
-[node name="Buttons" type="VBoxContainer" parent="MenuPanel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="StartButton" type="Button" parent="MenuPanel/Margin/Buttons"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Start"
-
-[node name="ExitButton" type="Button" parent="MenuPanel/Margin/Buttons"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Close Game"
-
-[node name="ControlHint" type="Label" parent="."]
-layout_mode = 0
-offset_left = 210.0
-offset_top = 655.0
-offset_right = 1070.0
-offset_bottom = 700.0
-theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
-theme_override_font_sizes/font_size = 18
-text = "Move: WASD / arrows   Burst / brake: Shift   Conch: Space or J   Tail flip: Shift + Space"
+theme_override_colors/font_color = Color(0.9, 0.96, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.02, 0.08, 0.95)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 29
+text = "START"
 horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LoadSaveButton" type="TextureButton" parent="MenuButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(430, 82)
+layout_mode = 2
+texture_normal = ExtResource("10_button_2")
+texture_hover = ExtResource("10_button_2")
+texture_pressed = ExtResource("10_button_2")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="MenuButtons/LoadSaveButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.9, 0.96, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.02, 0.08, 0.95)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 27
+text = "LOAD / SAVE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SettingsButton" type="TextureButton" parent="MenuButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(430, 92)
+layout_mode = 2
+texture_normal = ExtResource("11_button_3")
+texture_hover = ExtResource("11_button_3")
+texture_pressed = ExtResource("11_button_3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="MenuButtons/SettingsButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.9, 0.96, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.02, 0.08, 0.95)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 27
+text = "SETTINGS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ExitButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -76.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = 76.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.88, 0.96, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 34
+theme_override_styles/normal = SubResource("CloseNormal")
+theme_override_styles/hover = SubResource("CloseHover")
+theme_override_styles/pressed = SubResource("ClosePressed")
+theme_override_styles/focus = SubResource("CloseHover")
+text = "×"
 
 [node name="MainMusic" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
 stream = ExtResource("4_music")
 volume_db = -8.0
 script = ExtResource("5_looping_audio")
+
+[node name="ImpactAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("8_impact_audio")
+volume_db = -3.0
