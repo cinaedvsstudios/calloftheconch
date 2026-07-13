@@ -8,6 +8,7 @@ const LEVEL_ID: StringName = &"sea_of_pillars"
 const DEFAULT_SPAWN_POINT_ID: StringName = &"sea_of_pillars_start"
 
 signal conch_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
+signal greatfin_pickup_requested(pickup_type_id: StringName)
 
 @export_category("Level")
 @export var auto_play_ambience: bool = true
@@ -15,6 +16,11 @@ signal conch_target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
 
 @export_category("Conch Pulse")
 @export_range(0.0, 300.0, 1.0) var conch_origin_forward_offset: float = 105.0
+
+@export_category("Fin Damage and Respawn")
+@export_range(0.0, 10.0, 0.1) var damage_invulnerability_seconds: float = 1.0
+@export var auto_respawn_on_zero_fins: bool = true
+@export var restore_full_fins_on_respawn: bool = true
 
 @export_category("Bubble Overlay")
 @export_range(0.001, 0.1, 0.001) var bubble_waterline_fade: float = 0.012
@@ -37,6 +43,8 @@ var _bubble_waterline_update_elapsed: float = 0.0
 var _base_camera_shake_strength: float = 10.0
 var _game_state: CotcGameState
 var _active_spawn_point_id: StringName = DEFAULT_SPAWN_POINT_ID
+var _last_damage_time_msec: int = -1000000
+var _respawn_pending: bool = false
 
 
 func _ready() -> void:
@@ -48,6 +56,7 @@ func _ready() -> void:
 	_prepare_bubble_material()
 	configure_player()
 	_connect_spawn_checkpoints()
+	_connect_runtime_state_sources()
 	deactivate()
 
 
@@ -60,7 +69,18 @@ func _process(delta: float) -> void:
 
 
 func bind_game_state(game_state: CotcGameState) -> void:
+	if _game_state != null:
+		if _game_state.state_replaced.is_connected(_on_game_state_replaced):
+			_game_state.state_replaced.disconnect(_on_game_state_replaced)
+		if _game_state.player_defeated.is_connected(_on_player_defeated):
+			_game_state.player_defeated.disconnect(_on_player_defeated)
 	_game_state = game_state
+	if _game_state == null:
+		return
+	_game_state.state_replaced.connect(_on_game_state_replaced)
+	_game_state.player_defeated.connect(_on_player_defeated)
+	_connect_runtime_state_sources()
+	_apply_persistent_world_state()
 
 
 func configure_player() -> void:
@@ -76,8 +96,12 @@ func set_screen_shake_scale(value: float) -> void:
 
 func activate(spawn_point_id: StringName = &"") -> void:
 	_active = true
+	_respawn_pending = false
+	_last_damage_time_msec = -1000000
 	show()
 	configure_player()
+	_connect_runtime_state_sources()
+	_apply_persistent_world_state()
 	_active_spawn_point_id = _resolve_spawn_point_id(spawn_point_id)
 	var spawn_position: Vector2 = _resolve_spawn_position(_active_spawn_point_id)
 	_hylas.reset_to_start(spawn_position)
@@ -95,6 +119,7 @@ func activate(spawn_point_id: StringName = &"") -> void:
 
 func deactivate() -> void:
 	_active = false
+	_respawn_pending = false
 	set_process(false)
 	_bubble_waterline_update_elapsed = 0.0
 	_hylas.set_play_enabled(false)
@@ -113,6 +138,7 @@ func activate_checkpoint(spawn_point_id: StringName) -> void:
 	_active_spawn_point_id = resolved_id
 	if _game_state != null:
 		_game_state.set_checkpoint(LEVEL_ID, resolved_id)
+		_game_state.unlock_whale_ground(resolved_id)
 
 
 func _resolve_spawn_point_id(requested_id: StringName) -> StringName:
@@ -158,6 +184,119 @@ func _on_spawn_checkpoint_activated(level_id: StringName, spawn_point_id: String
 	if level_id != LEVEL_ID:
 		return
 	activate_checkpoint(spawn_point_id)
+
+
+func _connect_runtime_state_sources() -> void:
+	var damage_callback: Callable = Callable(self, "_on_damage_requested")
+	var shark_callback: Callable = Callable(self, "_on_shark_contacted")
+	for node: Node in find_children("*", "", true, false):
+		if node.has_signal(&"damage_requested") and not node.is_connected(&"damage_requested", damage_callback):
+			node.connect(&"damage_requested", damage_callback)
+		if node.has_signal(&"hylas_contacted") and not node.is_connected(&"hylas_contacted", shark_callback):
+			node.connect(&"hylas_contacted", shark_callback)
+		if node.has_signal(&"pickup_collected"):
+			var pickup_callback: Callable = Callable(self, "_on_food_pickup_collected").bind(node)
+			if not node.is_connected(&"pickup_collected", pickup_callback):
+				node.connect(&"pickup_collected", pickup_callback)
+			_assign_pickup_persistent_id(node)
+
+
+func _assign_pickup_persistent_id(pickup: Node) -> StringName:
+	if pickup.has_method(&"assign_persistent_id"):
+		return StringName(str(pickup.call(&"assign_persistent_id", LEVEL_ID)))
+	return &""
+
+
+func _apply_persistent_world_state() -> void:
+	if _game_state == null:
+		return
+	for node: Node in find_children("*", "", true, false):
+		if not node.has_signal(&"pickup_collected"):
+			continue
+		var persistent_id: StringName = _assign_pickup_persistent_id(node)
+		if String(persistent_id).is_empty():
+			continue
+		if node.has_method(&"set_persistently_collected"):
+			node.call(&"set_persistently_collected", _game_state.is_pickup_collected(persistent_id))
+
+
+func _on_damage_requested(hylas_body: Node, amount: int) -> void:
+	if not _active or _game_state == null or hylas_body == null:
+		return
+	if hylas_body != _hylas and not hylas_body.is_in_group(&"hylas"):
+		return
+	var now_msec: int = Time.get_ticks_msec()
+	var immunity_msec: int = roundi(maxf(0.0, damage_invulnerability_seconds) * 1000.0)
+	if now_msec - _last_damage_time_msec < immunity_msec:
+		return
+	var applied_damage: int = _game_state.damage_fins(amount)
+	if applied_damage <= 0:
+		return
+	_last_damage_time_msec = now_msec
+	_hylas.play_fin_loss_sound()
+
+
+func _on_shark_contacted(hylas_body: Node2D) -> void:
+	_on_damage_requested(hylas_body, 1)
+
+
+func _on_food_pickup_collected(
+		pickup_type_id: StringName,
+		pickup_instance_id: StringName,
+		heal_amount: int,
+		restores_full: bool,
+		activates_greatfin: bool,
+		full_health_onos_value: int,
+		pickup_node: Node,
+	) -> void:
+	if not _active or _game_state == null:
+		return
+	var persistent_id: StringName = pickup_instance_id
+	if String(persistent_id).is_empty():
+		persistent_id = _assign_pickup_persistent_id(pickup_node)
+	if String(persistent_id).is_empty():
+		push_warning("A pickup was collected without a persistent instance ID.")
+		return
+	if _game_state.is_pickup_collected(persistent_id):
+		return
+
+	var healed_fins: int = 0
+	if restores_full:
+		healed_fins = _game_state.restore_fins()
+	else:
+		healed_fins = _game_state.heal_fins(heal_amount)
+	if healed_fins <= 0 and full_health_onos_value > 0:
+		_game_state.add_onos(full_health_onos_value)
+	if activates_greatfin:
+		greatfin_pickup_requested.emit(pickup_type_id)
+	_game_state.mark_pickup_collected(persistent_id)
+
+
+func _on_game_state_replaced(_reason: StringName) -> void:
+	_apply_persistent_world_state()
+
+
+func _on_player_defeated() -> void:
+	if not _active or not auto_respawn_on_zero_fins or _respawn_pending:
+		return
+	_respawn_pending = true
+	call_deferred(&"_respawn_at_tracked_checkpoint")
+
+
+func _respawn_at_tracked_checkpoint() -> void:
+	if not _active or _game_state == null:
+		_respawn_pending = false
+		return
+	_hylas.set_play_enabled(false)
+	_active_spawn_point_id = _resolve_spawn_point_id(_game_state.current_spawn_point_id)
+	if restore_full_fins_on_respawn:
+		_game_state.restore_fins()
+	else:
+		_game_state.set_fin_state(1, _game_state.max_fins)
+	_hylas.reset_to_start(_resolve_spawn_position(_active_spawn_point_id))
+	_last_damage_time_msec = Time.get_ticks_msec()
+	_hylas.set_play_enabled(true)
+	_respawn_pending = false
 
 
 func _prepare_bubble_material() -> void:
@@ -240,7 +379,12 @@ func get_debug_lines() -> Array[String]:
 		"bubble_overlay_visible=%s" % str(_bubble_overlay.visible),
 		"bubble_waterline_update_interval=%.2f" % bubble_waterline_update_interval,
 		"ambience_playing=%s" % str(_underwater_ambience.playing),
+		"respawn_pending=%s" % str(_respawn_pending),
 	]
+	if _game_state != null:
+		lines.append("fins=%d/%d" % [_game_state.current_fins, _game_state.max_fins])
+		lines.append("onos=%d" % _game_state.onos)
+		lines.append("collected_pickups=%d" % _game_state.collected_pickups.size())
 	lines.append_array(_conch_pulse.get_debug_lines())
 	lines.append_array(_hylas.get_debug_lines())
 	return lines
