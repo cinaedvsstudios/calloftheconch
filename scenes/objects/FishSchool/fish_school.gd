@@ -5,10 +5,9 @@ extends Area2D
 ## position. The path includes changing vertical targets and a gentle sine
 ## sway so it never travels in one perfectly straight line.
 
-const DISPLAY_SCALE_MULTIPLIER: float = 1.20
-
 @export_category("Animation")
 @export_range(40.0, 800.0, 1.0) var display_height: float = 260.0
+@export_range(0.10, 4.0, 0.01) var display_scale_multiplier: float = 1.20
 @export var source_faces_left: bool = false
 
 @export_category("Patrol Area")
@@ -209,7 +208,7 @@ func _apply_display_scale() -> void:
 		return
 	var scale_factor: float = (
 		display_height
-		* DISPLAY_SCALE_MULTIPLIER
+		* display_scale_multiplier
 		/ maxf(1.0, float(first_texture.get_height()))
 	)
 	_sprite.scale = Vector2.ONE * scale_factor
