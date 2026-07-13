@@ -8,6 +8,8 @@ const CYAN_GLOW: Color = Color(0.20, 1.0, 1.0, 1.0)
 const SAVE_ROW_TEXT: Color = Color(0.88, 0.95, 1.0, 1.0)
 const SAVE_ROW_BACKGROUND: Color = Color(0.015, 0.045, 0.075, 0.46)
 const SAVE_ROW_SELECTED_BACKGROUND: Color = Color(0.015, 0.16, 0.20, 0.72)
+const SAVE_LIST_WIDTH: float = 320.0
+const SAVE_FRAME_WIDTH: float = 630.0
 
 @onready var _water_background: CotcWaterVideoBackground = %WaterVideoBackground
 @onready var _save_scroll: ScrollContainer = %SaveScroll
@@ -31,6 +33,7 @@ var _active: bool = false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_configure_save_list_geometry()
 	_load_button.pressed.connect(_request_selected_load)
 	_delete_button.pressed.connect(_open_delete_confirmation)
 	_back_button.pressed.connect(_request_back)
@@ -97,6 +100,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+func _configure_save_list_geometry() -> void:
+	var side_margin: float = maxf(0.0, (SAVE_FRAME_WIDTH - SAVE_LIST_WIDTH) * 0.5)
+	_save_scroll.offset_left = side_margin
+	_save_scroll.offset_right = -side_margin
+	_save_list.custom_minimum_size = Vector2(SAVE_LIST_WIDTH, 0.0)
+
+
 func _refresh_saves() -> void:
 	for child: Node in _save_list.get_children():
 		child.free()
@@ -120,8 +130,8 @@ func _refresh_saves() -> void:
 
 func _create_save_row(save_data: Dictionary, index: int) -> Button:
 	var row: Button = Button.new()
-	row.custom_minimum_size = Vector2(0.0, 112.0)
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.custom_minimum_size = Vector2(SAVE_LIST_WIDTH, 112.0)
+	row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	row.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	row.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	row.focus_mode = Control.FOCUS_NONE
@@ -321,5 +331,6 @@ func get_debug_lines() -> Array[String]:
 		"visible=%s" % str(visible),
 		"save_count=%d" % _save_entries.size(),
 		"selected_index=%d" % _selected_index,
+		"save_list_width=%.0f" % SAVE_LIST_WIDTH,
 		"background_playing=%s" % str(_water_background.is_background_playing()),
 	]
