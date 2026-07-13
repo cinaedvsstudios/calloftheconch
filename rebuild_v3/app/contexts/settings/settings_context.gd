@@ -1,6 +1,7 @@
 class_name CotcSettingsContext
 extends Control
 
+signal save_game_requested(save_name: String)
 signal back_requested
 
 @onready var _water_background: CotcWaterVideoBackground = %WaterVideoBackground
@@ -17,11 +18,21 @@ signal back_requested
 @onready var _shake_slider: HSlider = %ShakeSlider
 @onready var _shake_value: Label = %ShakeValue
 @onready var _control_hints_check: CheckButton = %ControlHintsCheck
+@onready var _save_game_button: Button = %SaveGameButton
+@onready var _save_status_label: Label = %SaveStatusLabel
 @onready var _reset_button: Button = %ResetButton
 @onready var _back_button: Button = %BackButton
+@onready var _save_dialog: Control = %SaveDialog
+@onready var _save_name_edit: LineEdit = %SaveNameEdit
+@onready var _save_message: Label = %SaveMessage
+@onready var _save_confirm_button: Button = %SaveConfirmButton
+@onready var _save_cancel_button: Button = %SaveCancelButton
 
 var _settings: CotcSettingsService
+var _save_service: CotcSaveService
 var _syncing_controls: bool = false
+var _in_game: bool = false
+var _overwrite_confirmation_name: String = ""
 
 
 func _ready() -> void:
@@ -36,8 +47,13 @@ func _ready() -> void:
 	_vsync_check.toggled.connect(_on_vsync_toggled)
 	_shake_slider.value_changed.connect(_on_shake_changed)
 	_control_hints_check.toggled.connect(_on_control_hints_toggled)
+	_save_game_button.pressed.connect(_open_save_dialog)
+	_save_confirm_button.pressed.connect(_confirm_save_name)
+	_save_cancel_button.pressed.connect(_close_save_dialog)
+	_save_name_edit.text_submitted.connect(_on_save_name_submitted)
 	_reset_button.pressed.connect(_on_reset_pressed)
 	_back_button.pressed.connect(_on_back_pressed)
+	_save_dialog.hide()
 	hide()
 
 
@@ -48,17 +64,46 @@ func bind_settings(settings_service: CotcSettingsService) -> void:
 		_sync_from_settings()
 
 
-func activate() -> void:
+func bind_save_service(save_service: CotcSaveService) -> void:
+	_save_service = save_service
+
+
+func activate(in_game: bool = false) -> void:
+	_in_game = in_game
 	show()
 	_water_background.play_background()
 	_populate_resolution_options()
 	_sync_from_settings()
+	_save_game_button.visible = _in_game
+	_save_game_button.disabled = not _in_game
+	_save_status_label.text = ""
+	_save_dialog.hide()
+	_overwrite_confirmation_name = ""
 	_back_button.grab_focus()
 
 
 func deactivate() -> void:
+	_save_dialog.hide()
 	_water_background.stop_background()
 	hide()
+
+
+func show_save_result(success: bool, message: String) -> void:
+	if success:
+		_save_dialog.hide()
+		_save_status_label.text = message
+		_save_game_button.grab_focus()
+	else:
+		_save_message.text = message
+		_save_confirm_button.grab_focus()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event.is_action_pressed(&"ui_cancel") and _save_dialog.visible:
+		_close_save_dialog()
+		get_viewport().set_input_as_handled()
 
 
 func _populate_display_options() -> void:
@@ -101,6 +146,44 @@ func _update_value_labels() -> void:
 	_music_value.text = "%d%%" % roundi(_music_slider.value)
 	_effects_value.text = "%d%%" % roundi(_effects_slider.value)
 	_shake_value.text = "%d%%" % roundi(_shake_slider.value)
+
+
+func _open_save_dialog() -> void:
+	if not _in_game:
+		return
+	_overwrite_confirmation_name = ""
+	_save_message.text = ""
+	_save_name_edit.text = _save_service.get_suggested_save_name() if _save_service != null else "Saved Game"
+	_save_dialog.show()
+	_save_name_edit.grab_focus()
+	_save_name_edit.select_all()
+
+
+func _close_save_dialog() -> void:
+	_save_dialog.hide()
+	_overwrite_confirmation_name = ""
+	_save_game_button.grab_focus()
+
+
+func _on_save_name_submitted(_submitted_text: String) -> void:
+	_confirm_save_name()
+
+
+func _confirm_save_name() -> void:
+	var save_name: String = _save_name_edit.text.strip_edges()
+	if save_name.is_empty():
+		_save_message.text = "Enter a name for the saved game."
+		_save_name_edit.grab_focus()
+		return
+	if _save_service != null and _save_service.has_save_named(save_name):
+		if _overwrite_confirmation_name.to_lower() != save_name.to_lower():
+			_overwrite_confirmation_name = save_name
+			_save_message.text = "A save with this name already exists. Press SAVE again to overwrite it."
+			_save_confirm_button.grab_focus()
+			return
+	_overwrite_confirmation_name = ""
+	_save_message.text = "Saving…"
+	save_game_requested.emit(save_name)
 
 
 func _on_master_volume_changed(value: float) -> void:
@@ -162,6 +245,9 @@ func _on_reset_pressed() -> void:
 
 
 func _on_back_pressed() -> void:
+	if _save_dialog.visible:
+		_close_save_dialog()
+		return
 	back_requested.emit()
 
 
@@ -169,5 +255,7 @@ func get_debug_lines() -> Array[String]:
 	return [
 		"[SettingsContext]",
 		"visible=%s" % str(visible),
+		"in_game=%s" % str(_in_game),
+		"save_dialog_visible=%s" % str(_save_dialog.visible),
 		"background_playing=%s" % str(_water_background.is_background_playing()),
 	]
