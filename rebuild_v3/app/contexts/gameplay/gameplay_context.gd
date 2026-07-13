@@ -8,14 +8,17 @@ signal death_sequence_requested
 signal whale_travel_requested
 
 @onready var _level: CotcSeaOfPillars = %SeaOfPillars
+@onready var _city: CotcPillarsCity = %PillarsCity
 @onready var _sea_environment: Node2D = $SeaEnvironment
 @onready var _gameplay_music: AudioStreamPlayer = %GameplayMusic
 @onready var _gameplay_ui: CanvasLayer = $GameplayUI
+@onready var _hud: CotcGameplayHud = %GameplayHud
 @onready var _hint: Label = $GameplayUI/Hint
 @onready var _pause_overlay: CotcPauseOverlay = %PauseOverlay
 @onready var _death_overlay: CotcDeathOverlay = %DeathOverlay
 
 var _active: bool = false
+var _in_city: bool = false
 var _game_state: CotcGameState
 
 
@@ -30,20 +33,31 @@ func _ready() -> void:
 	_death_overlay.exit_requested.connect(_on_death_exit_requested)
 	_level.death_sequence_requested.connect(_on_level_death_sequence_requested)
 	_level.whale_travel_requested.connect(_on_level_whale_travel_requested)
+	_level.city_entry_requested.connect(_on_level_city_entry_requested)
+	_level.conch_used.connect(_on_level_conch_used)
+	_city.exit_requested.connect(_on_city_exit_requested)
+	_city.menu_requested.connect(_on_city_menu_requested)
+	_city.location_changed.connect(_on_city_location_changed)
+	_city.deactivate()
 	_sea_environment.hide()
 
 
 func bind_game_state(game_state: CotcGameState) -> void:
 	_game_state = game_state
 	_level.bind_game_state(game_state)
+	_hud.bind_game_state(game_state)
 
 
 func activate() -> void:
 	_active = true
+	_in_city = false
 	get_tree().paused = false
+	_city.deactivate()
 	_sea_environment.show()
 	_gameplay_ui.visible = true
 	_hint.hide()
+	_hud.show()
+	_hud.set_location("The Sea of Pillars")
 	_pause_overlay.close_overlay()
 	_death_overlay.close_overlay()
 	if _game_state != null:
@@ -56,11 +70,13 @@ func activate() -> void:
 
 func deactivate() -> void:
 	_active = false
+	_in_city = false
 	get_tree().paused = false
 	_pause_overlay.close_overlay()
 	_death_overlay.close_overlay()
 	_gameplay_ui.visible = false
 	_gameplay_music.stop()
+	_city.deactivate()
 	_sea_environment.hide()
 	_level.deactivate()
 	if _game_state != null:
@@ -159,10 +175,48 @@ func _on_level_whale_travel_requested() -> void:
 	whale_travel_requested.emit()
 
 
+func _on_level_city_entry_requested() -> void:
+	if not _active or _in_city:
+		return
+	_in_city = true
+	_level.deactivate()
+	_sea_environment.hide()
+	_city.activate()
+	_hud.set_location("Neresithoppos")
+
+
+func _on_city_exit_requested() -> void:
+	if not _active or not _in_city:
+		return
+	_in_city = false
+	_city.deactivate()
+	_sea_environment.show()
+	_level.activate(CotcSeaOfPillars.CITY_GATE_SPAWN_POINT_ID)
+	_hud.set_location("The Sea of Pillars")
+
+
+func _on_city_menu_requested() -> void:
+	if not _active or not _in_city:
+		return
+	get_tree().paused = true
+	_pause_overlay.open_overlay()
+
+
+func _on_city_location_changed(location_name: String) -> void:
+	if not _active or not _in_city:
+		return
+	_hud.set_location(location_name)
+
+
+func _on_level_conch_used() -> void:
+	_hud.pulse_conch()
+
+
 func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = [
 		"[GameplayContext]",
 		"active=%s" % str(_active),
+		"in_city=%s" % str(_in_city),
 		"environment_visible=%s" % str(_sea_environment.visible),
 		"ui_visible=%s" % str(_gameplay_ui.visible),
 		"control_hint_visible=false",
@@ -177,5 +231,7 @@ func get_debug_lines() -> Array[String]:
 		lines.append("onos=%d" % _game_state.onos)
 		lines.append("limited_use_inventory_items=%d" % _game_state.inventory.size())
 		lines.append("permanent_inventory_items=%d" % _game_state.permanent_inventory_items.size())
+	lines.append_array(_hud.get_debug_lines())
+	lines.append_array(_city.get_debug_lines())
 	lines.append_array(_level.get_debug_lines())
 	return lines
