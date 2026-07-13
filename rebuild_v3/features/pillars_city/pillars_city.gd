@@ -59,9 +59,10 @@ func activate() -> void:
 	show()
 	_location_overlay.hide()
 	location_changed.emit(CITY_NAME)
-	_configure_city_hylas_for_viewport(true)
-	_set_city_hylas_play_enabled(true)
-	_city_hylas.show()
+	if is_instance_valid(_city_hylas):
+		_configure_city_hylas_for_viewport(true)
+		_set_city_hylas_play_enabled(true)
+		_city_hylas.show()
 	set_process(true)
 	_update_doorway_interaction()
 	if _bubble_overlay.stream != null:
@@ -143,7 +144,7 @@ func _create_city_hylas() -> void:
 		return
 	_city_hylas.name = "CityHylas"
 	_city_hylas.process_mode = Node.PROCESS_MODE_PAUSABLE
-	_city_hylas.z_index = 6
+	_city_hylas.z_index = 0
 	_city_hylas.display_height = hylas_display_height
 	_city_hylas.player_edge_padding = 48.0
 	_city_hylas.current_base_velocity = Vector2.ZERO
@@ -251,6 +252,8 @@ func _open_location(title: String, subtitle: String, show_agora_sign: bool) -> v
 	_interaction_hint.hide()
 	_set_city_hylas_interaction_available(false)
 	_set_city_hylas_play_enabled(false)
+	if is_instance_valid(_city_hylas):
+		_city_hylas.hide()
 	location_changed.emit(title)
 	_return_button.grab_focus()
 
@@ -258,6 +261,8 @@ func _open_location(title: String, subtitle: String, show_agora_sign: bool) -> v
 func _close_location() -> void:
 	_location_overlay.hide()
 	location_changed.emit(CITY_NAME)
+	if is_instance_valid(_city_hylas):
+		_city_hylas.show()
 	_set_city_hylas_play_enabled(true)
 	_update_doorway_interaction()
 
