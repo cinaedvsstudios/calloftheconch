@@ -16,6 +16,7 @@ signal travel_requested
 @onready var _interaction_area: Area2D = %InteractionArea
 
 var _origin_position: Vector2
+var _origin_global_position: Vector2
 var _drift_distance: float = 960.0
 var _travel_direction: float = -1.0
 var _turn_pause_remaining: float = 0.0
@@ -25,6 +26,7 @@ var _hylas_in_range: bool = false
 
 func _ready() -> void:
 	_origin_position = position
+	_origin_global_position = global_position
 	_interaction_area.body_entered.connect(_on_interaction_body_entered)
 	_interaction_area.body_exited.connect(_on_interaction_body_exited)
 	_whale_sprite.play(&"swim")
@@ -85,6 +87,12 @@ func request_travel() -> bool:
 
 func is_hylas_in_interaction_range() -> bool:
 	return _hylas_in_range
+
+
+func get_breeding_ground_spawn_position() -> Vector2:
+	# Respawning uses the stable scene placement rather than the whale's current
+	# patrol position, so save/load and death do not shift with its animation.
+	return _origin_global_position
 
 
 func _on_interaction_body_entered(body: Node2D) -> void:
