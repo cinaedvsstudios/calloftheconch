@@ -10,6 +10,13 @@ const FIN_STATE_PATHS: Array[String] = [
 	"res://assets/ui/UI6.webp",
 ]
 const NORMAL_CONCH_PATH: String = "res://assets/ui/shell_normal_conch.png"
+const HUD_DROP_SHADOW_SHADER: Shader = preload(
+	"res://rebuild_v3/shared/shaders/hud_drop_shadow.gdshader"
+)
+const HUD_SOURCE_SIZE: Vector2 = Vector2(1624.0, 670.0)
+const HUD_LAYOUT_WIDTH: float = 510.0
+const HUD_DISPLAY_SCALE: float = 0.78
+const HUD_TOP_OFFSET: float = 4.0
 
 @onready var _fallback_panel: ColorRect = %FallbackPanel
 @onready var _panel_texture: TextureRect = %PanelTexture
@@ -23,10 +30,13 @@ var _game_state: CotcGameState
 var _fin_state_textures: Array[Texture2D] = []
 var _conch_tween: Tween
 var _location_name: String = "The Sea of Pillars"
+var _panel_shadow: TextureRect
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_apply_source_layout()
+	_create_panel_shadow()
 	_load_textures()
 	_set_conch_rest_state()
 	_sync_from_state()
@@ -66,6 +76,38 @@ func pulse_conch() -> void:
 	glow_return.set_delay(0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
+func _apply_source_layout() -> void:
+	var layout_height: float = HUD_LAYOUT_WIDTH * HUD_SOURCE_SIZE.y / HUD_SOURCE_SIZE.x
+	offset_left = -HUD_LAYOUT_WIDTH * 0.5
+	offset_top = HUD_TOP_OFFSET
+	offset_right = HUD_LAYOUT_WIDTH * 0.5
+	offset_bottom = HUD_TOP_OFFSET + layout_height
+	scale = Vector2.ONE * HUD_DISPLAY_SCALE
+	pivot_offset = Vector2(HUD_LAYOUT_WIDTH * 0.5, 0.0)
+	_panel_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_panel_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
+
+func _create_panel_shadow() -> void:
+	_panel_shadow = TextureRect.new()
+	_panel_shadow.name = "PanelShadow"
+	_panel_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel_shadow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_panel_shadow.offset_left = 7.0
+	_panel_shadow.offset_top = 10.0
+	_panel_shadow.offset_right = 7.0
+	_panel_shadow.offset_bottom = 10.0
+	_panel_shadow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_panel_shadow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_panel_shadow.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_panel_shadow.z_index = -4
+	var shadow_material: ShaderMaterial = ShaderMaterial.new()
+	shadow_material.shader = HUD_DROP_SHADOW_SHADER
+	_panel_shadow.material = shadow_material
+	add_child(_panel_shadow)
+	_panel_shadow.hide()
+
+
 func _load_textures() -> void:
 	_fin_state_textures.clear()
 	for path: String in FIN_STATE_PATHS:
@@ -76,6 +118,8 @@ func _load_textures() -> void:
 	var loaded_panel_count: int = _get_loaded_panel_count()
 	_fallback_panel.visible = loaded_panel_count == 0
 	_panel_texture.visible = loaded_panel_count > 0
+	if loaded_panel_count == 0:
+		_panel_shadow.hide()
 	if loaded_panel_count != FIN_STATE_PATHS.size():
 		push_warning(
 			"Gameplay HUD found %d of %d fin-state panel images. Add UI1.webp through UI6.webp to assets/ui."
@@ -131,7 +175,9 @@ func _set_fin_panel(panel_index: int) -> void:
 	if texture == null:
 		return
 	_panel_texture.texture = texture
+	_panel_shadow.texture = texture
 	_panel_texture.show()
+	_panel_shadow.show()
 	_fallback_panel.hide()
 
 
@@ -178,4 +224,6 @@ func get_debug_lines() -> Array[String]:
 		"location=%s" % _location_name,
 		"loaded_fin_panels=%d/%d" % [_get_loaded_panel_count(), FIN_STATE_PATHS.size()],
 		"conch_icon_loaded=%s" % str(_conch_icon.texture != null),
+		"source_aspect=%.5f" % (HUD_SOURCE_SIZE.x / HUD_SOURCE_SIZE.y),
+		"drop_shadow_loaded=%s" % str(_panel_shadow != null),
 	]
