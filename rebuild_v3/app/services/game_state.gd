@@ -35,7 +35,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if _gameplay_active:
+	if _gameplay_active and not get_tree().paused:
 		playtime_seconds += maxf(delta, 0.0)
 
 
@@ -181,6 +181,7 @@ func _string_array_value(value: Variant) -> Array[String]:
 	var result: Array[String] = []
 	if typeof(value) != TYPE_ARRAY:
 		return result
-	for item: Variant in value as Array:
+	var source: Array = value as Array
+	for item: Variant in source:
 		result.append(str(item))
 	return result
