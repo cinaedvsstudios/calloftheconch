@@ -8,11 +8,16 @@ font_weight = 600
 
 [node name="GameplayHud" type="Control"]
 layout_mode = 3
-anchors_preset = 0
-offset_left = 14.0
-offset_top = 14.0
-offset_right = 524.0
-offset_bottom = 224.0
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -255.0
+offset_top = 18.0
+offset_right = 255.0
+offset_bottom = 228.0
+grow_horizontal = 2
+scale = Vector2(0.7, 0.7)
+pivot_offset = Vector2(255, 0)
 mouse_filter = 2
 script = ExtResource("1_controller")
 
