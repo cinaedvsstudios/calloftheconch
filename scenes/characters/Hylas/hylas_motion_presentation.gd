@@ -3,17 +3,22 @@ extends "res://scenes/characters/Hylas/hylas.gd"
 ## Presentation-only control for the timing-sensitive Hylas actions.
 ## Gameplay movement remains in the inherited CotcHylas script.
 
-const BURST_DURATION: float = 1.50
-const BURST_STARTUP_FRAME_DURATION: float = 0.10
-const BURST_HOLD_START: float = 0.20
-const BURST_HOLD_END: float = 1.20
-const BURST_FINISH_FRAME_DURATION: float = 0.10
-const IDLE_ANIMATION_FPS: float = 2.50
-const TAIL_FLIP_ANIMATION_FPS: float = 10.0
-const TAIL_FLIP_GAMEPLAY_DURATION: float = 1.0
-const CONCH_ANIMATION_FPS: float = 18.0
-const CONCH_GAMEPLAY_DURATION: float = 10.0 / CONCH_ANIMATION_FPS
-const STOP_ANIMATION_FPS: float = 9.0
+@export_category("Action Gameplay Timing")
+@export_range(0.10, 10.0, 0.01) var speed_run_gameplay_duration: float = 1.50
+@export_range(0.10, 5.0, 0.01) var tail_flip_gameplay_duration: float = 1.00
+@export_range(0.10, 5.0, 0.01) var conch_gameplay_duration: float = 0.5555556
+
+@export_category("Animation Speeds")
+@export_range(0.1, 60.0, 0.1) var idle_animation_fps: float = 2.50
+@export_range(0.1, 60.0, 0.1) var tail_flip_animation_fps: float = 10.0
+@export_range(0.1, 60.0, 0.1) var conch_animation_fps: float = 18.0
+@export_range(0.1, 60.0, 0.1) var stop_animation_fps: float = 9.0
+
+@export_category("Speed Run Animation Timing")
+@export_range(0.01, 2.0, 0.01) var speed_run_startup_frame_duration: float = 0.10
+@export_range(0.01, 10.0, 0.01) var speed_run_hold_start: float = 0.20
+@export_range(0.01, 10.0, 0.01) var speed_run_hold_end: float = 1.20
+@export_range(0.01, 2.0, 0.01) var speed_run_finish_frame_duration: float = 0.10
 
 @export_category("Collision Profiles")
 @export var default_collision_shape: Shape2D
@@ -29,12 +34,12 @@ var _collision_profile_name: StringName = &"default"
 
 
 func _ready() -> void:
-	burst_max_duration = BURST_DURATION
-	tail_flip_duration = TAIL_FLIP_GAMEPLAY_DURATION
-	conch_duration = CONCH_GAMEPLAY_DURATION
+	burst_max_duration = speed_run_gameplay_duration
+	tail_flip_duration = tail_flip_gameplay_duration
+	conch_duration = conch_gameplay_duration
 	super._ready()
 	_configure_action_animations()
-	_animated_sprite.sprite_frames.set_animation_speed(&"idle", IDLE_ANIMATION_FPS)
+	_animated_sprite.sprite_frames.set_animation_speed(&"idle", idle_animation_fps)
 	_apply_collision_profile(_animated_sprite.animation)
 
 
@@ -75,7 +80,7 @@ func _configure_action_animations() -> void:
 			sprite_frames,
 			&"tail_flip",
 			tail_flip_sequence,
-			TAIL_FLIP_ANIMATION_FPS,
+			tail_flip_animation_fps,
 		):
 		return
 
@@ -102,7 +107,7 @@ func _configure_action_animations() -> void:
 			sprite_frames,
 			&"conch",
 			conch_sequence,
-			CONCH_ANIMATION_FPS,
+			conch_animation_fps,
 		):
 		return
 
@@ -120,7 +125,7 @@ func _configure_action_animations() -> void:
 		sprite_frames,
 		&"stop",
 		stop_sequence,
-		STOP_ANIMATION_FPS,
+		stop_animation_fps,
 	)
 
 
@@ -231,15 +236,15 @@ func _update_burst_presentation() -> void:
 		return
 
 	var burst_frame: int = 0
-	if _burst_elapsed < BURST_STARTUP_FRAME_DURATION:
+	if _burst_elapsed < speed_run_startup_frame_duration:
 		burst_frame = 0 # hylas-speed_02.webp
-	elif _burst_elapsed < BURST_HOLD_START:
+	elif _burst_elapsed < speed_run_hold_start:
 		burst_frame = 1 # hylas-speed_03.webp
-	elif _burst_elapsed < BURST_HOLD_END:
+	elif _burst_elapsed < speed_run_hold_end:
 		burst_frame = 2 # hylas-speed_04.webp
 	else:
-		var finish_elapsed: float = _burst_elapsed - BURST_HOLD_END
-		var finish_step: int = floori(finish_elapsed / BURST_FINISH_FRAME_DURATION)
+		var finish_elapsed: float = _burst_elapsed - speed_run_hold_end
+		var finish_step: int = floori(finish_elapsed / maxf(0.01, speed_run_finish_frame_duration))
 		burst_frame = 3 + (finish_step % 2) # Alternates hylas-speed_05 and _06.
 
 	_animated_sprite.frame = burst_frame
