@@ -148,6 +148,8 @@ func _activate_catalog_item(
 		push_error("Activated item '%s' but could not consume its quantity." % String(item_id))
 
 	_record_item_use(slot_id, item_id, true)
+	if is_instance_valid(_hud):
+		_hud.pulse_equipment_slot(slot_id)
 	equipped_item_used.emit(slot_id, item_id, behavior_id)
 	return true
 
