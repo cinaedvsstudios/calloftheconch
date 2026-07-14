@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="VideoStream" path="res://assets/effects/vent3.ogv" id="1_video"]
+[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="SurgeMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("2_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 4.0
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
+
+[node name="SurgeEffect" type="VideoStreamPlayer"]
+visible = false
+material = SubResource("SurgeMaterial")
+offset_left = -300.0
+offset_top = -230.0
+offset_right = 300.0
+offset_bottom = 230.0
+pivot_offset = Vector2(300, 230)
+mouse_filter = 2
+stream = ExtResource("1_video")
+volume_db = -80.0
+expand = true
+loop = true
