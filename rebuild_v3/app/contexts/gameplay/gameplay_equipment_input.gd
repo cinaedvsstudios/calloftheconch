@@ -52,9 +52,12 @@ func unregister_item_behavior_handler(handler: Callable) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Resolve the chord before the inherited Ctrl-release inventory logic. This
-	# guarantees Ctrl+Item A never opens inventory and never reaches Hylas as A.
-	if event.is_action_pressed(&"utility_item"):
+	if not _active:
+		return
+
+	# Resolve the exact chord before the inherited Ctrl-release inventory logic.
+	# This guarantees Ctrl+Item A never opens inventory or reaches Hylas as A.
+	if event.is_action_pressed(&"utility_item", false, true):
 		_inventory_candidate = false
 		_cancel_hylas_pending_interaction()
 		if _can_use_equipped_items():
