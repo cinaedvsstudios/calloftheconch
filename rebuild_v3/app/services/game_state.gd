@@ -12,17 +12,23 @@ signal inventory_changed(item_id: StringName, quantity: int, delta: int)
 signal permanent_inventory_changed(item_id: StringName, owned: bool)
 signal shells_changed
 signal star_pieces_changed
+signal equipped_item_changed(slot_id: StringName, item_id: StringName)
 signal pickup_collection_changed(instance_id: StringName, collected: bool)
 signal progression_changed(category: StringName, entry_id: StringName)
 signal player_defeated
 signal player_respawned(level_id: StringName, spawn_id: StringName)
 
-const STATE_SCHEMA_VERSION: int = 3
+const ITEM_CATALOG = preload("res://rebuild_v3/app/inventory/item_catalog.gd")
+
+const STATE_SCHEMA_VERSION: int = 4
 const DEFAULT_LEVEL_ID: StringName = &"sea_of_pillars"
 const DEFAULT_SPAWN_POINT_ID: StringName = &"sea_of_pillars_start"
 const DEFAULT_FINS: int = 4
 const MAXIMUM_FINS: int = 8
 const NORMAL_CONCH_ID: String = "normal_conch"
+const ITEM_SLOT_A: StringName = &"item_a"
+const ITEM_SLOT_B: StringName = &"item_b"
+const EMPTY_ITEM_ID: StringName = &""
 
 var current_level_id: StringName = DEFAULT_LEVEL_ID
 var current_spawn_point_id: StringName = DEFAULT_SPAWN_POINT_ID
@@ -39,6 +45,8 @@ var permanent_inventory_items: Array[String] = []
 var owned_shells: Array[String] = [NORMAL_CONCH_ID]
 var permanent_upgrades: Dictionary = {}
 var star_pieces: Array[String] = []
+var equipped_item_a: StringName = &"normal_conch"
+var equipped_item_b: StringName = EMPTY_ITEM_ID
 var story_flags: Dictionary = {}
 var collected_pickups: Dictionary = {}
 var defeated_bosses: Dictionary = {}
@@ -75,6 +83,8 @@ func start_new_game() -> void:
 	owned_shells = [NORMAL_CONCH_ID]
 	permanent_upgrades.clear()
 	star_pieces.clear()
+	equipped_item_a = StringName(NORMAL_CONCH_ID)
+	equipped_item_b = EMPTY_ITEM_ID
 	story_flags.clear()
 	collected_pickups.clear()
 	defeated_bosses.clear()
@@ -88,6 +98,105 @@ func start_new_game() -> void:
 
 func set_gameplay_active(is_active: bool) -> void:
 	_gameplay_active = is_active
+
+
+func get_equipped_item(slot_id: StringName) -> StringName:
+	match slot_id:
+		ITEM_SLOT_A:
+			return equipped_item_a
+		ITEM_SLOT_B:
+			return equipped_item_b
+		_:
+			return EMPTY_ITEM_ID
+
+
+func equip_item(item_id: StringName, requested_slot_id: StringName = &"") -> bool:
+	if String(item_id).is_empty() or not ITEM_CATALOG.has_item(item_id):
+		return false
+	var catalog_slot: StringName = ITEM_CATALOG.get_slot(item_id)
+	var resolved_slot: StringName = catalog_slot
+	if not String(requested_slot_id).is_empty():
+		resolved_slot = requested_slot_id
+	if not _is_equipment_slot(resolved_slot) or resolved_slot != catalog_slot:
+		return false
+	if not is_item_owned(item_id):
+		return false
+	if get_equipped_item(resolved_slot) == item_id:
+		return true
+	_set_equipped_item(resolved_slot, item_id, true)
+	state_changed.emit()
+	return true
+
+
+func clear_equipped_item(slot_id: StringName) -> bool:
+	if slot_id == ITEM_SLOT_A:
+		if equipped_item_a == StringName(NORMAL_CONCH_ID):
+			return true
+		_set_equipped_item(ITEM_SLOT_A, StringName(NORMAL_CONCH_ID), true)
+		state_changed.emit()
+		return true
+	if slot_id == ITEM_SLOT_B:
+		if String(equipped_item_b).is_empty():
+			return true
+		_set_equipped_item(ITEM_SLOT_B, EMPTY_ITEM_ID, true)
+		state_changed.emit()
+		return true
+	return false
+
+
+func is_item_valid_for_slot(
+		item_id: StringName,
+		slot_id: StringName,
+		require_owned: bool = true,
+	) -> bool:
+	if String(item_id).is_empty() or not _is_equipment_slot(slot_id):
+		return false
+	if not ITEM_CATALOG.has_item(item_id):
+		return false
+	if ITEM_CATALOG.get_slot(item_id) != slot_id:
+		return false
+	return not require_owned or is_item_owned(item_id)
+
+
+func is_item_owned(item_id: StringName) -> bool:
+	if not ITEM_CATALOG.has_item(item_id):
+		return false
+	var key: String = String(item_id)
+	var ownership_source: StringName = ITEM_CATALOG.get_ownership_source(item_id)
+	if ownership_source == ITEM_CATALOG.OWNERSHIP_SHELLS:
+		return owned_shells.has(key)
+	if ownership_source == ITEM_CATALOG.OWNERSHIP_INVENTORY:
+		return get_inventory_quantity(item_id) > 0
+	if ownership_source == ITEM_CATALOG.OWNERSHIP_PERMANENT:
+		return permanent_inventory_items.has(key)
+	if ownership_source == ITEM_CATALOG.OWNERSHIP_STAR_PIECES:
+		return star_pieces.has(key)
+	return false
+
+
+func validate_equipped_items(emit_changes: bool = true) -> bool:
+	var resolved_a: StringName = equipped_item_a
+	if not is_item_valid_for_slot(resolved_a, ITEM_SLOT_A, true):
+		resolved_a = StringName(NORMAL_CONCH_ID)
+	var resolved_b: StringName = equipped_item_b
+	if not String(resolved_b).is_empty():
+		if not is_item_valid_for_slot(resolved_b, ITEM_SLOT_B, true):
+			resolved_b = EMPTY_ITEM_ID
+
+	var changed: bool = false
+	if resolved_a != equipped_item_a:
+		equipped_item_a = resolved_a
+		changed = true
+		if emit_changes:
+			equipped_item_changed.emit(ITEM_SLOT_A, equipped_item_a)
+	if resolved_b != equipped_item_b:
+		equipped_item_b = resolved_b
+		changed = true
+		if emit_changes:
+			equipped_item_changed.emit(ITEM_SLOT_B, equipped_item_b)
+	if changed and emit_changes:
+		state_changed.emit()
+	return changed
 
 
 func set_checkpoint(level_id: StringName, spawn_point_id: StringName) -> bool:
@@ -264,12 +373,15 @@ func set_inventory_item(item_id: StringName, quantity: int) -> int:
 	var previous_quantity: int = int(inventory.get(key, 0))
 	var resolved_quantity: int = maxi(0, quantity)
 	if previous_quantity == resolved_quantity:
+		if _clear_depleted_equipped_item(item_id, resolved_quantity):
+			state_changed.emit()
 		return resolved_quantity
 	if resolved_quantity <= 0:
 		inventory.erase(key)
 	else:
 		inventory[key] = resolved_quantity
 	inventory_changed.emit(item_id, resolved_quantity, resolved_quantity - previous_quantity)
+	_clear_depleted_equipped_item(item_id, resolved_quantity)
 	state_changed.emit()
 	return resolved_quantity
 
@@ -410,6 +522,8 @@ func to_save_dictionary() -> Dictionary:
 		"owned_shells": owned_shells.duplicate(),
 		"permanent_upgrades": permanent_upgrades.duplicate(true),
 		"star_pieces": star_pieces.duplicate(),
+		"equipped_item_a": String(equipped_item_a),
+		"equipped_item_b": String(equipped_item_b),
 		"story_flags": story_flags.duplicate(true),
 		"collected_pickups": collected_pickups.duplicate(true),
 		"defeated_bosses": defeated_bosses.duplicate(true),
@@ -439,6 +553,9 @@ func load_from_save_dictionary(data: Dictionary) -> void:
 		owned_shells.push_front(NORMAL_CONCH_ID)
 	permanent_upgrades = _dictionary_value(data.get("permanent_upgrades", {}))
 	star_pieces = _string_array_value(data.get("star_pieces", []))
+	equipped_item_a = StringName(str(data.get("equipped_item_a", NORMAL_CONCH_ID)))
+	equipped_item_b = StringName(str(data.get("equipped_item_b", "")))
+	validate_equipped_items(false)
 	story_flags = _dictionary_value(data.get("story_flags", {}))
 	collected_pickups = _dictionary_value(data.get("collected_pickups", {}))
 	defeated_bosses = _dictionary_value(data.get("defeated_bosses", {}))
@@ -472,6 +589,8 @@ func get_debug_lines() -> Array[String]:
 		"greatfin_active=%s" % str(greatfin_active),
 		"player_is_defeated=%s" % str(player_is_defeated),
 		"onos=%d" % onos,
+		"equipped_item_a=%s" % String(equipped_item_a),
+		"equipped_item_b=%s" % String(equipped_item_b),
 		"limited_use_inventory=%s" % str(inventory),
 		"permanent_inventory=%s" % str(permanent_inventory_items),
 		"owned_shells=%s" % str(owned_shells),
@@ -491,7 +610,39 @@ func _emit_replaced_state(reason: StringName) -> void:
 	onos_changed.emit(onos, 0)
 	shells_changed.emit()
 	star_pieces_changed.emit()
+	equipped_item_changed.emit(ITEM_SLOT_A, equipped_item_a)
+	equipped_item_changed.emit(ITEM_SLOT_B, equipped_item_b)
 	state_changed.emit()
+
+
+func _set_equipped_item(
+		slot_id: StringName,
+		item_id: StringName,
+		emit_change: bool,
+	) -> void:
+	if slot_id == ITEM_SLOT_A:
+		equipped_item_a = item_id
+	elif slot_id == ITEM_SLOT_B:
+		equipped_item_b = item_id
+	else:
+		return
+	if emit_change:
+		equipped_item_changed.emit(slot_id, item_id)
+
+
+func _clear_depleted_equipped_item(item_id: StringName, quantity: int) -> bool:
+	if quantity > 0 or equipped_item_b != item_id:
+		return false
+	if not ITEM_CATALOG.item_has_quantity(item_id):
+		return false
+	if ITEM_CATALOG.get_ownership_source(item_id) != ITEM_CATALOG.OWNERSHIP_INVENTORY:
+		return false
+	_set_equipped_item(ITEM_SLOT_B, EMPTY_ITEM_ID, true)
+	return true
+
+
+func _is_equipment_slot(slot_id: StringName) -> bool:
+	return slot_id == ITEM_SLOT_A or slot_id == ITEM_SLOT_B
 
 
 func _dictionary_value(value: Variant) -> Dictionary:
