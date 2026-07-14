@@ -4,19 +4,19 @@
 [ext_resource type="Texture2D" path="res://assets/ui/dialogueboxv.webp" id="2_panel"]
 
 [sub_resource type="StyleBoxFlat" id="CloseNormal"]
-bg_color = Color(0.015, 0.045, 0.09, 0.72)
+bg_color = Color(0.015, 0.045, 0.09, 0.78)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.14, 0.67, 0.78, 0.82)
+border_color = Color(0.14, 0.67, 0.78, 0.9)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
 
 [sub_resource type="StyleBoxFlat" id="CloseHover"]
-bg_color = Color(0.08, 0.03, 0.13, 0.9)
+bg_color = Color(0.08, 0.03, 0.13, 0.92)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
@@ -79,13 +79,15 @@ stretch_mode = 5
 [node name="CloseButton" type="Button" parent="PanelRoot"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 466.0
-offset_top = 70.0
-offset_right = 516.0
-offset_bottom = 120.0
+offset_left = 452.0
+offset_top = 78.0
+offset_right = 502.0
+offset_bottom = 128.0
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0.84, 0.95, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.72, 0.95, 1)
+theme_override_colors/font_outline_color = Color(0.005, 0.015, 0.03, 1)
+theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 27
 theme_override_styles/normal = SubResource("CloseNormal")
 theme_override_styles/hover = SubResource("CloseHover")
@@ -95,94 +97,84 @@ text = "×"
 
 [node name="Content" type="VBoxContainer" parent="PanelRoot"]
 layout_mode = 0
-offset_left = 82.0
-offset_top = 112.0
-offset_right = 488.0
-offset_bottom = 608.0
+offset_left = 92.0
+offset_top = 126.0
+offset_right = 478.0
+offset_bottom = 610.0
 mouse_filter = 1
-theme_override_constants/separation = 8
+theme_override_constants/separation = 11
 
 [node name="Title" type="Label" parent="PanelRoot/Content"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.91, 0.86, 0.65, 1)
-theme_override_colors/font_shadow_color = Color(0.015, 0.035, 0.08, 0.9)
-theme_override_constants/shadow_offset_x = 2
-theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.92, 0.82, 0.48, 1)
+theme_override_colors/font_outline_color = Color(0.01, 0.025, 0.045, 0.98)
+theme_override_colors/font_shadow_color = Color(0, 0.01, 0.025, 0.84)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/shadow_outline_size = 6
+theme_override_font_sizes/font_size = 30
 text = "INVENTORY"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="PanelRoot/Content"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.54, 0.82, 0.90, 0.92)
-theme_override_font_sizes/font_size = 13
-text = "Move the magenta frame. Space or click equips."
+theme_override_colors/font_color = Color(0.22, 0.61, 0.7, 1)
+theme_override_colors/font_outline_color = Color(0.01, 0.025, 0.045, 0.96)
+theme_override_colors/font_shadow_color = Color(0, 0.01, 0.025, 0.82)
+theme_override_constants/outline_size = 1
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/shadow_outline_size = 5
+theme_override_font_sizes/font_size = 14
+text = "Move selection · Space or click equips"
 horizontal_alignment = 1
 
 [node name="ItemScroll" type="ScrollContainer" parent="PanelRoot/Content"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 382)
+custom_minimum_size = Vector2(0, 386)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
 
-[node name="Sections" type="VBoxContainer" parent="PanelRoot/Content/ItemScroll"]
+[node name="ItemsBody" type="VBoxContainer" parent="PanelRoot/Content/ItemScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 14
 
-[node name="ItemAHeader" type="Label" parent="PanelRoot/Content/ItemScroll/Sections"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.93, 0.83, 0.55, 1)
-theme_override_font_sizes/font_size = 18
-text = "ITEM A  ·  OFFENSIVE"
-
-[node name="ItemAGrid" type="GridContainer" parent="PanelRoot/Content/ItemScroll/Sections"]
+[node name="ItemGrid" type="GridContainer" parent="PanelRoot/Content/ItemScroll/ItemsBody"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
 columns = 3
 
-[node name="ItemAEmpty" type="Label" parent="PanelRoot/Content/ItemScroll/Sections"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.64, 0.69, 0.9)
-theme_override_font_sizes/font_size = 14
-text = "No offensive item is available."
-horizontal_alignment = 1
-
-[node name="Divider" type="HSeparator" parent="PanelRoot/Content/ItemScroll/Sections"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="ItemBHeader" type="Label" parent="PanelRoot/Content/ItemScroll/Sections"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.93, 0.83, 0.55, 1)
-theme_override_font_sizes/font_size = 18
-text = "ITEM B  ·  UTILITY & CARRIED"
-
-[node name="ItemBGrid" type="GridContainer" parent="PanelRoot/Content/ItemScroll/Sections"]
+[node name="EmptyLabel" type="Label" parent="PanelRoot/Content/ItemScroll/ItemsBody"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-columns = 3
-
-[node name="ItemBEmpty" type="Label" parent="PanelRoot/Content/ItemScroll/Sections"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.64, 0.69, 0.9)
-theme_override_font_sizes/font_size = 14
-text = "No utility or carried item is available."
+theme_override_colors/font_color = Color(0.25, 0.4, 0.46, 1)
+theme_override_colors/font_outline_color = Color(0.01, 0.025, 0.045, 0.96)
+theme_override_colors/font_shadow_color = Color(0, 0.01, 0.025, 0.82)
+theme_override_constants/outline_size = 1
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/shadow_outline_size = 5
+theme_override_font_sizes/font_size = 15
+text = "No usable items are available."
 horizontal_alignment = 1
 
 [node name="Footer" type="Label" parent="PanelRoot/Content"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.66, 0.77, 0.80, 0.9)
+theme_override_colors/font_color = Color(0.29, 0.45, 0.5, 1)
+theme_override_colors/font_outline_color = Color(0.01, 0.025, 0.045, 0.96)
+theme_override_colors/font_shadow_color = Color(0, 0.01, 0.025, 0.82)
+theme_override_constants/outline_size = 1
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/shadow_outline_size = 5
 theme_override_font_sizes/font_size = 13
 text = "Esc closes"
 horizontal_alignment = 1

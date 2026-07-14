@@ -13,13 +13,13 @@ const GRID_COLUMNS: int = 3
 const CELL_SIZE: Vector2 = Vector2(112.0, 116.0)
 const MAGENTA: Color = Color(0.96, 0.15, 0.78, 1.0)
 const CYAN: Color = Color(0.10, 0.88, 1.0, 1.0)
+const TEXT_OUTLINE: Color = Color(0.01, 0.025, 0.045, 0.96)
+const TEXT_SHADOW: Color = Color(0.0, 0.01, 0.025, 0.82)
 
 @onready var _close_button: Button = %CloseButton
 @onready var _item_scroll: ScrollContainer = %ItemScroll
-@onready var _item_a_grid: GridContainer = %ItemAGrid
-@onready var _item_b_grid: GridContainer = %ItemBGrid
-@onready var _item_a_empty: Label = %ItemAEmpty
-@onready var _item_b_empty: Label = %ItemBEmpty
+@onready var _item_grid: GridContainer = %ItemGrid
+@onready var _empty_label: Label = %EmptyLabel
 
 var _game_state: CotcGameState
 var _is_open: bool = false
@@ -132,29 +132,17 @@ func _disconnect_game_state() -> void:
 
 func _rebuild_items() -> void:
 	var previous_selection: StringName = _selected_item_id
-	_clear_grid(_item_a_grid)
-	_clear_grid(_item_b_grid)
+	_clear_grid()
 	_item_ids.clear()
 	_item_cells.clear()
 
-	var item_a_ids: Array[StringName] = []
-	var item_b_ids: Array[StringName] = []
+	var owned_item_ids: Array[StringName] = []
 	for item_id: StringName in ITEM_CATALOG.get_all_item_ids():
-		if not _game_state.is_item_owned(item_id):
-			continue
-		var slot_id: StringName = ITEM_CATALOG.get_slot(item_id)
-		if slot_id == SLOT_A:
-			item_a_ids.append(item_id)
-		elif slot_id == SLOT_B:
-			item_b_ids.append(item_id)
+		if _game_state.is_item_owned(item_id):
+			owned_item_ids.append(item_id)
 
-	_item_a_empty.visible = item_a_ids.is_empty()
-	_item_b_empty.visible = item_b_ids.is_empty()
-
-	var nav_row: int = 0
-	_add_item_group(_item_a_grid, item_a_ids, nav_row)
-	nav_row += maxi(1, ceili(float(item_a_ids.size()) / float(GRID_COLUMNS))) + 1
-	_add_item_group(_item_b_grid, item_b_ids, nav_row)
+	_empty_label.visible = owned_item_ids.is_empty()
+	_add_items(owned_item_ids)
 
 	if _item_ids.is_empty():
 		_selected_item_id = &""
@@ -175,19 +163,15 @@ func _rebuild_items() -> void:
 	_refresh_cell_states()
 
 
-func _add_item_group(
-		grid: GridContainer,
-		item_ids: Array[StringName],
-		start_row: int,
-	) -> void:
-	for group_index: int in range(item_ids.size()):
-		var item_id: StringName = item_ids[group_index]
+func _add_items(item_ids: Array[StringName]) -> void:
+	for item_index: int in range(item_ids.size()):
+		var item_id: StringName = item_ids[item_index]
 		var nav_position: Vector2i = Vector2i(
-			group_index % GRID_COLUMNS,
-			start_row + floori(float(group_index) / float(GRID_COLUMNS)),
+			item_index % GRID_COLUMNS,
+			floori(float(item_index) / float(GRID_COLUMNS)),
 		)
 		var cell: Control = _create_item_cell(item_id, nav_position)
-		grid.add_child(cell)
+		_item_grid.add_child(cell)
 		_item_ids.append(item_id)
 
 
@@ -262,7 +246,8 @@ func _create_item_cell(item_id: StringName, nav_position: Vector2i) -> Control:
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.add_theme_font_size_override(&"font_size", 13)
-	name_label.add_theme_color_override(&"font_color", Color(0.93, 0.90, 0.78, 1.0))
+	name_label.add_theme_color_override(&"font_color", Color(0.96, 0.93, 0.80, 1.0))
+	_apply_label_readability(name_label, 1, 4)
 	content.add_child(name_label)
 
 	var quantity_label: Label = Label.new()
@@ -276,6 +261,7 @@ func _create_item_cell(item_id: StringName, nav_position: Vector2i) -> Control:
 	quantity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	quantity_label.add_theme_font_size_override(&"font_size", 16)
 	quantity_label.add_theme_color_override(&"font_color", Color(1.0, 0.92, 0.48, 1.0))
+	_apply_label_readability(quantity_label, 1, 4)
 	cell.add_child(quantity_label)
 
 	_item_cells[String(item_id)] = {
@@ -288,16 +274,25 @@ func _create_item_cell(item_id: StringName, nav_position: Vector2i) -> Control:
 	return cell
 
 
-func _clear_grid(grid: GridContainer) -> void:
-	for child: Node in grid.get_children():
-		grid.remove_child(child)
+func _clear_grid() -> void:
+	for child: Node in _item_grid.get_children():
+		_item_grid.remove_child(child)
 		child.queue_free()
+
+
+func _apply_label_readability(label: Label, outline_size: int, shadow_spread: int) -> void:
+	label.add_theme_color_override(&"font_outline_color", TEXT_OUTLINE)
+	label.add_theme_constant_override(&"outline_size", outline_size)
+	label.add_theme_color_override(&"font_shadow_color", TEXT_SHADOW)
+	label.add_theme_constant_override(&"shadow_offset_x", 3)
+	label.add_theme_constant_override(&"shadow_offset_y", 4)
+	label.add_theme_constant_override(&"shadow_outline_size", shadow_spread)
 
 
 func _make_cell_background_style() -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.015, 0.055, 0.10, 0.76)
-	style.border_color = Color(0.31, 0.48, 0.58, 0.72)
+	style.bg_color = Color(0.015, 0.055, 0.10, 0.82)
+	style.border_color = Color(0.31, 0.48, 0.58, 0.78)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(9)
 	return style
