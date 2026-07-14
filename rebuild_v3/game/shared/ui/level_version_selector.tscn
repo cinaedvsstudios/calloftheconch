@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/menu/level_version_selector.tscn" id="1_scene"]
+
+[node name="LevelVersionSelector" instance=ExtResource("1_scene")]
