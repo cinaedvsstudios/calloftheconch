@@ -37,13 +37,19 @@ Browse under `res://rebuild_v3/game/shared/`:
 
 Drag the ready `.tscn` file from the relevant folder into the open level scene.
 
+Collision-ready landscape pieces are grouped at:
+
+`res://rebuild_v3/game/shared/background_scenery/landscape/`
+
+The landscape scenes generate their collision from visible texture alpha, so transparent parts of the image do not block Hylas.
+
 ## Ownership rule
 
 A wrapper scene in the library points to one canonical feature scene. Do not duplicate the underlying script or artwork merely to make another sea use it. Sea-specific content belongs under that sea; content carried by Hylas or reused across seas belongs under `game/shared`.
 
 ## Current limitations
 
-- The prototype's embedded rocks, sand, ruins and collisions have not yet all been extracted into reusable scenery scenes.
+- Other prototype scenery, such as ruins and specialised set pieces, still needs extraction as it is approved for reuse.
 - Leaf Sheep has no finished runtime scene yet.
 - Tyche Margarites behaviour is documented but not implemented.
 - Pirate Ship Interior and Scylla Boss Arena are empty prepared scenes, not completed levels.

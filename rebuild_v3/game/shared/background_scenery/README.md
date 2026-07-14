@@ -1,7 +1,11 @@
 # Background Scenery
 
-This folder is for reusable scenery scenes that are ready to drag into a level, including their collision shapes where required.
+Reusable, drag-ready scenery scenes belong here.
 
-The current Sea of Pillars map still contains many rocks, sand sections, ruins and background textures directly inside the prototype level. They have not been extracted here automatically because a raw texture is not necessarily a safe reusable collision scene.
+The collision-ready rock, island, sand, beach and spike-rock collection is in:
 
-As each piece is separated and its collision is verified, place its canonical `.tscn` here or in the owning sea's `background_scenery` folder. Do not treat this folder as a loose dump of image files.
+`res://rebuild_v3/game/shared/background_scenery/landscape/`
+
+Those scenes read the source texture alpha channel and generate collision only across visible image regions. Source artwork remains canonical under `res://assets/backgrounds/`; the library scenes do not duplicate the images.
+
+Other scenery should follow the same rule: keep one canonical source asset and provide a ready `.tscn` wrapper when the piece needs collision, scripts or reusable configuration.

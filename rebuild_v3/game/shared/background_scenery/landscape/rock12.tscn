@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape_base.tscn" id="1_base"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/rock12.webp" id="2_texture"]
+
+[node name="Rock12" instance=ExtResource("1_base")]
+source_texture = ExtResource("2_texture")
+landscape_id = &"rock12"
+metadata/source_asset = "res://assets/backgrounds/rock12.webp"
+metadata/collision_source = "texture_alpha"
