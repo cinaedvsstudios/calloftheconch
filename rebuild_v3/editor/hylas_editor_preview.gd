@@ -10,6 +10,7 @@ const CONCH_PULSE_SCENE: PackedScene = preload(
 @export_range(0, 5, 1) var conch_preview_frame: int = 4
 @export_range(0.0, 1.0, 0.01) var sonar_preview_progress: float = 0.16
 @export var show_jump_arc: bool = false
+@export var show_parent_level_guides: bool = true
 @export var show_labels: bool = true
 
 var _sonar_texture: Texture2D
@@ -112,10 +113,12 @@ func _draw() -> void:
 		_draw_sonar_preview(pulse_origin)
 		_draw_flash_bounds(pulse_origin)
 		if show_labels:
-			_draw_label(pulse_origin + Vector2(12.0, -18.0), "CONCH PULSE ORIGIN", Color(0.2, 1.0, 0.55, 1.0))
+			_draw_label(pulse_origin + Vector2(12.0, -18.0), "CONCH PULSE ORIGIN", Color(0.2, 1.0, 0.55, 1.0), 13)
 
 	if show_jump_arc:
 		_draw_jump_preview(hylas)
+	if show_parent_level_guides:
+		_draw_parent_level_guides(hylas)
 
 
 func _draw_sonar_preview(pulse_origin: Vector2) -> void:
@@ -132,7 +135,7 @@ func _draw_sonar_preview(pulse_origin: Vector2) -> void:
 	draw_texture_rect(_sonar_texture, rect, false, Color(1.0, 1.0, 1.0, 0.65))
 	draw_arc(center, diameter * 0.5, -0.40, 0.40, 32, Color(0.18, 0.78, 1.0, 0.9), 2.0)
 	if show_labels:
-		_draw_label(center + Vector2(12.0, 22.0), "SONAR WAVE", Color(0.18, 0.78, 1.0, 1.0))
+		_draw_label(center + Vector2(12.0, 22.0), "SONAR WAVE", Color(0.18, 0.78, 1.0, 1.0), 13)
 
 
 func _draw_flash_bounds(pulse_origin: Vector2) -> void:
@@ -154,7 +157,7 @@ func _draw_flash_bounds(pulse_origin: Vector2) -> void:
 	draw_colored_polygon(corners, Color(1.0, 0.45, 0.12, 0.08))
 	draw_polyline(outline, Color(1.0, 0.45, 0.12, 0.95), 3.0)
 	if show_labels:
-		_draw_label(corners[0] + Vector2(8.0, -8.0), "ECHOPULSE VIDEO BOUNDS", Color(1.0, 0.55, 0.2, 1.0))
+		_draw_label(corners[0] + Vector2(8.0, -8.0), "ECHOPULSE VIDEO BOUNDS", Color(1.0, 0.55, 0.2, 1.0), 13)
 
 
 func _draw_jump_preview(hylas: Node2D) -> void:
@@ -171,16 +174,92 @@ func _draw_jump_preview(hylas: Node2D) -> void:
 	draw_circle(points[points.size() - 1], 6.0, Color(1.0, 0.86, 0.25, 0.85))
 	if show_labels:
 		var midpoint_index: int = points.size() / 2
-		_draw_label(points[midpoint_index] + Vector2(8.0, -8.0), "SURFACE JUMP ARC", Color(1.0, 0.86, 0.25, 0.9))
+		_draw_label(points[midpoint_index] + Vector2(8.0, -8.0), "SURFACE JUMP ARC", Color(1.0, 0.86, 0.25, 0.9), 13)
 
 
-func _draw_label(position_value: Vector2, text_value: String, color_value: Color) -> void:
+func _draw_parent_level_guides(hylas: Node2D) -> void:
+	var level: Node2D = hylas.get_parent() as Node2D
+	if level == null:
+		return
+	var top_left: Marker2D = level.get_node_or_null("WorldTopLeft") as Marker2D
+	var bottom_right: Marker2D = level.get_node_or_null("WorldBottomRight") as Marker2D
+	if top_left == null or bottom_right == null:
+		return
+	var local_top_left: Vector2 = hylas.to_local(top_left.global_position)
+	var local_bottom_right: Vector2 = hylas.to_local(bottom_right.global_position)
+	var world_rect: Rect2 = Rect2(local_top_left, local_bottom_right - local_top_left)
+	draw_rect(world_rect, Color(0.18, 0.88, 1.0, 0.025), true)
+	draw_rect(world_rect, Color(0.18, 0.88, 1.0, 0.72), false, 8.0)
+	if show_labels:
+		_draw_label(world_rect.position + Vector2(20.0, 36.0), "PLAYABLE WORLD BOUNDS", Color(0.18, 0.88, 1.0, 1.0), 24)
+
+	var waterline: Marker2D = level.get_node_or_null("WaterlineMarker") as Marker2D
+	if waterline != null:
+		var waterline_local: Vector2 = hylas.to_local(waterline.global_position)
+		draw_line(
+			Vector2(world_rect.position.x, waterline_local.y),
+			Vector2(world_rect.end.x, waterline_local.y),
+			Color(0.25, 1.0, 0.95, 0.80),
+			6.0,
+		)
+		if show_labels:
+			_draw_label(waterline_local + Vector2(20.0, -18.0), "WATERLINE", Color(0.25, 1.0, 0.95, 1.0), 22)
+
+	var start_marker: Marker2D = level.get_node_or_null("HylasStart") as Marker2D
+	if start_marker != null:
+		_draw_guide_marker(hylas.to_local(start_marker.global_position), "HYLAS START", Color(0.25, 1.0, 0.45, 1.0))
+	var whale: Node2D = level.get_node_or_null("WhaleTravel") as Node2D
+	if whale != null:
+		_draw_guide_marker(hylas.to_local(whale.global_position), "WHALE CHECKPOINT", Color(0.72, 0.52, 1.0, 1.0))
+	_draw_city_gate_guides(hylas, level)
+
+
+func _draw_city_gate_guides(hylas: Node2D, level: Node2D) -> void:
+	var city_art: Sprite2D = level.get_node_or_null("Citymain") as Sprite2D
+	if city_art == null or city_art.texture == null:
+		return
+	var gate_offset_value: Variant = level.get("city_gate_texture_offset")
+	var gate_radius_value: Variant = level.get("city_gate_interaction_radius")
+	var return_offset_value: Variant = level.get("city_gate_return_offset")
+	if not gate_offset_value is Vector2 or not return_offset_value is Vector2:
+		return
+	var texture_size: Vector2 = city_art.texture.get_size()
+	var gate_offset: Vector2 = gate_offset_value
+	var gate_world_position: Vector2 = city_art.global_position + Vector2(
+		texture_size.x * city_art.scale.x * gate_offset.x,
+		texture_size.y * city_art.scale.y * gate_offset.y,
+	)
+	var return_world_position: Vector2 = gate_world_position + Vector2(return_offset_value)
+	var gate_position: Vector2 = hylas.to_local(gate_world_position)
+	var return_position: Vector2 = hylas.to_local(return_world_position)
+	var radius: float = float(gate_radius_value)
+	draw_circle(gate_position, radius, Color(1.0, 0.66, 0.12, 0.05))
+	draw_arc(gate_position, radius, 0.0, TAU, 96, Color(1.0, 0.66, 0.12, 0.92), 8.0)
+	_draw_guide_marker(gate_position, "CITY GATE INTERACTION", Color(1.0, 0.66, 0.12, 1.0))
+	draw_line(gate_position, return_position, Color(1.0, 0.28, 0.65, 0.82), 5.0)
+	_draw_guide_marker(return_position, "CITY RETURN POSITION", Color(1.0, 0.28, 0.65, 1.0))
+
+
+func _draw_guide_marker(position_value: Vector2, text_value: String, color_value: Color) -> void:
+	draw_circle(position_value, 14.0, color_value)
+	draw_line(position_value - Vector2(34.0, 0.0), position_value + Vector2(34.0, 0.0), color_value, 5.0)
+	draw_line(position_value - Vector2(0.0, 34.0), position_value + Vector2(0.0, 34.0), color_value, 5.0)
+	if show_labels:
+		_draw_label(position_value + Vector2(42.0, -20.0), text_value, color_value, 22)
+
+
+func _draw_label(
+		position_value: Vector2,
+		text_value: String,
+		color_value: Color,
+		font_size: int,
+	) -> void:
 	draw_string(
 		ThemeDB.fallback_font,
 		position_value,
 		text_value,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1.0,
-		13,
+		font_size,
 		color_value,
 	)
