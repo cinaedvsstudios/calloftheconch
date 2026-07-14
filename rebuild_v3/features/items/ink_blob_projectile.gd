@@ -1,7 +1,7 @@
 class_name CotcInkBlobProjectile
 extends Area2D
 
-signal impacted(position: Vector2)
+signal impacted(world_position: Vector2)
 
 @export_range(100.0, 4000.0, 10.0) var travel_speed: float = 1050.0
 @export_range(100.0, 4000.0, 10.0) var maximum_distance: float = 1150.0
@@ -34,7 +34,8 @@ func _physics_process(delta: float) -> void:
 	var next_position: Vector2 = global_position + _direction * step_distance
 	var hit: Dictionary = _intersect_blob_path(global_position, next_position)
 	if not hit.is_empty():
-		global_position = hit.get("position", next_position) as Vector2
+		var hit_position: Variant = hit.get("position", next_position)
+		global_position = hit_position if hit_position is Vector2 else next_position
 		_finish_impact()
 		return
 	global_position = next_position
