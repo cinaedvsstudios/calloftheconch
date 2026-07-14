@@ -166,8 +166,12 @@ func ensure_admin_save() -> bool:
 	# The admin file is a normal save that preserves any progress already made in
 	# it, while replenishing every catalogue consumable and granting new catalogue
 	# entries whenever the build grows.
+	last_error_message = ""
 	_ensure_save_directory()
 	var admin_state: CotcGameState = GAME_STATE_SCRIPT.new() as CotcGameState
+	if admin_state == null:
+		last_error_message = "The admin game state could not be created."
+		return false
 	var existing_payload: Dictionary = _read_payload(_save_path(ADMIN_SAVE_ID))
 	var existing_state: Variant = existing_payload.get("state", {})
 	if typeof(existing_state) == TYPE_DICTIONARY:
@@ -190,6 +194,7 @@ func ensure_admin_save() -> bool:
 	var wrote_save: bool = _write_payload(_save_path(ADMIN_SAVE_ID), payload)
 	admin_state.free()
 	if wrote_save:
+		last_error_message = ""
 		saves_changed.emit()
 	return wrote_save
 
@@ -197,15 +202,14 @@ func ensure_admin_save() -> bool:
 func _grant_admin_catalogue(admin_state: CotcGameState) -> void:
 	for item_id: StringName in ITEM_CATALOG.get_all_item_ids():
 		var ownership_source: StringName = ITEM_CATALOG.get_ownership_source(item_id)
-		match ownership_source:
-			ITEM_CATALOG.OWNERSHIP_SHELLS:
-				admin_state.unlock_shell(item_id)
-			ITEM_CATALOG.OWNERSHIP_INVENTORY:
-				admin_state.set_inventory_item(item_id, ADMIN_CONSUMABLE_QUANTITY)
-			ITEM_CATALOG.OWNERSHIP_PERMANENT:
-				admin_state.grant_permanent_inventory_item(item_id)
-			ITEM_CATALOG.OWNERSHIP_STAR_PIECES:
-				admin_state.add_star_piece(item_id)
+		if ownership_source == ITEM_CATALOG.OWNERSHIP_SHELLS:
+			admin_state.unlock_shell(item_id)
+		elif ownership_source == ITEM_CATALOG.OWNERSHIP_INVENTORY:
+			admin_state.set_inventory_item(item_id, ADMIN_CONSUMABLE_QUANTITY)
+		elif ownership_source == ITEM_CATALOG.OWNERSHIP_PERMANENT:
+			admin_state.grant_permanent_inventory_item(item_id)
+		elif ownership_source == ITEM_CATALOG.OWNERSHIP_STAR_PIECES:
+			admin_state.add_star_piece(item_id)
 	admin_state.validate_equipped_items(false)
 
 
