@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[node name="PirateShipInterior" type="Node2D"]
+metadata/development_status = "placeholder"
+metadata/sea_id = "sea_of_pillars"
+metadata/area_id = "pirate_ship_interior"
