@@ -1,7 +1,9 @@
 [gd_scene format=3 uid="uid://k2serfn5csof"]
 
 [ext_resource type="Script" uid="uid://df704opte6x40" path="res://rebuild_v3/app/contexts/gameplay/gameplay_hud.gd" id="1_controller"]
-[ext_resource type="Script" path="res://rebuild_v3/editor/gameplay_hud_editor_preview.gd" id="2_editor_preview"]
+[ext_resource type="Script" uid="uid://dcah5y5fuv3qf" path="res://rebuild_v3/editor/gameplay_hud_editor_preview.gd" id="2_editor_preview"]
+[ext_resource type="Texture2D" uid="uid://cyqc6r47jke0n" path="res://assets/ui/UI1.webp" id="2_lc38v"]
+[ext_resource type="Texture2D" uid="uid://cryc77jmj45iu" path="res://assets/ui/shell_normal_conch.png" id="3_2vbiw"]
 
 [sub_resource type="SystemFont" id="LocationFont"]
 font_names = PackedStringArray("Cinzel", "Trajan Pro", "Times New Roman", "Georgia", "Noto Serif")
@@ -13,9 +15,9 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -255.0
-offset_top = 18.0
+offset_top = -5.0
 offset_right = 255.0
-offset_bottom = 228.0
+offset_bottom = 205.4064
 grow_horizontal = 2
 scale = Vector2(0.7, 0.7)
 pivot_offset = Vector2(255, 0)
@@ -24,11 +26,12 @@ script = ExtResource("1_controller")
 hud_uniform_scale = 0.7
 hud_top_offset = -5.0
 fin_value_rect = Rect2(155, 120, 65, 37)
-conch_icon_rect = Rect2(360, 65, 73, 73)
-location_value_rect = Rect2(76, 160, 361, 37)
+conch_icon_rect = Rect2(345, 75, 73, 80)
+location_value_rect = Rect2(85, 161.5, 361, 37)
 
 [node name="FallbackPanel" type="ColorRect" parent="." unique_id=606423077]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -47,31 +50,32 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+texture = ExtResource("2_lc38v")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="OnosValue" type="Label" parent="." unique_id=352687747]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 90.714294
-offset_top = 127.14285
-offset_right = 154.7143
-offset_bottom = 164.14285
+offset_left = 94.0
+offset_top = 120.0
+offset_right = 158.0
+offset_bottom = 157.0
 theme_override_colors/font_color = Color(1, 0.84, 0.35, 1)
 theme_override_colors/font_outline_color = Color(0.08, 0.03, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 23
-text = "0"
+text = "12"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="FinValue" type="Label" parent="." unique_id=1345808411]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 156.7143
-offset_top = 127.14285
-offset_right = 221.7143
-offset_bottom = 164.14285
+offset_left = 155.0
+offset_top = 120.0
+offset_right = 220.0
+offset_bottom = 157.0
 theme_override_colors/font_color = Color(0.52, 0.98, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0.05, 0.12, 1)
 theme_override_constants/outline_size = 4
@@ -82,34 +86,40 @@ vertical_alignment = 1
 
 [node name="ConchGlow" type="TextureRect" parent="." unique_id=117666503]
 unique_name_in_owner = true
-modulate = Color(0.15, 1, 1, 0)
+modulate = Color(0.15, 1, 1, 0.32)
 layout_mode = 0
-offset_left = 347.0
+offset_left = 345.0
 offset_top = 75.0
-offset_right = 420.0
-offset_bottom = 148.0
+offset_right = 418.0
+offset_bottom = 155.0
+scale = Vector2(1.1, 1.1)
+pivot_offset = Vector2(36.5, 40)
 mouse_filter = 2
+texture = ExtResource("3_2vbiw")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="ConchIcon" type="TextureRect" parent="." unique_id=985968755]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 347.0
+offset_left = 345.0
 offset_top = 75.0
-offset_right = 420.0
-offset_bottom = 147.99994
+offset_right = 418.0
+offset_bottom = 155.0
+pivot_offset = Vector2(36.5, 40)
 mouse_filter = 2
+texture = ExtResource("3_2vbiw")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="LocationValue" type="Label" parent="." unique_id=510702690]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 76.0
-offset_top = 167.0
-offset_right = 437.0
-offset_bottom = 204.0
+offset_left = 85.0
+offset_top = 161.5
+offset_right = 446.0
+offset_bottom = 198.5
+scale = Vector2(0.9, 0.9)
 theme_override_colors/font_color = Color(0.13, 0.12, 0.11, 1)
 theme_override_colors/font_outline_color = Color(0.84, 0.78, 0.66, 0.85)
 theme_override_constants/outline_size = 2
@@ -119,5 +129,6 @@ text = "THE SEA OF PILLARS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EditorPreview" type="Node" parent="."]
+[node name="EditorPreview" type="Node" parent="." unique_id=213321979]
+process_mode = 3
 script = ExtResource("2_editor_preview")

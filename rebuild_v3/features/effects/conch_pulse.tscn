@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://bdeax78tc4o8i" path="res://rebuild_v3/features/effects/conch_pulse_screen_range.gd" id="1_controller"]
 [ext_resource type="Texture2D" uid="uid://d2h7vhb3wyh6x" path="res://assets/effects/sonar.webp" id="2_sonar"]
 [ext_resource type="Shader" uid="uid://cav0ro4ag7jey" path="res://rebuild_v3/features/effects/conch_pulse_arc.gdshader" id="3_arc_shader"]
-[ext_resource type="VideoStream" uid="uid://wtp4swvkaofx" path="res://assets/effects/echopulse.ogv" id="4_flash_video"]
 [ext_resource type="Shader" uid="uid://vp7nqtlaohv3" path="res://rebuild_v3/features/effects/conch_pulse_flash.gdshader" id="5_flash_shader"]
+[ext_resource type="VideoStream" uid="uid://djd8vxpgepw1f" path="res://assets/effects/conchbeam.ogv" id="5_hk3gq"]
 [ext_resource type="Script" uid="uid://c3ow2nq2oqud" path="res://rebuild_v3/editor/conch_pulse_editor_preview.gd" id="6_editor_preview"]
 
 [sub_resource type="ShaderMaterial" id="SonarArcMaterial"]
@@ -37,10 +37,10 @@ position = Vector2(-25, -62.000004)
 scale = Vector2(0.10566038, 0.10566038)
 texture = ExtResource("2_sonar")
 
-[node name="OriginFlashPivot" type="Node2D" parent="."]
+[node name="OriginFlashPivot" type="Node2D" parent="." unique_id=257524493]
 unique_name_in_owner = true
 
-[node name="OriginFlashVisual" type="Node2D" parent="OriginFlashPivot"]
+[node name="OriginFlashVisual" type="Node2D" parent="OriginFlashPivot" unique_id=659016289]
 unique_name_in_owner = true
 
 [node name="OriginFlash" type="VideoStreamPlayer" parent="OriginFlashPivot/OriginFlashVisual" unique_id=1784732269]
@@ -53,17 +53,20 @@ anchor_left = 0.233
 anchor_top = 0.35
 anchor_right = 0.36
 anchor_bottom = 0.694
-offset_left = -1004.00006
-offset_top = -600.00006
-offset_right = 873.99994
-offset_bottom = 636.99994
+offset_left = -879.00006
+offset_top = -605.00006
+offset_right = 998.99994
+offset_bottom = 631.99994
 grow_horizontal = 2
 grow_vertical = 0
 rotation = -1.5707964
 scale = Vector2(0.1, 0.1)
 pivot_offset = Vector2(960, 540)
+offset_transform_enabled = true
+offset_transform_scale = Vector2(1.8, 2)
+offset_transform_rotation = 1.5707964
 mouse_filter = 2
-stream = ExtResource("4_flash_video")
+stream = ExtResource("5_hk3gq")
 volume_db = -80.0
 expand = true
 metadata/_edit_use_anchors_ = true
