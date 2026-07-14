@@ -1,6 +1,12 @@
 class_name CotcGameplayHud
 extends Control
 
+const ITEM_CATALOG = preload("res://rebuild_v3/app/inventory/item_catalog.gd")
+
+const SLOT_A: StringName = &"item_a"
+const SLOT_B: StringName = &"item_b"
+const NORMAL_CONCH_ID: StringName = &"normal_conch"
+const NORMAL_CONCH_PATH: String = "res://assets/ui/shell_normal_conch.png"
 const FIN_STATE_PATHS: Array[String] = [
 	"res://assets/ui/UI1.webp",
 	"res://assets/ui/UI2.webp",
@@ -9,7 +15,6 @@ const FIN_STATE_PATHS: Array[String] = [
 	"res://assets/ui/UI5.webp",
 	"res://assets/ui/UI6.webp",
 ]
-const NORMAL_CONCH_PATH: String = "res://assets/ui/shell_normal_conch.png"
 const HUD_DROP_SHADOW_SHADER: Shader = preload(
 	"res://rebuild_v3/shared/shaders/hud_drop_shadow.gdshader"
 )
@@ -30,23 +35,34 @@ const HUD_DROP_SHADOW_SHADER: Shader = preload(
 @export_category("HUD Element Positions")
 @export var onos_value_rect: Rect2 = Rect2(94.0, 120.0, 64.0, 37.0)
 @export var fin_value_rect: Rect2 = Rect2(160.0, 120.0, 65.0, 37.0)
+# The existing right-hand conch recess is Item A. Keep this property name so
+# older scene overrides remain valid.
 @export var conch_icon_rect: Rect2 = Rect2(366.0, 65.0, 73.0, 73.0)
+@export var item_b_icon_rect: Rect2 = Rect2(255.0, 75.0, 73.0, 80.0)
+@export var item_b_quantity_rect: Rect2 = Rect2(298.0, 126.0, 34.0, 27.0)
+@export var item_b_empty_rect: Rect2 = Rect2(255.0, 75.0, 73.0, 80.0)
 @export var location_value_rect: Rect2 = Rect2(76.0, 167.0, 361.0, 37.0)
 
 @export_category("HUD Text Style")
 @export_range(8, 72, 1) var onos_font_size: int = 23
 @export_range(8, 72, 1) var fin_font_size: int = 23
 @export_range(8, 72, 1) var location_font_size: int = 21
+@export_range(8, 48, 1) var item_b_quantity_font_size: int = 18
+@export_range(8, 48, 1) var item_b_empty_font_size: int = 27
 @export var onos_font_color: Color = Color(1.0, 0.84, 0.35, 1.0)
 @export var fin_font_color: Color = Color(0.52, 0.98, 1.0, 1.0)
 @export var location_font_color: Color = Color(0.13, 0.12, 0.11, 1.0)
+@export var item_b_quantity_font_color: Color = Color(1.0, 0.90, 0.42, 1.0)
+@export var item_b_empty_font_color: Color = Color(0.12, 0.24, 0.28, 0.58)
 @export var onos_outline_color: Color = Color(0.08, 0.03, 0.0, 1.0)
 @export var fin_outline_color: Color = Color(0.0, 0.05, 0.12, 1.0)
 @export var location_outline_color: Color = Color(0.84, 0.78, 0.66, 0.85)
+@export var item_quantity_outline_color: Color = Color(0.03, 0.02, 0.01, 0.95)
 @export_range(0, 16, 1) var number_outline_size: int = 4
 @export_range(0, 16, 1) var location_outline_size: int = 2
+@export_range(0, 12, 1) var item_quantity_outline_size: int = 3
 
-@export_category("Conch HUD Pulse")
+@export_category("Equipment HUD Pulse")
 @export_range(1.0, 2.5, 0.01) var conch_pulse_scale: float = 1.18
 @export_range(1.0, 2.5, 0.01) var conch_glow_rest_scale: float = 1.10
 @export_range(0.0, 1.0, 0.01) var conch_glow_peak_alpha: float = 0.90
@@ -62,15 +78,22 @@ const HUD_DROP_SHADOW_SHADER: Shader = preload(
 @onready var _onos_value: Label = %OnosValue
 @onready var _fin_value: Label = %FinValue
 @onready var _location_value: Label = %LocationValue
-@onready var _conch_glow: TextureRect = %ConchGlow
-@onready var _conch_icon: TextureRect = %ConchIcon
+# These two existing nodes are now the live Item A slot.
+@onready var _item_a_glow: TextureRect = %ConchGlow
+@onready var _item_a_icon: TextureRect = %ConchIcon
+@onready var _item_b_glow: TextureRect = %ItemBGlow
+@onready var _item_b_icon: TextureRect = %ItemBIcon
+@onready var _item_b_quantity: Label = %ItemBQuantity
+@onready var _item_b_empty: Label = %ItemBEmpty
 
 var _game_state: CotcGameState
 var _fin_state_textures: Array[Texture2D] = []
-var _conch_tween: Tween
+var _item_a_tween: Tween
+var _item_b_tween: Tween
 var _location_name: String = "The Sea of Pillars"
 var _panel_shadow: TextureRect
 var _resolved_source_size: Vector2 = Vector2(1624.0, 670.0)
+var _missing_icon_warnings: Dictionary = {}
 
 
 func _ready() -> void:
@@ -80,7 +103,8 @@ func _ready() -> void:
 	_apply_element_layout()
 	_apply_text_style()
 	_create_panel_shadow()
-	_set_conch_rest_state()
+	_set_slot_rest_state(_item_a_icon, _item_a_glow)
+	_set_slot_rest_state(_item_b_icon, _item_b_glow)
 	_sync_from_state()
 
 
@@ -92,6 +116,8 @@ func bind_game_state(game_state: CotcGameState) -> void:
 		_game_state.fins_changed.connect(_on_fins_changed)
 		_game_state.greatfin_changed.connect(_on_greatfin_changed)
 		_game_state.onos_changed.connect(_on_onos_changed)
+		_game_state.equipped_item_changed.connect(_on_equipped_item_changed)
+		_game_state.inventory_changed.connect(_on_inventory_changed)
 	_sync_from_state()
 
 
@@ -104,38 +130,56 @@ func set_location(location_name: String) -> void:
 
 
 func pulse_conch() -> void:
-	if _conch_tween != null and _conch_tween.is_valid():
-		_conch_tween.kill()
-	_set_conch_rest_state()
-	_conch_glow.show()
-	_conch_tween = create_tween()
-	_conch_tween.set_parallel(true)
-	_conch_tween.tween_property(
-		_conch_icon,
-		"scale",
+	# Compatibility route for the existing Normal Conch callback.
+	pulse_equipment_slot(SLOT_A)
+
+
+func pulse_equipment_slot(slot_id: StringName) -> void:
+	if slot_id == SLOT_A:
+		if _item_a_icon.texture == null or not _item_a_icon.visible:
+			return
+		_item_a_tween = _start_slot_pulse(_item_a_icon, _item_a_glow, _item_a_tween)
+		return
+	if slot_id == SLOT_B:
+		if _item_b_icon.texture == null or not _item_b_icon.visible:
+			return
+		_item_b_tween = _start_slot_pulse(_item_b_icon, _item_b_glow, _item_b_tween)
+
+
+func _start_slot_pulse(icon: TextureRect, glow: TextureRect, previous_tween: Tween) -> Tween:
+	if previous_tween != null and previous_tween.is_valid():
+		previous_tween.kill()
+	_set_slot_rest_state(icon, glow)
+	glow.show()
+	var tween: Tween = create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(
+		icon,
+		^"scale",
 		Vector2.ONE * conch_pulse_scale,
 		conch_pulse_expand_seconds,
 	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_conch_tween.tween_property(
-		_conch_glow,
-		"modulate:a",
+	tween.tween_property(
+		glow,
+		^"modulate:a",
 		conch_glow_peak_alpha,
 		conch_glow_in_seconds,
 	)
-	var icon_return: PropertyTweener = _conch_tween.tween_property(
-		_conch_icon,
-		"scale",
+	var icon_return: PropertyTweener = tween.tween_property(
+		icon,
+		^"scale",
 		Vector2.ONE,
 		conch_pulse_return_seconds,
 	)
 	icon_return.set_delay(conch_pulse_return_delay).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	var glow_return: PropertyTweener = _conch_tween.tween_property(
-		_conch_glow,
-		"modulate:a",
+	var glow_return: PropertyTweener = tween.tween_property(
+		glow,
+		^"modulate:a",
 		0.0,
 		conch_glow_out_seconds,
 	)
 	glow_return.set_delay(conch_pulse_return_delay).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	return tween
 
 
 func _load_textures() -> void:
@@ -154,9 +198,9 @@ func _load_textures() -> void:
 			"Gameplay HUD found %d of %d fin-state panel images. Add UI1.webp through UI6.webp to assets/ui."
 			% [loaded_panel_count, FIN_STATE_PATHS.size()]
 		)
-	if ResourceLoader.exists(NORMAL_CONCH_PATH, "Texture2D"):
-		_conch_icon.texture = ResourceLoader.load(NORMAL_CONCH_PATH, "Texture2D") as Texture2D
-		_conch_glow.texture = _conch_icon.texture
+	var default_conch: Texture2D = _load_texture_path(NORMAL_CONCH_PATH, NORMAL_CONCH_ID)
+	_item_a_icon.texture = default_conch
+	_item_a_glow.texture = default_conch
 
 
 func _resolve_source_size() -> Vector2:
@@ -191,8 +235,12 @@ func _apply_source_layout() -> void:
 func _apply_element_layout() -> void:
 	_apply_control_rect(_onos_value, onos_value_rect)
 	_apply_control_rect(_fin_value, fin_value_rect)
-	_apply_control_rect(_conch_glow, conch_icon_rect)
-	_apply_control_rect(_conch_icon, conch_icon_rect)
+	_apply_control_rect(_item_a_glow, conch_icon_rect)
+	_apply_control_rect(_item_a_icon, conch_icon_rect)
+	_apply_control_rect(_item_b_glow, item_b_icon_rect)
+	_apply_control_rect(_item_b_icon, item_b_icon_rect)
+	_apply_control_rect(_item_b_quantity, item_b_quantity_rect)
+	_apply_control_rect(_item_b_empty, item_b_empty_rect)
 	_apply_control_rect(_location_value, location_value_rect)
 
 
@@ -205,15 +253,21 @@ func _apply_text_style() -> void:
 	_onos_value.add_theme_font_size_override(&"font_size", onos_font_size)
 	_fin_value.add_theme_font_size_override(&"font_size", fin_font_size)
 	_location_value.add_theme_font_size_override(&"font_size", location_font_size)
+	_item_b_quantity.add_theme_font_size_override(&"font_size", item_b_quantity_font_size)
+	_item_b_empty.add_theme_font_size_override(&"font_size", item_b_empty_font_size)
 	_onos_value.add_theme_color_override(&"font_color", onos_font_color)
 	_fin_value.add_theme_color_override(&"font_color", fin_font_color)
 	_location_value.add_theme_color_override(&"font_color", location_font_color)
+	_item_b_quantity.add_theme_color_override(&"font_color", item_b_quantity_font_color)
+	_item_b_empty.add_theme_color_override(&"font_color", item_b_empty_font_color)
 	_onos_value.add_theme_color_override(&"font_outline_color", onos_outline_color)
 	_fin_value.add_theme_color_override(&"font_outline_color", fin_outline_color)
 	_location_value.add_theme_color_override(&"font_outline_color", location_outline_color)
+	_item_b_quantity.add_theme_color_override(&"font_outline_color", item_quantity_outline_color)
 	_onos_value.add_theme_constant_override(&"outline_size", number_outline_size)
 	_fin_value.add_theme_constant_override(&"outline_size", number_outline_size)
 	_location_value.add_theme_constant_override(&"outline_size", location_outline_size)
+	_item_b_quantity.add_theme_constant_override(&"outline_size", item_quantity_outline_size)
 
 
 func _create_panel_shadow() -> void:
@@ -252,10 +306,88 @@ func _sync_from_state() -> void:
 		_onos_value.text = "0"
 		_fin_value.text = "4"
 		_set_fin_panel(0)
+		_set_equipment_slot(SLOT_A, NORMAL_CONCH_ID)
+		_set_equipment_slot(SLOT_B, &"")
 		return
 	_onos_value.text = str(_game_state.onos)
 	_fin_value.text = str(_game_state.current_fins)
 	_set_fin_panel(_resolve_fin_panel_index())
+	_sync_equipment_from_state()
+
+
+func _sync_equipment_from_state() -> void:
+	var item_a: StringName = NORMAL_CONCH_ID
+	var item_b: StringName = &""
+	if _game_state != null:
+		item_a = _game_state.get_equipped_item(SLOT_A)
+		item_b = _game_state.get_equipped_item(SLOT_B)
+	if String(item_a).is_empty():
+		item_a = NORMAL_CONCH_ID
+	_set_equipment_slot(SLOT_A, item_a)
+	_set_equipment_slot(SLOT_B, item_b)
+
+
+func _set_equipment_slot(slot_id: StringName, item_id: StringName) -> void:
+	var icon: TextureRect = _item_a_icon if slot_id == SLOT_A else _item_b_icon
+	var glow: TextureRect = _item_a_glow if slot_id == SLOT_A else _item_b_glow
+	var is_empty: bool = String(item_id).is_empty()
+	var texture: Texture2D = null
+	if not is_empty:
+		texture = _load_catalog_item_texture(item_id)
+	if texture == null and slot_id == SLOT_A:
+		item_id = NORMAL_CONCH_ID
+		texture = _load_texture_path(NORMAL_CONCH_PATH, NORMAL_CONCH_ID)
+
+	icon.texture = texture
+	glow.texture = texture
+	icon.visible = texture != null
+	glow.visible = texture != null
+	_set_slot_rest_state(icon, glow)
+
+	if slot_id != SLOT_B:
+		return
+
+	_item_b_empty.visible = is_empty or texture == null
+	_item_b_empty.text = "—" if is_empty else "?"
+	_item_b_quantity.hide()
+	_item_b_quantity.text = ""
+	if (
+			not is_empty
+			and texture != null
+			and _game_state != null
+			and ITEM_CATALOG.item_has_quantity(item_id)
+		):
+		var quantity: int = _game_state.get_inventory_quantity(item_id)
+		if quantity > 0:
+			_item_b_quantity.text = str(quantity)
+			_item_b_quantity.show()
+
+
+func _load_catalog_item_texture(item_id: StringName) -> Texture2D:
+	if not ITEM_CATALOG.has_item(item_id):
+		_warn_missing_icon(item_id, "catalogue entry")
+		return null
+	var definition: Dictionary = ITEM_CATALOG.get_item(item_id)
+	var icon_path: String = str(definition.get("icon_path", ""))
+	if icon_path.is_empty():
+		_warn_missing_icon(item_id, "icon path")
+		return null
+	return _load_texture_path(icon_path, item_id)
+
+
+func _load_texture_path(path: String, item_id: StringName) -> Texture2D:
+	if path.is_empty() or not ResourceLoader.exists(path, "Texture2D"):
+		_warn_missing_icon(item_id, path)
+		return null
+	return ResourceLoader.load(path, "Texture2D") as Texture2D
+
+
+func _warn_missing_icon(item_id: StringName, detail: String) -> void:
+	var key: String = "%s|%s" % [String(item_id), detail]
+	if _missing_icon_warnings.has(key):
+		return
+	_missing_icon_warnings[key] = true
+	push_warning("Gameplay HUD could not load the icon for '%s' from '%s'." % [String(item_id), detail])
 
 
 func _resolve_fin_panel_index() -> int:
@@ -290,12 +422,12 @@ func _set_fin_panel(panel_index: int) -> void:
 		_panel_shadow.visible = hud_shadow_enabled
 
 
-func _set_conch_rest_state() -> void:
-	_conch_icon.scale = Vector2.ONE
-	_conch_icon.pivot_offset = _conch_icon.size * 0.5
-	_conch_glow.scale = Vector2.ONE * conch_glow_rest_scale
-	_conch_glow.pivot_offset = _conch_glow.size * 0.5
-	_conch_glow.modulate = Color(conch_glow_color.r, conch_glow_color.g, conch_glow_color.b, 0.0)
+func _set_slot_rest_state(icon: TextureRect, glow: TextureRect) -> void:
+	icon.scale = Vector2.ONE
+	icon.pivot_offset = icon.size * 0.5
+	glow.scale = Vector2.ONE * conch_glow_rest_scale
+	glow.pivot_offset = glow.size * 0.5
+	glow.modulate = Color(conch_glow_color.r, conch_glow_color.g, conch_glow_color.b, 0.0)
 
 
 func _disconnect_game_state() -> void:
@@ -309,6 +441,10 @@ func _disconnect_game_state() -> void:
 		_game_state.greatfin_changed.disconnect(_on_greatfin_changed)
 	if _game_state.onos_changed.is_connected(_on_onos_changed):
 		_game_state.onos_changed.disconnect(_on_onos_changed)
+	if _game_state.equipped_item_changed.is_connected(_on_equipped_item_changed):
+		_game_state.equipped_item_changed.disconnect(_on_equipped_item_changed)
+	if _game_state.inventory_changed.is_connected(_on_inventory_changed):
+		_game_state.inventory_changed.disconnect(_on_inventory_changed)
 
 
 func _on_state_replaced(_reason: StringName) -> void:
@@ -327,12 +463,33 @@ func _on_onos_changed(_current_value: int, _delta: int) -> void:
 	_sync_from_state()
 
 
+func _on_equipped_item_changed(_slot_id: StringName, _item_id: StringName) -> void:
+	_sync_equipment_from_state()
+
+
+func _on_inventory_changed(
+		_item_id: StringName,
+		_quantity: int,
+		_delta: int,
+	) -> void:
+	_sync_equipment_from_state()
+
+
 func get_debug_lines() -> Array[String]:
+	var equipped_a: StringName = NORMAL_CONCH_ID
+	var equipped_b: StringName = &""
+	if _game_state != null:
+		equipped_a = _game_state.get_equipped_item(SLOT_A)
+		equipped_b = _game_state.get_equipped_item(SLOT_B)
 	return [
 		"[GameplayHud]",
 		"location=%s" % _location_name,
 		"loaded_fin_panels=%d/%d" % [_get_loaded_panel_count(), FIN_STATE_PATHS.size()],
-		"conch_icon_loaded=%s" % str(_conch_icon.texture != null),
+		"equipped_item_a=%s" % String(equipped_a),
+		"equipped_item_b=%s" % String(equipped_b),
+		"item_a_icon_loaded=%s" % str(_item_a_icon.texture != null),
+		"item_b_icon_loaded=%s" % str(_item_b_icon.texture != null),
+		"item_b_quantity=%s" % _item_b_quantity.text,
 		"source_size=%s" % str(_resolved_source_size),
 		"layout_width=%.1f" % hud_layout_width,
 		"uniform_scale=%.2f" % hud_uniform_scale,
