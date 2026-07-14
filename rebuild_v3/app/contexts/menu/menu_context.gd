@@ -6,17 +6,28 @@ signal load_save_requested
 signal settings_requested
 signal exit_requested
 
+@export_category("Opening Echo Pulse")
+@export_range(0.001, 1.0, 0.001) var echo_start_scale: float = 0.06
+@export_range(0.1, 3.0, 0.01) var echo_peak_scale: float = 1.18
+@export_range(0.1, 3.0, 0.01) var echo_settle_scale: float = 0.96
+@export_range(0.05, 2.0, 0.01) var echo_expand_duration: float = 0.46
+@export_range(0.05, 2.0, 0.01) var echo_contract_duration: float = 0.34
+@export_range(0.0, 1.0, 0.01) var echo_start_alpha: float = 0.0
+@export_range(0.0, 1.0, 0.01) var echo_peak_alpha: float = 0.92
+
 @export_category("Title Intro")
-@export_range(0.0, 5.0, 0.05) var title_reveal_delay: float = 0.55
-@export_range(0.001, 0.5, 0.01) var title_start_scale: float = 0.02
-@export_range(1.0, 2.0, 0.01) var title_burst_scale: float = 1.18
-@export_range(0.05, 2.0, 0.01) var title_burst_duration: float = 0.18
-@export_range(0.05, 2.0, 0.01) var title_settle_duration: float = 0.28
+@export_range(0.0, 5.0, 0.01) var title_reveal_delay: float = 0.32
+@export_range(0.001, 0.5, 0.001) var title_start_scale: float = 0.008
+@export_range(1.0, 2.5, 0.01) var title_burst_scale: float = 1.34
+@export_range(0.05, 2.0, 0.01) var title_burst_duration: float = 0.22
+@export_range(0.05, 2.0, 0.01) var title_settle_duration: float = 0.32
 @export_range(1.0, 1.2, 0.005) var title_pulse_scale: float = 1.035
 @export_range(0.2, 8.0, 0.05) var title_pulse_half_duration: float = 1.65
+@export_range(0.0, 2.0, 0.01) var button_reveal_delay: float = 0.08
 @export_range(0.05, 2.0, 0.01) var button_fade_duration: float = 0.35
 
 @onready var _background_video: VideoStreamPlayer = %BackgroundVideo
+@onready var _echo_pulse_pivot: Control = %EchoPulsePivot
 @onready var _echo_pulse: VideoStreamPlayer = %EchoPulse
 @onready var _title: TextureRect = %Title
 @onready var _menu_buttons: VBoxContainer = %MenuButtons
@@ -30,6 +41,7 @@ signal exit_requested
 
 var _active: bool = false
 var _intro_generation: int = 0
+var _echo_tween: Tween
 var _title_tween: Tween
 var _button_tween: Tween
 var _pulse_tween: Tween
@@ -93,14 +105,55 @@ func _start_intro_sequence() -> void:
 	var generation: int = _intro_generation
 	_kill_intro_tweens()
 	_reset_intro_visuals()
-	if _echo_pulse.stream != null:
-		_echo_pulse.stop()
-		_echo_pulse.show()
-		_echo_pulse.play()
-	_run_intro_after_delay(generation)
+	_start_echo_animation(generation)
+	_start_title_animation(generation)
 
 
-func _run_intro_after_delay(generation: int) -> void:
+func _start_echo_animation(generation: int) -> void:
+	if _echo_pulse.stream == null:
+		return
+
+	_echo_pulse.stop()
+	_echo_pulse.show()
+	_echo_pulse.play()
+	_echo_pulse_pivot.scale = Vector2.ONE * echo_start_scale
+	_echo_pulse.modulate = Color(1.0, 1.0, 1.0, echo_start_alpha)
+
+	_echo_tween = create_tween()
+	_echo_tween.tween_property(
+		_echo_pulse_pivot,
+		^"scale",
+		Vector2.ONE * echo_peak_scale,
+		echo_expand_duration,
+	).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	_echo_tween.parallel().tween_property(
+		_echo_pulse,
+		^"modulate:a",
+		echo_peak_alpha,
+		echo_expand_duration,
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_echo_tween.tween_property(
+		_echo_pulse_pivot,
+		^"scale",
+		Vector2.ONE * echo_settle_scale,
+		echo_contract_duration,
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_echo_tween.parallel().tween_property(
+		_echo_pulse,
+		^"modulate:a",
+		0.0,
+		echo_contract_duration,
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+	await _echo_tween.finished
+	if not _active or generation != _intro_generation:
+		return
+	_echo_tween = null
+	_echo_pulse.stop()
+	_echo_pulse.hide()
+
+
+func _start_title_animation(generation: int) -> void:
 	await get_tree().create_timer(
 		maxf(0.0, title_reveal_delay),
 		true,
@@ -115,6 +168,7 @@ func _run_intro_after_delay(generation: int) -> void:
 		_impact_audio.play()
 
 	_title.show()
+	_title.modulate = Color(1.0, 1.0, 1.0, 1.0)
 	_title.scale = Vector2.ONE * title_start_scale
 	_title_tween = create_tween()
 	_title_tween.tween_property(
@@ -130,19 +184,20 @@ func _run_intro_after_delay(generation: int) -> void:
 		title_settle_duration,
 	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
+	await _title_tween.finished
+	if not _active or generation != _intro_generation:
+		return
+	_title_tween = null
+	_start_title_pulse()
+
 	_button_tween = create_tween()
-	_button_tween.tween_interval(title_burst_duration * 0.65)
+	_button_tween.tween_interval(maxf(0.0, button_reveal_delay))
 	_button_tween.tween_property(
 		_menu_buttons,
 		^"modulate:a",
 		1.0,
 		button_fade_duration,
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-
-	await _title_tween.finished
-	if not _active or generation != _intro_generation:
-		return
-	_start_title_pulse()
 
 
 func _start_title_pulse() -> void:
@@ -165,18 +220,24 @@ func _start_title_pulse() -> void:
 
 func _reset_intro_visuals() -> void:
 	_title.hide()
+	_title.modulate = Color.WHITE
 	_title.scale = Vector2.ONE * title_start_scale
 	_menu_buttons.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	_echo_pulse_pivot.scale = Vector2.ONE * echo_start_scale
+	_echo_pulse.modulate = Color(1.0, 1.0, 1.0, echo_start_alpha)
 	_echo_pulse.hide()
 
 
 func _kill_intro_tweens() -> void:
+	if _echo_tween != null:
+		_echo_tween.kill()
 	if _title_tween != null:
 		_title_tween.kill()
 	if _button_tween != null:
 		_button_tween.kill()
 	if _pulse_tween != null:
 		_pulse_tween.kill()
+	_echo_tween = null
 	_title_tween = null
 	_button_tween = null
 	_pulse_tween = null
@@ -214,7 +275,8 @@ func _play_menu_action_sound() -> void:
 
 
 func _on_echo_pulse_finished() -> void:
-	_echo_pulse.hide()
+	if _echo_tween == null:
+		_echo_pulse.hide()
 
 
 func _on_start_button_pressed() -> void:
