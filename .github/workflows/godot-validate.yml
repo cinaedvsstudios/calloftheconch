@@ -31,7 +31,16 @@ jobs:
         run: python3 tools/fix_godot_47.py
 
       - name: Bake landscape alpha collisions into scenes
-        run: godot --headless --path . --script tools/generate_landscape_collisions.gd
+        id: landscape_generation
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --script tools/generate_landscape_collisions.gd 2>&1 | tee godot-generator.log
+
+      - name: Stop after landscape generation failure
+        if: steps.landscape_generation.outcome == 'failure'
+        run: exit 1
 
       - name: Open project as a headless editor
         shell: bash
@@ -56,8 +65,19 @@ jobs:
           test ! -e rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape_base.tscn
           git diff --check
 
+      - name: Upload Godot logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-validation-logs-${{ github.run_attempt }}
+          path: |
+            godot-generator.log
+            godot-editor.log
+            godot-validation.log
+          if-no-files-found: ignore
+
       - name: Commit generated static scenes back to the branch
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && success()
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
