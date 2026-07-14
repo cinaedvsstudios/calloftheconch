@@ -1,0 +1,8 @@
+# Archived from res://rebuild_v3/app/contexts/gameplay/gameplay_double_tap_inventory.gd
+# The active controller now contains this behaviour directly.
+
+extends "res://rebuild_v3/app/contexts/gameplay/gameplay_equipment_input.gd"
+
+@export_range(0.15, 0.8, 0.01) var inventory_double_tap_window: float = 0.36
+
+var _last_inventory_tap_msec: int = -100000
