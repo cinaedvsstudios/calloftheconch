@@ -28,7 +28,9 @@ jobs:
           include-templates: false
 
       - name: Apply deterministic source repairs
-        run: python3 tools/fix_godot_47.py
+        run: |
+          python3 tools/fix_godot_47.py
+          python3 tools/fix_hud_shadow.py
 
       - name: Import project resources before baking
         shell: bash
