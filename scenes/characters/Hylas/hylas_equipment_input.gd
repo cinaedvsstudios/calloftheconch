@@ -10,12 +10,24 @@ signal item_a_requested(item_id: StringName, origin: Vector2, direction: Vector2
 
 const NORMAL_CONCH_ID: StringName = &"normal_conch"
 
+@onready var _item_visuals: CotcHylasItemVisuals = %ItemVisuals
+
 var _equipped_item_a: StringName = NORMAL_CONCH_ID
 var _utility_item_pressed_this_frame: bool = false
+var _item_surge_remaining: float = 0.0
+var _purple_shield_active: bool = false
+var _camouflage_active: bool = false
+
+
+func _ready() -> void:
+	super._ready()
+	_item_visuals.set_equipped_item_a(_equipped_item_a)
 
 
 func set_equipped_item_a(item_id: StringName) -> void:
 	_equipped_item_a = item_id if not String(item_id).is_empty() else NORMAL_CONCH_ID
+	if is_instance_valid(_item_visuals):
+		_item_visuals.set_equipped_item_a(_equipped_item_a)
 
 
 func get_equipped_item_a() -> StringName:
@@ -23,27 +35,100 @@ func get_equipped_item_a() -> StringName:
 
 
 func activate_normal_conch(direction: Vector2) -> bool:
+	if not _can_begin_item_pose():
+		return false
+	if _conch_cooldown_remaining > 0.0:
+		return false
+
+	var resolved_direction: Vector2 = _resolve_item_direction(direction)
+	_pending_conch_remaining = 0.0
+	_start_conch(resolved_direction)
+	return true
+
+
+func activate_item_a_pose(direction: Vector2) -> bool:
+	if not _can_begin_item_pose() or _conch_cooldown_remaining > 0.0:
+		return false
+	var resolved_direction: Vector2 = _resolve_item_direction(direction)
+	_pending_conch_remaining = 0.0
+	_start_item_a_pose(resolved_direction)
+	return true
+
+
+func activate_item_surge(duration_seconds: float = 0.90) -> bool:
 	if (
 			_death_sequence_active
 			or not _play_enabled
 			or crawl_active
 			or airborne_active
-			or _burst_active
 			or _tail_flip_remaining > 0.0
 			or _jump_elapsed > 0.0
-			or _conch_cooldown_remaining > 0.0
+			or _conch_remaining > 0.0
+			or _burst_active
 		):
 		return false
 
-	var resolved_direction: Vector2 = direction
-	if resolved_direction.length_squared() <= 0.0001:
-		resolved_direction = _conch_direction(Vector2.ZERO)
-	else:
-		resolved_direction = resolved_direction.normalized()
+	var input_direction: Vector2 = Input.get_vector(
+		&"move_left",
+		&"move_right",
+		&"move_up",
+		&"move_down",
+	)
+	if input_direction.length_squared() <= 0.0001:
+		input_direction = Vector2.LEFT if _facing_left else Vector2.RIGHT
 
-	_pending_conch_remaining = 0.0
-	_start_conch(resolved_direction)
+	var previous_charges: int = _burst_charges
+	var previous_charge_timer: float = _burst_charge_timer
+	_burst_charges = maxi(1, _burst_charges)
+	_item_surge_remaining = maxf(0.05, duration_seconds)
+	_start_burst(input_direction)
+	_burst_charges = previous_charges
+	_burst_charge_timer = previous_charge_timer
+	if not _burst_active:
+		_item_surge_remaining = 0.0
+		return false
 	return true
+
+
+func is_item_surge_active() -> bool:
+	return _item_surge_remaining > 0.0 and _burst_active
+
+
+func set_purple_shield_active(is_active: bool) -> void:
+	_purple_shield_active = is_active
+
+
+func is_purple_shield_active() -> bool:
+	return _purple_shield_active
+
+
+func set_camouflage_active(is_active: bool) -> void:
+	_camouflage_active = is_active
+	if is_instance_valid(_item_visuals):
+		_item_visuals.set_camouflage_active(is_active)
+
+
+func is_camouflage_active() -> bool:
+	return _camouflage_active
+
+
+func set_surge_glow_active(is_active: bool) -> void:
+	if is_instance_valid(_item_visuals):
+		_item_visuals.set_surge_glow_active(is_active)
+
+
+func clear_item_effect_state() -> void:
+	_item_surge_remaining = 0.0
+	_purple_shield_active = false
+	_camouflage_active = false
+	if is_instance_valid(_item_visuals):
+		_item_visuals.clear_item_visuals()
+
+
+func set_play_enabled(enabled: bool) -> void:
+	super.set_play_enabled(enabled)
+	if not enabled:
+		clear_item_effect_state()
 
 
 func _input(event: InputEvent) -> void:
@@ -73,8 +158,15 @@ func _input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_item_surge_remaining = maxf(0.0, _item_surge_remaining - delta)
 	super._physics_process(delta)
 	_utility_item_pressed_this_frame = false
+
+
+func _is_burst_input_held(input_direction: Vector2) -> bool:
+	if _item_surge_remaining > 0.0:
+		return true
+	return super._is_burst_input_held(input_direction)
 
 
 func _handle_conch_pressed(input_direction: Vector2) -> void:
@@ -101,15 +193,7 @@ func _is_primary_item_a_binding(event: InputEvent) -> bool:
 
 
 func _request_equipped_item_a(input_direction: Vector2) -> bool:
-	if (
-			_death_sequence_active
-			or not _play_enabled
-			or crawl_active
-			or airborne_active
-			or _burst_active
-			or _tail_flip_remaining > 0.0
-			or _jump_elapsed > 0.0
-		):
+	if not _can_begin_item_pose():
 		return false
 
 	var direction: Vector2 = _conch_direction(input_direction)
@@ -124,8 +208,47 @@ func _request_equipped_item_a(input_direction: Vector2) -> bool:
 	return true
 
 
+func _can_begin_item_pose() -> bool:
+	return not (
+		_death_sequence_active
+		or not _play_enabled
+		or crawl_active
+		or airborne_active
+		or _burst_active
+		or _tail_flip_remaining > 0.0
+		or _jump_elapsed > 0.0
+	)
+
+
+func _resolve_item_direction(direction: Vector2) -> Vector2:
+	if direction.length_squared() <= 0.0001:
+		return _conch_direction(Vector2.ZERO)
+	return direction.normalized()
+
+
+func _start_item_a_pose(direction: Vector2) -> void:
+	_conch_remaining = conch_duration
+	_conch_cooldown_remaining = conch_cooldown
+	_special_velocity = (_swim_velocity + _burst_coast_velocity).move_toward(
+		Vector2.ZERO,
+		brake_deceleration * 0.08,
+	)
+	_swim_velocity = Vector2.ZERO
+	_burst_coast_velocity = Vector2.ZERO
+	_set_visual_rotation(_direction_rotation(direction, conch_direction_angle_degrees))
+	_set_animation(&"conch")
+	_stop_movement_audio()
+	_play_one_shot_audio(_conch_audio)
+	_trigger_camera_shake()
+
+
 func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = super.get_debug_lines()
 	lines.append("equipped_item_a=%s" % String(_equipped_item_a))
 	lines.append("utility_item_pressed_this_frame=%s" % str(_utility_item_pressed_this_frame))
+	lines.append("item_surge_remaining=%.2f" % _item_surge_remaining)
+	lines.append("purple_shield_active=%s" % str(_purple_shield_active))
+	lines.append("camouflage_active=%s" % str(_camouflage_active))
+	if is_instance_valid(_item_visuals):
+		lines.append_array(_item_visuals.get_debug_lines())
 	return lines
