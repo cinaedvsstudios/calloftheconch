@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/game/shared/items/argonauta/ink_blob_projectile.gd" id="1_controller"]
+
+[sub_resource type="CircleShape2D" id="BlobShape"]
+radius = 34.0
+
+[node name="InkBlobProjectile" type="Area2D"]
+z_index = 9
+collision_layer = 0
+collision_mask = 1
+monitoring = false
+monitorable = false
+script = ExtResource("1_controller")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("BlobShape")
