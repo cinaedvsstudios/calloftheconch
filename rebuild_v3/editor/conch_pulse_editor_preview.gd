@@ -36,11 +36,23 @@ func _refresh_preview_nodes() -> void:
 	if pulse == null:
 		return
 	var sonar: Sprite2D = pulse.get_node_or_null("SonarArc") as Sprite2D
-	if sonar != null:
-		sonar.visible = false
+	if sonar != null and sonar.texture != null:
+		var start_diameter: float = float(pulse.get("start_diameter"))
+		var pulse_range: float = float(pulse.get("pulse_range"))
+		var diameter: float = lerpf(
+			start_diameter,
+			pulse_range,
+			clampf(sonar_preview_progress, 0.0, 1.0),
+		)
+		var texture_size: Vector2 = sonar.texture.get_size()
+		var reference_diameter: float = maxf(1.0, maxf(texture_size.x, texture_size.y))
+		sonar.scale = Vector2.ONE * (diameter / reference_diameter)
+		sonar.modulate = Color(1.0, 1.0, 1.0, 0.70)
+		sonar.visible = true
 	var flash: VideoStreamPlayer = pulse.get_node_or_null("OriginFlash") as VideoStreamPlayer
 	if flash != null:
-		flash.visible = false
+		flash.stop()
+		flash.visible = true
 
 
 func _draw() -> void:
@@ -64,17 +76,13 @@ func _draw() -> void:
 			_draw_label(hylas_reference_offset + Vector2(-40.0, -hylas_draw_size.y * 0.55), "HYLAS CONCH FRAME", Color(0.35, 1.0, 0.55, 1.0))
 
 	if sonar != null and sonar.texture != null:
-		var start_diameter: float = float(pulse.get("start_diameter"))
-		var pulse_range: float = float(pulse.get("pulse_range"))
-		var diameter: float = lerpf(start_diameter, pulse_range, clampf(sonar_preview_progress, 0.0, 1.0))
-		var texture_size: Vector2 = sonar.texture.get_size()
-		var reference_diameter: float = maxf(1.0, maxf(texture_size.x, texture_size.y))
-		var draw_size: Vector2 = texture_size * (diameter / reference_diameter)
-		var center: Vector2 = sonar.position
-		draw_texture_rect(sonar.texture, Rect2(center - draw_size * 0.5, draw_size), false, Color(1.0, 1.0, 1.0, 0.70))
-		draw_arc(center, diameter * 0.5, -0.40, 0.40, 32, Color(0.18, 0.78, 1.0, 0.95), 2.0)
+		var diameter: float = maxf(sonar.scale.x, sonar.scale.y) * maxf(
+			sonar.texture.get_size().x,
+			sonar.texture.get_size().y,
+		)
+		draw_arc(sonar.position, diameter * 0.5, -0.40, 0.40, 32, Color(0.18, 0.78, 1.0, 0.95), 2.0)
 		if show_labels:
-			_draw_label(center + Vector2(12.0, 22.0), "SONAR WAVE", Color(0.18, 0.78, 1.0, 1.0))
+			_draw_label(sonar.position + Vector2(12.0, 22.0), "SONAR WAVE — DRAG SONARARC", Color(0.18, 0.78, 1.0, 1.0))
 
 	if show_video_bounds and flash != null:
 		_draw_flash_bounds(flash)
@@ -108,7 +116,7 @@ func _draw_flash_bounds(flash: VideoStreamPlayer) -> void:
 	draw_colored_polygon(corners, Color(1.0, 0.45, 0.12, 0.08))
 	draw_polyline(outline, Color(1.0, 0.45, 0.12, 0.95), 3.0)
 	if show_labels:
-		_draw_label(corners[0] + Vector2(8.0, -8.0), "ECHOPULSE VIDEO BOUNDS", Color(1.0, 0.55, 0.2, 1.0))
+		_draw_label(corners[0] + Vector2(8.0, -8.0), "ECHOPULSE VIDEO — DRAG ORIGINFLASH", Color(1.0, 0.55, 0.2, 1.0))
 
 
 func _draw_label(position_value: Vector2, text_value: String, color_value: Color) -> void:
