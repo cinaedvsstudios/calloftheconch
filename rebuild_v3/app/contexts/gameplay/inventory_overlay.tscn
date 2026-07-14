@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3]
 
-[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/inventory_overlay.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/inventory_overlay_readability.gd" id="1_controller"]
 [ext_resource type="Texture2D" path="res://assets/ui/dialogueboxv.webp" id="2_panel"]
 
 [sub_resource type="StyleBoxFlat" id="CloseNormal"]
@@ -78,7 +78,6 @@ stretch_mode = 5
 
 [node name="CloseButton" type="Button" parent="PanelRoot"]
 unique_name_in_owner = true
-layout_mode = 0
 offset_left = 452.0
 offset_top = 78.0
 offset_right = 502.0
@@ -96,23 +95,22 @@ theme_override_styles/focus = SubResource("CloseHover")
 text = "×"
 
 [node name="Content" type="VBoxContainer" parent="PanelRoot"]
-layout_mode = 0
 offset_left = 92.0
-offset_top = 126.0
+offset_top = 102.0
 offset_right = 478.0
-offset_bottom = 622.0
+offset_bottom = 596.0
 mouse_filter = 1
-theme_override_constants/separation = 11
+theme_override_constants/separation = 8
 
 [node name="Title" type="Label" parent="PanelRoot/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.82, 0.48, 1)
 theme_override_colors/font_outline_color = Color(0.01, 0.025, 0.045, 0.98)
-theme_override_colors/font_shadow_color = Color(0.03, 0.07, 0.11, 0.75)
+theme_override_colors/font_shadow_color = Color(0.03, 0.07, 0.11, 0.5)
 theme_override_constants/outline_size = 2
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 3
-theme_override_constants/shadow_outline_size = 8
+theme_override_constants/shadow_outline_size = 10
 theme_override_font_sizes/font_size = 30
 text = "INVENTORY"
 horizontal_alignment = 1
@@ -121,18 +119,18 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.1, 0.88, 1, 1)
 theme_override_colors/font_outline_color = Color(0.01, 0.025, 0.045, 0.96)
-theme_override_colors/font_shadow_color = Color(0.03, 0.07, 0.11, 0.75)
+theme_override_colors/font_shadow_color = Color(0.03, 0.07, 0.11, 0.5)
 theme_override_constants/outline_size = 1
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 3
-theme_override_constants/shadow_outline_size = 7
+theme_override_constants/shadow_outline_size = 9
 theme_override_font_sizes/font_size = 14
 text = "Move selection · Space or click equips"
 horizontal_alignment = 1
 
 [node name="ItemScroll" type="ScrollContainer" parent="PanelRoot/Content"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 420)
+custom_minimum_size = Vector2(0, 390)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
@@ -141,14 +139,14 @@ vertical_scroll_mode = 2
 [node name="ItemsBody" type="VBoxContainer" parent="PanelRoot/Content/ItemScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 14
+theme_override_constants/separation = 8
 
 [node name="ItemGrid" type="GridContainer" parent="PanelRoot/Content/ItemScroll/ItemsBody"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 12
+theme_override_constants/v_separation = 8
 columns = 3
 
 [node name="EmptyLabel" type="Label" parent="PanelRoot/Content/ItemScroll/ItemsBody"]
@@ -157,11 +155,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.1, 0.88, 1, 1)
 theme_override_colors/font_outline_color = Color(0.01, 0.025, 0.045, 0.96)
-theme_override_colors/font_shadow_color = Color(0.03, 0.07, 0.11, 0.75)
+theme_override_colors/font_shadow_color = Color(0.03, 0.07, 0.11, 0.5)
 theme_override_constants/outline_size = 1
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 3
-theme_override_constants/shadow_outline_size = 7
+theme_override_constants/shadow_outline_size = 9
 theme_override_font_sizes/font_size = 15
 text = "No usable items are available."
 horizontal_alignment = 1
