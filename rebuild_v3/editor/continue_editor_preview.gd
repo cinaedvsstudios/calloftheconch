@@ -27,7 +27,29 @@ func _refresh_preview(force: bool) -> void:
 	var root: Control = get_parent() as Control
 	if root == null:
 		return
+	var save_frame: TextureRect = root.get_node_or_null("SaveFrame") as TextureRect
+	var save_scroll: ScrollContainer = root.get_node_or_null("SaveFrame/SaveScroll") as ScrollContainer
+	var save_list: VBoxContainer = root.get_node_or_null("SaveFrame/SaveScroll/SaveList") as VBoxContainer
+	var empty_label: Label = root.get_node_or_null("SaveFrame/EmptyLabel") as Label
+	var confirm_overlay: Control = root.get_node_or_null("ConfirmOverlay") as Control
+	if save_frame == null or save_scroll == null or save_list == null:
+		return
+
+	var frame_width: float = save_frame.size.x
+	if frame_width <= 0.0:
+		frame_width = absf(save_frame.offset_right - save_frame.offset_left)
+	var entry_width: float = clampf(float(root.get("save_entry_width")), 80.0, maxf(80.0, frame_width))
+	var side_margin: float = maxf(0.0, (frame_width - entry_width) * 0.5)
+	save_scroll.offset_left = side_margin
+	save_scroll.offset_right = -side_margin
+	save_scroll.offset_top = float(root.get("save_list_top_margin"))
+	save_scroll.offset_bottom = -float(root.get("save_list_bottom_margin"))
+	save_list.custom_minimum_size = Vector2(entry_width, 0.0)
+	save_list.add_theme_constant_override(&"separation", int(root.get("save_entry_spacing")))
+
 	var signature_values: Array = [
+		frame_width,
+		save_frame.size.y,
 		root.get("save_entry_width"),
 		root.get("save_entry_height"),
 		root.get("save_entry_spacing"),
@@ -48,6 +70,13 @@ func _refresh_preview(force: bool) -> void:
 		root.get("save_selected_border_width"),
 		root.get("save_selected_glow_color"),
 		root.get("save_selected_glow_size"),
+		root.get("action_glow_outline_color"),
+		root.get("action_rest_outline_color"),
+		root.get("action_glow_outline_size"),
+		root.get("action_rest_outline_size"),
+		root.get("action_glow_shadow_color"),
+		root.get("action_rest_shadow_color"),
+		root.get("action_rest_shadow_offset"),
 		preview_first_save_name,
 		preview_second_save_name,
 		preview_selected_entry,
@@ -56,26 +85,6 @@ func _refresh_preview(force: bool) -> void:
 	if not force and signature == _last_signature:
 		return
 	_last_signature = signature
-
-	var save_frame: TextureRect = root.get_node_or_null("SaveFrame") as TextureRect
-	var save_scroll: ScrollContainer = root.get_node_or_null("SaveFrame/SaveScroll") as ScrollContainer
-	var save_list: VBoxContainer = root.get_node_or_null("SaveFrame/SaveScroll/SaveList") as VBoxContainer
-	var empty_label: Label = root.get_node_or_null("SaveFrame/EmptyLabel") as Label
-	var confirm_overlay: Control = root.get_node_or_null("ConfirmOverlay") as Control
-	if save_frame == null or save_scroll == null or save_list == null:
-		return
-
-	var frame_width: float = save_frame.size.x
-	if frame_width <= 0.0:
-		frame_width = absf(save_frame.offset_right - save_frame.offset_left)
-	var entry_width: float = clampf(float(root.get("save_entry_width")), 80.0, maxf(80.0, frame_width))
-	var side_margin: float = maxf(0.0, (frame_width - entry_width) * 0.5)
-	save_scroll.offset_left = side_margin
-	save_scroll.offset_right = -side_margin
-	save_scroll.offset_top = float(root.get("save_list_top_margin"))
-	save_scroll.offset_bottom = -float(root.get("save_list_bottom_margin"))
-	save_list.custom_minimum_size = Vector2(entry_width, 0.0)
-	save_list.add_theme_constant_override(&"separation", int(root.get("save_entry_spacing")))
 
 	for child: Node in save_list.get_children():
 		if child.name.begins_with("__EditorSavePreview"):
