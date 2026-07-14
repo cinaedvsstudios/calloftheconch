@@ -2,7 +2,7 @@ extends "res://rebuild_v3/features/sea_of_pillars/sea_of_pillars.gd"
 
 ## Phase 6 item hooks kept above the stable level controller. The base level
 ## continues to own enemy, pickup and conch routing; this layer only supplies
-## the item-specific pulse profile and temporary shield check.
+## item-specific pulse profiles, feedback and the temporary shield check.
 
 
 func trigger_special_conch(origin: Vector2, direction: Vector2, profile: Dictionary) -> bool:
@@ -26,6 +26,11 @@ func trigger_special_conch(origin: Vector2, direction: Vector2, profile: Diction
 		_conch_pulse.trigger_from_player(pulse_origin, pulse_direction, origin)
 	conch_used.emit()
 	return true
+
+
+func show_item_reward_feedback(reward_kind: StringName) -> void:
+	if _active:
+		_spawn_pickup_feedback(reward_kind)
 
 
 func _on_damage_requested(hylas_body: Node, amount: int) -> void:
