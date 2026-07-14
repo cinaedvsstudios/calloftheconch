@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_context.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars.tscn" id="2_level"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/death_overlay.tscn" id="7_death"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/gameplay_hud.tscn" id="8_hud"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/pillars_city/pillars_city.tscn" id="9_city"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/inventory_overlay.tscn" id="10_inventory"]
 
 [node name="GameplayContext" type="Node"]
 script = ExtResource("1_controller")
@@ -97,6 +98,9 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Menu"
+
+[node name="InventoryOverlay" parent="GameplayUI" instance=ExtResource("10_inventory")]
+unique_name_in_owner = true
 
 [node name="DeathOverlay" parent="GameplayUI" instance=ExtResource("7_death")]
 unique_name_in_owner = true
