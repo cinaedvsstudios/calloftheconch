@@ -55,8 +55,13 @@ func _apply_profile(profile: Dictionary) -> void:
 	sonar_brightness = float(profile.get("brightness", _default_sonar_brightness))
 	pulse_duration = float(profile.get("duration", _default_pulse_duration))
 	echo_alpha_decay = float(profile.get("echo_alpha_decay", _default_echo_alpha_decay))
-	_active_pulse_tint = profile.get("tint", _default_pulse_tint) as Color
-	_active_flash_tint = profile.get("flash_tint", _default_flash_modulate) as Color
+
+	var tint_value: Variant = profile.get("tint", _default_pulse_tint)
+	_active_pulse_tint = tint_value if tint_value is Color else _default_pulse_tint
+	var flash_tint_value: Variant = profile.get("flash_tint", _default_flash_modulate)
+	_active_flash_tint = (
+		flash_tint_value if flash_tint_value is Color else _default_flash_modulate
+	)
 	if _pulse_material != null:
 		_pulse_material.set_shader_parameter(&"arc_degrees", arc_degrees)
 		_pulse_material.set_shader_parameter(&"brightness", sonar_brightness)
