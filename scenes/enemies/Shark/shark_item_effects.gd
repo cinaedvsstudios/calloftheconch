@@ -4,6 +4,8 @@ extends "res://scenes/enemies/Shark/shark_enemy.gd"
 ## equipment hooks. Haliotis hides Hylas from pursuit, and Argonauta refreshes a
 ## short paralysis while the shark remains inside the ink cloud.
 
+@export_range(0.1, 20.0, 0.1) var conus_dart_stun_seconds: float = 3.5
+
 
 func apply_item_paralysis(duration_seconds: float) -> void:
 	var requested_msec: int = maxi(1, roundi(maxf(0.05, duration_seconds) * 1000.0))
@@ -17,6 +19,10 @@ func apply_item_paralysis(duration_seconds: float) -> void:
 	else:
 		_sprite.play(&"frozen")
 		_set_stun_glow_enabled(true)
+
+
+func receive_conus_dart(_source: Node2D) -> void:
+	apply_item_paralysis(conus_dart_stun_seconds)
 
 
 func _is_hylas_in_detection_range() -> bool:
