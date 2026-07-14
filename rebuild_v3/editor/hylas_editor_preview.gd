@@ -9,7 +9,7 @@ const CONCH_PULSE_SCENE: PackedScene = preload(
 @export var show_conch_alignment: bool = true
 @export_range(0, 5, 1) var conch_preview_frame: int = 4
 @export_range(0.0, 1.0, 0.01) var sonar_preview_progress: float = 0.16
-@export var show_jump_arc: bool = true
+@export var show_jump_arc: bool = false
 @export var show_labels: bool = true
 
 var _sonar_texture: Texture2D
@@ -84,13 +84,17 @@ func _update_hylas_pose() -> void:
 	sprite.frame = clampi(conch_preview_frame, 0, frame_count - 1)
 	sprite.pause()
 	var frame_texture: Texture2D = sprite.sprite_frames.get_frame_texture(&"conch", sprite.frame)
-	if frame_texture != null:
-		var display_height: float = float(hylas.get("display_height"))
-		var scale_factor: float = display_height / maxf(1.0, float(frame_texture.get_height()))
-		sprite.scale = Vector2.ONE * scale_factor
-	var shadow: CanvasItem = hylas.get_node_or_null("ShadowSprite") as CanvasItem
+	if frame_texture == null:
+		return
+	var display_height: float = float(hylas.get("display_height"))
+	var scale_factor: float = display_height / maxf(1.0, float(frame_texture.get_height()))
+	sprite.scale = Vector2.ONE * scale_factor
+	var shadow: Sprite2D = hylas.get_node_or_null("ShadowSprite") as Sprite2D
 	if shadow != null:
-		shadow.visible = false
+		shadow.texture = frame_texture
+		shadow.scale = Vector2.ONE * scale_factor
+		shadow.flip_h = sprite.flip_h
+		shadow.visible = true
 
 
 func _draw() -> void:
