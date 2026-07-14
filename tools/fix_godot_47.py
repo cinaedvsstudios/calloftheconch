@@ -7,13 +7,18 @@ ROOT = Path(__file__).resolve().parents[1]
 GAMEPLAY_SCRIPT = ROOT / "rebuild_v3/app/contexts/gameplay/gameplay_inventory_audio.gd"
 GAMEPLAY_SCENE = ROOT / "rebuild_v3/app/contexts/gameplay/gameplay_context.tscn"
 ARCHIVE_DIR = ROOT / "rebuild_v3/archive/obsolete_gameplay_wrappers"
+LEGACY_LANDSCAPE_TOOL = (
+    ROOT / "rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape.gd"
+)
 
 
 def replace_exact(text: str, old: str, new: str, label: str) -> str:
+    if new and new in text:
+        return text
     count = text.count(old)
     if count == 1:
         return text.replace(old, new, 1)
-    if count == 0 and new in text:
+    if count == 0 and not new:
         return text
     raise RuntimeError(f"{label}: expected exactly one old block, found {count}")
 
@@ -118,6 +123,19 @@ def fix_gameplay_scene() -> None:
     GAMEPLAY_SCENE.write_text(text, encoding="utf-8", newline="\n")
 
 
+def disable_legacy_landscape_tool() -> None:
+    if not LEGACY_LANDSCAPE_TOOL.exists():
+        return
+    text = LEGACY_LANDSCAPE_TOOL.read_text(encoding="utf-8")
+    if text.startswith("@tool\n"):
+        text = "# Editor execution disabled before one-time static collision bake.\n" + text[len("@tool\n"):]
+        LEGACY_LANDSCAPE_TOOL.write_text(text, encoding="utf-8", newline="\n")
+    elif text.startswith("# Editor execution disabled before one-time static collision bake.\n"):
+        return
+    else:
+        raise RuntimeError("Legacy landscape generator did not start with @tool as expected")
+
+
 def archive_unused_wrappers() -> None:
     ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
     wrapper_paths = [
@@ -174,6 +192,7 @@ def audit_active_sources() -> None:
 if __name__ == "__main__":
     fix_gameplay_script()
     fix_gameplay_scene()
+    disable_legacy_landscape_tool()
     archive_unused_wrappers()
     audit_active_sources()
     print("Godot 4.7 gameplay repair and source audit completed.")
