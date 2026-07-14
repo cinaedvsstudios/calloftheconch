@@ -37,7 +37,13 @@ position = Vector2(-25, -62.000004)
 scale = Vector2(0.10566038, 0.10566038)
 texture = ExtResource("2_sonar")
 
-[node name="OriginFlash" type="VideoStreamPlayer" parent="." unique_id=1784732269]
+[node name="OriginFlashPivot" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="OriginFlashVisual" type="Node2D" parent="OriginFlashPivot"]
+unique_name_in_owner = true
+
+[node name="OriginFlash" type="VideoStreamPlayer" parent="OriginFlashPivot/OriginFlashVisual" unique_id=1784732269]
 unique_name_in_owner = true
 self_modulate = Color(1, 1, 1, 0.6901961)
 z_index = 1
