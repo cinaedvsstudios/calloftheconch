@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://1rjm7chihb77"]
 
-[ext_resource type="Script" uid="uid://bdeax78tc4o8i" path="res://rebuild_v3/features/effects/conch_pulse_screen_range.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/features/effects/conch_pulse_item_profiles.gd" id="1_controller"]
 [ext_resource type="Texture2D" uid="uid://d2h7vhb3wyh6x" path="res://assets/effects/sonar.webp" id="2_sonar"]
 [ext_resource type="Shader" uid="uid://cav0ro4ag7jey" path="res://rebuild_v3/features/effects/conch_pulse_arc.gdshader" id="3_arc_shader"]
 [ext_resource type="Shader" uid="uid://vp7nqtlaohv3" path="res://rebuild_v3/features/effects/conch_pulse_flash.gdshader" id="5_flash_shader"]
