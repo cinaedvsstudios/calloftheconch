@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://k2serfn5csof"]
 
 [ext_resource type="Script" uid="uid://df704opte6x40" path="res://rebuild_v3/app/contexts/gameplay/gameplay_hud.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/editor/gameplay_hud_editor_preview.gd" id="2_editor_preview"]
 
 [sub_resource type="SystemFont" id="LocationFont"]
 font_names = PackedStringArray("Cinzel", "Trajan Pro", "Times New Roman", "Georgia", "Noto Serif")
@@ -117,3 +118,6 @@ theme_override_font_sizes/font_size = 21
 text = "THE SEA OF PILLARS"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="EditorPreview" type="Node" parent="."]
+script = ExtResource("2_editor_preview")
