@@ -5,6 +5,7 @@
 [ext_resource type="Shader" uid="uid://cav0ro4ag7jey" path="res://rebuild_v3/features/effects/conch_pulse_arc.gdshader" id="3_arc_shader"]
 [ext_resource type="VideoStream" uid="uid://wtp4swvkaofx" path="res://assets/effects/echopulse.ogv" id="4_flash_video"]
 [ext_resource type="Shader" uid="uid://vp7nqtlaohv3" path="res://rebuild_v3/features/effects/conch_pulse_flash.gdshader" id="5_flash_shader"]
+[ext_resource type="Script" path="res://rebuild_v3/editor/conch_pulse_editor_preview.gd" id="6_editor_preview"]
 
 [sub_resource type="ShaderMaterial" id="SonarArcMaterial"]
 resource_local_to_scene = true
@@ -50,3 +51,6 @@ volume_db = -80.0
 speed_scale = 1.5
 expand = true
 loop = false
+
+[node name="EditorPreview" type="Node2D" parent="."]
+script = ExtResource("6_editor_preview")
