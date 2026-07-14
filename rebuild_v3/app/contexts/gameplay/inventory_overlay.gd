@@ -291,9 +291,9 @@ func _apply_label_readability(label: Label, outline_size: int, shadow_spread: in
 
 func _make_cell_background_style() -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.015, 0.055, 0.10, 0.82)
-	style.border_color = Color(0.31, 0.48, 0.58, 0.78)
-	style.set_border_width_all(1)
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	style.border_color = Color(0.0, 0.0, 0.0, 0.0)
+	style.set_border_width_all(0)
 	style.set_corner_radius_all(9)
 	return style
 
