@@ -116,7 +116,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	if event.is_action_released(&"inventory", false, true):
+	if event.is_action_released(&"inventory", true):
 		_inventory_candidate = false
 		get_viewport().set_input_as_handled()
 		return
