@@ -64,6 +64,12 @@ jobs:
           set -o pipefail
           godot --headless --editor --path . --quit-after 600 2>&1 | tee godot-editor.log
 
+      - name: Run the main scene for a runtime smoke test
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --quit-after 20 2>&1 | tee godot-runtime.log
+
       - name: Validate required scenes and baked collisions
         shell: bash
         run: |
@@ -73,7 +79,7 @@ jobs:
       - name: Reject all Godot parser, runtime and scene-tree failures
         shell: bash
         run: |
-          if grep -E "ERROR:|Parse Error|Failed to load script|Parent node is busy setting up children|Child is not a child of this node|SCRIPT ERROR|Convex decomposing failed" godot-preimport.log godot-generator.log godot-editor.log godot-validation.log; then
+          if grep -E "ERROR:|Parse Error|Failed to load script|Parent node is busy setting up children|Child is not a child of this node|SCRIPT ERROR|Convex decomposing failed" godot-preimport.log godot-generator.log godot-editor.log godot-runtime.log godot-validation.log; then
             echo "Godot reported an error."
             exit 1
           fi
@@ -91,6 +97,7 @@ jobs:
             godot-preimport.log
             godot-generator.log
             godot-editor.log
+            godot-runtime.log
             godot-validation.log
           if-no-files-found: ignore
 
@@ -100,7 +107,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          rm -f godot-preimport.log godot-generator.log godot-editor.log godot-validation.log
+          rm -f godot-preimport.log godot-generator.log godot-editor.log godot-runtime.log godot-validation.log
           git add -A
           if git diff --cached --quiet; then
             echo "No generated changes to commit."
