@@ -38,7 +38,7 @@ var _rebuild_queued: bool = false
 
 
 func _ready() -> void:
-	_rebuild_from_texture()
+	_queue_rebuild()
 
 
 func _queue_rebuild() -> void:
@@ -51,7 +51,7 @@ func _queue_rebuild() -> void:
 
 func _rebuild_from_texture() -> void:
 	_rebuild_queued = false
-	if not is_node_ready():
+	if not is_node_ready() or not is_inside_tree():
 		return
 	_sprite.texture = source_texture
 	_clear_collision_nodes()
@@ -155,8 +155,7 @@ func _clear_collision_nodes() -> void:
 	for child: Node in get_children():
 		if not child.has_meta(&"generated_alpha_collision"):
 			continue
-		remove_child(child)
-		child.free()
+		child.queue_free()
 	set_meta(&"generated_collision_count", 0)
 
 
