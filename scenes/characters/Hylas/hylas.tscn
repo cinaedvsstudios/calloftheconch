@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_reliable_input.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_equipment_input.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" uid="uid://bm6ve0lpyouwa" path="res://scenes/characters/Hylas/hylas_v3_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Texture2D" uid="uid://bj6kjlhmbunt7" path="res://assets/characters/hylas-swim_01.webp" id="3_swim_idle"]
 [ext_resource type="PackedScene" uid="uid://ood4cgs0bkqk" path="res://rebuild_v3/features/effects/bubble_burst.tscn" id="4_bubble_burst"]
@@ -50,7 +50,7 @@ tail_flip_collision_shape = SubResource("HylasTailFlipCollisionShape")
 conch_collision_shape = SubResource("HylasConchCollisionShape")
 stop_collision_shape = SubResource("HylasStopCollisionShape")
 
-[node name="ShadowSprite" type="Sprite2D" parent="." unique_id=757591679]
+[node name="ShadowSprite" type="Sprite2D" parent="." unique_id=757584321]
 unique_name_in_owner = true
 show_behind_parent = true
 z_index = -2
@@ -59,7 +59,7 @@ scale = Vector2(0.16347688, 0.16347688)
 texture = ExtResource("3_swim_idle")
 script = ExtResource("11_shadow_sync")
 
-[node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=1603977457]
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=1604977457]
 unique_name_in_owner = true
 scale = Vector2(0.16347688, 0.16347688)
 sprite_frames = ExtResource("2_frames")
@@ -78,61 +78,3 @@ position_smoothing_enabled = true
 position_smoothing_speed = 5.5
 
 [node name="TailBubbleBurst" parent="." unique_id=1945886857 instance=ExtResource("4_bubble_burst")]
-unique_name_in_owner = true
-visible = true
-scale = Vector2(0.8, 0.8)
-
-[node name="SurfaceSplashAnchor" type="Marker2D" parent="." unique_id=1966886696]
-unique_name_in_owner = true
-
-[node name="ConchPulseOrigin" type="Marker2D" parent="."]
-unique_name_in_owner = true
-position = Vector2(105, 0)
-
-[node name="EditorPreview" type="Node2D" parent="."]
-script = ExtResource("16_editor_preview")
-
-[node name="InteractionArea" type="Area2D" parent="." unique_id=1606279735]
-
-[node name="InteractionShape" type="CollisionShape2D" parent="InteractionArea" unique_id=1468405198]
-scale = Vector2(1, 0.75)
-shape = SubResource("HylasInteractionShape")
-
-[node name="Audio" type="Node2D" parent="." unique_id=1806009667]
-
-[node name="SwimAudio" type="AudioStreamPlayer" parent="Audio" unique_id=2022509480]
-unique_name_in_owner = true
-stream = ExtResource("5_swim_audio")
-volume_db = -16.0
-script = ExtResource("8_looping_audio")
-
-[node name="BurstAudio" type="AudioStreamPlayer" parent="Audio" unique_id=1311768458]
-unique_name_in_owner = true
-stream = ExtResource("6_burst_audio")
-volume_db = -10.0
-script = ExtResource("8_looping_audio")
-
-[node name="ConchAudio" type="AudioStreamPlayer" parent="Audio" unique_id=342283525]
-unique_name_in_owner = true
-stream = ExtResource("7_conch_audio")
-volume_db = -7.0
-
-[node name="SplashAudio" type="AudioStreamPlayer" parent="Audio" unique_id=1696013388]
-unique_name_in_owner = true
-stream = ExtResource("9_splash_audio")
-volume_db = -8.0
-
-[node name="HurtAudio" type="AudioStreamPlayer" parent="Audio" unique_id=1323070228]
-unique_name_in_owner = true
-stream = ExtResource("13_hurt_audio")
-volume_db = -6.0
-
-[node name="LandImpactAudio" type="AudioStreamPlayer" parent="Audio" unique_id=1304625525]
-unique_name_in_owner = true
-stream = ExtResource("14_land_impact_audio")
-volume_db = -6.0
-
-[node name="FinLossAudio" type="AudioStreamPlayer" parent="Audio"]
-unique_name_in_owner = true
-stream = ExtResource("15_powerdown_audio")
-volume_db = -4.0
