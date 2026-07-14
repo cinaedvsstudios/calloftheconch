@@ -1,14 +1,14 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://k2serfn5csof"]
 
-[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_hud.gd" id="1_controller"]
+[ext_resource type="Script" uid="uid://df704opte6x40" path="res://rebuild_v3/app/contexts/gameplay/gameplay_hud.gd" id="1_controller"]
 
 [sub_resource type="SystemFont" id="LocationFont"]
 font_names = PackedStringArray("Cinzel", "Trajan Pro", "Times New Roman", "Georgia", "Noto Serif")
 font_weight = 600
 
-[node name="GameplayHud" type="Control"]
+[node name="GameplayHud" type="Control" unique_id=1854272745]
 layout_mode = 3
-anchors_preset = 10
+anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -255.0
@@ -20,8 +20,13 @@ scale = Vector2(0.7, 0.7)
 pivot_offset = Vector2(255, 0)
 mouse_filter = 2
 script = ExtResource("1_controller")
+hud_uniform_scale = 0.7
+hud_top_offset = -5.0
+fin_value_rect = Rect2(155, 120, 65, 37)
+conch_icon_rect = Rect2(360, 65, 73, 73)
+location_value_rect = Rect2(76, 160, 361, 37)
 
-[node name="FallbackPanel" type="ColorRect" parent="."]
+[node name="FallbackPanel" type="ColorRect" parent="." unique_id=606423077]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -29,10 +34,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.035, 0.075, 0.13, 0.88)
 mouse_filter = 2
+color = Color(0.035, 0.075, 0.13, 0.88)
 
-[node name="PanelTexture" type="TextureRect" parent="."]
+[node name="PanelTexture" type="TextureRect" parent="." unique_id=1278936827]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -44,13 +49,13 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="OnosValue" type="Label" parent="."]
+[node name="OnosValue" type="Label" parent="." unique_id=352687747]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 94.0
-offset_top = 120.0
-offset_right = 158.0
-offset_bottom = 157.0
+offset_left = 90.714294
+offset_top = 127.14285
+offset_right = 154.7143
+offset_bottom = 164.14285
 theme_override_colors/font_color = Color(1, 0.84, 0.35, 1)
 theme_override_colors/font_outline_color = Color(0.08, 0.03, 0, 1)
 theme_override_constants/outline_size = 4
@@ -59,13 +64,13 @@ text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="FinValue" type="Label" parent="."]
+[node name="FinValue" type="Label" parent="." unique_id=1345808411]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 160.0
-offset_top = 120.0
-offset_right = 225.0
-offset_bottom = 157.0
+offset_left = 156.7143
+offset_top = 127.14285
+offset_right = 221.7143
+offset_bottom = 164.14285
 theme_override_colors/font_color = Color(0.52, 0.98, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0.05, 0.12, 1)
 theme_override_constants/outline_size = 4
@@ -74,30 +79,30 @@ text = "4"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ConchGlow" type="TextureRect" parent="."]
+[node name="ConchGlow" type="TextureRect" parent="." unique_id=117666503]
 unique_name_in_owner = true
-layout_mode = 0
-offset_left = 366.0
-offset_top = 65.0
-offset_right = 439.0
-offset_bottom = 138.0
-mouse_filter = 2
 modulate = Color(0.15, 1, 1, 0)
-expand_mode = 1
-stretch_mode = 5
-
-[node name="ConchIcon" type="TextureRect" parent="."]
-unique_name_in_owner = true
 layout_mode = 0
-offset_left = 366.0
-offset_top = 65.0
-offset_right = 439.0
-offset_bottom = 138.0
+offset_left = 347.0
+offset_top = 75.0
+offset_right = 420.0
+offset_bottom = 148.0
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="LocationValue" type="Label" parent="."]
+[node name="ConchIcon" type="TextureRect" parent="." unique_id=985968755]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 347.0
+offset_top = 75.0
+offset_right = 420.0
+offset_bottom = 147.99994
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LocationValue" type="Label" parent="." unique_id=510702690]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 76.0

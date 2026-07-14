@@ -1,26 +1,28 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://bjfac6f1c137j"]
 
-[ext_resource type="Script" path="res://rebuild_v3/app/contexts/continue/continue_context.gd" id="1_controller"]
+[ext_resource type="Script" uid="uid://mkoq1rl014xk" path="res://rebuild_v3/app/contexts/continue/continue_context.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://scenes/ui/WaterVideoBackground/water_video_background.tscn" id="2_water_background"]
-[ext_resource type="Texture2D" path="res://assets/ui/dialogueboxv.webp" id="3_save_frame"]
-[ext_resource type="Texture2D" path="res://assets/ui/button2.webp" id="4_button"]
+[ext_resource type="Texture2D" uid="uid://c2hydko5t8nxp" path="res://assets/ui/dialogueboxv.webp" id="3_save_frame"]
+[ext_resource type="Texture2D" uid="uid://doww3wj6jisnv" path="res://assets/ui/button2.webp" id="4_button"]
 
-[node name="ContinueContext" type="Control"]
-visible = false
+[node name="ContinueContext" type="Control" unique_id=572396099]
 process_mode = 3
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -80.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_controller")
+save_entry_width = 275.0
 
-[node name="WaterVideoBackground" parent="." instance=ExtResource("2_water_background")]
+[node name="WaterVideoBackground" parent="." unique_id=2092741738 instance=ExtResource("2_water_background")]
 unique_name_in_owner = true
+layout_mode = 1
 auto_play_on_ready = false
 
-[node name="Shade" type="ColorRect" parent="."]
+[node name="Shade" type="ColorRect" parent="." unique_id=143926910]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -30,7 +32,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.005, 0.018, 0.055, 0.5)
 
-[node name="Title" type="Label" parent="."]
+[node name="Title" type="Label" parent="." unique_id=875579750]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -45,9 +47,8 @@ theme_override_font_sizes/font_size = 38
 text = "CONTINUE"
 horizontal_alignment = 1
 vertical_alignment = 1
-mouse_filter = 2
 
-[node name="SaveFrame" type="TextureRect" parent="."]
+[node name="SaveFrame" type="TextureRect" parent="." unique_id=1057107518]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -65,7 +66,7 @@ texture = ExtResource("3_save_frame")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="SaveScroll" type="ScrollContainer" parent="SaveFrame"]
+[node name="SaveScroll" type="ScrollContainer" parent="SaveFrame" unique_id=32106396]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -79,14 +80,14 @@ grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
 
-[node name="SaveList" type="VBoxContainer" parent="SaveFrame/SaveScroll"]
+[node name="SaveList" type="VBoxContainer" parent="SaveFrame/SaveScroll" unique_id=1040533942]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(420, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 12
 
-[node name="EmptyLabel" type="Label" parent="SaveFrame"]
+[node name="EmptyLabel" type="Label" parent="SaveFrame" unique_id=682946860]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -105,12 +106,12 @@ theme_override_font_sizes/font_size = 24
 text = "NO SAVED GAMES"
 horizontal_alignment = 1
 vertical_alignment = 1
-mouse_filter = 2
 
-[node name="StatusLabel" type="Label" parent="SaveFrame"]
+[node name="StatusLabel" type="Label" parent="SaveFrame" unique_id=719797833]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 12
+anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 70.0
@@ -123,9 +124,8 @@ theme_override_colors/font_color = Color(0.45, 0.16, 0.14, 1)
 theme_override_font_sizes/font_size = 17
 horizontal_alignment = 1
 vertical_alignment = 1
-mouse_filter = 2
 
-[node name="ActionButtons" type="HBoxContainer" parent="."]
+[node name="ActionButtons" type="HBoxContainer" parent="." unique_id=1414922071]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -141,7 +141,7 @@ grow_vertical = 0
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="LoadButton" type="TextureButton" parent="ActionButtons"]
+[node name="LoadButton" type="TextureButton" parent="ActionButtons" unique_id=11524124]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(230, 78)
 layout_mode = 2
@@ -151,14 +151,13 @@ texture_hover = ExtResource("4_button")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="ActionButtons/LoadButton"]
+[node name="Label" type="Label" parent="ActionButtons/LoadButton" unique_id=1636104848]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
 theme_override_constants/shadow_offset_x = 2
@@ -168,7 +167,7 @@ text = "LOAD"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DeleteButton" type="TextureButton" parent="ActionButtons"]
+[node name="DeleteButton" type="TextureButton" parent="ActionButtons" unique_id=262028799]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(230, 78)
 layout_mode = 2
@@ -178,14 +177,13 @@ texture_hover = ExtResource("4_button")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="ActionButtons/DeleteButton"]
+[node name="Label" type="Label" parent="ActionButtons/DeleteButton" unique_id=953210092]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.95, 0.82, 0.82, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
 theme_override_constants/shadow_offset_x = 2
@@ -195,7 +193,7 @@ text = "DELETE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BackButton" type="TextureButton" parent="ActionButtons"]
+[node name="BackButton" type="TextureButton" parent="ActionButtons" unique_id=957552889]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(230, 78)
 layout_mode = 2
@@ -205,14 +203,13 @@ texture_hover = ExtResource("4_button")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="ActionButtons/BackButton"]
+[node name="Label" type="Label" parent="ActionButtons/BackButton" unique_id=437931113]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
 theme_override_constants/shadow_offset_x = 2
@@ -222,10 +219,10 @@ text = "BACK"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ConfirmOverlay" type="Control" parent="."]
+[node name="ConfirmOverlay" type="Control" parent="." unique_id=240910209]
 unique_name_in_owner = true
-visible = false
 process_mode = 3
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -233,7 +230,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Backdrop" type="ColorRect" parent="ConfirmOverlay"]
+[node name="Backdrop" type="ColorRect" parent="ConfirmOverlay" unique_id=1419646018]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -242,7 +239,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0.03, 0.78)
 
-[node name="Panel" type="PanelContainer" parent="ConfirmOverlay"]
+[node name="Panel" type="PanelContainer" parent="ConfirmOverlay" unique_id=419115031]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -256,12 +253,12 @@ offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Content" type="VBoxContainer" parent="ConfirmOverlay/Panel"]
+[node name="Content" type="VBoxContainer" parent="ConfirmOverlay/Panel" unique_id=293880916]
 layout_mode = 2
 theme_override_constants/separation = 18
 alignment = 1
 
-[node name="ConfirmLabel" type="Label" parent="ConfirmOverlay/Panel/Content"]
+[node name="ConfirmLabel" type="Label" parent="ConfirmOverlay/Panel/Content" unique_id=251567112]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(520, 100)
 layout_mode = 2
@@ -271,12 +268,12 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="Buttons" type="HBoxContainer" parent="ConfirmOverlay/Panel/Content"]
+[node name="Buttons" type="HBoxContainer" parent="ConfirmOverlay/Panel/Content" unique_id=1971296795]
 layout_mode = 2
 theme_override_constants/separation = 18
 alignment = 1
 
-[node name="ConfirmDeleteButton" type="TextureButton" parent="ConfirmOverlay/Panel/Content/Buttons"]
+[node name="ConfirmDeleteButton" type="TextureButton" parent="ConfirmOverlay/Panel/Content/Buttons" unique_id=1587609904]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(210, 72)
 layout_mode = 2
@@ -286,20 +283,19 @@ texture_hover = ExtResource("4_button")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="ConfirmOverlay/Panel/Content/Buttons/ConfirmDeleteButton"]
+[node name="Label" type="Label" parent="ConfirmOverlay/Panel/Content/Buttons/ConfirmDeleteButton" unique_id=1637309009]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 20
 text = "DELETE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ConfirmCancelButton" type="TextureButton" parent="ConfirmOverlay/Panel/Content/Buttons"]
+[node name="ConfirmCancelButton" type="TextureButton" parent="ConfirmOverlay/Panel/Content/Buttons" unique_id=585762585]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(210, 72)
 layout_mode = 2
@@ -309,14 +305,13 @@ texture_hover = ExtResource("4_button")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="ConfirmOverlay/Panel/Content/Buttons/ConfirmCancelButton"]
+[node name="Label" type="Label" parent="ConfirmOverlay/Panel/Content/Buttons/ConfirmCancelButton" unique_id=424326533]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 20
 text = "CANCEL"
 horizontal_alignment = 1

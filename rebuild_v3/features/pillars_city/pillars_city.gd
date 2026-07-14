@@ -15,7 +15,7 @@ const TARGET_ORACLE: StringName = &"oracle"
 	"res://assets/backgrounds/bg_pillars_city.jpg"
 )
 @export var agora_sign_texture: Texture2D = preload(
-	"res://assets/ui/ui_location_agora_of_myra.webp"
+	"res://assets/ui/ui_location_agora_of_myra.png"
 )
 
 @export_category("City Hylas")

@@ -120,6 +120,7 @@ shader_parameter/waterline_fade = 0.012
 
 [node name="SeaOfPillars" type="Node2D" unique_id=1981294601]
 script = ExtResource("1_controller")
+conch_origin_forward_offset = 111.0
 
 [node name="BackgroundLayer" type="Node2D" parent="." unique_id=2109573204]
 z_index = -30
