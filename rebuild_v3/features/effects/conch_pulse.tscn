@@ -5,7 +5,7 @@
 [ext_resource type="Shader" uid="uid://cav0ro4ag7jey" path="res://rebuild_v3/features/effects/conch_pulse_arc.gdshader" id="3_arc_shader"]
 [ext_resource type="VideoStream" uid="uid://wtp4swvkaofx" path="res://assets/effects/echopulse.ogv" id="4_flash_video"]
 [ext_resource type="Shader" uid="uid://vp7nqtlaohv3" path="res://rebuild_v3/features/effects/conch_pulse_flash.gdshader" id="5_flash_shader"]
-[ext_resource type="Script" path="res://rebuild_v3/editor/conch_pulse_editor_preview.gd" id="6_editor_preview"]
+[ext_resource type="Script" uid="uid://c3ow2nq2oqud" path="res://rebuild_v3/editor/conch_pulse_editor_preview.gd" id="6_editor_preview"]
 
 [sub_resource type="ShaderMaterial" id="SonarArcMaterial"]
 resource_local_to_scene = true
@@ -25,13 +25,16 @@ shader_parameter/brightness = 1.5
 
 [node name="ConchPulse" type="Node2D" unique_id=1758536679]
 script = ExtResource("1_controller")
+pulse_count = 6
+sonar_brightness = 1.5
 flash_scale = 1.0
 
 [node name="SonarArc" type="Sprite2D" parent="." unique_id=579649675]
 unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.7)
 material = SubResource("SonarArcMaterial")
-position = Vector2(-111, 0)
-scale = Vector2(1.6068498, 1.3276451)
+position = Vector2(-25, -62.000004)
+scale = Vector2(0.10566038, 0.10566038)
 texture = ExtResource("2_sonar")
 
 [node name="OriginFlash" type="VideoStreamPlayer" parent="." unique_id=1784732269]
@@ -39,18 +42,26 @@ unique_name_in_owner = true
 self_modulate = Color(1, 1, 1, 0.6901961)
 z_index = 1
 material = SubResource("OriginFlashMaterial")
-offset_left = -586.0
-offset_top = -1277.0
-offset_right = -128.0
-offset_bottom = -979.0
+anchors_preset = -1
+anchor_left = 0.233
+anchor_top = 0.35
+anchor_right = 0.36
+anchor_bottom = 0.694
+offset_left = -1004.00006
+offset_top = -600.00006
+offset_right = 873.99994
+offset_bottom = 636.99994
+grow_horizontal = 2
+grow_vertical = 0
 rotation = -1.5707964
+scale = Vector2(0.1, 0.1)
 pivot_offset = Vector2(960, 540)
 mouse_filter = 2
 stream = ExtResource("4_flash_video")
 volume_db = -80.0
-speed_scale = 1.5
 expand = true
-loop = false
+metadata/_edit_use_anchors_ = true
 
-[node name="EditorPreview" type="Node2D" parent="."]
+[node name="EditorPreview" type="Node2D" parent="." unique_id=77234504]
+process_mode = 3
 script = ExtResource("6_editor_preview")
