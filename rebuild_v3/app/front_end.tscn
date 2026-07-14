@@ -11,7 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://bjfac6f1c137j" path="res://rebuild_v3/app/contexts/continue/continue_context.tscn" id="9_continue_context"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/intro/intro_context.tscn" id="10_intro_context"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/loading/loading_overlay.tscn" id="11_loading_overlay"]
-[ext_resource type="PackedScene" path="res://scenes/objects/Pickups/food_crown_sea_grapes_pickup.tscn" id="12_xirsq"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/menu/level_version_selector.tscn" id="12_level_selector"]
 
 [node name="FrontEnd" type="Node" unique_id=1490050788]
 script = ExtResource("1")
@@ -37,6 +37,9 @@ layer = 100
 [node name="MenuContext" parent="MenuLayer" unique_id=412859640 instance=ExtResource("2")]
 unique_name_in_owner = true
 
+[node name="LevelVersionSelector" parent="MenuLayer" instance=ExtResource("12_level_selector")]
+unique_name_in_owner = true
+
 [node name="ContinueLayer" type="CanvasLayer" parent="." unique_id=1281910050]
 layer = 105
 
@@ -60,9 +63,3 @@ unique_name_in_owner = true
 
 [node name="DeveloperAdminPanel" parent="." unique_id=1902729462 instance=ExtResource("4")]
 layout_mode = 3
-
-[node name="FoodCrownSeaGrapesPickup" parent="." unique_id=560351078 instance=ExtResource("12_xirsq")]
-z_index = -1
-position = Vector2(5648, 3737.9998)
-rotation = 0.5235988
-scale = Vector2(0.25, 0.25)
