@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/objects/Pickups/food_scavenged_fish_pickup.tscn" id="1_scene"]
+
+[node name="FoodScavengedFish" instance=ExtResource("1_scene")]
