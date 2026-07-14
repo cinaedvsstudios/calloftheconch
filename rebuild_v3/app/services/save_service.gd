@@ -6,9 +6,15 @@ signal save_completed(save_id: String, save_name: String)
 signal load_completed(save_id: String, save_name: String)
 signal save_deleted(save_id: String)
 
+const ITEM_CATALOG = preload("res://rebuild_v3/app/inventory/item_catalog.gd")
+const GAME_STATE_SCRIPT = preload("res://rebuild_v3/app/services/game_state.gd")
+
 const SAVE_DIRECTORY: String = "user://saves"
 const SAVE_FORMAT_VERSION: int = 1
 const MAX_SAVE_NAME_LENGTH: int = 48
+const ADMIN_SAVE_ID: String = "admin"
+const ADMIN_SAVE_NAME: String = "admin"
+const ADMIN_CONSUMABLE_QUANTITY: int = 999
 
 var last_error_message: String = ""
 var _game_state: CotcGameState
@@ -21,6 +27,7 @@ func _ready() -> void:
 
 func bind_game_state(game_state: CotcGameState) -> void:
 	_game_state = game_state
+	ensure_admin_save()
 
 
 func has_saves() -> bool:
@@ -71,16 +78,13 @@ func save_named(requested_name: String) -> Dictionary:
 		"name": save_name,
 		"saved_at_unix": unix_time,
 		"saved_at_text": Time.get_datetime_string_from_system(false, true),
-		"metadata": _build_metadata(),
+		"metadata": _build_metadata_for_state(_game_state),
 		"state": _game_state.to_save_dictionary(),
 	}
-	var file_path: String = _save_path(save_id)
-	var file: FileAccess = FileAccess.open(file_path, FileAccess.WRITE)
-	if file == null:
-		last_error_message = "The save file could not be written."
+	if save_id == ADMIN_SAVE_ID:
+		payload["admin"] = true
+	if not _write_payload(_save_path(save_id), payload):
 		return {}
-	file.store_string(JSON.stringify(payload, "\t"))
-	file.close()
 
 	_game_state.active_save_id = save_id
 	_game_state.active_save_name = save_name
@@ -158,19 +162,77 @@ func get_suggested_save_name() -> String:
 	return _game_state.get_location_display_name()
 
 
-func _build_metadata() -> Dictionary:
-	return {
-		"location": _game_state.get_location_display_name(),
-		"level_id": String(_game_state.current_level_id),
-		"spawn_point_id": String(_game_state.current_spawn_point_id),
-		"playtime_seconds": _game_state.playtime_seconds,
-		"playtime_text": _game_state.get_playtime_display(),
-		"onos": _game_state.onos,
-		"current_fins": _game_state.current_fins,
-		"max_fins": _game_state.max_fins,
-		"star_piece_count": _game_state.star_pieces.size(),
-		"inventory_item_types": _game_state.inventory.size(),
+func ensure_admin_save() -> bool:
+	# The admin file is a normal save that preserves any progress already made in
+	# it, while replenishing every catalogue consumable and granting new catalogue
+	# entries whenever the build grows.
+	_ensure_save_directory()
+	var admin_state: CotcGameState = GAME_STATE_SCRIPT.new() as CotcGameState
+	var existing_payload: Dictionary = _read_payload(_save_path(ADMIN_SAVE_ID))
+	var existing_state: Variant = existing_payload.get("state", {})
+	if typeof(existing_state) == TYPE_DICTIONARY:
+		admin_state.load_from_save_dictionary(existing_state as Dictionary)
+	else:
+		admin_state.start_new_game()
+
+	_grant_admin_catalogue(admin_state)
+	var unix_time: float = Time.get_unix_time_from_system()
+	var payload: Dictionary = {
+		"format_version": SAVE_FORMAT_VERSION,
+		"save_id": ADMIN_SAVE_ID,
+		"name": ADMIN_SAVE_NAME,
+		"admin": true,
+		"saved_at_unix": unix_time,
+		"saved_at_text": Time.get_datetime_string_from_system(false, true),
+		"metadata": _build_metadata_for_state(admin_state),
+		"state": admin_state.to_save_dictionary(),
 	}
+	var wrote_save: bool = _write_payload(_save_path(ADMIN_SAVE_ID), payload)
+	admin_state.free()
+	if wrote_save:
+		saves_changed.emit()
+	return wrote_save
+
+
+func _grant_admin_catalogue(admin_state: CotcGameState) -> void:
+	for item_id: StringName in ITEM_CATALOG.get_all_item_ids():
+		var ownership_source: StringName = ITEM_CATALOG.get_ownership_source(item_id)
+		match ownership_source:
+			ITEM_CATALOG.OWNERSHIP_SHELLS:
+				admin_state.unlock_shell(item_id)
+			ITEM_CATALOG.OWNERSHIP_INVENTORY:
+				admin_state.set_inventory_item(item_id, ADMIN_CONSUMABLE_QUANTITY)
+			ITEM_CATALOG.OWNERSHIP_PERMANENT:
+				admin_state.grant_permanent_inventory_item(item_id)
+			ITEM_CATALOG.OWNERSHIP_STAR_PIECES:
+				admin_state.add_star_piece(item_id)
+	admin_state.validate_equipped_items(false)
+
+
+func _build_metadata_for_state(state: CotcGameState) -> Dictionary:
+	return {
+		"location": state.get_location_display_name(),
+		"level_id": String(state.current_level_id),
+		"spawn_point_id": String(state.current_spawn_point_id),
+		"playtime_seconds": state.playtime_seconds,
+		"playtime_text": state.get_playtime_display(),
+		"onos": state.onos,
+		"current_fins": state.current_fins,
+		"max_fins": state.max_fins,
+		"star_piece_count": state.star_pieces.size(),
+		"inventory_item_types": state.inventory.size(),
+		"owned_shell_count": state.owned_shells.size(),
+	}
+
+
+func _write_payload(file_path: String, payload: Dictionary) -> bool:
+	var file: FileAccess = FileAccess.open(file_path, FileAccess.WRITE)
+	if file == null:
+		last_error_message = "The save file could not be written."
+		return false
+	file.store_string(JSON.stringify(payload, "\t"))
+	file.close()
+	return true
 
 
 func _read_payload(file_path: String) -> Dictionary:
