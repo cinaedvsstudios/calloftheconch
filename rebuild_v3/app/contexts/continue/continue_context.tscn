@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/WaterVideoBackground/water_video_background.tscn" id="2_water_background"]
 [ext_resource type="Texture2D" uid="uid://c2hydko5t8nxp" path="res://assets/ui/dialogueboxv.webp" id="3_save_frame"]
 [ext_resource type="Texture2D" uid="uid://doww3wj6jisnv" path="res://assets/ui/button2.webp" id="4_button"]
+[ext_resource type="Script" path="res://rebuild_v3/editor/continue_editor_preview.gd" id="5_editor_preview"]
 
 [node name="ContinueContext" type="Control" unique_id=572396099]
 process_mode = 3
@@ -316,3 +317,6 @@ theme_override_font_sizes/font_size = 20
 text = "CANCEL"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="EditorPreview" type="Node" parent="."]
+script = ExtResource("5_editor_preview")
