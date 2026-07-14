@@ -16,7 +16,8 @@ var _sonar_texture: Texture2D
 var _sonar_local_position: Vector2 = Vector2.ZERO
 var _start_diameter: float = 20.0
 var _pulse_range: float = 700.0
-var _flash_rect: Rect2 = Rect2()
+var _flash_position: Vector2 = Vector2.ZERO
+var _flash_size: Vector2 = Vector2.ZERO
 var _flash_rotation: float = 0.0
 var _flash_pivot: Vector2 = Vector2.ZERO
 var _flash_scale: Vector2 = Vector2.ONE
@@ -55,12 +56,10 @@ func _load_effect_metrics() -> void:
 		_sonar_local_position = sonar.position
 	var flash: VideoStreamPlayer = pulse_instance.get_node_or_null("OriginFlash") as VideoStreamPlayer
 	if flash != null:
-		_flash_rect = Rect2(
-			Vector2(flash.offset_left, flash.offset_top),
-			Vector2(
-				flash.offset_right - flash.offset_left,
-				flash.offset_bottom - flash.offset_top
-			),
+		_flash_position = Vector2(flash.offset_left, flash.offset_top)
+		_flash_size = Vector2(
+			flash.offset_right - flash.offset_left,
+			flash.offset_bottom - flash.offset_top,
 		)
 		_flash_rotation = flash.rotation
 		_flash_pivot = flash.pivot_offset
@@ -133,19 +132,19 @@ func _draw_sonar_preview(pulse_origin: Vector2) -> void:
 
 
 func _draw_flash_bounds(pulse_origin: Vector2) -> void:
-	if _flash_rect.size.x <= 0.0 or _flash_rect.size.y <= 0.0:
+	if _flash_size.x <= 0.0 or _flash_size.y <= 0.0:
 		return
 	var corners: PackedVector2Array = PackedVector2Array([
-		_flash_rect.position,
-		_flash_rect.position + Vector2(_flash_rect.size.x, 0.0),
-		_flash_rect.end,
-		_flash_rect.position + Vector2(0.0, _flash_rect.size.y),
+		Vector2.ZERO,
+		Vector2(_flash_size.x, 0.0),
+		_flash_size,
+		Vector2(0.0, _flash_size.y),
 	])
 	for index: int in range(corners.size()):
 		var local_point: Vector2 = corners[index] - _flash_pivot
 		local_point *= _flash_scale
 		local_point = local_point.rotated(_flash_rotation)
-		corners[index] = pulse_origin + _flash_pivot + local_point
+		corners[index] = pulse_origin + _flash_position + _flash_pivot + local_point
 	var outline: PackedVector2Array = PackedVector2Array(corners)
 	outline.append(corners[0])
 	draw_colored_polygon(corners, Color(1.0, 0.45, 0.12, 0.08))
@@ -167,7 +166,8 @@ func _draw_jump_preview(hylas: Node2D) -> void:
 	draw_polyline(points, Color(1.0, 0.86, 0.25, 0.50), 2.0)
 	draw_circle(points[points.size() - 1], 6.0, Color(1.0, 0.86, 0.25, 0.85))
 	if show_labels:
-		_draw_label(points[points.size() / 2] + Vector2(8.0, -8.0), "SURFACE JUMP ARC", Color(1.0, 0.86, 0.25, 0.9))
+		var midpoint_index: int = points.size() / 2
+		_draw_label(points[midpoint_index] + Vector2(8.0, -8.0), "SURFACE JUMP ARC", Color(1.0, 0.86, 0.25, 0.9))
 
 
 func _draw_label(position_value: Vector2, text_value: String, color_value: Color) -> void:
