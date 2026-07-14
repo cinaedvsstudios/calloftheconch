@@ -1,0 +1,71 @@
+name: Godot validation
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out validation branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
+
+      - name: Install Godot 4.7
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+          include-templates: false
+
+      - name: Apply deterministic source repairs
+        run: python3 tools/fix_godot_47.py
+
+      - name: Bake landscape alpha collisions into scenes
+        run: godot --headless --path . --script tools/generate_landscape_collisions.gd
+
+      - name: Open project as a headless editor
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --editor --path . --quit-after 600 2>&1 | tee godot-editor.log
+
+      - name: Validate required scenes and baked collisions
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --script tools/validate_project.gd 2>&1 | tee godot-validation.log
+
+      - name: Reject known parser and scene-tree failures
+        shell: bash
+        run: |
+          if grep -E "Parse Error|Failed to load script|Parent node is busy setting up children|Child is not a child of this node|SCRIPT ERROR" godot-editor.log godot-validation.log; then
+            echo "Godot reported a parser or scene-tree failure."
+            exit 1
+          fi
+          test ! -e rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape.gd
+          test ! -e rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape_base.tscn
+          git diff --check
+
+      - name: Commit generated static scenes back to the branch
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+            exit 0
+          fi
+          git commit -m "Bake static landscape collisions and validate Godot 4.7"
+          git push origin HEAD:${{ github.head_ref }}
