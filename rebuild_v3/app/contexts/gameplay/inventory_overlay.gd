@@ -14,7 +14,7 @@ const CELL_SIZE: Vector2 = Vector2(112.0, 116.0)
 const MAGENTA: Color = Color(0.96, 0.15, 0.78, 1.0)
 const CYAN: Color = Color(0.10, 0.88, 1.0, 1.0)
 const TEXT_OUTLINE: Color = Color(0.01, 0.025, 0.045, 0.96)
-const TEXT_SHADOW: Color = Color(0.0, 0.01, 0.025, 0.82)
+const TEXT_SHADOW: Color = Color(0.03, 0.07, 0.11, 0.75)
 
 @onready var _close_button: Button = %CloseButton
 @onready var _item_scroll: ScrollContainer = %ItemScroll
@@ -284,9 +284,9 @@ func _apply_label_readability(label: Label, outline_size: int, shadow_spread: in
 	label.add_theme_color_override(&"font_outline_color", TEXT_OUTLINE)
 	label.add_theme_constant_override(&"outline_size", outline_size)
 	label.add_theme_color_override(&"font_shadow_color", TEXT_SHADOW)
-	label.add_theme_constant_override(&"shadow_offset_x", 3)
-	label.add_theme_constant_override(&"shadow_offset_y", 4)
-	label.add_theme_constant_override(&"shadow_outline_size", shadow_spread)
+	label.add_theme_constant_override(&"shadow_offset_x", 2)
+	label.add_theme_constant_override(&"shadow_offset_y", 3)
+	label.add_theme_constant_override(&"shadow_outline_size", shadow_spread + 3)
 
 
 func _make_cell_background_style() -> StyleBoxFlat:
