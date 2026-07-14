@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
-[node name="ScyllaBossArena" type="Node2D"]nmetadata/development_status = "placeholder"
+[node name="ScyllaBossArena" type="Node2D"]
+metadata/development_status = "placeholder"
 metadata/sea_id = "sea_of_pillars"
 metadata/area_id = "scylla_boss_arena"
