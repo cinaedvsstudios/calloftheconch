@@ -1,6 +1,6 @@
 extends "res://rebuild_v3/app/contexts/gameplay/gameplay_context.gd"
 
-## Phase 3 equipment input dispatcher.
+## Equipment input dispatcher and Phase 6 item behavior router.
 ##
 ## Item A remains responsible for Hylas's existing interaction timing, while the
 ## Ctrl-modified utility action is consumed here before it can fall through to
@@ -15,6 +15,8 @@ const SLOT_A: StringName = &"item_a"
 const SLOT_B: StringName = &"item_b"
 const NORMAL_CONCH_BEHAVIOR: StringName = &"normal_conch"
 
+@onready var _item_effect_controller: CotcItemEffectController = %ItemEffectController
+
 var _hylas: CotcHylas
 var _item_behavior_handlers: Array[Callable] = []
 var _warned_missing_behaviors: Dictionary = {}
@@ -28,6 +30,8 @@ func _ready() -> void:
 	_resolve_hylas()
 	_connect_hylas_item_request()
 	_sync_equipped_item_a()
+	_item_effect_controller.configure(self, _level, _hylas)
+	register_item_behavior_handler(Callable(_item_effect_controller, "handle_item_behavior"))
 
 
 func bind_game_state(game_state: CotcGameState) -> void:
@@ -35,10 +39,21 @@ func bind_game_state(game_state: CotcGameState) -> void:
 		_game_state.equipped_item_changed.disconnect(_on_equipped_item_changed)
 
 	super.bind_game_state(game_state)
+	_item_effect_controller.bind_game_state(game_state)
 
 	if _game_state != null and not _game_state.equipped_item_changed.is_connected(_on_equipped_item_changed):
 		_game_state.equipped_item_changed.connect(_on_equipped_item_changed)
 	_sync_equipped_item_a()
+
+
+func activate() -> void:
+	super.activate()
+	_item_effect_controller.set_active(true)
+
+
+func deactivate() -> void:
+	_item_effect_controller.set_active(false)
+	super.deactivate()
 
 
 func register_item_behavior_handler(handler: Callable) -> void:
@@ -237,4 +252,6 @@ func get_debug_lines() -> Array[String]:
 	lines.append("last_item_use_slot=%s" % String(_last_item_use_slot))
 	lines.append("last_item_use_id=%s" % String(_last_item_use_id))
 	lines.append("last_item_use_succeeded=%s" % str(_last_item_use_succeeded))
+	if is_instance_valid(_item_effect_controller):
+		lines.append_array(_item_effect_controller.get_debug_lines())
 	return lines
