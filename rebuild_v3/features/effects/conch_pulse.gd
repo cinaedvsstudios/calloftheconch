@@ -28,6 +28,7 @@ signal target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
 @export_range(0.05, 2.0, 0.01) var flash_scale: float = 0.35
 
 @onready var _sonar_arc_template: Sprite2D = %SonarArc
+@onready var _origin_flash_pivot: Node2D = %OriginFlashPivot
 @onready var _origin_flash: VideoStreamPlayer = %OriginFlash
 
 var _sequence_elapsed: float = 0.0
@@ -54,7 +55,7 @@ func _ready() -> void:
 	_measure_pulse_reference_diameter()
 	_build_pulse_sprites()
 	_origin_flash.loop = false
-	_origin_flash.scale = Vector2.ONE * flash_scale
+	_update_origin_flash_transform()
 	_origin_flash.finished.connect(_on_origin_flash_finished)
 	_origin_flash.hide()
 	hide()
@@ -225,6 +226,27 @@ func _update_player_tracking() -> void:
 func _apply_pulse_direction() -> void:
 	for pulse_sprite: Sprite2D in _pulse_sprites:
 		pulse_sprite.rotation = _pulse_direction.angle()
+	_update_origin_flash_transform()
+
+
+func _update_origin_flash_transform() -> void:
+	if not is_instance_valid(_origin_flash_pivot):
+		return
+
+	var facing_left: bool = _pulse_direction.x < -0.0001
+	var visual_rotation: float = _pulse_direction.angle()
+	if facing_left:
+		visual_rotation = wrapf(visual_rotation - PI, -PI, PI)
+
+	if is_instance_valid(_player_source):
+		var player_sprite: AnimatedSprite2D = _player_source.get_node_or_null("AnimatedSprite") as AnimatedSprite2D
+		if player_sprite != null:
+			facing_left = player_sprite.flip_h
+			visual_rotation = player_sprite.rotation
+
+	var facing_sign: float = -1.0 if facing_left else 1.0
+	_origin_flash_pivot.rotation = visual_rotation
+	_origin_flash_pivot.scale = Vector2(facing_sign * flash_scale, flash_scale)
 
 
 func _track_close_range_targets(player_origin: Vector2) -> void:
