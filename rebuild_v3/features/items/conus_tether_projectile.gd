@@ -60,8 +60,14 @@ func _physics_process(delta: float) -> void:
 	var next_position: Vector2 = _dart_world_position + _direction * step_distance
 	var hit: Dictionary = _intersect_dart_path(_dart_world_position, next_position)
 	if not hit.is_empty():
-		_dart_world_position = hit.get("position", next_position) as Vector2
-		_anchor_tether(hit.get("collider") as Object)
+		var hit_position: Variant = hit.get("position", next_position)
+		if hit_position is Vector2:
+			_dart_world_position = hit_position
+		else:
+			_dart_world_position = next_position
+		var collider_value: Variant = hit.get("collider", null)
+		var collider: Object = collider_value if collider_value is Object else null
+		_anchor_tether(collider)
 	else:
 		_dart_world_position = next_position
 		_travelled_distance += step_distance
