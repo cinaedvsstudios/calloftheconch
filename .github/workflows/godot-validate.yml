@@ -68,7 +68,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          godot --headless --path . --quit-after 20 2>&1 | tee godot-runtime.log
+          godot --headless --verbose --path . --quit-after 20 2>&1 | tee godot-runtime.log
 
       - name: Validate required scenes and baked collisions
         shell: bash
