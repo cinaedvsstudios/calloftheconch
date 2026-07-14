@@ -245,6 +245,7 @@ func _create_city_gate_interaction() -> void:
 	add_child(_city_gate_area)
 	_city_gate_area.global_position = _get_city_gate_position()
 	var collision_shape: CollisionShape2D = CollisionShape2D.new()
+	collision_shape.name = "CollisionShape2D"
 	var circle: CircleShape2D = CircleShape2D.new()
 	circle.radius = city_gate_interaction_radius
 	collision_shape.shape = circle

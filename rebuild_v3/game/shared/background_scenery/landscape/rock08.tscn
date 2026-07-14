@@ -2,15 +2,16 @@
 
 [ext_resource type="Texture2D" path="res://assets/backgrounds/rock8.webp" id="1_t7a8b"]
 
-[node name="Rock08" type="StaticBody2D" unique_id=1618824707]
+[node name="Rock08" type="StaticBody2D" unique_id=1928779213]
 collision_mask = 0
 metadata/landscape_id = "rock08"
 metadata/source_asset = "res://assets/backgrounds/rock8.webp"
-metadata/collision_source = "baked_texture_alpha"
+metadata/collision_source = "baked_texture_alpha_outline"
 metadata/alpha_threshold = 0.12
 
-[node name="Sprite" type="Sprite2D" parent="." unique_id=64054707]
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1297647121]
 texture = ExtResource("1_t7a8b")
 
-[node name="CollisionPolygon01" type="CollisionPolygon2D" parent="." unique_id=1386341097]
+[node name="CollisionOutline01" type="CollisionPolygon2D" parent="." unique_id=126003120]
+build_mode = 1
 polygon = PackedVector2Array(-40, -485, -64, -475, -66, -475, -82, -459, -83, -459, -121, -382, -122, -382, -148, -290, -149, -290, -153, -204, -153, -197, -169, -153, -169, -151, -183, -141, -184, -141, -227, -162, -247, -162, -265, -154, -267, -154, -283, -139, -284, -139, -325, -37, -326, -37, -334, 28, -334, 34, -362, 130, -362, 133, -376, 143, -376, 144, -405, 142, -421, 142, -441, 147, -444, 147, -464, 160, -466, 160, -483, 183, -484, 183, -512, 265, -513, 265, -512, 292, -512, 299, -501, 325, -501, 327, -488, 341, -488, 342, -463, 356, -463, 357, -401, 374, -399, 374, -367, 407, -367, 408, -344, 420, -344, 421, -270, 442, -266, 442, -199, 469, -199, 470, -128, 480, -128, 481, -24, 470, -10, 470, 91, 489, 100, 489, 221, 470, 225, 470, 293, 433, 293, 432, 346, 412, 348, 412, 385, 386, 385, 385, 457, 371, 460, 371, 477, 360, 479, 360, 495, 340, 496, 340, 510, 307, 511, 307, 514, 284, 515, 284, 515, 252, 506, 221, 506, 218, 457, 160, 456, 160, 383, 15, 383, 13, 363, -7, 363, -8, 338, -17, 338, -18, 315, -15, 312, -15, 274, 7, 274, 8, 262, 3, 261, 3, 255, -19, 254, -19, 258, -49, 258, -67, 251, -87, 251, -90, 232, -119, 232, -121, 191, -153, 189, -153, 177, -169, 176, -169, 152, -239, 152, -242, 98, -316, 97, -316, 79, -377, 79, -379, 19, -466, 19, -467, -12, -484, -12, -485, -40, -486)
