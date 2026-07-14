@@ -87,6 +87,8 @@ func _validate_landscape_scenes() -> void:
 			_failures.append("Landscape root is not StaticBody2D: %s" % scene_path)
 		if root.get_script() != null:
 			_failures.append("Landscape scene still has a runtime/editor script: %s" % scene_path)
+		if str(root.get_meta(&"collision_source", "")) != "baked_texture_alpha_outline":
+			_failures.append("Landscape scene does not identify baked alpha-outline collision: %s" % scene_path)
 
 		var sprite: Sprite2D = root.get_node_or_null("Sprite") as Sprite2D
 		if sprite == null or sprite.texture == null:
@@ -97,12 +99,15 @@ func _validate_landscape_scenes() -> void:
 			var collision_polygon := child as CollisionPolygon2D
 			if collision_polygon == null:
 				continue
+			if collision_polygon.build_mode != CollisionPolygon2D.BUILD_SEGMENTS:
+				_failures.append("Landscape collision is not using stable segment mode: %s/%s" % [scene_path, child.name])
+				continue
 			if collision_polygon.polygon.size() < 3:
-				_failures.append("Landscape collision polygon has fewer than three points: %s/%s" % [scene_path, child.name])
+				_failures.append("Landscape collision outline has fewer than three points: %s/%s" % [scene_path, child.name])
 				continue
 			collision_count += 1
 		if collision_count == 0:
-			_failures.append("Landscape scene has no baked collision polygons: %s" % scene_path)
+			_failures.append("Landscape scene has no baked collision outlines: %s" % scene_path)
 		root.free()
 
 
