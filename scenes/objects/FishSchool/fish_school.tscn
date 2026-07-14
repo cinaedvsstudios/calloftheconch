@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scenes/objects/FishSchool/fish_school.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://scenes/objects/FishSchool/fish_school_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="3_distance_activator"]
+[ext_resource type="Script" path="res://rebuild_v3/editor/fish_school_editor_preview.gd" id="4_editor_preview"]
 
 [sub_resource type="RectangleShape2D" id="FishCurrentReceiverShape"]
 size = Vector2(420, 180)
@@ -24,3 +25,6 @@ shape = SubResource("FishCurrentReceiverShape")
 
 [node name="DistanceActivator" type="Node" parent="."]
 script = ExtResource("3_distance_activator")
+
+[node name="EditorPreview" type="Node2D" parent="."]
+script = ExtResource("4_editor_preview")
