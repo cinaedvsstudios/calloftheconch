@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3]
 
-[ext_resource type="Script" path="res://scenes/enemies/Shark/shark_enemy.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scenes/enemies/Shark/shark_item_effects.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://scenes/enemies/Shark/shark_enemy_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Shader" path="res://scenes/enemies/Shark/shark_stun_glow.gdshader" id="3_stun_glow"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
