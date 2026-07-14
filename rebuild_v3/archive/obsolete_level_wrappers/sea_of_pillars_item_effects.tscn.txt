@@ -1,0 +1,12 @@
+Archived from: res://rebuild_v3/features/sea_of_pillars/sea_of_pillars_item_effects.tscn
+Active replacements:
+- res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_prototype.tscn
+- res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_main.tscn
+
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars.tscn" id="1_base"]
+[ext_resource type="Script" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars_item_effects.gd" id="2_controller"]
+
+[node name="SeaOfPillars" instance=ExtResource("1_base")]
+script = ExtResource("2_controller")
