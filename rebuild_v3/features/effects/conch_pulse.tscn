@@ -36,10 +36,10 @@ texture = ExtResource("2_sonar")
 
 [node name="OriginFlashPivot" type="Node2D" parent="."]
 unique_name_in_owner = true
-position = Vector2(-17, -6)
 
 [node name="OriginFlashVisual" type="Node2D" parent="OriginFlashPivot"]
 unique_name_in_owner = true
+position = Vector2(-17, -6)
 rotation = -1.5707964
 
 [node name="OriginFlash" type="VideoStreamPlayer" parent="OriginFlashPivot/OriginFlashVisual" unique_id=1784732269]
