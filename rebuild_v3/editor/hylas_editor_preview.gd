@@ -17,11 +17,8 @@ var _sonar_texture: Texture2D
 var _sonar_local_position: Vector2 = Vector2.ZERO
 var _start_diameter: float = 20.0
 var _pulse_range: float = 700.0
-var _flash_position: Vector2 = Vector2.ZERO
 var _flash_size: Vector2 = Vector2.ZERO
-var _flash_rotation: float = 0.0
-var _flash_pivot: Vector2 = Vector2.ZERO
-var _flash_scale: Vector2 = Vector2.ONE
+var _flash_transform: Transform2D = Transform2D.IDENTITY
 var _metrics_loaded: bool = false
 
 
@@ -46,7 +43,7 @@ func _process(_delta: float) -> void:
 
 
 func _load_effect_metrics() -> void:
-	var pulse_instance: Node = CONCH_PULSE_SCENE.instantiate()
+	var pulse_instance: Node2D = CONCH_PULSE_SCENE.instantiate() as Node2D
 	if pulse_instance == null:
 		return
 	_start_diameter = float(pulse_instance.get("start_diameter"))
@@ -55,18 +52,23 @@ func _load_effect_metrics() -> void:
 	if sonar != null:
 		_sonar_texture = sonar.texture
 		_sonar_local_position = sonar.position
-	var flash: VideoStreamPlayer = pulse_instance.get_node_or_null("OriginFlash") as VideoStreamPlayer
+	var flash: VideoStreamPlayer = pulse_instance.get_node_or_null(
+		"OriginFlashPivot/OriginFlashVisual/OriginFlash"
+	) as VideoStreamPlayer
 	if flash != null:
-		_flash_position = Vector2(flash.offset_left, flash.offset_top)
-		_flash_size = Vector2(
-			flash.offset_right - flash.offset_left,
-			flash.offset_bottom - flash.offset_top,
-		)
-		_flash_rotation = flash.rotation
-		_flash_pivot = flash.pivot_offset
-		_flash_scale = flash.scale
+		_flash_size = flash.size
+		_flash_transform = _get_transform_to_ancestor(flash, pulse_instance)
 	pulse_instance.free()
 	_metrics_loaded = true
+
+
+func _get_transform_to_ancestor(item: CanvasItem, ancestor: Node) -> Transform2D:
+	var result: Transform2D = Transform2D.IDENTITY
+	var current: CanvasItem = item
+	while current != null and current != ancestor:
+		result = current.get_transform() * result
+		current = current.get_parent() as CanvasItem
+	return result
 
 
 func _update_hylas_pose() -> void:
@@ -113,7 +115,12 @@ func _draw() -> void:
 		_draw_sonar_preview(pulse_origin)
 		_draw_flash_bounds(pulse_origin)
 		if show_labels:
-			_draw_label(pulse_origin + Vector2(12.0, -18.0), "CONCH PULSE ORIGIN", Color(0.2, 1.0, 0.55, 1.0), 13)
+			_draw_label(
+				pulse_origin + Vector2(12.0, -18.0),
+				"CONCH PULSE ORIGIN",
+				Color(0.2, 1.0, 0.55, 1.0),
+				13,
+			)
 
 	if show_jump_arc:
 		_draw_jump_preview(hylas)
@@ -135,29 +142,34 @@ func _draw_sonar_preview(pulse_origin: Vector2) -> void:
 	draw_texture_rect(_sonar_texture, rect, false, Color(1.0, 1.0, 1.0, 0.65))
 	draw_arc(center, diameter * 0.5, -0.40, 0.40, 32, Color(0.18, 0.78, 1.0, 0.9), 2.0)
 	if show_labels:
-		_draw_label(center + Vector2(12.0, 22.0), "SONAR WAVE", Color(0.18, 0.78, 1.0, 1.0), 13)
+		_draw_label(
+			center + Vector2(12.0, 22.0),
+			"SONAR WAVE",
+			Color(0.18, 0.78, 1.0, 1.0),
+			13,
+		)
 
 
 func _draw_flash_bounds(pulse_origin: Vector2) -> void:
 	if _flash_size.x <= 0.0 or _flash_size.y <= 0.0:
 		return
 	var corners: PackedVector2Array = PackedVector2Array([
-		Vector2.ZERO,
-		Vector2(_flash_size.x, 0.0),
-		_flash_size,
-		Vector2(0.0, _flash_size.y),
+		pulse_origin + _flash_transform * Vector2.ZERO,
+		pulse_origin + _flash_transform * Vector2(_flash_size.x, 0.0),
+		pulse_origin + _flash_transform * _flash_size,
+		pulse_origin + _flash_transform * Vector2(0.0, _flash_size.y),
 	])
-	for index: int in range(corners.size()):
-		var local_point: Vector2 = corners[index] - _flash_pivot
-		local_point *= _flash_scale
-		local_point = local_point.rotated(_flash_rotation)
-		corners[index] = pulse_origin + _flash_position + _flash_pivot + local_point
 	var outline: PackedVector2Array = PackedVector2Array(corners)
 	outline.append(corners[0])
 	draw_colored_polygon(corners, Color(1.0, 0.45, 0.12, 0.08))
 	draw_polyline(outline, Color(1.0, 0.45, 0.12, 0.95), 3.0)
 	if show_labels:
-		_draw_label(corners[0] + Vector2(8.0, -8.0), "ECHOPULSE VIDEO BOUNDS", Color(1.0, 0.55, 0.2, 1.0), 13)
+		_draw_label(
+			corners[0] + Vector2(8.0, -8.0),
+			"ECHOPULSE VIDEO BOUNDS",
+			Color(1.0, 0.55, 0.2, 1.0),
+			13,
+		)
 
 
 func _draw_jump_preview(hylas: Node2D) -> void:
@@ -174,7 +186,12 @@ func _draw_jump_preview(hylas: Node2D) -> void:
 	draw_circle(points[points.size() - 1], 6.0, Color(1.0, 0.86, 0.25, 0.85))
 	if show_labels:
 		var midpoint_index: int = points.size() / 2
-		_draw_label(points[midpoint_index] + Vector2(8.0, -8.0), "SURFACE JUMP ARC", Color(1.0, 0.86, 0.25, 0.9), 13)
+		_draw_label(
+			points[midpoint_index] + Vector2(8.0, -8.0),
+			"SURFACE JUMP ARC",
+			Color(1.0, 0.86, 0.25, 0.9),
+			13,
+		)
 
 
 func _draw_parent_level_guides(hylas: Node2D) -> void:
@@ -191,7 +208,12 @@ func _draw_parent_level_guides(hylas: Node2D) -> void:
 	draw_rect(world_rect, Color(0.18, 0.88, 1.0, 0.025), true)
 	draw_rect(world_rect, Color(0.18, 0.88, 1.0, 0.72), false, 8.0)
 	if show_labels:
-		_draw_label(world_rect.position + Vector2(20.0, 36.0), "PLAYABLE WORLD BOUNDS", Color(0.18, 0.88, 1.0, 1.0), 24)
+		_draw_label(
+			world_rect.position + Vector2(20.0, 36.0),
+			"PLAYABLE WORLD BOUNDS",
+			Color(0.18, 0.88, 1.0, 1.0),
+			24,
+		)
 
 	var waterline: Marker2D = level.get_node_or_null("WaterlineMarker") as Marker2D
 	if waterline != null:
@@ -203,14 +225,27 @@ func _draw_parent_level_guides(hylas: Node2D) -> void:
 			6.0,
 		)
 		if show_labels:
-			_draw_label(waterline_local + Vector2(20.0, -18.0), "WATERLINE", Color(0.25, 1.0, 0.95, 1.0), 22)
+			_draw_label(
+				waterline_local + Vector2(20.0, -18.0),
+				"WATERLINE",
+				Color(0.25, 1.0, 0.95, 1.0),
+				22,
+			)
 
 	var start_marker: Marker2D = level.get_node_or_null("HylasStart") as Marker2D
 	if start_marker != null:
-		_draw_guide_marker(hylas.to_local(start_marker.global_position), "HYLAS START", Color(0.25, 1.0, 0.45, 1.0))
+		_draw_guide_marker(
+			hylas.to_local(start_marker.global_position),
+			"HYLAS START",
+			Color(0.25, 1.0, 0.45, 1.0),
+		)
 	var whale: Node2D = level.get_node_or_null("WhaleTravel") as Node2D
 	if whale != null:
-		_draw_guide_marker(hylas.to_local(whale.global_position), "WHALE CHECKPOINT", Color(0.72, 0.52, 1.0, 1.0))
+		_draw_guide_marker(
+			hylas.to_local(whale.global_position),
+			"WHALE CHECKPOINT",
+			Color(0.72, 0.52, 1.0, 1.0),
+		)
 	_draw_city_gate_guides(hylas, level)
 
 
@@ -235,15 +270,33 @@ func _draw_city_gate_guides(hylas: Node2D, level: Node2D) -> void:
 	var radius: float = float(gate_radius_value)
 	draw_circle(gate_position, radius, Color(1.0, 0.66, 0.12, 0.05))
 	draw_arc(gate_position, radius, 0.0, TAU, 96, Color(1.0, 0.66, 0.12, 0.92), 8.0)
-	_draw_guide_marker(gate_position, "CITY GATE INTERACTION", Color(1.0, 0.66, 0.12, 1.0))
+	_draw_guide_marker(
+		gate_position,
+		"CITY GATE INTERACTION",
+		Color(1.0, 0.66, 0.12, 1.0),
+	)
 	draw_line(gate_position, return_position, Color(1.0, 0.28, 0.65, 0.82), 5.0)
-	_draw_guide_marker(return_position, "CITY RETURN POSITION", Color(1.0, 0.28, 0.65, 1.0))
+	_draw_guide_marker(
+		return_position,
+		"CITY RETURN POSITION",
+		Color(1.0, 0.28, 0.65, 1.0),
+	)
 
 
 func _draw_guide_marker(position_value: Vector2, text_value: String, color_value: Color) -> void:
 	draw_circle(position_value, 14.0, color_value)
-	draw_line(position_value - Vector2(34.0, 0.0), position_value + Vector2(34.0, 0.0), color_value, 5.0)
-	draw_line(position_value - Vector2(0.0, 34.0), position_value + Vector2(0.0, 34.0), color_value, 5.0)
+	draw_line(
+		position_value - Vector2(34.0, 0.0),
+		position_value + Vector2(34.0, 0.0),
+		color_value,
+		5.0,
+	)
+	draw_line(
+		position_value - Vector2(0.0, 34.0),
+		position_value + Vector2(0.0, 34.0),
+		color_value,
+		5.0,
+	)
 	if show_labels:
 		_draw_label(position_value + Vector2(42.0, -20.0), text_value, color_value, 22)
 
