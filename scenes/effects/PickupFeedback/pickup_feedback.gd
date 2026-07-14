@@ -9,6 +9,7 @@ const REWARD_ONOS: StringName = &"onos"
 @export_range(0.1, 4.0, 0.05) var playback_speed: float = 2.0
 @export_range(0.1, 3.0, 0.05) var reward_animation_seconds: float = 0.95
 @export var reward_drift: Vector2 = Vector2(24.0, -105.0)
+@export_range(0.0, 0.95, 0.01) var fade_start_fraction: float = 0.75
 
 @onready var _anchor: Control = %Anchor
 @onready var _video: VideoStreamPlayer = %PickupVideo
@@ -19,6 +20,7 @@ const REWARD_ONOS: StringName = &"onos"
 var _finished: bool = false
 var _follow_target: Node2D
 var _reward_tween: Tween
+var _feedback_fade_tween: Tween
 
 
 func _ready() -> void:
@@ -42,6 +44,7 @@ func play_feedback(target: Node2D = null, reward_kind: StringName = &"") -> void
 	visible = true
 	set_process(true)
 	_anchor.position = _world_to_screen(_get_target_anchor_position())
+	_anchor.modulate = Color(1.0, 1.0, 1.0, 1.0)
 	_video.stop()
 	_audio.stop()
 	_video.speed_scale = playback_speed
@@ -53,7 +56,9 @@ func play_feedback(target: Node2D = null, reward_kind: StringName = &"") -> void
 	var video_seconds: float = 0.0
 	if _video.stream != null:
 		video_seconds = _video.get_stream_length() / maxf(0.01, playback_speed)
-	_lifetime.start(maxf(0.35, maxf(video_seconds + 0.12, reward_animation_seconds + 0.08)))
+	var effect_seconds: float = maxf(0.1, maxf(video_seconds, reward_animation_seconds))
+	_start_feedback_fade(effect_seconds)
+	_lifetime.start(maxf(0.35, effect_seconds + 0.08))
 
 
 func _prepare_reward_icon(reward_kind: StringName) -> void:
@@ -74,21 +79,35 @@ func _prepare_reward_icon(reward_kind: StringName) -> void:
 	_reward_icon.show()
 	_reward_tween = create_tween()
 	_reward_tween.set_parallel(true)
-	_reward_tween.tween_property(_reward_icon, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_reward_tween.tween_property(_reward_icon, "modulate:a", 1.0, 0.12)
 	_reward_tween.tween_property(
 		_reward_icon,
-		"position",
+		^"scale",
+		Vector2.ONE,
+		0.24,
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_reward_tween.tween_property(_reward_icon, ^"modulate:a", 1.0, 0.12)
+	_reward_tween.tween_property(
+		_reward_icon,
+		^"position",
 		Vector2(-38.0, -38.0) + reward_drift,
 		reward_animation_seconds,
 	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	var fade_tween: PropertyTweener = _reward_tween.tween_property(
-		_reward_icon,
-		"modulate:a",
+
+
+func _start_feedback_fade(effect_seconds: float) -> void:
+	if _feedback_fade_tween != null and _feedback_fade_tween.is_valid():
+		_feedback_fade_tween.kill()
+	var fade_start: float = clampf(fade_start_fraction, 0.0, 0.95)
+	var visible_seconds: float = effect_seconds * fade_start
+	var fade_seconds: float = maxf(0.01, effect_seconds - visible_seconds)
+	_feedback_fade_tween = create_tween()
+	_feedback_fade_tween.tween_interval(visible_seconds)
+	_feedback_fade_tween.tween_property(
+		_anchor,
+		^"modulate:a",
 		0.0,
-		0.42,
-	)
-	fade_tween.set_delay(maxf(0.0, reward_animation_seconds - 0.42))
+		fade_seconds,
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 
 
 func _get_target_anchor_position() -> Vector2:
@@ -114,6 +133,8 @@ func _finish() -> void:
 	set_process(false)
 	if _reward_tween != null and _reward_tween.is_valid():
 		_reward_tween.kill()
+	if _feedback_fade_tween != null and _feedback_fade_tween.is_valid():
+		_feedback_fade_tween.kill()
 	_video.stop()
 	_audio.stop()
 	queue_free()
