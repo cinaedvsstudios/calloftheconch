@@ -84,6 +84,10 @@ scale = Vector2(0.8, 0.8)
 [node name="SurfaceSplashAnchor" type="Marker2D" parent="." unique_id=1966886696]
 unique_name_in_owner = true
 
+[node name="ConchPulseOrigin" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(105, 0)
+
 [node name="InteractionArea" type="Area2D" parent="." unique_id=1606279735]
 
 [node name="InteractionShape" type="CollisionShape2D" parent="InteractionArea" unique_id=1468405198]
