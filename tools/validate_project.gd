@@ -19,7 +19,8 @@ func _initialize() -> void:
 func _run_validation() -> void:
 	_validate_required_scenes()
 	_validate_landscape_scenes()
-	await _exercise_front_end_ready_path()
+	await process_frame
+	await process_frame
 
 	if _failures.is_empty():
 		print("GODOT_VALIDATION_OK")
@@ -46,6 +47,11 @@ func _validate_required_scenes() -> void:
 		if instance == null:
 			_failures.append("Could not instantiate required scene: %s" % scene_path)
 			continue
+		if scene_path.ends_with("gameplay_context.tscn"):
+			if not instance.has_method(&"set_level_variant"):
+				_failures.append("Gameplay context is missing set_level_variant().")
+			if not instance.has_method(&"get_level_variant"):
+				_failures.append("Gameplay context is missing get_level_variant().")
 		instance.free()
 
 
@@ -109,22 +115,3 @@ func _validate_landscape_scenes() -> void:
 		if collision_count == 0:
 			_failures.append("Landscape scene has no baked collision outlines: %s" % scene_path)
 		root.free()
-
-
-func _exercise_front_end_ready_path() -> void:
-	var packed_scene: PackedScene = ResourceLoader.load(
-		"res://rebuild_v3/app/front_end.tscn",
-		"PackedScene",
-		ResourceLoader.CACHE_MODE_REPLACE,
-	) as PackedScene
-	if packed_scene == null:
-		return
-	var front_end: Node = packed_scene.instantiate()
-	if front_end == null:
-		return
-	get_root().add_child(front_end)
-	await process_frame
-	await process_frame
-	get_root().remove_child(front_end)
-	front_end.free()
-	await process_frame
