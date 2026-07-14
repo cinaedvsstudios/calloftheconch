@@ -170,7 +170,7 @@ func _draw_flash_bounds(flash: VideoStreamPlayer) -> void:
 	if show_labels:
 		_draw_label(
 			corners[0] + Vector2(8.0, -8.0),
-			"ECHOPULSE VIDEO — DRAG ORIGINFLASHPIVOT",
+			"ECHOPULSE VIDEO — DRAG ORIGINFLASHVISUAL",
 			Color(1.0, 0.55, 0.2, 1.0),
 		)
 
