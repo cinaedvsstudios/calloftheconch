@@ -16,6 +16,7 @@
 [ext_resource type="AudioStream" uid="uid://bhb7h74vkj73s" path="res://assets/audio/fall on land.mp3" id="14_land_impact_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/powerdown1.mp3" id="15_powerdown_audio"]
 [ext_resource type="Script" path="res://rebuild_v3/editor/hylas_editor_preview.gd" id="16_editor_preview"]
+[ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_item_visuals.gd" id="17_item_visuals"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
 shader = ExtResource("10_shadow_shader")
@@ -65,6 +66,14 @@ scale = Vector2(0.16347688, 0.16347688)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
 script = ExtResource("12_stop_release")
+
+[node name="ItemVisuals" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("17_item_visuals")
+
+[node name="EquippedShellOverlay" type="Sprite2D" parent="ItemVisuals"]
+unique_name_in_owner = true
+visible = false
 
 [node name="CollisionShape" type="CollisionShape2D" parent="." unique_id=2142548371]
 unique_name_in_owner = true
@@ -127,7 +136,7 @@ unique_name_in_owner = true
 stream = ExtResource("13_hurt_audio")
 volume_db = -6.0
 
-[node name="LandImpactAudio" type="AudioStreamPlayer" parent="Audio" unique_id=1304625525]
+[node name="LandImpactAudio" type="AudioStreamPlayer" parent="Audio"]
 unique_name_in_owner = true
 stream = ExtResource("14_land_impact_audio")
 volume_db = -6.0
