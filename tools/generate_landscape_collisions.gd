@@ -69,7 +69,7 @@ func _generate_scene(entry: Dictionary) -> bool:
 
 	var polygons: Array[PackedVector2Array] = _trace_polygons(source_image)
 	if polygons.is_empty():
-		push_error("No alpha collision polygons were produced for: %s" % source_path)
+		push_error("No alpha collision outlines were produced for: %s" % source_path)
 		return false
 
 	var texture: Texture2D = load(source_path) as Texture2D
@@ -83,7 +83,7 @@ func _generate_scene(entry: Dictionary) -> bool:
 	root.collision_mask = 0
 	root.set_meta(&"landscape_id", landscape_id)
 	root.set_meta(&"source_asset", source_path)
-	root.set_meta(&"collision_source", "baked_texture_alpha")
+	root.set_meta(&"collision_source", "baked_texture_alpha_outline")
 	root.set_meta(&"alpha_threshold", ALPHA_THRESHOLD)
 
 	var sprite := Sprite2D.new()
@@ -94,8 +94,10 @@ func _generate_scene(entry: Dictionary) -> bool:
 
 	for polygon_index: int in range(polygons.size()):
 		var collision_polygon := CollisionPolygon2D.new()
-		collision_polygon.name = "CollisionPolygon%02d" % (polygon_index + 1)
-		collision_polygon.build_mode = CollisionPolygon2D.BUILD_SOLIDS
+		collision_polygon.name = "CollisionOutline%02d" % (polygon_index + 1)
+		# Segment outlines preserve complex alpha silhouettes and transparent holes
+		# without asking Godot to convex-decompose a potentially concave contour.
+		collision_polygon.build_mode = CollisionPolygon2D.BUILD_SEGMENTS
 		collision_polygon.polygon = polygons[polygon_index]
 		root.add_child(collision_polygon)
 		collision_polygon.owner = root
@@ -113,7 +115,7 @@ func _generate_scene(entry: Dictionary) -> bool:
 		push_error("Could not save landscape scene: %s" % output_path)
 		return false
 
-	print("Baked %s with %d collision polygon(s)." % [output_path, polygons.size()])
+	print("Baked %s with %d collision outline(s)." % [output_path, polygons.size()])
 	return true
 
 
@@ -185,8 +187,8 @@ func _write_readme() -> void:
 		return
 	file.store_string(
 		"# Landscape scenes\n\n"
-		+ "This folder contains drag-ready landscape scenes with collision polygons baked into each saved `.tscn`.\n\n"
-		+ "The polygons were traced from the visible texture alpha at a threshold of `0.12`, simplified, centred to match the Sprite2D, and saved as ordinary CollisionPolygon2D children. Transparent regions do not receive generated collision.\n\n"
+		+ "This folder contains drag-ready landscape scenes with alpha-traced collision outlines baked into each saved `.tscn`.\n\n"
+		+ "The outlines were traced from visible texture alpha at a threshold of `0.12`, simplified, centred to match the Sprite2D, and saved as ordinary CollisionPolygon2D children using segment mode. Transparent regions and holes are not filled with collision.\n\n"
 		+ "There is no editor-running or runtime collision generator attached to these scenes. They can be opened, inspected, moved, rotated and scaled directly in Godot.\n\n"
 		+ "Included: rock02–rock15, rock_corner, island00–island03, spike_rock, sand01–sand02 and beach. `island02.tscn` deliberately references the existing misspelled source asset `lsland02.webp`.\n"
 	)
