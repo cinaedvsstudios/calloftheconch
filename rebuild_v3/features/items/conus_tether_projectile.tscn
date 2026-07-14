@@ -1,43 +1,5 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/items/conus_tether_projectile.gd" id="1_controller"]
-[ext_resource type="Texture2D" path="res://assets/objects/conustext.jpg" id="2_rope"]
-[ext_resource type="Texture2D" path="res://assets/objects/conusdart.png" id="3_dart"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.tscn" id="1_scene"]
 
-[sub_resource type="CanvasItemMaterial" id="GlowMaterial"]
-blend_mode = 1
-
-[node name="ConusTetherProjectile" type="Node2D"]
-z_index = 8
-script = ExtResource("1_controller")
-
-[node name="RopeGlow" type="Line2D" parent="."]
-unique_name_in_owner = true
-material = SubResource("GlowMaterial")
-width = 13.0
-default_color = Color(0.15, 0.86, 1, 0.22)
-joint_mode = 2
-begin_cap_mode = 2
-end_cap_mode = 2
-antialiased = true
-
-[node name="Rope" type="Line2D" parent="."]
-unique_name_in_owner = true
-texture_repeat = 2
-width = 7.0
-texture = ExtResource("2_rope")
-texture_mode = 1
-joint_mode = 2
-begin_cap_mode = 2
-end_cap_mode = 2
-antialiased = true
-
-[node name="DartGlow" type="Sprite2D" parent="."]
-unique_name_in_owner = true
-material = SubResource("GlowMaterial")
-modulate = Color(0.25, 0.95, 1, 0.34)
-texture = ExtResource("3_dart")
-
-[node name="Dart" type="Sprite2D" parent="."]
-unique_name_in_owner = true
-texture = ExtResource("3_dart")
+[node name="ConusTetherProjectile" instance=ExtResource("1_scene")]
