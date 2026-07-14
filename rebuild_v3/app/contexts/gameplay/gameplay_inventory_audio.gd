@@ -17,10 +17,6 @@ const MAIN_LEVEL_SCENE: PackedScene = preload(
 	"res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_main.tscn"
 )
 
-const ITEM_CLICK_STREAM: AudioStream = preload("res://assets/audio/pickup6.mp3")
-const ITEM_EQUIP_STREAM: AudioStream = preload("res://assets/audio/pickup1.mp3")
-const INVENTORY_OPEN_STREAM: AudioStream = preload("res://assets/audio/pickup4.mp3")
-
 @export_range(0.15, 0.8, 0.01) var inventory_double_tap_window: float = 0.36
 
 @onready var _item_effect_controller: Node = %ItemEffectController
@@ -33,9 +29,9 @@ var _last_item_use_id: StringName = &""
 var _last_item_use_succeeded: bool = false
 var _last_inventory_tap_msec: int = -100000
 
-var _item_click_audio: AudioStreamPlayer
-var _item_equip_audio: AudioStreamPlayer
-var _inventory_open_audio: AudioStreamPlayer
+@onready var _item_click_audio: AudioStreamPlayer = %InventoryItemClickAudio
+@onready var _item_equip_audio: AudioStreamPlayer = %InventoryItemEquipAudio
+@onready var _inventory_open_audio: AudioStreamPlayer = %InventoryOpenAudio
 var _selected_level_variant: StringName = LEVEL_VARIANT_PROTOTYPE
 
 
@@ -47,9 +43,6 @@ func _ready() -> void:
 	_item_effect_controller.call(&"configure", self, _level, _hylas)
 	register_item_behavior_handler(Callable(_item_effect_controller, "handle_item_behavior"))
 
-	_item_click_audio = _create_ui_audio_player(&"InventoryItemClickAudio", ITEM_CLICK_STREAM, -5.0)
-	_item_equip_audio = _create_ui_audio_player(&"InventoryItemEquipAudio", ITEM_EQUIP_STREAM, -4.0)
-	_inventory_open_audio = _create_ui_audio_player(&"InventoryOpenAudio", INVENTORY_OPEN_STREAM, -5.0)
 	if not _inventory_overlay.inventory_opened.is_connected(_on_inventory_opened_audio):
 		_inventory_overlay.inventory_opened.connect(_on_inventory_opened_audio)
 	if not _inventory_overlay.item_equipped.is_connected(_on_inventory_item_equipped_audio):
@@ -116,7 +109,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	if event.is_action_released(&"inventory", true):
+	if event.is_action_released(&"inventory"):
 		_inventory_candidate = false
 		get_viewport().set_input_as_handled()
 		return
@@ -367,20 +360,6 @@ func _read_level_variant(level: Node) -> StringName:
 		if stored_variant == LEVEL_VARIANT_MAIN:
 			return LEVEL_VARIANT_MAIN
 	return LEVEL_VARIANT_PROTOTYPE
-
-
-func _create_ui_audio_player(
-		player_name: StringName,
-		stream: AudioStream,
-		volume_db: float,
-	) -> AudioStreamPlayer:
-	var player := AudioStreamPlayer.new()
-	player.name = String(player_name)
-	player.stream = stream
-	player.volume_db = volume_db
-	player.process_mode = Node.PROCESS_MODE_ALWAYS
-	add_child(player)
-	return player
 
 
 func _on_inventory_opened_audio() -> void:
