@@ -1,7 +1,7 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_equipment_input.gd" id="1_controller"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars.tscn" id="2_level"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars_item_effects.tscn" id="2_level"]
 [ext_resource type="AudioStream" path="res://assets/audio/Sea of Pillars Calm.mp3" id="3_music"]
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/pause_overlay.gd" id="4_pause"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/looping_audio_player.gd" id="5_looping_audio"]
@@ -10,11 +10,15 @@
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/gameplay_hud.tscn" id="8_hud"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/pillars_city/pillars_city.tscn" id="9_city"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/inventory_overlay.tscn" id="10_inventory"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn" id="11_item_effects"]
 
 [node name="GameplayContext" type="Node"]
 script = ExtResource("1_controller")
 
 [node name="SeaOfPillars" parent="." instance=ExtResource("2_level")]
+unique_name_in_owner = true
+
+[node name="ItemEffectController" parent="." instance=ExtResource("11_item_effects")]
 unique_name_in_owner = true
 
 [node name="SeaEnvironment" parent="." instance=ExtResource("6_environment")]
@@ -48,7 +52,7 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.85, 0.92, 1, 0.9)
 theme_override_font_sizes/font_size = 18
-text = "WASD / arrows: swim | Shift: burst or brake | Space / J: conch | Esc: pause"
+text = "WASD / arrows: swim | Shift: burst or brake | Space / J: Item A | Ctrl+Space: Item B | Esc: pause"
 
 [node name="PauseOverlay" type="Control" parent="GameplayUI"]
 unique_name_in_owner = true
