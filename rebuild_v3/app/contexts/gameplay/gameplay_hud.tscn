@@ -28,6 +28,9 @@ hud_top_offset = -5.0
 onos_value_rect = Rect2(94, 120, 64, 50)
 fin_value_rect = Rect2(155, 120, 65, 50)
 conch_icon_rect = Rect2(345, 75, 73, 80)
+item_b_icon_rect = Rect2(255, 75, 73, 80)
+item_b_quantity_rect = Rect2(299, 126, 34, 27)
+item_b_empty_rect = Rect2(255, 75, 73, 80)
 location_value_rect = Rect2(85, 161.5, 361, 37)
 
 [node name="FallbackPanel" type="ColorRect" parent="." unique_id=606423077]
@@ -87,6 +90,21 @@ text = "4"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="ItemBGlow" type="TextureRect" parent="."]
+unique_name_in_owner = true
+visible = false
+modulate = Color(0.15, 1, 1, 0)
+layout_mode = 0
+offset_left = 255.0
+offset_top = 75.0
+offset_right = 328.0
+offset_bottom = 155.0
+scale = Vector2(1.1, 1.1)
+pivot_offset = Vector2(36.5, 40)
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
 [node name="ConchGlow" type="TextureRect" parent="." unique_id=117666503]
 unique_name_in_owner = true
 modulate = Color(0.15, 1, 1, 0.32)
@@ -102,6 +120,19 @@ texture = ExtResource("3_2vbiw")
 expand_mode = 1
 stretch_mode = 5
 
+[node name="ItemBIcon" type="TextureRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 255.0
+offset_top = 75.0
+offset_right = 328.0
+offset_bottom = 155.0
+pivot_offset = Vector2(36.5, 40)
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
 [node name="ConchIcon" type="TextureRect" parent="." unique_id=985968755]
 unique_name_in_owner = true
 layout_mode = 0
@@ -114,6 +145,37 @@ mouse_filter = 2
 texture = ExtResource("3_2vbiw")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="ItemBEmpty" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 255.0
+offset_top = 75.0
+offset_right = 328.0
+offset_bottom = 155.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.12, 0.24, 0.28, 0.58)
+theme_override_font_sizes/font_size = 27
+text = "—"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ItemBQuantity" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 299.0
+offset_top = 126.0
+offset_right = 333.0
+offset_bottom = 153.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.42, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.02, 0.01, 0.95)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 18
+text = "3"
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="LocationValue" type="Label" parent="." unique_id=510702690]
 unique_name_in_owner = true
