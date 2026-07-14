@@ -26,6 +26,11 @@ func bind_game_state(game_state: CotcGameState) -> void:
 		_connected_game_state.greatfin_changed.connect(_on_greatfin_changed)
 	_sync_greatfin_visual()
 
+func _process(delta: float) -> void:
+	super._process(delta)
+	if _surge_remaining > 0.0 and not Input.is_action_pressed(&"utility_item"):
+		_stop_surge()
+
 func _exit_tree() -> void:
 	_disconnect_level_pickups()
 	_disconnect_game_state()
