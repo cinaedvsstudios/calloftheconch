@@ -17,10 +17,12 @@ const CITY_GATE_RUNTIME_RADIUS: float = 560.0
 @onready var _hud: CotcGameplayHud = %GameplayHud
 @onready var _hint: Label = $GameplayUI/Hint
 @onready var _pause_overlay: CotcPauseOverlay = %PauseOverlay
+@onready var _inventory_overlay: CotcInventoryOverlay = %InventoryOverlay
 @onready var _death_overlay: CotcDeathOverlay = %DeathOverlay
 
 var _active: bool = false
 var _in_city: bool = false
+var _inventory_candidate: bool = false
 var _game_state: CotcGameState
 
 
@@ -31,6 +33,8 @@ func _ready() -> void:
 	_pause_overlay.resume_requested.connect(_on_pause_resume_requested)
 	_pause_overlay.settings_requested.connect(_on_pause_settings_requested)
 	_pause_overlay.menu_requested.connect(_on_pause_menu_requested)
+	_inventory_overlay.inventory_opened.connect(_on_inventory_opened)
+	_inventory_overlay.inventory_closed.connect(_on_inventory_closed)
 	_death_overlay.continue_requested.connect(_on_death_continue_requested)
 	_death_overlay.menu_requested.connect(_on_death_menu_requested)
 	_death_overlay.exit_requested.connect(_on_death_exit_requested)
@@ -50,12 +54,15 @@ func bind_game_state(game_state: CotcGameState) -> void:
 	_game_state = game_state
 	_level.bind_game_state(game_state)
 	_hud.bind_game_state(game_state)
+	_inventory_overlay.bind_game_state(game_state)
 
 
 func activate() -> void:
 	_active = true
 	_in_city = false
+	_inventory_candidate = false
 	get_tree().paused = false
+	_inventory_overlay.close_inventory()
 	_city.deactivate()
 	_sea_environment.show()
 	_gameplay_ui.visible = true
@@ -75,6 +82,8 @@ func activate() -> void:
 func deactivate() -> void:
 	_active = false
 	_in_city = false
+	_inventory_candidate = false
+	_inventory_overlay.close_inventory()
 	get_tree().paused = false
 	_pause_overlay.close_overlay()
 	_death_overlay.close_overlay()
@@ -90,8 +99,25 @@ func deactivate() -> void:
 func return_to_pause_menu() -> void:
 	if not _active or _death_overlay.is_open():
 		return
+	_inventory_candidate = false
+	_inventory_overlay.close_inventory()
 	get_tree().paused = true
 	_pause_overlay.open_overlay()
+
+
+func open_inventory() -> void:
+	if (
+		not _active
+		or get_tree().paused
+		or _death_overlay.is_open()
+		or _pause_overlay.visible
+	):
+		return
+	_inventory_overlay.open_inventory()
+
+
+func close_inventory() -> void:
+	_inventory_overlay.close_inventory()
 
 
 func is_game_active() -> bool:
@@ -143,11 +169,45 @@ func _play_gameplay_music() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _active:
 		return
+
 	if _death_overlay.is_open():
+		_inventory_candidate = false
 		if event.is_action_pressed(&"pause"):
 			get_viewport().set_input_as_handled()
 		return
+
+	if _inventory_overlay.is_open():
+		if event.is_action_pressed(&"pause"):
+			_inventory_overlay.close_inventory()
+			get_viewport().set_input_as_handled()
+		return
+
+	if event.is_action_pressed(&"inventory"):
+		_inventory_candidate = not get_tree().paused and not _pause_overlay.visible
+		get_viewport().set_input_as_handled()
+		return
+
+	# Phase 2 only owns the inventory-open candidate. Phase 3 will dispatch the
+	# utility item itself, but the chord already cancels inventory opening.
+	if event.is_action_pressed(&"utility_item"):
+		_inventory_candidate = false
+		return
+
+	if event.is_action_released(&"inventory"):
+		var should_open: bool = (
+			_inventory_candidate
+			and not get_tree().paused
+			and not _pause_overlay.visible
+			and not _death_overlay.is_open()
+		)
+		_inventory_candidate = false
+		if should_open:
+			_inventory_overlay.open_inventory()
+			get_viewport().set_input_as_handled()
+		return
+
 	if event.is_action_pressed(&"pause"):
+		_inventory_candidate = false
 		if get_tree().paused:
 			get_tree().paused = false
 			_pause_overlay.close_overlay()
@@ -157,20 +217,38 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+func _on_inventory_opened() -> void:
+	if not _active:
+		_inventory_overlay.close_inventory()
+		return
+	_inventory_candidate = false
+	_pause_overlay.close_overlay()
+	get_tree().paused = true
+
+
+func _on_inventory_closed() -> void:
+	_inventory_candidate = false
+	if _active and not _death_overlay.is_open():
+		get_tree().paused = false
+
+
 func _on_pause_resume_requested() -> void:
 	if not _active:
 		return
+	_inventory_candidate = false
 	get_tree().paused = false
 
 
 func _on_pause_settings_requested() -> void:
 	if not _active:
 		return
+	_inventory_candidate = false
 	get_tree().paused = true
 	settings_requested.emit()
 
 
 func _on_pause_menu_requested() -> void:
+	_inventory_candidate = false
 	get_tree().paused = false
 	menu_requested.emit()
 
@@ -196,6 +274,8 @@ func _on_death_exit_requested() -> void:
 func _on_level_death_sequence_requested() -> void:
 	if not _active:
 		return
+	_inventory_candidate = false
+	_inventory_overlay.close_inventory()
 	_pause_overlay.close_overlay()
 	_death_overlay.open_overlay()
 	death_sequence_requested.emit()
@@ -229,6 +309,7 @@ func _on_city_exit_requested() -> void:
 func _on_city_menu_requested() -> void:
 	if not _active or not _in_city:
 		return
+	_inventory_candidate = false
 	get_tree().paused = true
 	_pause_overlay.open_overlay()
 
@@ -253,6 +334,9 @@ func get_debug_lines() -> Array[String]:
 		"control_hint_visible=false",
 		"music_playing=%s" % str(_gameplay_music.playing),
 		"paused=%s" % str(get_tree().paused),
+		"inventory_candidate=%s" % str(_inventory_candidate),
+		"inventory_open=%s" % str(_inventory_overlay.is_open()),
+		"inventory_selected=%s" % String(_inventory_overlay.get_selected_item_id()),
 		"death_sequence_pending=%s" % str(_level.is_death_sequence_pending()),
 		"death_overlay_open=%s" % str(_death_overlay.is_open()),
 		"city_gate_interaction_radius=%.1f" % CITY_GATE_RUNTIME_RADIUS,
@@ -263,6 +347,7 @@ func get_debug_lines() -> Array[String]:
 		lines.append("onos=%d" % _game_state.onos)
 		lines.append("limited_use_inventory_items=%d" % _game_state.inventory.size())
 		lines.append("permanent_inventory_items=%d" % _game_state.permanent_inventory_items.size())
+	lines.append_array(_inventory_overlay.get_debug_lines())
 	lines.append_array(_hud.get_debug_lines())
 	lines.append_array(_city.get_debug_lines())
 	lines.append_array(_level.get_debug_lines())
