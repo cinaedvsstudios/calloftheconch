@@ -9,6 +9,10 @@ const HYLAS_TEXTURE: Texture2D = preload("res://assets/characters/hylas-idle_01.
 @export var show_doorway_radius: bool = true
 @export var show_labels: bool = true
 
+var _spawn_sync_ready: bool = false
+var _last_spawn_ratio: Vector2 = Vector2.ZERO
+var _last_marker_position: Vector2 = Vector2.ZERO
+
 
 func _ready() -> void:
 	if not Engine.is_editor_hint():
@@ -46,6 +50,41 @@ func _refresh_preview() -> void:
 	if interaction_hint != null:
 		interaction_hint.visible = true
 		interaction_hint.text = "EDITOR PREVIEW — SWIM TO A DOORWAY AND PRESS SPACE"
+	_sync_spawn_marker(city)
+
+
+func _sync_spawn_marker(city: CanvasLayer) -> void:
+	var marker: Marker2D = city.get_node_or_null("CityHylasSpawn") as Marker2D
+	if marker == null:
+		return
+	var preview_size: Vector2 = size
+	if preview_size.x <= 0.0 or preview_size.y <= 0.0:
+		preview_size = get_viewport_rect().size
+	var spawn_ratio: Vector2 = city.get("hylas_spawn_ratio")
+	var expected_position: Vector2 = Vector2(
+		preview_size.x * spawn_ratio.x,
+		preview_size.y * spawn_ratio.y,
+	)
+	if not _spawn_sync_ready:
+		marker.position = expected_position
+		_last_spawn_ratio = spawn_ratio
+		_last_marker_position = marker.position
+		_spawn_sync_ready = true
+		return
+	if not spawn_ratio.is_equal_approx(_last_spawn_ratio):
+		marker.position = expected_position
+		_last_spawn_ratio = spawn_ratio
+		_last_marker_position = marker.position
+		return
+	if marker.position.is_equal_approx(_last_marker_position):
+		return
+	var new_ratio: Vector2 = Vector2(
+		clampf(marker.position.x / maxf(1.0, preview_size.x), 0.0, 1.0),
+		clampf(marker.position.y / maxf(1.0, preview_size.y), 0.0, 1.0),
+	)
+	city.set("hylas_spawn_ratio", new_ratio)
+	_last_spawn_ratio = new_ratio
+	_last_marker_position = marker.position
 
 
 func _draw() -> void:
@@ -78,14 +117,10 @@ func _draw() -> void:
 			_draw_label(center + Vector2(10.0, -12.0), labels[index], Color(0.25, 1.0, 1.0, 1.0))
 
 	if show_hylas_spawn:
-		var preview_size: Vector2 = size
-		if preview_size.x <= 0.0 or preview_size.y <= 0.0:
-			preview_size = get_viewport_rect().size
-		var spawn_ratio: Vector2 = city.get("hylas_spawn_ratio")
-		var spawn_position: Vector2 = Vector2(
-			preview_size.x * spawn_ratio.x,
-			preview_size.y * spawn_ratio.y,
-		)
+		var marker: Marker2D = city.get_node_or_null("CityHylasSpawn") as Marker2D
+		if marker == null:
+			return
+		var spawn_position: Vector2 = marker.position
 		var display_height: float = float(city.get("hylas_display_height"))
 		var texture_size: Vector2 = HYLAS_TEXTURE.get_size()
 		var scale_factor: float = display_height / maxf(1.0, texture_size.y)
@@ -94,7 +129,7 @@ func _draw() -> void:
 		draw_line(spawn_position - Vector2(14.0, 0.0), spawn_position + Vector2(14.0, 0.0), Color(0.3, 1.0, 0.45, 1.0), 2.0)
 		draw_line(spawn_position - Vector2(0.0, 14.0), spawn_position + Vector2(0.0, 14.0), Color(0.3, 1.0, 0.45, 1.0), 2.0)
 		if show_labels:
-			_draw_label(spawn_position + Vector2(16.0, -16.0), "HYLAS SPAWN", Color(0.3, 1.0, 0.45, 1.0))
+			_draw_label(spawn_position + Vector2(16.0, -16.0), "DRAG CITYHYLASSPAWN", Color(0.3, 1.0, 0.45, 1.0))
 
 
 func _draw_label(position_value: Vector2, text_value: String, color_value: Color) -> void:
