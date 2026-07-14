@@ -23,6 +23,7 @@ antialiased = true
 
 [node name="Rope" type="Line2D" parent="."]
 unique_name_in_owner = true
+texture_repeat = 2
 width = 18.0
 texture = ExtResource("2_rope")
 texture_mode = 1
