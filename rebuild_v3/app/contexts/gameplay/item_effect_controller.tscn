@@ -1,0 +1,91 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/item_effect_controller.gd" id="1_controller"]
+[ext_resource type="VideoStream" path="res://assets/effects/transformeffect.ogv" id="2_transform"]
+[ext_resource type="VideoStream" path="res://assets/effects/purple shield.ogv" id="3_shield"]
+[ext_resource type="VideoStream" path="res://assets/effects/vent3.ogv" id="4_surge"]
+[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="5_screen_blend"]
+
+[sub_resource type="ShaderMaterial" id="TransformMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("5_screen_blend")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 4.0
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
+
+[sub_resource type="ShaderMaterial" id="ShieldMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("5_screen_blend")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 4.0
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
+
+[sub_resource type="ShaderMaterial" id="SurgeMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("5_screen_blend")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 4.0
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
+
+[node name="ItemEffectController" type="Node2D"]
+script = ExtResource("1_controller")
+
+[node name="HylasVideoAnchor" type="Node2D" parent="."]
+unique_name_in_owner = true
+z_index = 7
+
+[node name="TransformEffect" type="VideoStreamPlayer" parent="HylasVideoAnchor"]
+unique_name_in_owner = true
+visible = false
+material = SubResource("TransformMaterial")
+offset_left = -270.0
+offset_top = -220.0
+offset_right = 270.0
+offset_bottom = 220.0
+pivot_offset = Vector2(270, 220)
+mouse_filter = 2
+stream = ExtResource("2_transform")
+volume_db = -80.0
+expand = true
+
+[node name="PurpleShieldEffect" type="VideoStreamPlayer" parent="HylasVideoAnchor"]
+unique_name_in_owner = true
+visible = false
+material = SubResource("ShieldMaterial")
+offset_left = -250.0
+offset_top = -210.0
+offset_right = 250.0
+offset_bottom = 210.0
+pivot_offset = Vector2(250, 210)
+mouse_filter = 2
+stream = ExtResource("3_shield")
+volume_db = -80.0
+expand = true
+loop = true
+
+[node name="SurgeEffect" type="VideoStreamPlayer" parent="HylasVideoAnchor"]
+unique_name_in_owner = true
+visible = false
+material = SubResource("SurgeMaterial")
+offset_left = -240.0
+offset_top = -185.0
+offset_right = 240.0
+offset_bottom = 185.0
+pivot_offset = Vector2(240, 185)
+mouse_filter = 2
+stream = ExtResource("4_surge")
+volume_db = -80.0
+expand = true
+loop = true
+
+[node name="Projectiles" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="Clouds" type="Node2D" parent="."]
+unique_name_in_owner = true
