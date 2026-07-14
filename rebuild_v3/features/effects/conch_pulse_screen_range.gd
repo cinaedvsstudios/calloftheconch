@@ -21,6 +21,7 @@ func _process(delta: float) -> void:
 		return
 
 	_update_player_tracking()
+	pulse_range = _calculate_screen_edge_diameter(global_position, _pulse_direction)
 	_sequence_elapsed += delta
 	_update_pulse_stream()
 	var final_pulse_delay: float = float(maxi(0, _pulse_sprites.size() - 1)) * pulse_interval
