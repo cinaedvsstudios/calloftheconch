@@ -87,24 +87,22 @@ func _draw() -> void:
 
 
 func _draw_flash_bounds(flash: VideoStreamPlayer) -> void:
-	var rect: Rect2 = Rect2(
-		Vector2(flash.offset_left, flash.offset_top),
-		Vector2(
-			flash.offset_right - flash.offset_left,
-			flash.offset_bottom - flash.offset_top
-		),
+	var control_position: Vector2 = Vector2(flash.offset_left, flash.offset_top)
+	var control_size: Vector2 = Vector2(
+		flash.offset_right - flash.offset_left,
+		flash.offset_bottom - flash.offset_top,
 	)
 	var corners: PackedVector2Array = PackedVector2Array([
-		rect.position,
-		rect.position + Vector2(rect.size.x, 0.0),
-		rect.end,
-		rect.position + Vector2(0.0, rect.size.y),
+		Vector2.ZERO,
+		Vector2(control_size.x, 0.0),
+		control_size,
+		Vector2(0.0, control_size.y),
 	])
 	for index: int in range(corners.size()):
 		var local_point: Vector2 = corners[index] - flash.pivot_offset
 		local_point *= flash.scale
 		local_point = local_point.rotated(flash.rotation)
-		corners[index] = flash.pivot_offset + local_point
+		corners[index] = control_position + flash.pivot_offset + local_point
 	var outline: PackedVector2Array = PackedVector2Array(corners)
 	outline.append(corners[0])
 	draw_colored_polygon(corners, Color(1.0, 0.45, 0.12, 0.08))
