@@ -15,6 +15,7 @@
 [ext_resource type="AudioStream" uid="uid://csuk7u1shw354" path="res://assets/audio/ahh.mp3" id="13_hurt_audio"]
 [ext_resource type="AudioStream" uid="uid://bhb7h74vkj73s" path="res://assets/audio/fall on land.mp3" id="14_land_impact_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/powerdown1.mp3" id="15_powerdown_audio"]
+[ext_resource type="Script" path="res://rebuild_v3/editor/hylas_editor_preview.gd" id="16_editor_preview"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
 shader = ExtResource("10_shadow_shader")
@@ -87,6 +88,9 @@ unique_name_in_owner = true
 [node name="ConchPulseOrigin" type="Marker2D" parent="."]
 unique_name_in_owner = true
 position = Vector2(105, 0)
+
+[node name="EditorPreview" type="Node2D" parent="."]
+script = ExtResource("16_editor_preview")
 
 [node name="InteractionArea" type="Area2D" parent="." unique_id=1606279735]
 
