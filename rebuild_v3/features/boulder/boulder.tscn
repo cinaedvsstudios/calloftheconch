@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bkhlb31k0q74o"]
 
-[ext_resource type="Script" uid="uid://c74lnub70grct" path="res://rebuild_v3/features/boulder/boulder.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/features/boulder/boulder_surge_response.gd" id="1_controller"]
 [ext_resource type="Texture2D" uid="uid://bkq10eqrdx45j" path="res://assets/backgrounds/boulder.webp" id="2_texture"]
 
 [sub_resource type="CircleShape2D" id="SolidShape"]
