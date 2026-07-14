@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://doww3wj6jisnv" path="res://assets/ui/button2.webp" id="10_button_2"]
 [ext_resource type="Texture2D" uid="uid://dwoos056r3dsd" path="res://assets/ui/button3.webp" id="11_button_3"]
 [ext_resource type="AudioStream" uid="uid://dyorkgg3nkflx" path="res://assets/audio/Super Conch_noise.mp3" id="12_menu_action_audio"]
+[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/soft_texture_shadow.gdshader" id="13_title_shadow_shader"]
 
 [sub_resource type="ShaderMaterial" id="EchoPulseMaterial"]
 shader = ExtResource("7_screen_shader")
@@ -20,6 +21,12 @@ shader_parameter/fade_width = 0.08
 shader_parameter/brightness = 4.5
 shader_parameter/waterline_screen_y = -1.0
 shader_parameter/waterline_fade = 0.012
+
+[sub_resource type="ShaderMaterial" id="TitleShadowMaterial"]
+shader = ExtResource("13_title_shadow_shader")
+shader_parameter/shadow_color = Color(0.03, 0.07, 0.11, 0.75)
+shader_parameter/blur_radius = 4.0
+shader_parameter/shadow_offset = Vector2(3, 4)
 
 [sub_resource type="StyleBoxFlat" id="CloseNormal"]
 bg_color = Color(0.015, 0.045, 0.1, 0.56)
@@ -132,6 +139,20 @@ offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 2
 pivot_offset = Vector2(390, 120)
+mouse_filter = 2
+texture = ExtResource("3_title")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleShadow" type="TextureRect" parent="Title"]
+show_behind_parent = true
+material = SubResource("TitleShadowMaterial")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("3_title")
 expand_mode = 1
