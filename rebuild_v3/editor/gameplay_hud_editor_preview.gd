@@ -12,6 +12,10 @@ const SHADOW_SHADER: Shader = preload(
 @export var preview_fins: int = 4
 @export var preview_location: String = "THE SEA OF PILLARS"
 @export_range(0.0, 1.0, 0.01) var preview_conch_glow_alpha: float = 0.32
+@export var preview_item_b_texture: Texture2D
+@export var preview_item_b_empty: bool = true
+@export_range(0, 99, 1) var preview_item_b_quantity: int = 3
+@export_range(0.0, 1.0, 0.01) var preview_item_b_glow_alpha: float = 0.0
 
 var _panel_shadow: TextureRect
 
@@ -39,9 +43,24 @@ func _refresh_preview() -> void:
 	var onos: Label = hud.get_node_or_null("OnosValue") as Label
 	var fins: Label = hud.get_node_or_null("FinValue") as Label
 	var location: Label = hud.get_node_or_null("LocationValue") as Label
-	var conch_icon: TextureRect = hud.get_node_or_null("ConchIcon") as TextureRect
-	var conch_glow: TextureRect = hud.get_node_or_null("ConchGlow") as TextureRect
-	if panel == null or onos == null or fins == null or location == null or conch_icon == null or conch_glow == null:
+	var item_a_icon: TextureRect = hud.get_node_or_null("ConchIcon") as TextureRect
+	var item_a_glow: TextureRect = hud.get_node_or_null("ConchGlow") as TextureRect
+	var item_b_icon: TextureRect = hud.get_node_or_null("ItemBIcon") as TextureRect
+	var item_b_glow: TextureRect = hud.get_node_or_null("ItemBGlow") as TextureRect
+	var item_b_quantity: Label = hud.get_node_or_null("ItemBQuantity") as Label
+	var item_b_empty: Label = hud.get_node_or_null("ItemBEmpty") as Label
+	if (
+			panel == null
+			or onos == null
+			or fins == null
+			or location == null
+			or item_a_icon == null
+			or item_a_glow == null
+			or item_b_icon == null
+			or item_b_glow == null
+			or item_b_quantity == null
+			or item_b_empty == null
+		):
 		return
 
 	var source_size: Vector2 = PANEL_TEXTURE.get_size()
@@ -70,8 +89,12 @@ func _refresh_preview() -> void:
 
 	_apply_rect(onos, hud.get("onos_value_rect") as Rect2)
 	_apply_rect(fins, hud.get("fin_value_rect") as Rect2)
-	_apply_rect(conch_glow, hud.get("conch_icon_rect") as Rect2)
-	_apply_rect(conch_icon, hud.get("conch_icon_rect") as Rect2)
+	_apply_rect(item_a_glow, hud.get("conch_icon_rect") as Rect2)
+	_apply_rect(item_a_icon, hud.get("conch_icon_rect") as Rect2)
+	_apply_rect(item_b_glow, hud.get("item_b_icon_rect") as Rect2)
+	_apply_rect(item_b_icon, hud.get("item_b_icon_rect") as Rect2)
+	_apply_rect(item_b_quantity, hud.get("item_b_quantity_rect") as Rect2)
+	_apply_rect(item_b_empty, hud.get("item_b_empty_rect") as Rect2)
 	_apply_rect(location, hud.get("location_value_rect") as Rect2)
 
 	onos.text = str(preview_onos)
@@ -80,24 +103,63 @@ func _refresh_preview() -> void:
 	onos.add_theme_font_size_override(&"font_size", int(hud.get("onos_font_size")))
 	fins.add_theme_font_size_override(&"font_size", int(hud.get("fin_font_size")))
 	location.add_theme_font_size_override(&"font_size", int(hud.get("location_font_size")))
+	item_b_quantity.add_theme_font_size_override(&"font_size", int(hud.get("item_b_quantity_font_size")))
+	item_b_empty.add_theme_font_size_override(&"font_size", int(hud.get("item_b_empty_font_size")))
 	onos.add_theme_color_override(&"font_color", hud.get("onos_font_color") as Color)
 	fins.add_theme_color_override(&"font_color", hud.get("fin_font_color") as Color)
 	location.add_theme_color_override(&"font_color", hud.get("location_font_color") as Color)
+	item_b_quantity.add_theme_color_override(&"font_color", hud.get("item_b_quantity_font_color") as Color)
+	item_b_empty.add_theme_color_override(&"font_color", hud.get("item_b_empty_font_color") as Color)
 	onos.add_theme_color_override(&"font_outline_color", hud.get("onos_outline_color") as Color)
 	fins.add_theme_color_override(&"font_outline_color", hud.get("fin_outline_color") as Color)
 	location.add_theme_color_override(&"font_outline_color", hud.get("location_outline_color") as Color)
+	item_b_quantity.add_theme_color_override(
+		&"font_outline_color",
+		hud.get("item_quantity_outline_color") as Color,
+	)
 	onos.add_theme_constant_override(&"outline_size", int(hud.get("number_outline_size")))
 	fins.add_theme_constant_override(&"outline_size", int(hud.get("number_outline_size")))
 	location.add_theme_constant_override(&"outline_size", int(hud.get("location_outline_size")))
+	item_b_quantity.add_theme_constant_override(
+		&"outline_size",
+		int(hud.get("item_quantity_outline_size")),
+	)
 
-	conch_icon.texture = CONCH_TEXTURE
-	conch_glow.texture = CONCH_TEXTURE
-	conch_icon.pivot_offset = conch_icon.size * 0.5
-	conch_glow.pivot_offset = conch_glow.size * 0.5
-	conch_glow.scale = Vector2.ONE * float(hud.get("conch_glow_rest_scale"))
+	item_a_icon.texture = CONCH_TEXTURE
+	item_a_glow.texture = CONCH_TEXTURE
+	item_a_icon.visible = true
+	item_a_glow.visible = true
+	item_a_icon.scale = Vector2.ONE
+	item_a_icon.pivot_offset = item_a_icon.size * 0.5
+	item_a_glow.pivot_offset = item_a_glow.size * 0.5
+	item_a_glow.scale = Vector2.ONE * float(hud.get("conch_glow_rest_scale"))
 	var glow_color: Color = hud.get("conch_glow_color") as Color
-	conch_glow.modulate = Color(glow_color.r, glow_color.g, glow_color.b, preview_conch_glow_alpha)
-	conch_glow.visible = true
+	item_a_glow.modulate = Color(
+		glow_color.r,
+		glow_color.g,
+		glow_color.b,
+		preview_conch_glow_alpha,
+	)
+
+	var show_item_b: bool = not preview_item_b_empty and preview_item_b_texture != null
+	item_b_icon.texture = preview_item_b_texture if show_item_b else null
+	item_b_glow.texture = preview_item_b_texture if show_item_b else null
+	item_b_icon.visible = show_item_b
+	item_b_glow.visible = show_item_b
+	item_b_empty.visible = not show_item_b
+	item_b_empty.text = "—"
+	item_b_quantity.visible = show_item_b and preview_item_b_quantity > 0
+	item_b_quantity.text = str(preview_item_b_quantity) if item_b_quantity.visible else ""
+	item_b_icon.scale = Vector2.ONE
+	item_b_icon.pivot_offset = item_b_icon.size * 0.5
+	item_b_glow.pivot_offset = item_b_glow.size * 0.5
+	item_b_glow.scale = Vector2.ONE * float(hud.get("conch_glow_rest_scale"))
+	item_b_glow.modulate = Color(
+		glow_color.r,
+		glow_color.g,
+		glow_color.b,
+		preview_item_b_glow_alpha,
+	)
 
 	_ensure_shadow(hud, panel)
 	_update_shadow(hud)
