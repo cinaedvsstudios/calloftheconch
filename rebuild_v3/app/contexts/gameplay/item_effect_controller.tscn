@@ -40,6 +40,9 @@ shader_parameter/waterline_fade = 0.012
 [node name="ItemEffectController" type="Node2D"]
 script = ExtResource("1_controller")
 camouflage_seconds = 10.0
+surge_seconds = 30.0
+super_conch_tint = Color(0.35, 1, 0.72, 1)
+super_conch_brightness = 2.2
 
 [node name="HylasVideoAnchor" type="Node2D" parent="."]
 unique_name_in_owner = true
