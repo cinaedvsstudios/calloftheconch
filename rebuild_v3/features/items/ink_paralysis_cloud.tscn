@@ -1,42 +1,5 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/items/ink_paralysis_cloud.gd" id="1_controller"]
-[ext_resource type="VideoStream" path="res://assets/effects/inkloop.ogv" id="2_video"]
-[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/ink_video_multiply.gdshader" id="3_shader"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn" id="1_scene"]
 
-[sub_resource type="ShaderMaterial" id="InkMaterial"]
-resource_local_to_scene = true
-shader = ExtResource("3_shader")
-shader_parameter/strength = 1.0
-shader_parameter/contrast = 1.15
-
-[sub_resource type="CircleShape2D" id="ParalysisShape"]
-radius = 230.0
-
-[node name="InkParalysisCloud" type="Node2D"]
-z_index = 6
-script = ExtResource("1_controller")
-
-[node name="InkVideo" type="VideoStreamPlayer" parent="."]
-unique_name_in_owner = true
-material = SubResource("InkMaterial")
-offset_left = -310.0
-offset_top = -230.0
-offset_right = 310.0
-offset_bottom = 230.0
-pivot_offset = Vector2(310, 230)
-mouse_filter = 2
-stream = ExtResource("2_video")
-volume_db = -80.0
-expand = true
-loop = true
-
-[node name="ParalysisArea" type="Area2D" parent="."]
-unique_name_in_owner = true
-collision_layer = 0
-collision_mask = 1
-monitoring = true
-monitorable = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ParalysisArea"]
-shape = SubResource("ParalysisShape")
+[node name="InkParalysisCloud" instance=ExtResource("1_scene")]
