@@ -37,18 +37,22 @@ jobs:
         run: |
           set -o pipefail
           godot --headless --editor --path . --quit-after 600 2>&1 | tee godot-preimport.log
-          if grep -E "Parse Error|Failed to load script|Parent node is busy setting up children|Child is not a child of this node|SCRIPT ERROR" godot-preimport.log; then
-            echo "Godot reported a parser or scene-tree failure during pre-import."
+          if grep -E "ERROR:|Parse Error|Failed to load script|Parent node is busy setting up children|Child is not a child of this node|SCRIPT ERROR" godot-preimport.log; then
+            echo "Godot reported an error during pre-import."
             exit 1
           fi
 
-      - name: Bake landscape alpha collisions into scenes
+      - name: Bake landscape alpha collision outlines into scenes
         id: landscape_generation
         continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
           godot --headless --path . --script tools/generate_landscape_collisions.gd 2>&1 | tee godot-generator.log
+          if grep -E "ERROR:|Convex decomposing failed|SCRIPT ERROR" godot-generator.log; then
+            echo "Godot reported an error while baking landscape collisions."
+            exit 1
+          fi
 
       - name: Stop after landscape generation failure
         if: steps.landscape_generation.outcome == 'failure'
@@ -66,13 +70,14 @@ jobs:
           set -o pipefail
           godot --headless --path . --script tools/validate_project.gd 2>&1 | tee godot-validation.log
 
-      - name: Reject known parser and scene-tree failures
+      - name: Reject all Godot parser, runtime and scene-tree failures
         shell: bash
         run: |
-          if grep -E "Parse Error|Failed to load script|Parent node is busy setting up children|Child is not a child of this node|SCRIPT ERROR" godot-preimport.log godot-editor.log godot-validation.log; then
-            echo "Godot reported a parser or scene-tree failure."
+          if grep -E "ERROR:|Parse Error|Failed to load script|Parent node is busy setting up children|Child is not a child of this node|SCRIPT ERROR|Convex decomposing failed" godot-preimport.log godot-generator.log godot-editor.log godot-validation.log; then
+            echo "Godot reported an error."
             exit 1
           fi
+          grep -q "GODOT_VALIDATION_OK" godot-validation.log
           test ! -e rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape.gd
           test ! -e rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape_base.tscn
           git diff --check
@@ -95,6 +100,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f godot-preimport.log godot-generator.log godot-editor.log godot-validation.log
           git add -A
           if git diff --cached --quiet; then
             echo "No generated changes to commit."
