@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 GAMEPLAY_SCRIPT = ROOT / "rebuild_v3/app/contexts/gameplay/gameplay_inventory_audio.gd"
 GAMEPLAY_SCENE = ROOT / "rebuild_v3/app/contexts/gameplay/gameplay_context.tscn"
+SEA_LEVEL_SCRIPT = ROOT / "rebuild_v3/features/sea_of_pillars/sea_of_pillars.gd"
 ARCHIVE_DIR = ROOT / "rebuild_v3/archive/obsolete_gameplay_wrappers"
 LEGACY_LANDSCAPE_TOOL = (
     ROOT / "rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape.gd"
@@ -123,6 +124,20 @@ def fix_gameplay_scene() -> None:
     GAMEPLAY_SCENE.write_text(text, encoding="utf-8", newline="\n")
 
 
+def fix_city_gate_collision_name() -> None:
+    text = SEA_LEVEL_SCRIPT.read_text(encoding="utf-8")
+    text = replace_exact(
+        text,
+        '\tvar collision_shape: CollisionShape2D = CollisionShape2D.new()\n'
+        '\tvar circle: CircleShape2D = CircleShape2D.new()\n',
+        '\tvar collision_shape: CollisionShape2D = CollisionShape2D.new()\n'
+        '\tcollision_shape.name = "CollisionShape2D"\n'
+        '\tvar circle: CircleShape2D = CircleShape2D.new()\n',
+        "city-gate collision node name",
+    )
+    SEA_LEVEL_SCRIPT.write_text(text, encoding="utf-8", newline="\n")
+
+
 def disable_legacy_landscape_tool() -> None:
     if not LEGACY_LANDSCAPE_TOOL.exists():
         return
@@ -192,6 +207,7 @@ def audit_active_sources() -> None:
 if __name__ == "__main__":
     fix_gameplay_script()
     fix_gameplay_scene()
+    fix_city_gate_collision_name()
     disable_legacy_landscape_tool()
     archive_unused_wrappers()
     audit_active_sources()
