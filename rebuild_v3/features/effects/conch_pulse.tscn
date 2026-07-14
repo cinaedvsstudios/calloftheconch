@@ -34,17 +34,25 @@ position = Vector2(-111, 0)
 scale = Vector2(1.6068498, 1.3276451)
 texture = ExtResource("2_sonar")
 
-[node name="OriginFlash" type="VideoStreamPlayer" parent="." unique_id=1784732269]
+[node name="OriginFlashPivot" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(-17, -6)
+
+[node name="OriginFlashVisual" type="Node2D" parent="OriginFlashPivot"]
+unique_name_in_owner = true
+rotation = -1.5707964
+
+[node name="OriginFlash" type="VideoStreamPlayer" parent="OriginFlashPivot/OriginFlashVisual" unique_id=1784732269]
 unique_name_in_owner = true
 self_modulate = Color(1, 1, 1, 0.6901961)
 z_index = 1
 material = SubResource("OriginFlashMaterial")
-offset_left = -586.0
-offset_top = -1277.0
-offset_right = -128.0
-offset_bottom = -979.0
-rotation = -1.5707964
-pivot_offset = Vector2(960, 540)
+layout_mode = 0
+offset_left = -229.0
+offset_top = -149.0
+offset_right = 229.0
+offset_bottom = 149.0
+pivot_offset = Vector2(229, 149)
 mouse_filter = 2
 stream = ExtResource("4_flash_video")
 volume_db = -80.0
