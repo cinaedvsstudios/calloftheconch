@@ -1,10 +1,16 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape_base.tscn" id="1_base"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/rock6.webp" id="2_texture"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/rock6.webp" id="1_u0nfh"]
 
-[node name="Rock06" instance=ExtResource("1_base")]
-source_texture = ExtResource("2_texture")
-landscape_id = &"rock06"
+[node name="Rock06" type="StaticBody2D" unique_id=1839801298]
+collision_mask = 0
+metadata/landscape_id = "rock06"
 metadata/source_asset = "res://assets/backgrounds/rock6.webp"
-metadata/collision_source = "texture_alpha"
+metadata/collision_source = "baked_texture_alpha"
+metadata/alpha_threshold = 0.12
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1535374633]
+texture = ExtResource("1_u0nfh")
+
+[node name="CollisionPolygon01" type="CollisionPolygon2D" parent="." unique_id=598402131]
+polygon = PackedVector2Array(-109, -384, -159, -372, -162, -372, -225, -342, -227, -342, -252, -323, -254, -323, -294, -277, -294, -276, -313, -265, -313, -264, -346, -256, -346, -255, -429, -250, -435, -250, -481, -234, -484, -234, -556, -178, -558, -178, -598, -132, -599, -132, -613, -98, -614, -98, -621, -49, -621, -46, -664, 1, -665, 1, -678, 27, -679, 27, -680, 76, -680, 80, -652, 125, -652, 126, -578, 172, -576, 172, -530, 223, -530, 224, -504, 241, -504, 242, -387, 296, -387, 297, -324, 316, -324, 317, -252, 329, -246, 329, -185, 346, -185, 347, -72, 364, -72, 365, -11, 363, -5, 363, 87, 336, 87, 335, 171, 343, 171, 344, 248, 344, 255, 344, 350, 317, 350, 316, 498, 294, 502, 294, 611, 237, 613, 237, 636, 211, 637, 211, 649, 180, 650, 180, 649, 105, 649, 97, 672, 31, 673, 31, 668, -9, 668, -12, 625, -75, 624, -75, 600, -137, 600, -139, 560, -180, 560, -181, 522, -207, 522, -208, 465, -230, 465, -231, 374, -252, 371, -252, 311, -290, 311, -291, 267, -308, 267, -309, 226, -315, 226, -316, 166, -312, 139, -312, 66, -355, 66, -356, 33, -368, 33, -369, -109, -385)

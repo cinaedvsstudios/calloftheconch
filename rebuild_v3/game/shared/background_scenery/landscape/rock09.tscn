@@ -1,10 +1,16 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape_base.tscn" id="1_base"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/rock9.webp" id="2_texture"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/rock9.webp" id="1_w63jl"]
 
-[node name="Rock09" instance=ExtResource("1_base")]
-source_texture = ExtResource("2_texture")
-landscape_id = &"rock09"
+[node name="Rock09" type="StaticBody2D" unique_id=736123391]
+collision_mask = 0
+metadata/landscape_id = "rock09"
 metadata/source_asset = "res://assets/backgrounds/rock9.webp"
-metadata/collision_source = "texture_alpha"
+metadata/collision_source = "baked_texture_alpha"
+metadata/alpha_threshold = 0.12
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=434566736]
+texture = ExtResource("1_w63jl")
+
+[node name="CollisionPolygon01" type="CollisionPolygon2D" parent="." unique_id=715542569]
+polygon = PackedVector2Array(-159.5, -150, -183.5, -143, -186.5, -143, -242.5, -114, -242.5, -113, -284.5, -116, -304.5, -116, -368.5, -104, -368.5, -103, -448.5, -97, -453.5, -97, -520.5, -75, -520.5, -74, -602.5, -58, -605.5, -58, -640.5, -42, -642.5, -42, -660.5, -27, -661.5, -27, -666.5, -14, -667.5, -14, -665.5, 1, -665.5, 4, -655.5, 16, -655.5, 17, -637.5, 26, -637.5, 27, -561.5, 46, -557.5, 46, -463.5, 85, -463.5, 86, -403.5, 92, -399.5, 92, -342.5, 118, -342.5, 119, -284.5, 118, -278.5, 118, -169.5, 90, -153.5, 90, -40.5, 120, -40.5, 121, 17.5, 124, 22.5, 124, 88.5, 150, 88.5, 151, 189.5, 141, 198.5, 141, 283.5, 112, 283.5, 111, 335.5, 109, 343.5, 109, 400.5, 93, 400.5, 92, 479.5, 91, 483.5, 91, 573.5, 63, 576.5, 63, 630.5, 37, 633.5, 37, 652.5, 25, 654.5, 25, 668.5, 2, 669.5, 2, 668.5, -14, 668.5, -18, 661.5, -28, 661.5, -30, 630.5, -49, 630.5, -50, 442.5, -106, 442.5, -107, 353.5, -124, 353.5, -125, 333.5, -128, 266.5, -128, 172.5, -114, 172.5, -113, 76.5, -110, 64.5, -110, 8.5, -127, 8.5, -128, 0.5, -129, -44.5, -129, -123.5, -149, -123.5, -150, -159.5, -151)

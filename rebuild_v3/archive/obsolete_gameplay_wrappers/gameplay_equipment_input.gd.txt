@@ -1,3 +1,6 @@
+# Archived from res://rebuild_v3/app/contexts/gameplay/gameplay_equipment_input.gd
+# The active gameplay controller now owns this behaviour directly.
+
 extends "res://rebuild_v3/app/contexts/gameplay/gameplay_context.gd"
 
 ## Equipment input dispatcher and Phase 6 item behavior router.

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_inventory_audio.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_prototype.tscn" id="2_level"]
@@ -11,6 +11,9 @@
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/pillars_city/pillars_city.tscn" id="9_city"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/inventory_overlay.tscn" id="10_inventory"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn" id="11_item_effects"]
+[ext_resource type="AudioStream" path="res://assets/audio/pickup6.mp3" id="12_item_click_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/pickup1.mp3" id="13_item_equip_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/pickup4.mp3" id="14_inventory_open_audio"]
 
 [node name="GameplayContext" type="Node"]
 script = ExtResource("1_controller")
@@ -31,6 +34,24 @@ unique_name_in_owner = true
 stream = ExtResource("3_music")
 volume_db = -8.0
 script = ExtResource("5_looping_audio")
+
+[node name="InventoryItemClickAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("12_item_click_audio")
+volume_db = -5.0
+
+[node name="InventoryItemEquipAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("13_item_equip_audio")
+volume_db = -4.0
+
+[node name="InventoryOpenAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("14_inventory_open_audio")
+volume_db = -5.0
 
 [node name="GameplayUI" type="CanvasLayer" parent="."]
 layer = 20

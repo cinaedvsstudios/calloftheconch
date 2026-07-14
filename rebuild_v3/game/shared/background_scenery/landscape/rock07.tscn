@@ -1,10 +1,16 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape_base.tscn" id="1_base"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/rock7.webp" id="2_texture"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/rock7.webp" id="1_yvfl2"]
 
-[node name="Rock07" instance=ExtResource("1_base")]
-source_texture = ExtResource("2_texture")
-landscape_id = &"rock07"
+[node name="Rock07" type="StaticBody2D" unique_id=49653653]
+collision_mask = 0
+metadata/landscape_id = "rock07"
 metadata/source_asset = "res://assets/backgrounds/rock7.webp"
-metadata/collision_source = "texture_alpha"
+metadata/collision_source = "baked_texture_alpha"
+metadata/alpha_threshold = 0.12
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=73400959]
+texture = ExtResource("1_yvfl2")
+
+[node name="CollisionPolygon01" type="CollisionPolygon2D" parent="." unique_id=376458001]
+polygon = PackedVector2Array(-176, -464, -211, -458, -214, -458, -250, -438, -252, -438, -300, -380, -301, -380, -319, -349, -320, -349, -336, -244, -336, -241, -377, -186, -378, -186, -398, -130, -399, -130, -402, -18, -402, -15, -437, 42, -438, 42, -463, 127, -463, 129, -505, 198, -505, 200, -547, 250, -548, 250, -565, 284, -566, 284, -577, 329, -578, 329, -575, 354, -575, 358, -566, 373, -566, 375, -531, 398, -531, 399, -395, 434, -395, 435, -293, 433, -253, 433, -121, 449, -121, 450, 120, 454, 161, 454, 250, 445, 250, 444, 368, 444, 381, 444, 502, 427, 507, 427, 579, 392, 581, 392, 598, 371, 599, 371, 604, 350, 605, 350, 583, 263, 583, 260, 559, 224, 559, 222, 517, 191, 517, 190, 436, 150, 434, 150, 384, 68, 384, 66, 317, 16, 315, 16, 260, -55, 260, -56, 194, -96, 193, -96, 113, -215, 113, -216, 88, -231, 88, -232, 36, -248, 33, -248, 17, -262, 16, -262, -13, -315, -13, -317, -52, -363, -53, -363, -86, -418, -86, -420, -124, -450, -124, -451, -176, -465)

@@ -15,10 +15,6 @@ const FIN_STATE_PATHS: Array[String] = [
 	"res://assets/ui/UI5.webp",
 	"res://assets/ui/UI6.webp",
 ]
-const HUD_DROP_SHADOW_SHADER: Shader = preload(
-	"res://rebuild_v3/shared/shaders/hud_drop_shadow.gdshader"
-)
-
 @export_category("HUD Panel Layout")
 @export var hud_source_size_fallback: Vector2 = Vector2(1624.0, 670.0)
 @export_range(160.0, 1200.0, 1.0) var hud_layout_width: float = 510.0
@@ -75,6 +71,7 @@ const HUD_DROP_SHADOW_SHADER: Shader = preload(
 
 @onready var _fallback_panel: ColorRect = %FallbackPanel
 @onready var _panel_texture: TextureRect = %PanelTexture
+@onready var _panel_shadow: TextureRect = %PanelShadow
 @onready var _onos_value: Label = %OnosValue
 @onready var _fin_value: Label = %FinValue
 @onready var _location_value: Label = %LocationValue
@@ -91,7 +88,6 @@ var _fin_state_textures: Array[Texture2D] = []
 var _item_a_tween: Tween
 var _item_b_tween: Tween
 var _location_name: String = "The Sea of Pillars"
-var _panel_shadow: TextureRect
 var _resolved_source_size: Vector2 = Vector2(1624.0, 670.0)
 var _missing_icon_warnings: Dictionary = {}
 
@@ -102,7 +98,7 @@ func _ready() -> void:
 	_apply_source_layout()
 	_apply_element_layout()
 	_apply_text_style()
-	_create_panel_shadow()
+	_configure_panel_shadow()
 	_set_slot_rest_state(_item_a_icon, _item_a_glow)
 	_set_slot_rest_state(_item_b_icon, _item_b_glow)
 	_sync_from_state()
@@ -270,9 +266,8 @@ func _apply_text_style() -> void:
 	_item_b_quantity.add_theme_constant_override(&"outline_size", item_quantity_outline_size)
 
 
-func _create_panel_shadow() -> void:
-	_panel_shadow = TextureRect.new()
-	_panel_shadow.name = "PanelShadow"
+
+func _configure_panel_shadow() -> void:
 	_panel_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel_shadow.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_panel_shadow.offset_left = hud_shadow_offset.x
@@ -283,12 +278,10 @@ func _create_panel_shadow() -> void:
 	_panel_shadow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_panel_shadow.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	_panel_shadow.z_index = -4
-	var shadow_material: ShaderMaterial = ShaderMaterial.new()
-	shadow_material.shader = HUD_DROP_SHADOW_SHADER
-	shadow_material.set_shader_parameter(&"shadow_color", hud_shadow_color)
-	shadow_material.set_shader_parameter(&"blur_radius", hud_shadow_blur_radius)
-	_panel_shadow.material = shadow_material
-	add_child(_panel_shadow)
+	var shadow_material: ShaderMaterial = _panel_shadow.material as ShaderMaterial
+	if shadow_material != null:
+		shadow_material.set_shader_parameter(&"shadow_color", hud_shadow_color)
+		shadow_material.set_shader_parameter(&"blur_radius", hud_shadow_blur_radius)
 	_panel_shadow.visible = hud_shadow_enabled and _get_loaded_panel_count() > 0
 
 

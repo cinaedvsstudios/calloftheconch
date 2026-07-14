@@ -1,10 +1,16 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape_base.tscn" id="1_base"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/rock4.webp" id="2_texture"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/rock4.webp" id="1_soilu"]
 
-[node name="Rock04" instance=ExtResource("1_base")]
-source_texture = ExtResource("2_texture")
-landscape_id = &"rock04"
+[node name="Rock04" type="StaticBody2D" unique_id=590435555]
+collision_mask = 0
+metadata/landscape_id = "rock04"
 metadata/source_asset = "res://assets/backgrounds/rock4.webp"
-metadata/collision_source = "texture_alpha"
+metadata/collision_source = "baked_texture_alpha"
+metadata/alpha_threshold = 0.12
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=658839687]
+texture = ExtResource("1_soilu")
+
+[node name="CollisionPolygon01" type="CollisionPolygon2D" parent="." unique_id=122877056]
+polygon = PackedVector2Array(171, -436, 128, -423, 125, -423, 0, -359, -2, -359, -75, -293, -75, -292, -142, -255, -142, -254, -164, -249, -164, -248, -235, -249, -241, -249, -268, -240, -271, -240, -296, -224, -298, -224, -381, -158, -382, -158, -433, -88, -433, -87, -531, -30, -533, -30, -553, -8, -554, -8, -581, 38, -581, 40, -658, 100, -659, 100, -679, 142, -680, 142, -678, 166, -678, 170, -668, 187, -668, 189, -609, 238, -609, 239, -569, 255, -569, 256, -483, 274, -480, 274, -413, 313, -411, 313, -363, 354, -363, 355, -333, 371, -333, 372, -183, 404, -183, 405, -125, 410, -119, 410, -34, 439, -34, 440, -15, 442, 9, 442, 64, 435, 70, 435, 326, 362, 326, 361, 426, 360, 436, 360, 470, 352, 474, 352, 511, 335, 513, 335, 531, 317, 532, 317, 559, 275, 559, 273, 606, 237, 608, 237, 647, 186, 648, 186, 669, 132, 670, 132, 663, 85, 663, 82, 646, 57, 646, 55, 603, 11, 602, 11, 509, -130, 509, -132, 406, -211, 405, -211, 394, -275, 394, -280, 374, -316, 374, -318, 346, -342, 346, -343, 289, -373, 287, -373, 229, -425, 229, -426, 202, -435, 202, -436, 171, -437)

@@ -1,10 +1,16 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape_base.tscn" id="1_base"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/rock11.webp" id="2_texture"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/rock11.webp" id="1_hbmm6"]
 
-[node name="Rock11" instance=ExtResource("1_base")]
-source_texture = ExtResource("2_texture")
-landscape_id = &"rock11"
+[node name="Rock11" type="StaticBody2D" unique_id=1038448750]
+collision_mask = 0
+metadata/landscape_id = "rock11"
 metadata/source_asset = "res://assets/backgrounds/rock11.webp"
-metadata/collision_source = "texture_alpha"
+metadata/collision_source = "baked_texture_alpha"
+metadata/alpha_threshold = 0.12
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1538918860]
+texture = ExtResource("1_hbmm6")
+
+[node name="CollisionPolygon01" type="CollisionPolygon2D" parent="." unique_id=1385030335]
+polygon = PackedVector2Array(438, -193.5, 406, -188.5, 403, -188.5, 362, -155.5, 362, -154.5, 342, -148.5, 342, -147.5, 284, -155.5, 280, -155.5, 232, -176.5, 232, -177.5, 199, -175.5, 195, -175.5, 145, -140.5, 145, -139.5, 94, -124.5, 92, -124.5, 31, -70.5, 31, -69.5, -10, -54.5, -10, -53.5, -38, -57.5, -41, -57.5, -89, -83.5, -89, -84.5, -135, -91.5, -138, -91.5, -185, -124.5, -185, -125.5, -209, -134.5, -209, -135.5, -226, -134.5, -232, -134.5, -272, -118.5, -283, -118.5, -353, -143.5, -353, -144.5, -394, -147.5, -402, -147.5, -453, -118.5, -453, -117.5, -470, -117.5, -472, -117.5, -492, -104.5, -494, -104.5, -544, -60.5, -545, -60.5, -560, -29.5, -561, -29.5, -560, -9.5, -560, -4.5, -549, 19.5, -549, 21.5, -497, 62.5, -495, 62.5, -469, 94.5, -469, 95.5, -437, 109.5, -437, 110.5, -372, 124.5, -370, 124.5, -333, 174.5, -333, 175.5, -297, 190.5, -297, 191.5, -285, 190.5, -279, 190.5, -225, 167.5, -225, 166.5, -141, 147.5, -138, 147.5, -112, 129.5, -110, 129.5, -75, 93.5, -75, 92.5, -54, 84.5, -54, 83.5, 48, 100.5, 80, 100.5, 138, 75.5, 146, 75.5, 199, 105.5, 199, 106.5, 213, 104.5, 216, 104.5, 260, 83.5, 260, 82.5, 342, 102.5, 356, 102.5, 436, 70.5, 438, 70.5, 462, 38.5, 463, 38.5, 486, -15.5, 486, -17.5, 541, -69.5, 542, -69.5, 554, -90.5, 555, -90.5, 553, -129.5, 553, -133.5, 528, -170.5, 528, -171.5, 489, -190.5, 489, -191.5, 438, -194.5)

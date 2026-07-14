@@ -3,10 +3,6 @@ extends Node
 
 const PANEL_TEXTURE: Texture2D = preload("res://assets/ui/UI1.webp")
 const CONCH_TEXTURE: Texture2D = preload("res://assets/ui/shell_normal_conch.png")
-const SHADOW_SHADER: Shader = preload(
-	"res://rebuild_v3/shared/shaders/hud_drop_shadow.gdshader"
-)
-
 @export_category("Editor Preview")
 @export var preview_onos: int = 12
 @export var preview_fins: int = 4
@@ -26,6 +22,9 @@ func _ready() -> void:
 		return
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_process(true)
+	var hud: Control = get_parent() as Control
+	if hud != null:
+		_panel_shadow = hud.get_node_or_null("PanelShadow") as TextureRect
 	_refresh_preview()
 
 
@@ -161,7 +160,9 @@ func _refresh_preview() -> void:
 		preview_item_b_glow_alpha,
 	)
 
-	_ensure_shadow(hud, panel)
+	_panel_shadow = hud.get_node_or_null("PanelShadow") as TextureRect
+	if is_instance_valid(_panel_shadow):
+		_panel_shadow.texture = PANEL_TEXTURE
 	_update_shadow(hud)
 
 
@@ -169,25 +170,6 @@ func _apply_rect(control: Control, target_rect: Rect2) -> void:
 	control.position = target_rect.position
 	control.size = target_rect.size
 
-
-func _ensure_shadow(hud: Control, panel: TextureRect) -> void:
-	if is_instance_valid(_panel_shadow):
-		return
-	_panel_shadow = TextureRect.new()
-	_panel_shadow.name = "__EditorPanelShadow"
-	_panel_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_panel_shadow.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_panel_shadow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_panel_shadow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_panel_shadow.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	_panel_shadow.texture = PANEL_TEXTURE
-	_panel_shadow.z_index = -4
-	var material: ShaderMaterial = ShaderMaterial.new()
-	material.shader = SHADOW_SHADER
-	_panel_shadow.material = material
-	hud.add_child(_panel_shadow)
-	var panel_index: int = panel.get_index()
-	hud.move_child(_panel_shadow, maxi(0, panel_index))
 
 
 func _update_shadow(hud: Control) -> void:
