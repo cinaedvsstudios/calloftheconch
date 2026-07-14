@@ -1,41 +1,13 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd" id="1_controller"]
-[ext_resource type="VideoStream" path="res://assets/effects/transformeffect.ogv" id="2_transform"]
-[ext_resource type="VideoStream" path="res://assets/effects/purple shield.ogv" id="3_shield"]
-[ext_resource type="VideoStream" path="res://assets/effects/vent3.ogv" id="4_surge"]
-[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="5_screen_blend"]
-[ext_resource type="AudioStream" path="res://assets/audio/morph2.mp3" id="6_morph"]
-[ext_resource type="AudioStream" path="res://assets/audio/powerdown2.mp3" id="7_powerdown"]
-[ext_resource type="AudioStream" path="res://assets/audio/magic force field.mp3" id="8_shield_audio"]
-[ext_resource type="AudioStream" path="res://assets/audio/invisibility.mp3" id="9_invisibility"]
-
-[sub_resource type="ShaderMaterial" id="TransformMaterial"]
-resource_local_to_scene = true
-shader = ExtResource("5_screen_blend")
-shader_parameter/cut_off = 0.01
-shader_parameter/fade_width = 0.08
-shader_parameter/brightness = 4.0
-shader_parameter/waterline_screen_y = -1.0
-shader_parameter/waterline_fade = 0.012
-
-[sub_resource type="ShaderMaterial" id="ShieldMaterial"]
-resource_local_to_scene = true
-shader = ExtResource("5_screen_blend")
-shader_parameter/cut_off = 0.01
-shader_parameter/fade_width = 0.08
-shader_parameter/brightness = 4.0
-shader_parameter/waterline_screen_y = -1.0
-shader_parameter/waterline_fade = 0.012
-
-[sub_resource type="ShaderMaterial" id="SurgeMaterial"]
-resource_local_to_scene = true
-shader = ExtResource("5_screen_blend")
-shader_parameter/cut_off = 0.01
-shader_parameter/fade_width = 0.08
-shader_parameter/brightness = 4.0
-shader_parameter/waterline_screen_y = -1.0
-shader_parameter/waterline_fade = 0.012
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/crown_sea_grapes/greatfin_transform_effect.tscn" id="2_transform"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/murex_pecten/purple_shield_effect.tscn" id="3_shield"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/tridacna_gigas/surge_effect.tscn" id="4_surge"]
+[ext_resource type="AudioStream" path="res://assets/audio/morph2.mp3" id="5_morph"]
+[ext_resource type="AudioStream" path="res://assets/audio/powerdown2.mp3" id="6_powerdown"]
+[ext_resource type="AudioStream" path="res://assets/audio/magic force field.mp3" id="7_shield_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/invisibility.mp3" id="8_invisibility"]
 
 [node name="ItemEffectController" type="Node2D"]
 script = ExtResource("1_controller")
@@ -48,70 +20,33 @@ super_conch_brightness = 2.2
 unique_name_in_owner = true
 z_index = 7
 
-[node name="TransformEffect" type="VideoStreamPlayer" parent="HylasVideoAnchor"]
+[node name="TransformEffect" parent="HylasVideoAnchor" instance=ExtResource("2_transform")]
 unique_name_in_owner = true
-visible = false
-material = SubResource("TransformMaterial")
-offset_left = -405.0
-offset_top = -330.0
-offset_right = 405.0
-offset_bottom = 330.0
-pivot_offset = Vector2(405, 330)
-rotation = 1.5707964
-mouse_filter = 2
-stream = ExtResource("2_transform")
-volume_db = -80.0
-expand = true
 
-[node name="PurpleShieldEffect" type="VideoStreamPlayer" parent="HylasVideoAnchor"]
+[node name="PurpleShieldEffect" parent="HylasVideoAnchor" instance=ExtResource("3_shield")]
 unique_name_in_owner = true
-visible = false
-material = SubResource("ShieldMaterial")
-offset_left = -310.0
-offset_top = -260.0
-offset_right = 310.0
-offset_bottom = 260.0
-pivot_offset = Vector2(310, 260)
-rotation = 1.5707964
-mouse_filter = 2
-stream = ExtResource("3_shield")
-volume_db = -80.0
-expand = true
-loop = true
 
-[node name="SurgeEffect" type="VideoStreamPlayer" parent="HylasVideoAnchor"]
+[node name="SurgeEffect" parent="HylasVideoAnchor" instance=ExtResource("4_surge")]
 unique_name_in_owner = true
-visible = false
-material = SubResource("SurgeMaterial")
-offset_left = -300.0
-offset_top = -230.0
-offset_right = 300.0
-offset_bottom = 230.0
-pivot_offset = Vector2(300, 230)
-mouse_filter = 2
-stream = ExtResource("4_surge")
-volume_db = -80.0
-expand = true
-loop = true
 
 [node name="MorphAudio" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
-stream = ExtResource("6_morph")
+stream = ExtResource("5_morph")
 volume_db = -3.0
 
 [node name="PowerdownAudio" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
-stream = ExtResource("7_powerdown")
+stream = ExtResource("6_powerdown")
 volume_db = -3.0
 
 [node name="ShieldAudio" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
-stream = ExtResource("8_shield_audio")
+stream = ExtResource("7_shield_audio")
 volume_db = -5.0
 
 [node name="InvisibilityAudio" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
-stream = ExtResource("9_invisibility")
+stream = ExtResource("8_invisibility")
 volume_db = -4.0
 
 [node name="Projectiles" type="Node2D" parent="."]
