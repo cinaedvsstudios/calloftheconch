@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd" id="1_controller"]
 [ext_resource type="VideoStream" path="res://assets/effects/transformeffect.ogv" id="2_transform"]
