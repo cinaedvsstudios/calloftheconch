@@ -66,11 +66,15 @@ func trigger(origin: Vector2, direction: Vector2) -> void:
 
 
 func trigger_from_player(origin: Vector2, direction: Vector2, player_origin: Vector2) -> void:
-	global_position = origin
-	_last_trigger_origin = origin
-	_last_player_origin = player_origin
 	_player_source = _find_player_source(player_origin)
-	_player_forward_offset = origin.distance_to(player_origin)
+	var resolved_origin: Vector2 = origin
+	if is_instance_valid(_player_source):
+		resolved_origin = _get_source_pulse_origin(_player_source, origin)
+
+	global_position = resolved_origin
+	_last_trigger_origin = resolved_origin
+	_last_player_origin = player_origin
+	_player_forward_offset = resolved_origin.distance_to(player_origin)
 	_pulse_direction = direction
 	if _pulse_direction.length_squared() <= 0.0001:
 		_pulse_direction = Vector2.RIGHT
@@ -186,6 +190,20 @@ func _find_player_source(player_origin: Vector2) -> Node2D:
 	return closest_source
 
 
+func _get_source_pulse_origin(source: Node2D, fallback_origin: Vector2) -> Vector2:
+	var origin_marker: Marker2D = source.get_node_or_null("ConchPulseOrigin") as Marker2D
+	if origin_marker == null:
+		return fallback_origin
+
+	var local_offset: Vector2 = origin_marker.position
+	var player_sprite: AnimatedSprite2D = source.get_node_or_null("AnimatedSprite") as AnimatedSprite2D
+	if player_sprite != null:
+		if player_sprite.flip_h:
+			local_offset.x = -local_offset.x
+		local_offset = local_offset.rotated(player_sprite.rotation)
+	return source.global_position + local_offset
+
+
 func _update_player_tracking() -> void:
 	if not is_instance_valid(_player_source):
 		return
@@ -199,7 +217,8 @@ func _update_player_tracking() -> void:
 		return
 	_pulse_direction = updated_direction.normalized()
 	_last_player_origin = _player_source.global_position
-	global_position = _last_player_origin + _pulse_direction * _player_forward_offset
+	var fallback_origin: Vector2 = _last_player_origin + _pulse_direction * _player_forward_offset
+	global_position = _get_source_pulse_origin(_player_source, fallback_origin)
 	_apply_pulse_direction()
 
 
