@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3]
 
-[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/item_effect_controller.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd" id="1_controller"]
 [ext_resource type="VideoStream" path="res://assets/effects/transformeffect.ogv" id="2_transform"]
 [ext_resource type="VideoStream" path="res://assets/effects/purple shield.ogv" id="3_shield"]
 [ext_resource type="VideoStream" path="res://assets/effects/vent3.ogv" id="4_surge"]
