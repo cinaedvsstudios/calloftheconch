@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="VideoStream" path="res://assets/effects/transformeffect.ogv" id="1_video"]
+[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="TransformMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("2_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 4.0
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
+
+[node name="GreatfinTransformEffect" type="VideoStreamPlayer"]
+visible = false
+material = SubResource("TransformMaterial")
+offset_left = -405.0
+offset_top = -330.0
+offset_right = 405.0
+offset_bottom = 330.0
+pivot_offset = Vector2(405, 330)
+rotation = 1.5707964
+mouse_filter = 2
+stream = ExtResource("1_video")
+volume_db = -80.0
+expand = true
