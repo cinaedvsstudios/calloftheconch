@@ -1,9 +1,10 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene format=3 uid="uid://idhmlc4a6j71"]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/pillars_city/pillars_city.gd" id="1_controller"]
-[ext_resource type="VideoStream" path="res://assets/effects/bubble_riser_field.ogv" id="2_bubbles"]
-[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="3_shader"]
-[ext_resource type="Script" path="res://rebuild_v3/editor/pillars_city_editor_preview.gd" id="4_editor_preview"]
+[ext_resource type="Script" uid="uid://bun8at8arie2d" path="res://rebuild_v3/features/pillars_city/pillars_city.gd" id="1_controller"]
+[ext_resource type="VideoStream" uid="uid://buw0jv63vxw0i" path="res://assets/effects/bubble_riser_field.ogv" id="2_bubbles"]
+[ext_resource type="Texture2D" uid="uid://buy2xigeax08g" path="res://assets/backgrounds/bg_pillars_city.jpg" id="2_eomap"]
+[ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="3_shader"]
+[ext_resource type="Script" uid="uid://c5wras88htal6" path="res://rebuild_v3/editor/pillars_city_editor_preview.gd" id="4_editor_preview"]
 
 [sub_resource type="ShaderMaterial" id="BubbleMaterial"]
 shader = ExtResource("3_shader")
@@ -16,7 +17,7 @@ shader_parameter/waterline_fade = 0.012
 [sub_resource type="StyleBoxEmpty" id="HotspotNormal"]
 
 [sub_resource type="StyleBoxFlat" id="HotspotHover"]
-bg_color = Color(0.08, 0.92, 1, 0.10)
+bg_color = Color(0.08, 0.92, 1, 0.1)
 border_width_left = 3
 border_width_top = 3
 border_width_right = 3
@@ -42,22 +43,23 @@ corner_radius_bottom_left = 22
 [sub_resource type="SystemFont" id="CityFont"]
 font_names = PackedStringArray("Cinzel", "Trajan Pro", "Times New Roman", "Georgia", "Noto Serif")
 font_weight = 600
+subpixel_positioning = 0
 
-[node name="PillarsCity" type="CanvasLayer"]
-layer = 10
+[node name="PillarsCity" type="CanvasLayer" unique_id=981475936]
 process_mode = 3
+layer = 10
 script = ExtResource("1_controller")
 
-[node name="FallbackBackground" type="ColorRect" parent="."]
+[node name="FallbackBackground" type="ColorRect" parent="." unique_id=1460987942]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.01, 0.11, 0.25, 1)
 mouse_filter = 2
+color = Color(0.01, 0.11, 0.25, 1)
 
-[node name="CityBackground" type="TextureRect" parent="."]
+[node name="CityBackground" type="TextureRect" parent="." unique_id=2046866710]
 unique_name_in_owner = true
 anchors_preset = 15
 anchor_right = 1.0
@@ -65,11 +67,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+texture = ExtResource("2_eomap")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="BubbleOverlay" type="VideoStreamPlayer" parent="."]
+[node name="BubbleOverlay" type="VideoStreamPlayer" parent="." unique_id=848227614]
 unique_name_in_owner = true
+visible = false
 material = SubResource("BubbleMaterial")
 anchors_preset = 15
 anchor_right = 1.0
@@ -78,10 +82,11 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 stream = ExtResource("2_bubbles")
-loop = true
 expand = true
+loop = true
 
-[node name="Hotspots" type="Control" parent="."]
+[node name="Hotspots" type="Control" parent="." unique_id=1505953226]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -89,69 +94,69 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ExitGateButton" type="Button" parent="Hotspots"]
+[node name="ExitGateButton" type="Button" parent="Hotspots" unique_id=799069227]
 unique_name_in_owner = true
+layout_mode = 0
 offset_left = 18.0
 offset_top = 146.0
 offset_right = 318.0
 offset_bottom = 565.0
+tooltip_text = "Return to The Sea of Pillars"
 focus_neighbor_right = NodePath("../MenuBuildingButton")
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("HotspotNormal")
-theme_override_styles/hover = SubResource("HotspotHover")
 theme_override_styles/pressed = SubResource("HotspotHover")
+theme_override_styles/hover = SubResource("HotspotHover")
 theme_override_styles/focus = SubResource("HotspotHover")
-text = ""
-tooltip_text = "Return to The Sea of Pillars"
 
-[node name="MenuBuildingButton" type="Button" parent="Hotspots"]
+[node name="MenuBuildingButton" type="Button" parent="Hotspots" unique_id=695181176]
 unique_name_in_owner = true
+layout_mode = 0
 offset_left = 332.0
 offset_top = 265.0
 offset_right = 560.0
 offset_bottom = 545.0
+tooltip_text = "Menu"
 focus_neighbor_left = NodePath("../ExitGateButton")
 focus_neighbor_right = NodePath("../AgoraButton")
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("HotspotNormal")
-theme_override_styles/hover = SubResource("HotspotHover")
 theme_override_styles/pressed = SubResource("HotspotHover")
+theme_override_styles/hover = SubResource("HotspotHover")
 theme_override_styles/focus = SubResource("HotspotHover")
-text = ""
-tooltip_text = "Menu"
 
-[node name="AgoraButton" type="Button" parent="Hotspots"]
+[node name="AgoraButton" type="Button" parent="Hotspots" unique_id=1346330298]
 unique_name_in_owner = true
+layout_mode = 0
 offset_left = 552.0
 offset_top = 250.0
 offset_right = 760.0
 offset_bottom = 548.0
+tooltip_text = "The Agora of Myra"
 focus_neighbor_left = NodePath("../MenuBuildingButton")
 focus_neighbor_right = NodePath("../OracleButton")
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("HotspotNormal")
-theme_override_styles/hover = SubResource("HotspotHover")
 theme_override_styles/pressed = SubResource("HotspotHover")
+theme_override_styles/hover = SubResource("HotspotHover")
 theme_override_styles/focus = SubResource("HotspotHover")
-text = ""
-tooltip_text = "The Agora of Myra"
 
-[node name="OracleButton" type="Button" parent="Hotspots"]
+[node name="OracleButton" type="Button" parent="Hotspots" unique_id=2036945649]
 unique_name_in_owner = true
+layout_mode = 0
 offset_left = 766.0
 offset_top = 250.0
 offset_right = 992.0
 offset_bottom = 548.0
+tooltip_text = "The Hieron of the Oracle"
 focus_neighbor_left = NodePath("../AgoraButton")
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("HotspotNormal")
-theme_override_styles/hover = SubResource("HotspotHover")
 theme_override_styles/pressed = SubResource("HotspotHover")
+theme_override_styles/hover = SubResource("HotspotHover")
 theme_override_styles/focus = SubResource("HotspotHover")
-text = ""
-tooltip_text = "The Hieron of the Oracle"
 
-[node name="InteractionHint" type="Label" parent="."]
+[node name="InteractionHint" type="Label" parent="." unique_id=903124472]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -167,30 +172,30 @@ theme_override_colors/font_color = Color(0.85, 0.96, 1, 0.92)
 theme_override_colors/font_outline_color = Color(0, 0.03, 0.09, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
-text = "Select a doorway with the mouse or arrow keys, then press Space"
+text = "EDITOR PREVIEW — SWIM TO A DOORWAY AND PRESS SPACE"
 horizontal_alignment = 1
 
-[node name="LocationOverlay" type="Control" parent="."]
+[node name="LocationOverlay" type="Control" parent="." unique_id=1640427267]
 unique_name_in_owner = true
 process_mode = 3
+visible = false
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 
-[node name="Shade" type="ColorRect" parent="LocationOverlay"]
-anchors_preset = 15
+[node name="Shade" type="ColorRect" parent="LocationOverlay" unique_id=1963265545]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0.015, 0.05, 0.72)
-mouse_filter = 0
 
-[node name="Panel" type="PanelContainer" parent="LocationOverlay"]
-anchors_preset = 8
+[node name="Panel" type="PanelContainer" parent="LocationOverlay" unique_id=354508854]
+layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -203,26 +208,26 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("LocationPanelStyle")
 
-[node name="Margin" type="MarginContainer" parent="LocationOverlay/Panel"]
+[node name="Margin" type="MarginContainer" parent="LocationOverlay/Panel" unique_id=1317494309]
 layout_mode = 2
 theme_override_constants/margin_left = 38
 theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 38
 theme_override_constants/margin_bottom = 30
 
-[node name="Content" type="VBoxContainer" parent="LocationOverlay/Panel/Margin"]
+[node name="Content" type="VBoxContainer" parent="LocationOverlay/Panel/Margin" unique_id=507874500]
 layout_mode = 2
 theme_override_constants/separation = 18
 alignment = 1
 
-[node name="LocationSign" type="TextureRect" parent="LocationOverlay/Panel/Margin/Content"]
+[node name="LocationSign" type="TextureRect" parent="LocationOverlay/Panel/Margin/Content" unique_id=704497221]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(360, 145)
 layout_mode = 2
 expand_mode = 3
 stretch_mode = 5
 
-[node name="LocationTitle" type="Label" parent="LocationOverlay/Panel/Margin/Content"]
+[node name="LocationTitle" type="Label" parent="LocationOverlay/Panel/Margin/Content" unique_id=1307516958]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.92, 0.95, 1)
@@ -233,7 +238,7 @@ theme_override_font_sizes/font_size = 31
 text = "THE AGORA OF MYRA"
 horizontal_alignment = 1
 
-[node name="LocationSubtitle" type="Label" parent="LocationOverlay/Panel/Margin/Content"]
+[node name="LocationSubtitle" type="Label" parent="LocationOverlay/Panel/Margin/Content" unique_id=1445604458]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.88, 0.94, 1)
@@ -242,21 +247,26 @@ text = "Trade, supplies and the city’s working marketplace."
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="ReturnButton" type="Button" parent="LocationOverlay/Panel/Margin/Content"]
+[node name="ReturnButton" type="Button" parent="LocationOverlay/Panel/Margin/Content" unique_id=992396546]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(260, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "RETURN TO CITY"
 
-[node name="CityHylasSpawn" type="Marker2D" parent="."]
+[node name="CityHylasSpawn" type="Marker2D" parent="." unique_id=1524085285]
 position = Vector2(640, 561.6)
 
-[node name="EditorPreview" type="Control" parent="."]
-layout_mode = 1
+[node name="EditorPreview" type="Control" parent="." unique_id=829899664]
+process_mode = 3
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 50.0
+offset_top = 10.0
+offset_right = 50.0
+offset_bottom = 10.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
