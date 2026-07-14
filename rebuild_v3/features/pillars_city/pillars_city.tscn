@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/features/pillars_city/pillars_city.gd" id="1_controller"]
 [ext_resource type="VideoStream" path="res://assets/effects/bubble_riser_field.ogv" id="2_bubbles"]
 [ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="3_shader"]
+[ext_resource type="Script" path="res://rebuild_v3/editor/pillars_city_editor_preview.gd" id="4_editor_preview"]
 
 [sub_resource type="ShaderMaterial" id="BubbleMaterial"]
 shader = ExtResource("3_shader")
@@ -247,3 +248,13 @@ custom_minimum_size = Vector2(260, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "RETURN TO CITY"
+
+[node name="EditorPreview" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("4_editor_preview")
