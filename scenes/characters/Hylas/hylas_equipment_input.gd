@@ -3,9 +3,8 @@ extends "res://scenes/characters/Hylas/hylas_reliable_input.gd"
 ## Equipment-aware action layer for Hylas.
 ##
 ## Input is matched through InputMap actions so remapped controls retain the
-## same conflict rules. The inherited movement and interaction timing remain
-## unchanged: a nearby interaction receives the first Item A press, while a
-## second press inside the interaction window uses Item A instead.
+## same conflict rules. The first Item A binding shares the nearby interaction
+## timing, while alternate Item A bindings continue to activate directly.
 
 signal item_a_requested(item_id: StringName, origin: Vector2, direction: Vector2)
 
@@ -70,7 +69,7 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if event.is_action_pressed(&"conch", false, true):
-		_space_action_pressed_this_frame = true
+		_space_action_pressed_this_frame = _is_primary_item_a_binding(event)
 
 
 func _physics_process(delta: float) -> void:
@@ -82,7 +81,6 @@ func _handle_conch_pressed(input_direction: Vector2) -> void:
 	if _tail_flip_chord_active or _utility_item_pressed_this_frame:
 		return
 
-	# Any remapped Item A binding now participates in the same interaction rule.
 	if not _space_action_pressed_this_frame or not _interaction_available:
 		_request_equipped_item_a(input_direction)
 		return
@@ -93,6 +91,13 @@ func _handle_conch_pressed(input_direction: Vector2) -> void:
 		return
 
 	_pending_interaction_remaining = interaction_double_tap_window
+
+
+func _is_primary_item_a_binding(event: InputEvent) -> bool:
+	var bindings: Array[InputEvent] = InputMap.action_get_events(&"conch")
+	if bindings.is_empty():
+		return true
+	return event.is_match(bindings[0], true)
 
 
 func _request_equipped_item_a(input_direction: Vector2) -> bool:
