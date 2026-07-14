@@ -56,7 +56,8 @@ func play_feedback(target: Node2D = null, reward_kind: StringName = &"") -> void
 	var video_seconds: float = 0.0
 	if _video.stream != null:
 		video_seconds = _video.get_stream_length() / maxf(0.01, playback_speed)
-	var effect_seconds: float = maxf(0.1, maxf(video_seconds, reward_animation_seconds))
+	var effect_seconds: float = video_seconds if video_seconds > 0.0 else reward_animation_seconds
+	effect_seconds = maxf(0.1, effect_seconds)
 	_start_feedback_fade(effect_seconds)
 	_lifetime.start(maxf(0.35, effect_seconds + 0.08))
 
