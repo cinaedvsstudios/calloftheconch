@@ -10,11 +10,15 @@
 [ext_resource type="AudioStream" path="res://assets/audio/invisibility.mp3" id="8_invisibility"]
 
 [node name="ItemEffectController" type="Node2D"]
+process_mode = 1
 script = ExtResource("1_controller")
+purple_shield_seconds = 10.0
 camouflage_seconds = 10.0
 surge_seconds = 30.0
 super_conch_tint = Color(0.35, 1, 0.72, 1)
 super_conch_brightness = 2.2
+sonic_drill_tint = Color(0.22, 1, 0.48, 1)
+sonic_drill_brightness = 3.6
 
 [node name="HylasVideoAnchor" type="Node2D" parent="."]
 unique_name_in_owner = true
