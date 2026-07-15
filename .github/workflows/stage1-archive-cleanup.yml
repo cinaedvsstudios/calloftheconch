@@ -1,0 +1,131 @@
+name: Stage 1 archive cleanup
+
+on:
+  push:
+    branches:
+      - work/stage1-archive-cleanup-2026-07-15
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: ${{ !contains(github.event.head_commit.message, '[stage1-cleanup-done]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out cleanup branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/stage1-archive-cleanup-2026-07-15
+          fetch-depth: 0
+
+      - name: Install Godot 4.7
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+          include-templates: false
+
+      - name: Redirect active references and archive wrappers
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              "res://rebuild_v3/features/items/conus_tether_projectile.tscn": "res://rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.tscn",
+              "res://rebuild_v3/features/items/ink_blob_projectile.tscn": "res://rebuild_v3/game/shared/items/argonauta/ink_blob_projectile.tscn",
+              "res://rebuild_v3/features/items/ink_paralysis_cloud.tscn": "res://rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn",
+              "res://rebuild_v3/features/hylas/hylas.tscn": "res://scenes/characters/Hylas/hylas.tscn",
+          }
+
+          for path in Path('.').rglob('*'):
+              if not path.is_file() or path.suffix not in {'.gd', '.tscn', '.tres', '.cfg', '.md'}:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              updated = text
+              for old, new in replacements.items():
+                  updated = updated.replace(old, new)
+              if updated != text:
+                  path.write_text(updated, encoding='utf-8')
+          PY
+
+          rm -f rebuild_v3/app/contexts/gameplay/gameplay_level_variants.gd.uid
+
+          mkdir -p rebuild_v3/archive/obsolete_item_paths
+          mkdir -p rebuild_v3/archive/obsolete_hylas_paths
+
+          git mv rebuild_v3/features/items/conus_tether_projectile.tscn \
+            rebuild_v3/archive/obsolete_item_paths/conus_tether_projectile.tscn
+          git mv rebuild_v3/features/items/ink_blob_projectile.tscn \
+            rebuild_v3/archive/obsolete_item_paths/ink_blob_projectile.tscn
+          git mv rebuild_v3/features/items/ink_paralysis_cloud.tscn \
+            rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.tscn
+          git mv rebuild_v3/features/hylas/hylas.tscn \
+            rebuild_v3/archive/obsolete_hylas_paths/hylas.tscn
+
+          cat > rebuild_v3/archive/STAGE1_CLEANUP_2026-07-15.md <<'EOF'
+          # Stage 1 archive cleanup — 2026-07-15
+
+          Active references were redirected to canonical item and Hylas scenes before these compatibility wrappers were archived.
+
+          Archived wrappers:
+          - obsolete_item_paths/conus_tether_projectile.tscn
+          - obsolete_item_paths/ink_blob_projectile.tscn
+          - obsolete_item_paths/ink_paralysis_cloud.tscn
+          - obsolete_hylas_paths/hylas.tscn
+
+          Removed orphan:
+          - app/contexts/gameplay/gameplay_level_variants.gd.uid
+          EOF
+
+          if grep -R --line-number --fixed-strings \
+            -e 'res://rebuild_v3/features/items/conus_tether_projectile.tscn' \
+            -e 'res://rebuild_v3/features/items/ink_blob_projectile.tscn' \
+            -e 'res://rebuild_v3/features/items/ink_paralysis_cloud.tscn' \
+            -e 'res://rebuild_v3/features/hylas/hylas.tscn' \
+            --include='*.gd' --include='*.tscn' --include='*.tres' rebuild_v3 scenes; then
+            echo 'Old active wrapper reference remains.'
+            exit 1
+          fi
+
+          git diff --check
+
+      - name: Import project resources
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --editor --path . --quit-after 600 2>&1 | tee godot-editor.log
+
+      - name: Run project smoke test
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --quit-after 20 2>&1 | tee godot-runtime.log
+
+      - name: Reject relevant Godot errors
+        shell: bash
+        run: |
+          if grep -E 'Parse Error|Failed to load script|SCRIPT ERROR|Invalid call|Invalid set index|Cannot assign|Could not load|Node not found|is not a valid child' godot-editor.log godot-runtime.log; then
+            echo 'Godot reported a relevant project error.'
+            exit 1
+          fi
+          git diff --check
+
+      - name: Commit validated cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Archive superseded compatibility wrappers [stage1-cleanup-done]'
+          git push origin HEAD:work/stage1-archive-cleanup-2026-07-15
