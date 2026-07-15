@@ -1,0 +1,351 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_main_clean.gd" id="1_controller"]
+[ext_resource type="Shader" path="res://cloudeffect.gdshader" id="2_cloud_shader"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/horizon.png" id="3_horizon"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/looping_audio_player.gd" id="4_looping_audio"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/clouds2.jpg" id="5_clouds"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/watertile.jpg" id="6_waterlines"]
+[ext_resource type="Shader" path="res://assets/backgrounds/waterline2.gdshader" id="7_waterline_shader"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/hylas/hylas.tscn" id="8_hylas"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/conch_pulse.tscn" id="9_conch_pulse"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/surface_splash.tscn" id="10_surface_splash"]
+[ext_resource type="VideoStream" path="res://assets/effects/bubble_riser_field.ogv" id="11_bubble_overlay"]
+[ext_resource type="AudioStream" path="res://assets/audio/underwater_ambience.mp3" id="12_ambience"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/beach.webp" id="13_beach"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/rock4.webp" id="14_rock"]
+[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="15_bubble_shader"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/island00.webp" id="16_island"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/sea_of_pillars/lower_water_fade_left.gdshader" id="17_lower_water_shader"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/waterbgparalax2.webp" id="18_lower_water"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/whale_travel/whale_travel.tscn" id="19_whale_travel"]
+
+[sub_resource type="Gradient" id="SeaGradient"]
+offsets = PackedFloat32Array(0, 0.17130715, 0.645625, 0.950625)
+colors = PackedColorArray(0, 0.88931584, 0.88330317, 1, 5.968213e-06, 0.13563246, 0.42747644, 1, 0, 0.06311514, 0.13412923, 1, 0, 0.049527436, 0.043402955, 1)
+
+[sub_resource type="GradientTexture2D" id="SeaGradientTexture"]
+gradient = SubResource("SeaGradient")
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="SkyGradient"]
+colors = PackedColorArray(1.9348561e-05, 0.55007964, 0.8655462, 1, 0.7894599, 0.923369, 0.99490505, 1)
+
+[sub_resource type="GradientTexture2D" id="SkyGradientTexture"]
+gradient = SubResource("SkyGradient")
+fill_to = Vector2(0, 1)
+
+[sub_resource type="CanvasItemMaterial" id="HorizonMaterial"]
+
+[sub_resource type="ShaderMaterial" id="CloudMaterial"]
+shader = ExtResource("2_cloud_shader")
+shader_parameter/blend_mode = 0
+shader_parameter/opacity = 0.77999998256544
+shader_parameter/strength = 1.999999955296
+shader_parameter/brightness = 0.0
+shader_parameter/lightness = 0.0
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/black_threshold = 0.008
+shader_parameter/black_softness = 0.025
+
+[sub_resource type="ShaderMaterial" id="WaterlineMaterial"]
+shader = ExtResource("7_waterline_shader")
+shader_parameter/blend_mode = 0
+shader_parameter/opacity = 0.999999977648
+shader_parameter/strength = 1.13999997451872
+shader_parameter/brightness = -0.22000001743456
+shader_parameter/lightness = -0.10000002011679998
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/black_threshold = 0.1050000049875
+shader_parameter/black_softness = 0.1070000050825
+shader_parameter/drift_speed_x = 0.05000000889476999
+shader_parameter/drift_speed_y = 0.002
+shader_parameter/warp_strength_x = 0.015
+shader_parameter/warp_strength_y = 0.006
+shader_parameter/warp_frequency_x = 8.5000001266602
+shader_parameter/warp_frequency_y = 10.90000016242308
+shader_parameter/warp_speed = 2.21999995037856
+
+[sub_resource type="ShaderMaterial" id="LowerWaterMaterial"]
+shader = ExtResource("17_lower_water_shader")
+shader_parameter/strength = 0.6350000301625
+shader_parameter/fade_start = 0.05600000266
+shader_parameter/fade_end = 0.0
+
+[sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
+shader = ExtResource("15_bubble_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 4.0
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
+
+[node name="SeaOfPillars" type="Node2D"]
+script = ExtResource("1_controller")
+conch_origin_forward_offset = 111.0
+
+[node name="BackgroundLayer" type="Node2D" parent="."]
+z_index = -30
+metadata/_edit_lock_ = true
+
+[node name="sea gradient" type="TextureRect" parent="BackgroundLayer"]
+offset_left = 160.0
+offset_top = 2271.0
+offset_right = 56303.0
+offset_bottom = 8404.0
+texture = SubResource("SeaGradientTexture")
+metadata/_edit_lock_ = true
+
+[node name="sky gradient" type="TextureRect" parent="BackgroundLayer"]
+offset_left = -115.0
+offset_top = 940.0
+offset_right = 56134.0
+offset_bottom = 2271.0
+texture = SubResource("SkyGradientTexture")
+metadata/_edit_lock_ = true
+
+[node name="horizon2" type="TextureRect" parent="BackgroundLayer"]
+self_modulate = Color(0.94509804, 0.94509804, 0.94509804, 0.7019608)
+z_index = 2
+material = SubResource("HorizonMaterial")
+offset_left = 67.0
+offset_top = 2004.0
+offset_right = 56350.0
+offset_bottom = 2492.0
+texture = ExtResource("3_horizon")
+stretch_mode = 1
+metadata/_edit_lock_ = true
+
+[node name="clouds" type="Node2D" parent="BackgroundLayer"]
+position = Vector2(-63, 148)
+metadata/_edit_lock_ = true
+
+[node name="cloud effect" type="TextureRect" parent="BackgroundLayer/clouds"]
+texture_repeat = 3
+material = SubResource("CloudMaterial")
+offset_left = -758.0
+offset_top = 607.0
+offset_right = 56005.0
+offset_bottom = 2239.0
+offset_transform_enabled = true
+offset_transform_scale = Vector2(1.5, 0.8)
+texture = ExtResource("5_clouds")
+stretch_mode = 1
+metadata/_edit_lock_ = true
+
+[node name="water" type="Node2D" parent="BackgroundLayer"]
+
+[node name="ParallaxLayer" type="Node2D" parent="."]
+z_index = -20
+metadata/_edit_lock_ = true
+
+[node name="waterlines" type="TextureRect" parent="ParallaxLayer"]
+z_index = -9
+texture_repeat = 2
+material = SubResource("WaterlineMaterial")
+offset_left = -947.0
+offset_top = 2271.0
+offset_right = 75211.664
+offset_bottom = 5075.0
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("6_waterlines")
+stretch_mode = 1
+metadata/_edit_lock_ = true
+
+[node name="Waterbgparalax2" type="Sprite2D" parent="ParallaxLayer"]
+z_index = -10
+material = SubResource("LowerWaterMaterial")
+position = Vector2(12302.001, 6641.0005)
+rotation = 0.2617994
+scale = Vector2(0.99999994, 1.4571664)
+texture = ExtResource("18_lower_water")
+
+[node name="Waterbgparalax3" type="Sprite2D" parent="ParallaxLayer"]
+z_index = -10
+material = SubResource("LowerWaterMaterial")
+position = Vector2(9276, 5408)
+rotation = 1.0471976
+scale = Vector2(1, 1.4571664)
+texture = ExtResource("18_lower_water")
+
+[node name="Waterbgparalax4" type="Sprite2D" parent="ParallaxLayer"]
+z_index = -9
+material = SubResource("LowerWaterMaterial")
+position = Vector2(18334.002, 6064.0005)
+rotation = 0.17941025
+scale = Vector2(1, 1.4571664)
+texture = ExtResource("18_lower_water")
+
+[node name="Waterbgparalax5" type="Sprite2D" parent="ParallaxLayer"]
+z_index = -10
+material = SubResource("LowerWaterMaterial")
+position = Vector2(25657.713, 5716.6504)
+rotation = -1.3089969
+scale = Vector2(1.1431174, 1.4571664)
+texture = ExtResource("18_lower_water")
+
+[node name="Waterbgparalax6" type="Sprite2D" parent="ParallaxLayer"]
+z_index = -10
+material = SubResource("LowerWaterMaterial")
+position = Vector2(28257.002, 4464.001)
+rotation = 2.629227
+scale = Vector2(0.65824205, 1.0225587)
+texture = ExtResource("18_lower_water")
+
+[node name="Waterbgparalax7" type="Sprite2D" parent="ParallaxLayer"]
+z_index = -10
+material = SubResource("LowerWaterMaterial")
+position = Vector2(26807.998, 6261.9995)
+rotation = 1.854195
+scale = Vector2(0.658242, 1.0225587)
+texture = ExtResource("18_lower_water")
+
+[node name="Waterbgparalax8" type="Sprite2D" parent="ParallaxLayer"]
+z_index = -10
+material = SubResource("LowerWaterMaterial")
+position = Vector2(33704.082, 6492)
+rotation = 3.1415925
+scale = Vector2(0.89545274, 1.0225587)
+texture = ExtResource("18_lower_water")
+
+[node name="Waterbgparalax9" type="Sprite2D" parent="ParallaxLayer"]
+z_index = -10
+material = SubResource("LowerWaterMaterial")
+position = Vector2(37857.004, 4227.0005)
+rotation = 0.7853978
+scale = Vector2(1.0671278, 1.0225587)
+texture = ExtResource("18_lower_water")
+
+[node name="Waterbgparalax10" type="Sprite2D" parent="ParallaxLayer"]
+z_index = -10
+material = SubResource("LowerWaterMaterial")
+position = Vector2(33741.004, 5398.0005)
+rotation = -0.2617995
+scale = Vector2(1.0671278, 1.0225588)
+texture = ExtResource("18_lower_water")
+
+[node name="Waterbgparalax11" type="Sprite2D" parent="ParallaxLayer"]
+z_index = -10
+material = SubResource("LowerWaterMaterial")
+position = Vector2(39990, 5514)
+scale = Vector2(1.0671278, 1.0225587)
+texture = ExtResource("18_lower_water")
+
+[node name="Waterbgparalax12" type="Sprite2D" parent="ParallaxLayer"]
+z_index = -10
+material = SubResource("LowerWaterMaterial")
+position = Vector2(42889, 4387)
+rotation = -0.5235988
+scale = Vector2(1.0671278, 1.0225587)
+texture = ExtResource("18_lower_water")
+
+[node name="TerrainArtLayer" type="Node2D" parent="."]
+
+[node name="StarterTerrain" type="Node2D" parent="TerrainArtLayer"]
+
+[node name="Beach" type="Sprite2D" parent="TerrainArtLayer/StarterTerrain"]
+position = Vector2(1900, 2705)
+scale = Vector2(0.75, 1)
+texture = ExtResource("13_beach")
+
+[node name="Rock" type="Sprite2D" parent="TerrainArtLayer/StarterTerrain"]
+position = Vector2(3920, 3390)
+rotation = 0.18
+scale = Vector2(0.72, 0.72)
+texture = ExtResource("14_rock")
+
+[node name="Island" type="Sprite2D" parent="TerrainArtLayer/StarterTerrain"]
+position = Vector2(4550, 2290)
+scale = Vector2(0.72, 0.72)
+texture = ExtResource("16_island")
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="ObjectsLayer" type="Node2D" parent="."]
+
+[node name="TriggersLayer" type="Node2D" parent="."]
+
+[node name="WaterlineMarker" type="Marker2D" parent="TriggersLayer"]
+unique_name_in_owner = true
+position = Vector2(1191, 2291)
+
+[node name="SpawnPoints" type="Node2D" parent="."]
+
+[node name="HylasStart" type="Marker2D" parent="SpawnPoints"]
+unique_name_in_owner = true
+position = Vector2(2988, 3034)
+
+[node name="WorldTopLeft" type="Marker2D" parent="SpawnPoints"]
+unique_name_in_owner = true
+position = Vector2(0, 963)
+
+[node name="WorldBottomRight" type="Marker2D" parent="SpawnPoints"]
+unique_name_in_owner = true
+position = Vector2(56050, 8447)
+
+[node name="Audio" type="Node2D" parent="."]
+
+[node name="UnderwaterAmbience" type="AudioStreamPlayer" parent="Audio"]
+unique_name_in_owner = true
+stream = ExtResource("12_ambience")
+volume_db = -20.0
+script = ExtResource("4_looping_audio")
+
+[node name="EffectsLayer" type="Node2D" parent="."]
+
+[node name="ConchPulse" parent="EffectsLayer" instance=ExtResource("9_conch_pulse")]
+unique_name_in_owner = true
+z_index = 12
+
+[node name="ExitSurfaceSplash" parent="EffectsLayer" instance=ExtResource("10_surface_splash")]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.58431375)
+self_modulate = Color(1, 1, 0.9607843, 1)
+z_index = 12
+scale = Vector2(0.6, 0.6)
+
+[node name="EntrySurfaceSplash" parent="EffectsLayer" instance=ExtResource("10_surface_splash")]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.58431375)
+self_modulate = Color(1, 1, 0.9607843, 1)
+z_index = 12
+scale = Vector2(0.6, 0.6)
+
+[node name="BubbleOverlayLayer" type="CanvasLayer" parent="."]
+layer = 999
+metadata/_edit_lock_ = true
+
+[node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleOverlayLayer"]
+unique_name_in_owner = true
+material = SubResource("BubbleVideoMaterial")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 1281.0
+offset_bottom = 721.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stream = ExtResource("11_bubble_overlay")
+expand = true
+loop = true
+metadata/_edit_use_anchors_ = true
+metadata/_edit_lock_ = true
+
+[node name="Hylas" parent="." instance=ExtResource("8_hylas")]
+unique_name_in_owner = true
+z_index = 10
+position = Vector2(2399, 2907)
+
+[node name="Citymain" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-10000, -10000)
+metadata/_edit_lock_ = true
+
+[node name="WhaleTravel" parent="." instance=ExtResource("19_whale_travel")]
+process_mode = 4
+visible = false
+position = Vector2(-10000, -10000)
+metadata/_edit_lock_ = true
