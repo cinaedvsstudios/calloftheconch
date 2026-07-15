@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - fix/status-timer-death-2026-07-15
+  pull_request:
+    branches:
+      - main
 
 jobs:
   validate:
