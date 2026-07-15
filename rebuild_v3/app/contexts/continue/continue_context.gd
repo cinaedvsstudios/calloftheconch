@@ -184,7 +184,6 @@ func _create_save_row(save_data: Dictionary, index: int) -> Button:
 	row.add_theme_constant_override(&"shadow_offset_x", save_text_shadow_offset.x)
 	row.add_theme_constant_override(&"shadow_offset_y", save_text_shadow_offset.y)
 	row.text = _format_save_row(save_data)
-	row.mouse_entered.connect(_on_save_row_hovered.bind(index))
 	row.pressed.connect(_on_save_row_pressed.bind(index))
 	_apply_save_row_style(row, false)
 	return row
@@ -245,10 +244,6 @@ func _apply_save_row_style(row: Button, selected: bool) -> void:
 	row.add_theme_stylebox_override(&"disabled", _make_save_row_style(selected))
 
 
-func _on_save_row_hovered(index: int) -> void:
-	_select_index(index)
-
-
 func _on_save_row_pressed(index: int) -> void:
 	_select_index(index)
 
@@ -280,7 +275,7 @@ func _select_index(index: int) -> void:
 
 
 func _ensure_selected_visible() -> void:
-	if not _active or _selected_index < 0 or _selected_index >= _save_rows.size():
+	if _selected_index < 0 or _selected_index >= _save_rows.size():
 		return
 	var selected_row: Button = _save_rows[_selected_index]
 	if is_instance_valid(selected_row):
