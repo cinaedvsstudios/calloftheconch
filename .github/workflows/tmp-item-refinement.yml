@@ -1,0 +1,189 @@
+name: Temporary item refinement
+on:
+  push:
+    branches: [work/item-visual-timing-pass-2026-07-16]
+permissions:
+  contents: write
+jobs:
+  refine:
+    if: ${{ !contains(github.event.head_commit.message, '[item-refinement-done]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/item-visual-timing-pass-2026-07-16
+          fetch-depth: 0
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+      - name: Apply refinements
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def edit(path, replacements):
+              p=Path(path); s=p.read_text()
+              for old,new in replacements:
+                  if old not in s:
+                      raise SystemExit(f'missing pattern in {path}: {old[:80]!r}')
+                  s=s.replace(old,new)
+              p.write_text(s)
+
+          edit('rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn', [
+              ('purple_shield_seconds = 10.0','purple_shield_seconds = 30.0'),
+              ('camouflage_seconds = 10.0','camouflage_seconds = 30.0'),
+              ('sonic_drill_tint = Color(0.22, 1, 0.48, 1)','sonic_drill_tint = Color(1, 0.08, 0.88, 1)'),
+          ])
+          edit('rebuild_v3/app/contexts/gameplay/item_effect_controller.gd', [
+              ('var purple_shield_seconds: float = 6.0','var purple_shield_seconds: float = 30.0'),
+              ('var camouflage_seconds: float = 7.0','var camouflage_seconds: float = 30.0'),
+              ('@export var super_conch_tint: Color = Color(0.40, 0.95, 1.0, 1.0)','@export var super_conch_tint: Color = Color(0.20, 1.0, 0.48, 1.0)'),
+              ('@export var sonic_drill_tint: Color = Color(0.96, 0.30, 1.0, 1.0)','@export var sonic_drill_tint: Color = Color(1.0, 0.08, 0.88, 1.0)'),
+              ('"echo_alpha_decay": 0.06,','"echo_alpha_decay": 0.06,\n\t\t\t"pulse_interval_scale": 0.48,'),
+          ])
+          edit('rebuild_v3/features/effects/conch_pulse_item_profiles.gd', [
+              ('var _default_echo_alpha_decay: float','var _default_echo_alpha_decay: float\nvar _default_pulse_interval: float'),
+              ('_default_echo_alpha_decay = echo_alpha_decay','_default_echo_alpha_decay = echo_alpha_decay\n\t_default_pulse_interval = pulse_interval'),
+              ('echo_alpha_decay = float(profile.get("echo_alpha_decay", _default_echo_alpha_decay))','echo_alpha_decay = float(profile.get("echo_alpha_decay", _default_echo_alpha_decay))\n\tpulse_interval = _default_pulse_interval * float(profile.get("pulse_interval_scale", 1.0))'),
+          ])
+          edit('scenes/characters/Hylas/hylas_item_visuals.gd', [
+              ('const GREATFIN_VISUAL_SCALE: float = 1.30','const GREATFIN_VISUAL_SCALE: float = 1.30\nconst HELD_SHELL_VISUAL_SCALE: float = 0.62'),
+              ('_shell_overlay.scale = _animated_sprite.scale','_shell_overlay.scale = _animated_sprite.scale * HELD_SHELL_VISUAL_SCALE'),
+          ])
+          edit('rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.tscn', [
+              ('dart_display_height = 34.0','dart_display_height = 17.0'),
+              ('default_color = Color(0.12, 1, 0.58, 0.58)','default_color = Color(1, 0.28, 0.04, 0.62)'),
+              ('default_color = Color(0.82, 1, 0.9, 1)','default_color = Color(1, 0.72, 0.28, 1)'),
+          ])
+          edit('rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd', [
+              ('var dart_display_height: float = 34.0','var dart_display_height: float = 17.0'),
+              ('var rope_wave_speed: float = 1.8','var rope_wave_speed: float = 2.6\n@export_range(0.0, 20.0, 0.05) var rope_texture_scroll_speed: float = 4.0'),
+              ('_rope.points = points\n\t_rope_glow.points = points','_rope.points = points\n\t_rope_glow.points = points\n\t_rope.texture_offset = Vector2(_elapsed * rope_texture_scroll_speed * 100.0, 0.0)'),
+              ('rope_glow_color.a = lerpf(0.48, 0.72, pulse)','rope_glow_color = Color(1.0, 0.24, 0.03, lerpf(0.48, 0.78, pulse))'),
+          ])
+          edit('rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd', [
+              ('@export_range(0.1, 20.0, 0.1) var active_seconds: float = 10.0','@export_range(0.1, 60.0, 0.1) var active_seconds: float = 30.0'),
+              ('# Keep the source video visibly looping for the complete ten-second active','# Keep the source video visibly looping for the complete active'),
+              ('modulate.a = lerpf(minimum_opacity, maximum_opacity, breathing)','modulate.a = clampf(lerpf(minimum_opacity, maximum_opacity, breathing), 0.40, 0.80)'),
+          ])
+          edit('rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn', [
+              ('active_seconds = 10.0','active_seconds = 30.0'),
+          ])
+          edit('rebuild_v3/app/contexts/gameplay/gameplay_hud.tscn', [
+              ('[node name="ItemStatusCountdown" parent="ItemBIcon" instance=ExtResource("4_countdown")]','[node name="ItemStatusCountdown" parent="." instance=ExtResource("4_countdown")]'),
+          ])
+          edit('rebuild_v3/app/contexts/gameplay/gameplay_hud.gd', [
+              ('@onready var _item_b_empty: Label = %ItemBEmpty','@onready var _item_b_empty: Label = %ItemBEmpty\n@onready var _item_status_countdown: Control = %ItemStatusCountdown\n\nvar _tyche_icon: TextureRect\nvar _tyche_value: Label'),
+              ('_create_panel_shadow()\n\t_set_slot_rest_state','_create_panel_shadow()\n\t_create_tyche_display()\n\t_set_slot_rest_state'),
+              ('_game_state.inventory_changed.connect(_on_inventory_changed)','_game_state.inventory_changed.connect(_on_inventory_changed)\n\t\tif _game_state.has_signal(&"tyche_changed"):\n\t\t\t_game_state.tyche_changed.connect(_on_tyche_changed)'),
+              ('_apply_control_rect(_item_b_glow, item_b_icon_rect)\n\t_apply_control_rect(_item_b_icon, item_b_icon_rect)','var small_item_rect := Rect2(item_b_icon_rect.position, item_b_icon_rect.size * 0.52)\n\t_apply_control_rect(_item_b_glow, small_item_rect)\n\t_apply_control_rect(_item_b_icon, small_item_rect)\n\t_apply_control_rect(_item_status_countdown, Rect2(item_b_icon_rect.position + item_b_icon_rect.size * 0.43, item_b_icon_rect.size * 0.57))'),
+              ('func _sync_from_state() -> void:','func _create_tyche_display() -> void:\n\t_tyche_icon = TextureRect.new()\n\t_tyche_icon.texture = load("res://assets/objects/item_tyche_margarites.png")\n\t_tyche_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE\n\t_tyche_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED\n\t_tyche_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE\n\tadd_child(_tyche_icon)\n\t_apply_control_rect(_tyche_icon, Rect2(onos_value_rect.position + Vector2(onos_value_rect.size.x - 4.0, -8.0), Vector2(28.0, 28.0)))\n\t_tyche_value = Label.new()\n\t_tyche_value.mouse_filter = Control.MOUSE_FILTER_IGNORE\n\t_tyche_value.add_theme_font_size_override(&"font_size", 14)\n\t_tyche_value.add_theme_color_override(&"font_color", onos_font_color)\n\t_tyche_value.add_theme_color_override(&"font_outline_color", onos_outline_color)\n\t_tyche_value.add_theme_constant_override(&"outline_size", 3)\n\tadd_child(_tyche_value)\n\t_apply_control_rect(_tyche_value, Rect2(onos_value_rect.position + Vector2(onos_value_rect.size.x + 22.0, -2.0), Vector2(62.0, 25.0)))\n\t_sync_tyche_display()\n\n\nfunc _sync_tyche_display() -> void:\n\tif not is_instance_valid(_tyche_icon) or not is_instance_valid(_tyche_value):\n\t\treturn\n\tvar active := _game_state != null and bool(_game_state.get("tyche_active"))\n\t_tyche_icon.visible = active\n\t_tyche_value.visible = active\n\t_tyche_value.text = "+%d" % int(_game_state.get("tyche_stored_onos")) if active else ""\n\n\nfunc _sync_from_state() -> void:'),
+              ('\t_sync_equipment_from_state()\n','\t_sync_equipment_from_state()\n\t_sync_tyche_display()\n',1),
+              ('func _on_inventory_changed(','func _on_tyche_changed(_active: bool, _stored_value: int) -> void:\n\t_sync_tyche_display()\n\n\nfunc _on_inventory_changed('),
+              ('if _game_state.inventory_changed.is_connected(_on_inventory_changed):\n\t\t_game_state.inventory_changed.disconnect(_on_inventory_changed)','if _game_state.inventory_changed.is_connected(_on_inventory_changed):\n\t\t_game_state.inventory_changed.disconnect(_on_inventory_changed)\n\tif _game_state.has_signal(&"tyche_changed") and _game_state.tyche_changed.is_connected(_on_tyche_changed):\n\t\t_game_state.tyche_changed.disconnect(_on_tyche_changed)'),
+          ])
+
+          p=Path('rebuild_v3/app/inventory/item_catalog.gd')
+          s=p.read_text().replace('"tyche_margarites":{"id":"tyche_margarites","display_name":"Tyche Margarites","slot_id":"item_b","item_type":"passive"','"tyche_margarites":{"id":"tyche_margarites","display_name":"Tyche Margarites","slot_id":"item_b","item_type":"active"').replace('"behavior_id":"tyche_margarites","price_onos":15','"behavior_id":"tyche_margarites","price_onos":15').replace('"has_quantity":true,"activates_on_use":false,"sort_order":100,"behavior_id":"tyche_margarites"','"has_quantity":true,"activates_on_use":true,"sort_order":100,"behavior_id":"tyche_margarites"')
+          p.write_text(s)
+
+          p=Path('rebuild_v3/app/services/game_state.gd'); s=p.read_text()
+          s=s.replace('signal onos_changed(current_value: int, delta: int)','signal onos_changed(current_value: int, delta: int)\nsignal tyche_changed(active: bool, stored_value: int)')
+          s=s.replace('var onos: int = 0','var onos: int = 0\nvar tyche_active: bool = false\nvar tyche_stored_onos: int = 0')
+          s=s.replace('\tonos = 0\n\tinventory.clear()','\tonos = 0\n\ttyche_active = false\n\ttyche_stored_onos = 0\n\tinventory.clear()')
+          old='func add_onos(amount: int) -> int:\n\tif amount == 0:\n\t\treturn 0\n\tvar previous_onos: int = onos'
+          new='func add_onos(amount: int) -> int:\n\tif amount == 0:\n\t\treturn 0\n\tif amount > 0 and tyche_active:\n\t\tvar multiplier: float = float(randi_range(10, 30)) / 10.0\n\t\tvar stored_gain: int = ceili(float(amount) * multiplier)\n\t\ttyche_stored_onos += stored_gain\n\t\ttyche_changed.emit(true, tyche_stored_onos)\n\t\tstate_changed.emit()\n\t\treturn 0\n\tvar previous_onos: int = onos'
+          if old not in s: raise SystemExit('game_state add_onos anchor missing')
+          s=s.replace(old,new)
+          anchor='func set_onos(amount: int) -> void:'
+          methods='func activate_tyche_margarites() -> bool:\n\tif player_is_defeated or tyche_active:\n\t\treturn false\n\ttyche_active = true\n\ttyche_stored_onos = 0\n\ttyche_changed.emit(true, 0)\n\tstate_changed.emit()\n\treturn true\n\n\nfunc clear_tyche_margarites() -> void:\n\tif not tyche_active and tyche_stored_onos == 0:\n\t\treturn\n\ttyche_active = false\n\ttyche_stored_onos = 0\n\ttyche_changed.emit(false, 0)\n\tstate_changed.emit()\n\n\nfunc cash_in_tyche_margarites() -> int:\n\tif not tyche_active:\n\t\treturn 0\n\tvar payout := tyche_stored_onos\n\ttyche_active = false\n\ttyche_stored_onos = 0\n\ttyche_changed.emit(false, 0)\n\tif payout > 0:\n\t\tvar previous_onos := onos\n\t\tonos += payout\n\t\tonos_changed.emit(onos, onos - previous_onos)\n\tstate_changed.emit()\n\treturn payout\n\n\n'
+          s=s.replace(anchor,methods+anchor)
+          s=s.replace('\t\tplayer_is_defeated = true\n\t\tdefeat_state_changed.emit(true)','\t\tplayer_is_defeated = true\n\t\tclear_tyche_margarites()\n\t\tdefeat_state_changed.emit(true)')
+          p.write_text(s)
+          PY
+
+          cat > rebuild_v3/app/contexts/gameplay/mati_overlay.gd <<'GD'
+          class_name CotcMatiOverlay
+          extends Control
+
+          const MATI_TEXTURE: Texture2D = preload("res://assets/objects/ui_mati.png")
+          var _elapsed := 0.0
+          var _active := false
+
+          func _ready() -> void:
+          	mouse_filter = Control.MOUSE_FILTER_IGNORE
+          	set_anchors_preset(Control.PRESET_FULL_RECT)
+          	hide()
+
+          func set_elapsed(seconds: float) -> void:
+          	_elapsed = clampf(seconds, 0.0, 30.0)
+          	_active = true
+          	show()
+          	queue_redraw()
+
+          func clear() -> void:
+          	_active = false
+          	hide()
+          	queue_redraw()
+
+          func _draw() -> void:
+          	if not _active or MATI_TEXTURE == null:
+          		return
+          	var tex_size := MATI_TEXTURE.get_size()
+          	var horizontal := tex_size.x >= tex_size.y
+          	var frame_size := Vector2(tex_size.y, tex_size.y) if horizontal else Vector2(tex_size.x, tex_size.x)
+          	var frame_count := maxi(1, roundi((tex_size.x if horizontal else tex_size.y) / (frame_size.x if horizontal else frame_size.y)))
+          	var fps := 3.0 if _elapsed < 5.0 or _elapsed >= 25.0 else 1.0
+          	var frame_float := _elapsed * fps
+          	var frame_a := int(floor(frame_float)) % frame_count
+          	var frame_b := (frame_a + 1) % frame_count
+          	var blend := smoothstep(0.0, 1.0, frame_float - floor(frame_float))
+          	var draw_size := Vector2(150.0, 150.0)
+          	var target := Rect2(Vector2(size.x - draw_size.x - 28.0, 24.0), draw_size)
+          	var src_a := Rect2(Vector2(frame_a * frame_size.x, 0.0) if horizontal else Vector2(0.0, frame_a * frame_size.y), frame_size)
+          	var src_b := Rect2(Vector2(frame_b * frame_size.x, 0.0) if horizontal else Vector2(0.0, frame_b * frame_size.y), frame_size)
+          	draw_texture_rect_region(MATI_TEXTURE, target, src_a, Color(1,1,1,1.0-blend))
+          	draw_texture_rect_region(MATI_TEXTURE, target, src_b, Color(1,1,1,blend))
+          GD
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn'); s=p.read_text()
+          s=s.replace('[gd_scene load_steps=9 format=3]','[gd_scene load_steps=10 format=3]')
+          s=s.replace('[ext_resource type="AudioStream" path="res://assets/audio/invisibility.mp3" id="8_invisibility"]','[ext_resource type="AudioStream" path="res://assets/audio/invisibility.mp3" id="8_invisibility"]\n[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/mati_overlay.gd" id="9_mati_overlay"]')
+          s += '\n[node name="MatiCanvas" type="CanvasLayer" parent="."]\nlayer = 35\n\n[node name="MatiOverlay" type="Control" parent="MatiCanvas"]\nunique_name_in_owner = true\nprocess_mode = 3\nlayout_mode = 3\nanchors_preset = 15\nanchor_right = 1.0\nanchor_bottom = 1.0\ngrow_horizontal = 2\ngrow_vertical = 2\nscript = ExtResource("9_mati_overlay")\n'
+          p.write_text(s)
+
+          p=Path('rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd'); s=p.read_text()
+          s=s.replace('const ITEM_ARGONAUTA: StringName = &"argonauta"','const ITEM_ARGONAUTA: StringName = &"argonauta"\nconst BEHAVIOR_WORLD_FREEZE: StringName = &"world_freeze"\nconst BEHAVIOR_TYCHE: StringName = &"tyche_margarites"')
+          s=s.replace('@onready var _invisibility_audio: AudioStreamPlayer = %InvisibilityAudio','@onready var _invisibility_audio: AudioStreamPlayer = %InvisibilityAudio\n@onready var _mati_overlay: CotcMatiOverlay = %MatiOverlay')
+          s=s.replace('var _ink_cloud_status: Dictionary = {}','var _ink_cloud_status: Dictionary = {}\nvar _mati_active := false\nvar _mati_elapsed := 0.0\nvar _mati_pause_accumulator := 0.0\nvar _hylas_previous_process_mode := Node.PROCESS_MODE_INHERIT')
+          s=s.replace('func _process(delta: float) -> void:\n\tsuper._process(delta)','func _process(delta: float) -> void:\n\t_update_mati(delta)\n\tsuper._process(delta)')
+          insert='func handle_item_behavior(behavior_id: StringName, item_id: StringName, slot_id: StringName, origin: Vector2, direction: Vector2) -> bool:\n\tif behavior_id == BEHAVIOR_WORLD_FREEZE:\n\t\treturn _activate_mati()\n\tif behavior_id == BEHAVIOR_TYCHE:\n\t\treturn _connected_game_state != null and _connected_game_state.activate_tyche_margarites()\n\treturn super.handle_item_behavior(behavior_id, item_id, slot_id, origin, direction)\n\n\nfunc _activate_mati() -> bool:\n\tif _mati_active or not is_instance_valid(_hylas):\n\t\treturn false\n\t_mati_active = true\n\t_mati_elapsed = 0.0\n\t_mati_pause_accumulator = 0.0\n\t_hylas_previous_process_mode = _hylas.process_mode\n\t_hylas.process_mode = Node.PROCESS_MODE_ALWAYS\n\t_mati_overlay.set_elapsed(0.0)\n\treturn true\n\n\nfunc _update_mati(delta: float) -> void:\n\tif not _mati_active:\n\t\treturn\n\t_mati_elapsed = minf(30.0, _mati_elapsed + maxf(delta, 0.0))\n\t_mati_overlay.set_elapsed(_mati_elapsed)\n\tvar freeze_ratio := 1.0\n\tif _mati_elapsed < 5.0:\n\t\tfreeze_ratio = _mati_elapsed / 5.0\n\telif _mati_elapsed >= 25.0:\n\t\tfreeze_ratio = 1.0 - ((_mati_elapsed - 25.0) / 5.0)\n\t_mati_pause_accumulator = fmod(_mati_pause_accumulator + delta * 12.0, 1.0)\n\tget_tree().paused = freeze_ratio >= 0.999 or _mati_pause_accumulator < freeze_ratio\n\tif _mati_elapsed >= 30.0:\n\t\t_finish_mati()\n\n\nfunc _finish_mati() -> void:\n\tget_tree().paused = false\n\tif is_instance_valid(_hylas):\n\t\t_hylas.process_mode = _hylas_previous_process_mode\n\t_mati_overlay.clear()\n\t_mati_active = false\n\t_mati_elapsed = 0.0\n\n\n'
+          s=s.replace('func clear_active_effects() -> void:',insert+'func clear_active_effects() -> void:')
+          s=s.replace('\t_ink_cloud_status.clear()\n\tsuper.clear_active_effects()','\t_ink_cloud_status.clear()\n\tif _mati_active:\n\t\t_finish_mati()\n\tsuper.clear_active_effects()')
+          s=s.replace('func _on_greatfin_changed(_is_active: bool) -> void:\n\t_play_greatfin_transition()','func _on_greatfin_changed(_is_active: bool) -> void:\n\tif not _active:\n\t\t_sync_greatfin_visual()\n\t\treturn\n\t_play_greatfin_transition()')
+          p.write_text(s)
+          PY
+
+          git diff --check
+      - name: Validate
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --editor --path . --quit-after 600 2>&1 | tee /tmp/editor.log
+          godot --headless --path . --quit-after 20 2>&1 | tee /tmp/runtime.log
+          ! grep -E 'Parse Error|Failed to load script|SCRIPT ERROR|Invalid call|Invalid set index|Cannot assign|Could not load|Node not found' /tmp/editor.log /tmp/runtime.log
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          rm -f tmp_item_audit.txt .github/workflows/tmp-item-audit.yml .github/workflows/tmp-item-refinement.yml
+          git add -A
+          git commit -m 'Refine shell effects and timed utility items [item-refinement-done]'
+          git push
