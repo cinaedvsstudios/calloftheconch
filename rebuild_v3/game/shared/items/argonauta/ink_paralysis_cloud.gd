@@ -1,15 +1,16 @@
 class_name CotcInkParalysisCloud
 extends Node2D
 
+signal time_remaining_changed(remaining_seconds: float, duration_seconds: float)
+signal cloud_finished
+
 @export_range(0.1, 20.0, 0.1) var active_seconds: float = 10.0
-@export_range(0.05, 5.0, 0.05) var fade_in_seconds: float = 0.45
-@export_range(0.05, 5.0, 0.05) var fade_out_seconds: float = 0.65
 @export_range(0.1, 10.0, 0.1) var paralysis_refresh_seconds: float = 1.0
 @export_range(0.05, 1.0, 0.05) var overlap_refresh_interval: float = 0.15
 @export_range(0.1, 10.0, 0.1) var opacity_cycle_seconds: float = 3.0
-@export_range(0.0, 1.0, 0.01) var minimum_opacity: float = 0.30
-@export_range(0.0, 1.0, 0.01) var maximum_opacity: float = 0.90
-@export_range(20.0, 1000.0, 5.0) var paralysis_radius: float = 250.0
+@export_range(0.0, 1.0, 0.01) var minimum_opacity: float = 0.40
+@export_range(0.0, 1.0, 0.01) var maximum_opacity: float = 0.80
+@export_range(20.0, 1000.0, 5.0) var paralysis_radius: float = 300.0
 
 @onready var _ink_video: VideoStreamPlayer = %InkVideo
 @onready var _paralysis_area: Area2D = %ParalysisArea
@@ -31,55 +32,65 @@ func play_cloud(world_position: Vector2) -> void:
 	_elapsed = 0.0
 	_overlap_elapsed = overlap_refresh_interval
 	_playing = true
-	modulate.a = 0.0
+	modulate.a = minimum_opacity
 	show()
 	_ink_video.stop()
 	_ink_video.play()
 	set_process(true)
 	_refresh_paralysis()
+	time_remaining_changed.emit(active_seconds, active_seconds)
 
 
 func _process(delta: float) -> void:
 	if not _playing:
 		return
-	_elapsed += delta
-	_overlap_elapsed += delta
+
+	_elapsed = minf(active_seconds, _elapsed + maxf(delta, 0.0))
+	_overlap_elapsed += maxf(delta, 0.0)
 	if _overlap_elapsed >= overlap_refresh_interval:
 		_overlap_elapsed = 0.0
 		_refresh_paralysis()
 
-	var resolved_duration: float = maxf(active_seconds, fade_in_seconds + fade_out_seconds)
-	var breathing: float = 0.5 + 0.5 * sin((_elapsed / maxf(0.1, opacity_cycle_seconds)) * TAU)
-	var target_alpha: float = lerpf(minimum_opacity, maximum_opacity, breathing)
-	if _elapsed < fade_in_seconds:
-		modulate.a = target_alpha * clampf(_elapsed / fade_in_seconds, 0.0, 1.0)
-	elif _elapsed > resolved_duration - fade_out_seconds:
-		modulate.a = target_alpha * clampf((resolved_duration - _elapsed) / fade_out_seconds, 0.0, 1.0)
-	else:
-		modulate.a = target_alpha
+	# Keep the source video visibly looping for the complete ten-second active
+	# period. Some codecs can report a stopped player at the loop boundary, so
+	# restart it here rather than allowing the visual to disappear early.
+	if not _ink_video.is_playing() and _elapsed < active_seconds:
+		_ink_video.play()
 
-	if _elapsed >= resolved_duration:
-		_playing = false
-		set_process(false)
-		_ink_video.stop()
-		queue_free()
+	var breathing: float = 0.5 + 0.5 * sin((_elapsed / maxf(0.1, opacity_cycle_seconds)) * TAU)
+	modulate.a = lerpf(minimum_opacity, maximum_opacity, breathing)
+
+	var remaining_seconds: float = maxf(0.0, active_seconds - _elapsed)
+	time_remaining_changed.emit(remaining_seconds, active_seconds)
+	if remaining_seconds > 0.0:
+		return
+
+	_playing = false
+	set_process(false)
+	_ink_video.stop()
+	cloud_finished.emit()
+	queue_free()
+
+
+func get_time_remaining() -> float:
+	return maxf(0.0, active_seconds - _elapsed) if _playing else 0.0
 
 
 func _refresh_paralysis() -> void:
 	var seen_targets: Dictionary = {}
 
-	# Physics overlap remains useful for enemies with ordinary active collision.
 	for area: Area2D in _paralysis_area.get_overlapping_areas():
 		_apply_paralysis(area, seen_targets, false)
 	for body: Node2D in _paralysis_area.get_overlapping_bodies():
 		_apply_paralysis(body, seen_targets, false)
 
-	# Some enemies disable their collision or monitoring while using distance
-	# activation. Scan the canonical groups as well so every visible enemy inside
-	# the cloud receives the same paralysis refresh.
+	# Distance-activated enemies can temporarily disable their collision. The
+	# canonical groups keep the cloud reliable for those enemies as well.
 	for candidate: Node in get_tree().get_nodes_in_group(&"enemy"):
 		_apply_paralysis(candidate, seen_targets, true)
 	for candidate: Node in get_tree().get_nodes_in_group(&"conch_target"):
+		_apply_paralysis(candidate, seen_targets, true)
+	for candidate: Node in get_tree().get_nodes_in_group(&"hazard"):
 		_apply_paralysis(candidate, seen_targets, true)
 
 
@@ -97,7 +108,9 @@ func _apply_paralysis(
 		return
 
 	if enforce_radius:
-		var target_2d: Node2D = resolved_target as Node2D
+		var target_2d: Node2D = target as Node2D
+		if target_2d == null:
+			target_2d = resolved_target as Node2D
 		if target_2d == null:
 			return
 		var maximum_distance_squared: float = paralysis_radius * paralysis_radius
@@ -115,7 +128,12 @@ func _resolve_enemy_target(target: Node) -> Node:
 	var current: Node = target
 	var parent_checks: int = 0
 	while current != null and parent_checks < 12:
-		if current.is_in_group(&"enemy") or current.has_method(&"apply_item_paralysis"):
+		if (
+				current.is_in_group(&"enemy")
+				or current.is_in_group(&"hazard")
+				or current.has_method(&"apply_item_paralysis")
+				or current.has_method(&"receive_conch_hit")
+		):
 			return current
 		current = current.get_parent()
 		parent_checks += 1
