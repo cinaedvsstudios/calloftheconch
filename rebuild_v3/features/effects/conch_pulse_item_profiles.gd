@@ -54,6 +54,7 @@ func _apply_profile(profile: Dictionary) -> void:
 	if not profile.is_empty() and arc_degrees >= 60.0:
 		_active_flash_scale_multiplier = maxf(_active_flash_scale_multiplier, 1.5)
 	if _pulse_material != null:
+		_pulse_material.set_shader_parameter(&"tint_color", _active_pulse_tint)
 		_pulse_material.set_shader_parameter(&"arc_degrees", arc_degrees)
 		_pulse_material.set_shader_parameter(&"brightness", sonar_brightness)
 

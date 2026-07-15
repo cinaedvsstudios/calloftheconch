@@ -27,7 +27,7 @@ const HUD_DROP_SHADOW_SHADER: Shader = preload(
 @export_range(-240.0, 600.0, 1.0) var hud_top_offset: float = 4.0
 
 @export_category("HUD Drop Shadow")
-@export var hud_shadow_enabled: bool = true
+@export var hud_shadow_enabled: bool = false
 @export var hud_shadow_offset: Vector2 = Vector2(7.0, 10.0)
 @export var hud_shadow_color: Color = Color(0.0, 0.0, 0.0, 0.62)
 @export_range(0.0, 10.0, 0.5) var hud_shadow_blur_radius: float = 5.0
@@ -98,6 +98,7 @@ var _location_name: String = "The Sea of Pillars"
 var _panel_shadow: TextureRect
 var _resolved_source_size: Vector2 = Vector2(1624.0, 670.0)
 var _missing_icon_warnings: Dictionary = {}
+var _item_b_timed_active: bool = false
 
 
 func _ready() -> void:
@@ -106,7 +107,6 @@ func _ready() -> void:
 	_apply_source_layout()
 	_apply_element_layout()
 	_apply_text_style()
-	_create_panel_shadow()
 	_create_tyche_display()
 	_set_slot_rest_state(_item_a_icon, _item_a_glow)
 	_set_slot_rest_state(_item_b_icon, _item_b_glow)
@@ -243,16 +243,34 @@ func _apply_element_layout() -> void:
 	_apply_control_rect(_fin_value, fin_value_rect)
 	_apply_control_rect(_item_a_glow, conch_icon_rect)
 	_apply_control_rect(_item_a_icon, conch_icon_rect)
-	var small_item_rect := Rect2(item_b_icon_rect.position, item_b_icon_rect.size * 0.52)
-	_apply_control_rect(_item_b_glow, small_item_rect)
-	_apply_control_rect(_item_b_icon, small_item_rect)
-	_apply_control_rect(_item_status_countdown, Rect2(item_b_icon_rect.position + item_b_icon_rect.size * 0.43, item_b_icon_rect.size * 0.57))
+	_apply_control_rect(_item_b_glow, item_b_icon_rect)
+	_apply_control_rect(_item_b_icon, item_b_icon_rect)
+	_apply_control_rect(
+		_item_status_countdown,
+		Rect2(item_b_icon_rect.position + item_b_icon_rect.size * 0.43, item_b_icon_rect.size * 0.57),
+	)
 	_apply_control_rect(_item_b_quantity, item_b_quantity_rect)
 	_apply_control_rect(_item_b_empty, item_b_empty_rect)
 	_apply_control_rect(_location_value, location_value_rect)
 
 
+func set_item_b_timed_active(is_active: bool) -> void:
+	if _item_b_timed_active == is_active:
+		return
+	_item_b_timed_active = is_active
+	var target_rect: Rect2 = item_b_icon_rect
+	if is_active:
+		target_rect = Rect2(item_b_icon_rect.position, item_b_icon_rect.size * 0.52)
+	_apply_control_rect(_item_b_glow, target_rect)
+	_apply_control_rect(_item_b_icon, target_rect)
+	_set_slot_rest_state(_item_b_icon, _item_b_glow)
+
+
 func _apply_control_rect(control: Control, target_rect: Rect2) -> void:
+	control.anchor_left = 0.0
+	control.anchor_top = 0.0
+	control.anchor_right = 0.0
+	control.anchor_bottom = 0.0
 	control.position = target_rect.position
 	control.size = target_rect.size
 
@@ -315,15 +333,15 @@ func _create_tyche_display() -> void:
 	_tyche_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_tyche_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_tyche_icon)
-	_apply_control_rect(_tyche_icon, Rect2(onos_value_rect.position + Vector2(onos_value_rect.size.x - 4.0, -8.0), Vector2(28.0, 28.0)))
+	_apply_control_rect(_tyche_icon, Rect2(onos_value_rect.position + Vector2(-34.0, -10.0), Vector2(28.0, 28.0)))
 	_tyche_value = Label.new()
 	_tyche_value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_tyche_value.add_theme_font_size_override(&"font_size", 14)
-	_tyche_value.add_theme_color_override(&"font_color", onos_font_color)
+	_tyche_value.add_theme_color_override(&"font_color", Color.WHITE)
 	_tyche_value.add_theme_color_override(&"font_outline_color", onos_outline_color)
 	_tyche_value.add_theme_constant_override(&"outline_size", 3)
 	add_child(_tyche_value)
-	_apply_control_rect(_tyche_value, Rect2(onos_value_rect.position + Vector2(onos_value_rect.size.x + 22.0, -2.0), Vector2(62.0, 25.0)))
+	_apply_control_rect(_tyche_value, Rect2(onos_value_rect.position + Vector2(-5.0, -8.0), Vector2(62.0, 25.0)))
 	_sync_tyche_display()
 
 func _sync_tyche_display() -> void:
@@ -450,9 +468,6 @@ func _set_fin_panel(panel_index: int) -> void:
 	_panel_texture.texture = texture
 	_panel_texture.show()
 	_fallback_panel.hide()
-	if is_instance_valid(_panel_shadow):
-		_panel_shadow.texture = texture
-		_panel_shadow.visible = hud_shadow_enabled
 
 
 func _set_slot_rest_state(icon: TextureRect, glow: TextureRect) -> void:

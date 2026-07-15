@@ -11,7 +11,6 @@ const BEHAVIOR_TYCHE: StringName = &"tyche_margarites"
 @onready var _powerdown_audio: AudioStreamPlayer = %PowerdownAudio
 @onready var _shield_audio: AudioStreamPlayer = %ShieldAudio
 @onready var _invisibility_audio: AudioStreamPlayer = %InvisibilityAudio
-@onready var _mati_overlay: CotcMatiOverlay = %MatiOverlay
 
 var _connected_level: CotcSeaOfPillars
 var _connected_game_state: CotcGameState
@@ -21,7 +20,9 @@ var _ink_cloud_status: Dictionary = {}
 var _mati_active := false
 var _mati_elapsed := 0.0
 var _mati_phase := 0.0
-var _hylas_previous_process_mode := Node.PROCESS_MODE_INHERIT
+var _gameplay_hud: CotcGameplayHud
+var _mati_targets: Dictionary = {}
+var _mati_tick_phase: float = 0.0
 
 
 func configure(context: Node, level: CotcSeaOfPillars, hylas: CotcHylas) -> void:
@@ -29,12 +30,10 @@ func configure(context: Node, level: CotcSeaOfPillars, hylas: CotcHylas) -> void
 	super.configure(context, level, hylas)
 	_connected_level = level
 	_status_countdown = null
+	_gameplay_hud = null
 	if context != null:
-		_status_countdown = context.get_node_or_null(
-			"GameplayUI/GameplayHud/ItemBIcon/ItemStatusCountdown"
-		) as CotcStatusCountdownOverlay
-		if _status_countdown == null:
-			_status_countdown = context.get_node_or_null("%ItemStatusCountdown") as CotcStatusCountdownOverlay
+		_gameplay_hud = context.get_node_or_null("GameplayUI/GameplayHud") as CotcGameplayHud
+		_status_countdown = context.get_node_or_null("%ItemStatusCountdown") as CotcStatusCountdownOverlay
 	if is_instance_valid(_connected_level) and not _connected_level.greatfin_pickup_requested.is_connected(_on_greatfin_pickup_requested):
 		_connected_level.greatfin_pickup_requested.connect(_on_greatfin_pickup_requested)
 	_refresh_status_countdown()
@@ -71,31 +70,82 @@ func handle_item_behavior(behavior_id: StringName, item_id: StringName, slot_id:
 	return super.handle_item_behavior(behavior_id,item_id,slot_id,origin,direction)
 
 func _activate_mati() -> bool:
-	if _mati_active or not is_instance_valid(_hylas): return false
+	if _mati_active or not is_instance_valid(_hylas):
+		return false
 	_mati_active = true
 	_mati_elapsed = 0.0
-	_hylas_previous_process_mode = _hylas.process_mode
-	_hylas.process_mode = Node.PROCESS_MODE_ALWAYS
-	_mati_overlay.set_elapsed(0.0)
+	_mati_tick_phase = 0.0
+	_capture_mati_targets()
+	_set_item_b_timed_active(true)
+	if is_instance_valid(_status_countdown):
+		_status_countdown.set_mati_progress(0.0)
 	return true
 
+
 func _update_mati(delta: float) -> void:
-	if not _mati_active: return
-	_mati_elapsed = minf(30.0,_mati_elapsed+maxf(delta,0.0))
-	_mati_overlay.set_elapsed(_mati_elapsed)
-	var ratio := 1.0
-	if _mati_elapsed < 5.0: ratio = _mati_elapsed/5.0
-	elif _mati_elapsed >= 25.0: ratio = 1.0-((_mati_elapsed-25.0)/5.0)
-	_mati_phase = fmod(_mati_phase + delta*12.0,1.0)
-	get_tree().paused = ratio >= 0.999 or _mati_phase < ratio
-	if _mati_elapsed >= 30.0: _finish_mati()
+	if not _mati_active:
+		return
+	_mati_elapsed = minf(30.0, _mati_elapsed + maxf(delta, 0.0))
+	var world_activity: float
+	if _mati_elapsed < 5.0:
+		world_activity = 1.0 - (_mati_elapsed / 5.0)
+	elif _mati_elapsed < 25.0:
+		world_activity = 0.0
+	else:
+		world_activity = (_mati_elapsed - 25.0) / 5.0
+	_apply_mati_world_activity(clampf(world_activity, 0.0, 1.0), delta)
+	if is_instance_valid(_status_countdown):
+		_status_countdown.set_mati_progress(_mati_elapsed)
+	if _mati_elapsed >= 30.0:
+		_finish_mati()
+
+
+func _capture_mati_targets() -> void:
+	_mati_targets.clear()
+	for group_name: StringName in [&"enemy", &"hazard", &"current", &"moving_object", &"conch_target"]:
+		for candidate: Node in get_tree().get_nodes_in_group(group_name):
+			if not is_instance_valid(candidate) or candidate == _hylas or is_ancestor_of(candidate):
+				continue
+			var instance_id: int = candidate.get_instance_id()
+			if _mati_targets.has(instance_id):
+				continue
+			_mati_targets[instance_id] = {"node": candidate, "process_mode": candidate.process_mode}
+
+
+func _apply_mati_world_activity(activity: float, delta: float) -> void:
+	_mati_tick_phase = fmod(_mati_tick_phase + maxf(delta, 0.0) * 12.0, 1.0)
+	var allow_tick: bool = activity >= 0.999 or _mati_tick_phase < activity
+	for entry_value: Variant in _mati_targets.values():
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value
+		var node: Node = entry.get("node") as Node
+		if not is_instance_valid(node):
+			continue
+		var original_mode: int = int(entry.get("process_mode", Node.PROCESS_MODE_INHERIT))
+		node.process_mode = original_mode if allow_tick else Node.PROCESS_MODE_DISABLED
+
 
 func _finish_mati() -> void:
-	get_tree().paused = false
-	if is_instance_valid(_hylas): _hylas.process_mode = _hylas_previous_process_mode
-	_mati_overlay.clear()
+	for entry_value: Variant in _mati_targets.values():
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value
+		var node: Node = entry.get("node") as Node
+		if is_instance_valid(node):
+			node.process_mode = int(entry.get("process_mode", Node.PROCESS_MODE_INHERIT))
+	_mati_targets.clear()
 	_mati_active = false
 	_mati_elapsed = 0.0
+	_set_item_b_timed_active(false)
+	if is_instance_valid(_status_countdown):
+		_status_countdown.clear_countdown()
+
+
+func _set_item_b_timed_active(is_active: bool) -> void:
+	if is_instance_valid(_gameplay_hud):
+		_gameplay_hud.set_item_b_timed_active(is_active)
+
 
 func clear_active_effects() -> void:
 	_ink_cloud_status.clear()
@@ -167,7 +217,12 @@ func _on_ink_cloud_finished(cloud_id: int) -> void:
 func _refresh_status_countdown() -> void:
 	if not is_instance_valid(_status_countdown):
 		return
+	if _mati_active:
+		_set_item_b_timed_active(true)
+		_status_countdown.set_mati_progress(_mati_elapsed)
+		return
 	if _purple_shield_remaining > 0.0:
+		_set_item_b_timed_active(true)
 		_status_countdown.set_countdown(
 			ITEM_MUREX_PECTEN,
 			_purple_shield_remaining,
@@ -175,6 +230,7 @@ func _refresh_status_countdown() -> void:
 		)
 		return
 	if _camouflage_remaining > 0.0:
+		_set_item_b_timed_active(true)
 		_status_countdown.set_countdown(
 			ITEM_HALIOTIS,
 			_camouflage_remaining,
@@ -192,9 +248,11 @@ func _refresh_status_countdown() -> void:
 			longest_remaining = status.x
 			longest_duration = status.y
 	if longest_remaining > 0.0:
+		_set_item_b_timed_active(true)
 		_status_countdown.set_countdown(ITEM_ARGONAUTA, longest_remaining, longest_duration)
 		return
 	_status_countdown.clear_countdown()
+	_set_item_b_timed_active(false)
 
 
 func _on_greatfin_pickup_requested(_pickup_type_id: StringName) -> void:

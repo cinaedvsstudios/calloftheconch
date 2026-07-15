@@ -6,7 +6,7 @@ const SURGE_GLOW_SHADER: Shader = preload("res://scenes/characters/Hylas/hylas_i
 const NORMAL_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_v3_sprite_frames.tres")
 const GREATFIN_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_greatfin_sprite_frames.tres")
 const GREATFIN_VISUAL_SCALE: float = 1.30
-const HELD_SHELL_VISUAL_SCALE: float = 0.62
+const HELD_SHELL_VISUAL_SCALE: float = 0.42
 const SHELL_TEXTURES: Dictionary = {
 	&"normal_conch": preload("res://assets/characters/shell_normal_conch.png"),
 	&"charonia_tritonis": preload("res://assets/characters/shell_charonia_tritonis.png"),
@@ -23,6 +23,15 @@ var _camouflage_active: bool = false
 var _surge_glow_active: bool = false
 var _transforming_active: bool = false
 var _greatfin_active: bool = false
+@export var shell_frame_offsets: Array[Vector2] = [
+	Vector2(-6.0, 4.0),
+	Vector2(-2.0, 1.0),
+	Vector2(3.0, -2.0),
+	Vector2(7.0, -4.0),
+	Vector2(10.0, -3.0),
+	Vector2(12.0, 0.0),
+]
+
 var _base_sprite_scale: Vector2 = Vector2.ONE
 var _base_sprite_material: Material
 var _camouflage_material: ShaderMaterial
@@ -148,6 +157,8 @@ func _sync_shell_overlay() -> void:
 		return
 
 	var anchor_offset: Vector2 = _shell_overlay_anchor.position
+	if _animated_sprite.animation == &"conch" and _animated_sprite.frame < shell_frame_offsets.size():
+		anchor_offset += shell_frame_offsets[_animated_sprite.frame]
 	if _animated_sprite.flip_h:
 		anchor_offset.x = -anchor_offset.x
 	_shell_overlay.position = anchor_offset.rotated(_animated_sprite.rotation)
