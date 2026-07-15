@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/crown_sea_grapes/greatfin_transform_effect.tscn" id="2_transform"]
@@ -8,7 +8,6 @@
 [ext_resource type="AudioStream" path="res://assets/audio/powerdown2.mp3" id="6_powerdown"]
 [ext_resource type="AudioStream" path="res://assets/audio/magic force field.mp3" id="7_shield_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/invisibility.mp3" id="8_invisibility"]
-[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/mati_overlay.gd" id="9_mati"]
 
 [node name="ItemEffectController" type="Node2D"]
 process_mode = 3
@@ -59,16 +58,3 @@ unique_name_in_owner = true
 
 [node name="Clouds" type="Node2D" parent="."]
 unique_name_in_owner = true
-
-[node name="MatiCanvas" type="CanvasLayer" parent="."]
-layer = 35
-[node name="MatiOverlay" type="Control" parent="MatiCanvas"]
-unique_name_in_owner = true
-process_mode = 3
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("9_mati")

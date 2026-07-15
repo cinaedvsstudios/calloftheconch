@@ -27,14 +27,17 @@ shader_parameter/point_glow_strength = 0.34
 [node name="ConusTetherProjectile" type="Node2D"]
 z_index = 8
 script = ExtResource("1_controller")
-dart_display_height = 17.0
+dart_display_height = 24.0
 rope_wave_height = 4.0
 
 [node name="RopeGlow" type="Line2D" parent="."]
 unique_name_in_owner = true
 material = SubResource("GlowMaterial")
-width = 7.0
-default_color = Color(1, 0.28, 0.04, 0.62)
+width = 8.0
+default_color = Color(1, 0.22, 0.02, 0.18)
+texture = ExtResource("2_rope")
+texture_mode = 2
+texture_repeat = 2
 joint_mode = 2
 begin_cap_mode = 2
 end_cap_mode = 2
@@ -43,8 +46,8 @@ antialiased = true
 [node name="Rope" type="Line2D" parent="."]
 unique_name_in_owner = true
 material = SubResource("RopeMaterial")
-texture_repeat = 1
-width = 3.0
+texture_repeat = 2
+width = 1.8
 default_color = Color(1, 0.72, 0.28, 1)
 texture = ExtResource("2_rope")
 texture_mode = 2
@@ -61,5 +64,4 @@ texture = ExtResource("3_dart")
 
 [node name="Dart" type="Sprite2D" parent="."]
 unique_name_in_owner = true
-material = SubResource("DartMaterial")
 texture = ExtResource("3_dart")
