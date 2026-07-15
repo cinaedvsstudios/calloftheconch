@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - work/refinement-pass-2026-07-15
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
