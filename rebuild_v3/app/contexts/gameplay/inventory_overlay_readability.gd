@@ -65,6 +65,7 @@ func _create_item_cell(item_id: StringName, nav_position: Vector2i) -> Control:
 		if name_label == null:
 			continue
 		name_label.custom_minimum_size = Vector2(0.0, READABLE_NAME_HEIGHT)
+		name_label.custom_maximum_size = Vector2(98.0, READABLE_NAME_HEIGHT)
 		name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		name_label.max_lines_visible = 2
