@@ -9,6 +9,7 @@ extends Node2D
 @export_range(0.1, 10.0, 0.1) var opacity_cycle_seconds: float = 3.0
 @export_range(0.0, 1.0, 0.01) var minimum_opacity: float = 0.30
 @export_range(0.0, 1.0, 0.01) var maximum_opacity: float = 0.90
+@export_range(20.0, 1000.0, 5.0) var paralysis_radius: float = 250.0
 
 @onready var _ink_video: VideoStreamPlayer = %InkVideo
 @onready var _paralysis_area: Area2D = %ParalysisArea
@@ -35,6 +36,7 @@ func play_cloud(world_position: Vector2) -> void:
 	_ink_video.stop()
 	_ink_video.play()
 	set_process(true)
+	_refresh_paralysis()
 
 
 func _process(delta: float) -> void:
@@ -64,21 +66,57 @@ func _process(delta: float) -> void:
 
 
 func _refresh_paralysis() -> void:
+	var seen_targets: Dictionary = {}
+
+	# Physics overlap remains useful for enemies with ordinary active collision.
 	for area: Area2D in _paralysis_area.get_overlapping_areas():
-		_apply_paralysis(area)
+		_apply_paralysis(area, seen_targets, false)
 	for body: Node2D in _paralysis_area.get_overlapping_bodies():
-		_apply_paralysis(body)
+		_apply_paralysis(body, seen_targets, false)
+
+	# Some enemies disable their collision or monitoring while using distance
+	# activation. Scan the canonical groups as well so every visible enemy inside
+	# the cloud receives the same paralysis refresh.
+	for candidate: Node in get_tree().get_nodes_in_group(&"enemy"):
+		_apply_paralysis(candidate, seen_targets, true)
+	for candidate: Node in get_tree().get_nodes_in_group(&"conch_target"):
+		_apply_paralysis(candidate, seen_targets, true)
 
 
-func _apply_paralysis(target: Node) -> void:
-	if target == null:
+func _apply_paralysis(
+		target: Node,
+		seen_targets: Dictionary,
+		enforce_radius: bool,
+	) -> void:
+	var resolved_target: Node = _resolve_enemy_target(target)
+	if resolved_target == null or resolved_target.is_queued_for_deletion():
 		return
-	var resolved_target: Node = target
-	if not resolved_target.is_in_group(&"enemy") and resolved_target.get_parent() != null and resolved_target.get_parent().is_in_group(&"enemy"):
-		resolved_target = resolved_target.get_parent()
-	if not resolved_target.is_in_group(&"enemy"):
+
+	var target_id: int = resolved_target.get_instance_id()
+	if seen_targets.has(target_id):
 		return
+
+	if enforce_radius:
+		var target_2d: Node2D = resolved_target as Node2D
+		if target_2d == null:
+			return
+		var maximum_distance_squared: float = paralysis_radius * paralysis_radius
+		if global_position.distance_squared_to(target_2d.global_position) > maximum_distance_squared:
+			return
+
+	seen_targets[target_id] = true
 	if resolved_target.has_method(&"apply_item_paralysis"):
 		resolved_target.call(&"apply_item_paralysis", paralysis_refresh_seconds)
 	elif resolved_target.has_method(&"receive_conch_hit"):
 		resolved_target.call(&"receive_conch_hit", global_position, Vector2.ZERO, 0.0, 1.0)
+
+
+func _resolve_enemy_target(target: Node) -> Node:
+	var current: Node = target
+	var parent_checks: int = 0
+	while current != null and parent_checks < 12:
+		if current.is_in_group(&"enemy") or current.has_method(&"apply_item_paralysis"):
+			return current
+		current = current.get_parent()
+		parent_checks += 1
+	return null
