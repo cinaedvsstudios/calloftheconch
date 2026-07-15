@@ -1,0 +1,54 @@
+name: Final item correction error report
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/item-correction-pass-2026-07-16
+          fetch-depth: 0
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+      - name: Apply final script and report
+        shell: bash
+        run: |
+          set +e
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          import subprocess,yaml
+          from pathlib import Path
+          data=yaml.load(Path('.github/workflows/tmp-item-correction-final.yml').read_text(),Loader=yaml.BaseLoader)
+          step=next(s for s in data['jobs']['final-correction']['steps'] if s.get('name')=='Apply final correction')
+          subprocess.run(['bash','-lc',step['run']],check=True)
+          PY
+          godot --headless --editor --path . --quit-after 120 > /tmp/import.log 2>&1
+          import_status=$?
+          godot --headless --path . --quit-after 8 > /tmp/run.log 2>&1
+          run_status=$?
+          {
+            echo "import_status=$import_status"
+            echo "run_status=$run_status"
+            echo "=== matched errors ==="
+            grep -nE "SCRIPT ERROR|Parse Error|Failed loading resource|Cannot open file|Invalid cast" /tmp/import.log /tmp/run.log || true
+            echo "=== diff check ==="
+            git diff --check || true
+            echo "=== import tail ==="
+            tail -n 80 /tmp/import.log
+            echo "=== run tail ==="
+            tail -n 80 /tmp/run.log
+          } > /tmp/final_report.txt
+          git reset --hard HEAD
+          cp /tmp/final_report.txt tmp_item_correction_final_errors.txt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tmp_item_correction_final_errors.txt
+          git commit -m "Record final item correction validation failure"
+          git push origin HEAD:work/item-correction-pass-2026-07-16
