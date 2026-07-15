@@ -1,8 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars.tscn" id="1_base"]
-[ext_resource type="Script" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_runtime.gd" id="2_runtime"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_main_clean.tscn" id="1_main"]
 
-[node name="SeaOfPillars" instance=ExtResource("1_base")]
-script = ExtResource("2_runtime")
+[node name="SeaOfPillars" instance=ExtResource("1_main")]
 metadata/level_variant = "main"
