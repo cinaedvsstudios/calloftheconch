@@ -11,12 +11,15 @@ shader_parameter/strength = 1.0
 shader_parameter/contrast = 1.15
 
 [sub_resource type="CircleShape2D" id="ParalysisShape"]
-radius = 250.0
+radius = 300.0
 
 [node name="InkParalysisCloud" type="Node2D"]
 z_index = 6
 script = ExtResource("1_controller")
-paralysis_radius = 250.0
+active_seconds = 10.0
+minimum_opacity = 0.4
+maximum_opacity = 0.8
+paralysis_radius = 300.0
 
 [node name="InkVideo" type="VideoStreamPlayer" parent="."]
 unique_name_in_owner = true
