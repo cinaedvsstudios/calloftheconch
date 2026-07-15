@@ -1,0 +1,65 @@
+name: Refinement pass validation
+
+on:
+  push:
+    branches:
+      - work/refinement-pass-2026-07-15
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.7
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+          include-templates: false
+
+      - name: Import project resources
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --editor --path . --quit-after 600 2>&1 | tee godot-editor.log
+
+      - name: Run main scene smoke test
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --quit-after 20 2>&1 | tee godot-runtime.log
+
+      - name: Validate refinement scenes
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --script tools/validate_refinement_pass.gd 2>&1 | tee godot-refinement.log
+
+      - name: Reject relevant Godot errors
+        shell: bash
+        run: |
+          if grep -E "Parse Error|Failed to load script|SCRIPT ERROR|Parent node is busy setting up children|Child is not a child of this node|Invalid call|Invalid set index|Cannot assign|Could not load scene|Could not instantiate scene" godot-editor.log godot-runtime.log godot-refinement.log; then
+            echo "Godot reported a relevant project error."
+            exit 1
+          fi
+          grep -q "REFINEMENT_PASS_VALIDATION_OK" godot-refinement.log
+          git diff --check
+
+      - name: Upload Godot logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: refinement-pass-validation-logs
+          path: |
+            godot-editor.log
+            godot-runtime.log
+            godot-refinement.log
+          if-no-files-found: ignore
