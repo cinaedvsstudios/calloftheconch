@@ -6,6 +6,7 @@ signal impacted(world_position: Vector2)
 @export_range(100.0, 4000.0, 10.0) var travel_speed: float = 1050.0
 @export_range(100.0, 4000.0, 10.0) var maximum_distance: float = 1150.0
 @export_range(8.0, 120.0, 1.0) var blob_radius: float = 22.0
+@export_range(8.0, 180.0, 1.0) var impact_radius: float = 72.0
 
 var _source: Node2D
 var _direction: Vector2 = Vector2.RIGHT
@@ -47,12 +48,58 @@ func _physics_process(delta: float) -> void:
 
 
 func _intersect_blob_path(from: Vector2, to: Vector2) -> Dictionary:
+	var best_hit: Dictionary = _intersect_physics_path(from, to)
+	var best_distance: float = INF
+	if not best_hit.is_empty():
+		var physics_position: Variant = best_hit.get("position", to)
+		if physics_position is Vector2:
+			best_distance = from.distance_to(physics_position)
+
+	# Jellyfish can become non-monitorable at distance and Black Bloom exposes a
+	# Node2D conch target rather than a layer-1 collider. Sweep a real circular
+	# interaction radius through the canonical gameplay groups so the visible
+	# ink blob stops on both without relying on a one-pixel ray.
+	for group_name: StringName in [&"enemy", &"hazard", &"conch_target"]:
+		for candidate: Node in get_tree().get_nodes_in_group(group_name):
+			if not _is_valid_impact_candidate(candidate):
+				continue
+			var candidate_2d: Node2D = candidate as Node2D
+			if candidate_2d == null:
+				continue
+			var closest_point: Vector2 = Geometry2D.get_closest_point_to_segment(
+				candidate_2d.global_position,
+				from,
+				to,
+			)
+			if candidate_2d.global_position.distance_to(closest_point) > impact_radius:
+				continue
+			var candidate_distance: float = from.distance_to(closest_point)
+			if candidate_distance >= best_distance:
+				continue
+			best_distance = candidate_distance
+			best_hit = {
+				"position": closest_point,
+				"collider": candidate,
+			}
+	return best_hit
+
+
+func _intersect_physics_path(from: Vector2, to: Vector2) -> Dictionary:
 	var query: PhysicsRayQueryParameters2D = PhysicsRayQueryParameters2D.create(from, to, 1)
 	query.collide_with_areas = true
 	query.collide_with_bodies = true
 	if _source is CollisionObject2D:
 		query.exclude = [(_source as CollisionObject2D).get_rid()]
 	return get_world_2d().direct_space_state.intersect_ray(query)
+
+
+func _is_valid_impact_candidate(candidate: Node) -> bool:
+	if candidate == null or not is_instance_valid(candidate) or candidate.is_queued_for_deletion():
+		return false
+	if is_instance_valid(_source):
+		if candidate == _source or _source.is_ancestor_of(candidate) or candidate.is_ancestor_of(_source):
+			return false
+	return candidate is Node2D
 
 
 func _finish_impact() -> void:
