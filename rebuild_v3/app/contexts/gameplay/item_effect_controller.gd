@@ -2,13 +2,13 @@ class_name CotcItemEffectController
 extends Node2D
 
 const CONUS_TETHER_SCENE: PackedScene = preload(
-	"res://rebuild_v3/features/items/conus_tether_projectile.tscn"
+	"res://rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.tscn"
 )
 const INK_BLOB_SCENE: PackedScene = preload(
-	"res://rebuild_v3/features/items/ink_blob_projectile.tscn"
+	"res://rebuild_v3/game/shared/items/argonauta/ink_blob_projectile.tscn"
 )
 const INK_CLOUD_SCENE: PackedScene = preload(
-	"res://rebuild_v3/features/items/ink_paralysis_cloud.tscn"
+	"res://rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn"
 )
 
 const BEHAVIOR_SUPER_CONCH: StringName = &"super_conch"

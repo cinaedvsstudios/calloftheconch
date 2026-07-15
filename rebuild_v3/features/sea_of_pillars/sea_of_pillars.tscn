@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://ekgn2xwn4eer" path="res://assets/backgrounds/watertile.jpg" id="4_bu74a"]
 [ext_resource type="Shader" uid="uid://dygdgs4nslevt" path="res://assets/backgrounds/waterline2.gdshader" id="4_dk7og"]
 [ext_resource type="Texture2D" uid="uid://bnh8y5pk6qa0j" path="res://assets/backgrounds/mountainoverlay03.webp" id="6_mountain_b"]
-[ext_resource type="PackedScene" uid="uid://c517thhqaggvs" path="res://rebuild_v3/features/hylas/hylas.tscn" id="8_hylas"]
+[ext_resource type="PackedScene" uid="uid://c517thhqaggvs" path="res://scenes/characters/Hylas/hylas.tscn" id="8_hylas"]
 [ext_resource type="Texture2D" uid="uid://d14hlawr2op7b" path="res://assets/objects/scenery_pillars_ruins02.png" id="8_keobn"]
 [ext_resource type="Texture2D" uid="uid://wb745lq4f6op" path="res://assets/objects/scenery_pillars_ruins06.png" id="9_b4nuo"]
 [ext_resource type="PackedScene" uid="uid://1rjm7chihb77" path="res://rebuild_v3/features/effects/conch_pulse.tscn" id="9_conch_pulse"]

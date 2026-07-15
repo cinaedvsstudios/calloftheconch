@@ -2,7 +2,7 @@
 
 Greatfin is not a second playable character scene. The canonical Hylas scene remains:
 
-`res://rebuild_v3/features/hylas/hylas.tscn`
+`res://scenes/characters/Hylas/hylas.tscn`
 
 When Greatfin is active, Hylas swaps to:
 
