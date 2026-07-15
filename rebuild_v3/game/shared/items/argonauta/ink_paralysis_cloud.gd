@@ -4,7 +4,7 @@ extends Node2D
 signal time_remaining_changed(remaining_seconds: float, duration_seconds: float)
 signal cloud_finished
 
-@export_range(0.1, 20.0, 0.1) var active_seconds: float = 10.0
+@export_range(0.1, 60.0, 0.1) var active_seconds: float = 30.0
 @export_range(0.1, 10.0, 0.1) var paralysis_refresh_seconds: float = 1.0
 @export_range(0.05, 1.0, 0.05) var overlap_refresh_interval: float = 0.15
 @export_range(0.1, 10.0, 0.1) var opacity_cycle_seconds: float = 3.0
@@ -58,7 +58,7 @@ func _process(delta: float) -> void:
 		_ink_video.play()
 
 	var breathing: float = 0.5 + 0.5 * sin((_elapsed / maxf(0.1, opacity_cycle_seconds)) * TAU)
-	modulate.a = lerpf(minimum_opacity, maximum_opacity, breathing)
+	modulate.a = clampf(lerpf(minimum_opacity, maximum_opacity, breathing), 0.40, 0.80)
 
 	var remaining_seconds: float = maxf(0.0, active_seconds - _elapsed)
 	time_remaining_changed.emit(remaining_seconds, active_seconds)

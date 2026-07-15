@@ -5,6 +5,7 @@ var _default_close_arc_degrees: float
 var _default_sonar_brightness: float
 var _default_pulse_duration: float
 var _default_echo_alpha_decay: float
+var _default_pulse_interval: float
 var _default_pulse_tint: Color = Color.WHITE
 var _default_flash_modulate: Color = Color.WHITE
 var _default_flash_scale: Vector2 = Vector2.ONE
@@ -19,6 +20,7 @@ func _ready() -> void:
 	_default_sonar_brightness = sonar_brightness
 	_default_pulse_duration = pulse_duration
 	_default_echo_alpha_decay = echo_alpha_decay
+	_default_pulse_interval = pulse_interval
 	_default_pulse_tint = _sonar_arc_template.modulate
 	_default_flash_modulate = _origin_flash.self_modulate
 	_default_flash_scale = _origin_flash.scale
@@ -43,6 +45,7 @@ func _apply_profile(profile: Dictionary) -> void:
 	sonar_brightness = float(profile.get("brightness", _default_sonar_brightness))
 	pulse_duration = float(profile.get("duration", _default_pulse_duration))
 	echo_alpha_decay = float(profile.get("echo_alpha_decay", _default_echo_alpha_decay))
+	pulse_interval = _default_pulse_interval * float(profile.get("pulse_interval_scale", 1.0))
 	var tint_value: Variant = profile.get("tint", _default_pulse_tint)
 	_active_pulse_tint = tint_value if tint_value is Color else _default_pulse_tint
 	var flash_tint_value: Variant = profile.get("flash_tint", _default_flash_modulate)

@@ -85,6 +85,10 @@ const HUD_DROP_SHADOW_SHADER: Shader = preload(
 @onready var _item_b_icon: TextureRect = %ItemBIcon
 @onready var _item_b_quantity: Label = %ItemBQuantity
 @onready var _item_b_empty: Label = %ItemBEmpty
+@onready var _item_status_countdown: Control = %ItemStatusCountdown
+
+var _tyche_icon: TextureRect
+var _tyche_value: Label
 
 var _game_state: CotcGameState
 var _fin_state_textures: Array[Texture2D] = []
@@ -103,6 +107,7 @@ func _ready() -> void:
 	_apply_element_layout()
 	_apply_text_style()
 	_create_panel_shadow()
+	_create_tyche_display()
 	_set_slot_rest_state(_item_a_icon, _item_a_glow)
 	_set_slot_rest_state(_item_b_icon, _item_b_glow)
 	_sync_from_state()
@@ -118,6 +123,7 @@ func bind_game_state(game_state: CotcGameState) -> void:
 		_game_state.onos_changed.connect(_on_onos_changed)
 		_game_state.equipped_item_changed.connect(_on_equipped_item_changed)
 		_game_state.inventory_changed.connect(_on_inventory_changed)
+		_game_state.tyche_changed.connect(_on_tyche_changed)
 	_sync_from_state()
 
 
@@ -237,8 +243,10 @@ func _apply_element_layout() -> void:
 	_apply_control_rect(_fin_value, fin_value_rect)
 	_apply_control_rect(_item_a_glow, conch_icon_rect)
 	_apply_control_rect(_item_a_icon, conch_icon_rect)
-	_apply_control_rect(_item_b_glow, item_b_icon_rect)
-	_apply_control_rect(_item_b_icon, item_b_icon_rect)
+	var small_item_rect := Rect2(item_b_icon_rect.position, item_b_icon_rect.size * 0.52)
+	_apply_control_rect(_item_b_glow, small_item_rect)
+	_apply_control_rect(_item_b_icon, small_item_rect)
+	_apply_control_rect(_item_status_countdown, Rect2(item_b_icon_rect.position + item_b_icon_rect.size * 0.43, item_b_icon_rect.size * 0.57))
 	_apply_control_rect(_item_b_quantity, item_b_quantity_rect)
 	_apply_control_rect(_item_b_empty, item_b_empty_rect)
 	_apply_control_rect(_location_value, location_value_rect)
@@ -300,6 +308,30 @@ func _get_loaded_panel_count() -> int:
 	return loaded_count
 
 
+func _create_tyche_display() -> void:
+	_tyche_icon = TextureRect.new()
+	_tyche_icon.texture = load("res://assets/objects/item_tyche_margarites.png")
+	_tyche_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_tyche_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_tyche_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_tyche_icon)
+	_apply_control_rect(_tyche_icon, Rect2(onos_value_rect.position + Vector2(onos_value_rect.size.x - 4.0, -8.0), Vector2(28.0, 28.0)))
+	_tyche_value = Label.new()
+	_tyche_value.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tyche_value.add_theme_font_size_override(&"font_size", 14)
+	_tyche_value.add_theme_color_override(&"font_color", onos_font_color)
+	_tyche_value.add_theme_color_override(&"font_outline_color", onos_outline_color)
+	_tyche_value.add_theme_constant_override(&"outline_size", 3)
+	add_child(_tyche_value)
+	_apply_control_rect(_tyche_value, Rect2(onos_value_rect.position + Vector2(onos_value_rect.size.x + 22.0, -2.0), Vector2(62.0, 25.0)))
+	_sync_tyche_display()
+
+func _sync_tyche_display() -> void:
+	if not is_instance_valid(_tyche_icon) or not is_instance_valid(_tyche_value): return
+	_tyche_icon.visible = _game_state != null and _game_state.tyche_active
+	_tyche_value.visible = _tyche_icon.visible
+	_tyche_value.text = "+%d" % _game_state.tyche_stored_onos if _tyche_icon.visible else ""
+
 func _sync_from_state() -> void:
 	_location_value.text = _location_name.to_upper()
 	if _game_state == null:
@@ -313,6 +345,7 @@ func _sync_from_state() -> void:
 	_fin_value.text = str(_game_state.current_fins)
 	_set_fin_panel(_resolve_fin_panel_index())
 	_sync_equipment_from_state()
+	_sync_tyche_display()
 
 
 func _sync_equipment_from_state() -> void:
@@ -445,6 +478,8 @@ func _disconnect_game_state() -> void:
 		_game_state.equipped_item_changed.disconnect(_on_equipped_item_changed)
 	if _game_state.inventory_changed.is_connected(_on_inventory_changed):
 		_game_state.inventory_changed.disconnect(_on_inventory_changed)
+	if _game_state.tyche_changed.is_connected(_on_tyche_changed):
+		_game_state.tyche_changed.disconnect(_on_tyche_changed)
 
 
 func _on_state_replaced(_reason: StringName) -> void:
@@ -466,6 +501,9 @@ func _on_onos_changed(_current_value: int, _delta: int) -> void:
 func _on_equipped_item_changed(_slot_id: StringName, _item_id: StringName) -> void:
 	_sync_equipment_from_state()
 
+
+func _on_tyche_changed(_active: bool, _stored_value: int) -> void:
+	_sync_tyche_display()
 
 func _on_inventory_changed(
 		_item_id: StringName,
