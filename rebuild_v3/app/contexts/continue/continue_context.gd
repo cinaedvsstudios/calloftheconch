@@ -184,7 +184,6 @@ func _create_save_row(save_data: Dictionary, index: int) -> Button:
 	row.add_theme_constant_override(&"shadow_offset_x", save_text_shadow_offset.x)
 	row.add_theme_constant_override(&"shadow_offset_y", save_text_shadow_offset.y)
 	row.text = _format_save_row(save_data)
-	row.mouse_entered.connect(_on_save_row_hovered.bind(index))
 	row.pressed.connect(_on_save_row_pressed.bind(index))
 	_apply_save_row_style(row, false)
 	return row
@@ -243,10 +242,6 @@ func _apply_save_row_style(row: Button, selected: bool) -> void:
 	row.add_theme_stylebox_override(&"hover", _make_save_row_style(selected, true))
 	row.add_theme_stylebox_override(&"pressed", _make_save_row_style(selected, true))
 	row.add_theme_stylebox_override(&"disabled", _make_save_row_style(selected))
-
-
-func _on_save_row_hovered(index: int) -> void:
-	_select_index(index)
 
 
 func _on_save_row_pressed(index: int) -> void:
