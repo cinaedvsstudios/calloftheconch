@@ -6,6 +6,7 @@ signal impacted(world_position: Vector2)
 @export_range(100.0, 4000.0, 10.0) var travel_speed: float = 1050.0
 @export_range(100.0, 4000.0, 10.0) var maximum_distance: float = 1150.0
 @export_range(8.0, 120.0, 1.0) var blob_radius: float = 22.0
+@export_range(20.0, 160.0, 1.0) var impact_radius: float = 70.0
 
 var _source: Node2D
 var _direction: Vector2 = Vector2.RIGHT
@@ -47,12 +48,67 @@ func _physics_process(delta: float) -> void:
 
 
 func _intersect_blob_path(from: Vector2, to: Vector2) -> Dictionary:
-	var query: PhysicsRayQueryParameters2D = PhysicsRayQueryParameters2D.create(from, to, 1)
+	var closest_hit: Dictionary = _intersect_physics_sweep(from, to)
+	var closest_distance_squared: float = INF
+	if not closest_hit.is_empty():
+		var physics_position: Variant = closest_hit.get("position", to)
+		if physics_position is Vector2:
+			closest_distance_squared = from.distance_squared_to(physics_position)
+
+	for group_name: StringName in [&"enemy", &"hazard", &"conch_target"]:
+		for candidate: Node in get_tree().get_nodes_in_group(group_name):
+			var direct_hit: Dictionary = _intersect_direct_target(from, to, candidate)
+			if direct_hit.is_empty():
+				continue
+			var direct_position: Vector2 = direct_hit.get("position", to) as Vector2
+			var direct_distance_squared: float = from.distance_squared_to(direct_position)
+			if direct_distance_squared < closest_distance_squared:
+				closest_hit = direct_hit
+				closest_distance_squared = direct_distance_squared
+
+	return closest_hit
+
+
+func _intersect_physics_sweep(from: Vector2, to: Vector2) -> Dictionary:
+	var circle: CircleShape2D = CircleShape2D.new()
+	circle.radius = impact_radius
+	var query: PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
+	query.shape = circle
+	query.transform = Transform2D(0.0, from)
+	query.motion = to - from
+	query.collision_mask = 1
 	query.collide_with_areas = true
 	query.collide_with_bodies = true
 	if _source is CollisionObject2D:
 		query.exclude = [(_source as CollisionObject2D).get_rid()]
-	return get_world_2d().direct_space_state.intersect_ray(query)
+	return get_world_2d().direct_space_state.get_rest_info(query)
+
+
+func _intersect_direct_target(from: Vector2, to: Vector2, candidate: Node) -> Dictionary:
+	if not is_instance_valid(candidate) or candidate.is_queued_for_deletion():
+		return {}
+	if candidate == _source or candidate.is_ancestor_of(_source) or _source.is_ancestor_of(candidate):
+		return {}
+	var candidate_2d: Node2D = candidate as Node2D
+	if candidate_2d == null:
+		return {}
+
+	var closest_point: Vector2 = _closest_point_on_segment(candidate_2d.global_position, from, to)
+	if closest_point.distance_squared_to(candidate_2d.global_position) > impact_radius * impact_radius:
+		return {}
+	return {
+		"position": closest_point,
+		"collider": candidate,
+	}
+
+
+func _closest_point_on_segment(point: Vector2, from: Vector2, to: Vector2) -> Vector2:
+	var segment: Vector2 = to - from
+	var segment_length_squared: float = segment.length_squared()
+	if segment_length_squared <= 0.0001:
+		return from
+	var amount: float = clampf((point - from).dot(segment) / segment_length_squared, 0.0, 1.0)
+	return from + segment * amount
 
 
 func _finish_impact() -> void:
