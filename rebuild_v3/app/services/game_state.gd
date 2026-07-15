@@ -8,6 +8,7 @@ signal fins_changed(current_value: int, maximum_value: int, delta: int)
 signal greatfin_changed(is_active: bool)
 signal defeat_state_changed(is_defeated: bool)
 signal onos_changed(current_value: int, delta: int)
+signal tyche_changed(active: bool, stored_value: int)
 signal inventory_changed(item_id: StringName, quantity: int, delta: int)
 signal permanent_inventory_changed(item_id: StringName, owned: bool)
 signal shells_changed
@@ -37,6 +38,8 @@ var max_fins: int = DEFAULT_FINS
 var greatfin_active: bool = false
 var player_is_defeated: bool = false
 var onos: int = 0
+var tyche_active: bool = false
+var tyche_stored_onos: int = 0
 
 # Limited-use inventory items are stored as item_id -> remaining uses.
 var inventory: Dictionary = {}
@@ -78,6 +81,8 @@ func start_new_game() -> void:
 	greatfin_active = false
 	player_is_defeated = false
 	onos = 0
+	tyche_active = false
+	tyche_stored_onos = 0
 	inventory.clear()
 	permanent_inventory_items.clear()
 	owned_shells = [NORMAL_CONCH_ID]
@@ -237,6 +242,7 @@ func damage_fins(amount: int) -> int:
 	state_changed.emit()
 	if current_fins <= 0:
 		player_is_defeated = true
+		clear_tyche_margarites()
 		defeat_state_changed.emit(true)
 		player_defeated.emit()
 	return applied_damage
@@ -310,6 +316,7 @@ func set_fin_state(new_current_fins: int, new_max_fins: int) -> void:
 	fins_changed.emit(current_fins, max_fins, current_fins - previous_fins)
 	if current_fins <= 0 and not player_is_defeated:
 		player_is_defeated = true
+		clear_tyche_margarites()
 		defeat_state_changed.emit(true)
 		player_defeated.emit()
 	elif current_fins > 0 and player_is_defeated:
@@ -332,7 +339,12 @@ func set_max_fins(new_max_fins: int, fill_added_capacity: bool = false) -> void:
 
 
 func add_onos(amount: int) -> int:
-	if amount == 0:
+	if amount == 0: return 0
+	if amount > 0 and tyche_active:
+		var multiplier := float(randi_range(10, 30)) / 10.0
+		tyche_stored_onos += ceili(float(amount) * multiplier)
+		tyche_changed.emit(true, tyche_stored_onos)
+		state_changed.emit()
 		return 0
 	var previous_onos: int = onos
 	onos = maxi(0, onos + amount)
@@ -342,6 +354,34 @@ func add_onos(amount: int) -> int:
 		state_changed.emit()
 	return applied_delta
 
+
+func activate_tyche_margarites() -> bool:
+	if player_is_defeated or tyche_active: return false
+	tyche_active = true
+	tyche_stored_onos = 0
+	tyche_changed.emit(true, 0)
+	state_changed.emit()
+	return true
+
+func clear_tyche_margarites() -> void:
+	if not tyche_active and tyche_stored_onos == 0: return
+	tyche_active = false
+	tyche_stored_onos = 0
+	tyche_changed.emit(false, 0)
+	state_changed.emit()
+
+func cash_in_tyche_margarites() -> int:
+	if not tyche_active: return 0
+	var payout := tyche_stored_onos
+	tyche_active = false
+	tyche_stored_onos = 0
+	tyche_changed.emit(false, 0)
+	if payout > 0:
+		var previous_onos := onos
+		onos += payout
+		onos_changed.emit(onos, onos - previous_onos)
+	state_changed.emit()
+	return payout
 
 func set_onos(amount: int) -> void:
 	var resolved_amount: int = maxi(0, amount)

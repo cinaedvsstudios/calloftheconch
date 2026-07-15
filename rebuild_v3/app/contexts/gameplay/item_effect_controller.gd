@@ -25,15 +25,15 @@ const BEHAVIOR_SEAWEED_GRAPES_BOX: StringName = &"seaweed_grapes_box"
 @export_range(1, 8, 1) var seaweed_grapes_heal_amount: int = 1
 
 @export_category("Item B Durations")
-@export_range(0.1, 30.0, 0.1) var purple_shield_seconds: float = 6.0
+@export_range(0.1, 30.0, 0.1) var purple_shield_seconds: float = 30.0
 @export_range(0.1, 10.0, 0.05) var surge_seconds: float = 0.90
-@export_range(0.1, 30.0, 0.1) var camouflage_seconds: float = 7.0
+@export_range(0.1, 30.0, 0.1) var camouflage_seconds: float = 30.0
 
 @export_category("Special Conch Profiles")
-@export var super_conch_tint: Color = Color(0.40, 0.95, 1.0, 1.0)
+@export var super_conch_tint: Color = Color(0.20, 1.0, 0.48, 1.0)
 @export_range(1.0, 180.0, 1.0) var super_conch_arc_degrees: float = 78.0
 @export_range(0.0, 8.0, 0.05) var super_conch_brightness: float = 2.10
-@export var sonic_drill_tint: Color = Color(0.96, 0.30, 1.0, 1.0)
+@export var sonic_drill_tint: Color = Color(1.0, 0.08, 0.88, 1.0)
 @export_range(1.0, 180.0, 1.0) var sonic_drill_arc_degrees: float = 18.0
 @export_range(0.0, 8.0, 0.05) var sonic_drill_brightness: float = 2.25
 
@@ -185,6 +185,7 @@ func _activate_profiled_conch(
 			"tint": sonic_drill_tint,
 			"flash_tint": sonic_drill_tint,
 			"echo_alpha_decay": 0.06,
+			"pulse_interval_scale": 0.48,
 		}
 	_level.call(&"trigger_special_conch", origin, direction, profile)
 	return true

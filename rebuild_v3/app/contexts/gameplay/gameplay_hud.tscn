@@ -133,7 +133,7 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ItemStatusCountdown" parent="ItemBIcon" instance=ExtResource("4_countdown")]
+[node name="ItemStatusCountdown" parent="." instance=ExtResource("4_countdown")]
 unique_name_in_owner = true
 layout_mode = 1
 

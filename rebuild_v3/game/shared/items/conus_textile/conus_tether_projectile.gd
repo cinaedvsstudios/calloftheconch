@@ -7,11 +7,11 @@ signal tether_finished
 @export_range(100.0, 4000.0, 10.0) var travel_speed: float = 1450.0
 @export_range(100.0, 4000.0, 10.0) var maximum_distance: float = 1500.0
 @export_range(0.1, 5.0, 0.05) var anchored_seconds: float = 1.25
-@export_range(10.0, 150.0, 1.0) var dart_display_height: float = 34.0
+@export_range(10.0, 150.0, 1.0) var dart_display_height: float = 17.0
 
 @export_category("Rope Motion")
 @export_range(0.0, 100.0, 1.0) var rope_wave_height: float = 4.0
-@export_range(0.0, 10.0, 0.05) var rope_wave_speed: float = 1.8
+@export_range(0.0, 10.0, 0.05) var rope_wave_speed: float = 2.6
 
 @export_category("Dart Glow")
 @export var dart_glow_color: Color = Color(1.0, 0.34, 0.08, 1.0)
@@ -143,7 +143,7 @@ func _update_visuals() -> void:
 
 	var pulse: float = 0.5 + 0.5 * sin(_elapsed * dart_glow_pulse_speed)
 	var rope_glow_color: Color = _rope_glow.default_color
-	rope_glow_color.a = lerpf(0.48, 0.72, pulse)
+	rope_glow_color = Color(1.0, 0.24, 0.03, lerpf(0.48, 0.78, pulse))
 	_rope_glow.default_color = rope_glow_color
 	_dart_glow.modulate = Color(
 		dart_glow_color.r,

@@ -6,6 +6,7 @@ const SURGE_GLOW_SHADER: Shader = preload("res://scenes/characters/Hylas/hylas_i
 const NORMAL_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_v3_sprite_frames.tres")
 const GREATFIN_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_greatfin_sprite_frames.tres")
 const GREATFIN_VISUAL_SCALE: float = 1.30
+const HELD_SHELL_VISUAL_SCALE: float = 0.62
 const SHELL_TEXTURES: Dictionary = {
 	&"normal_conch": preload("res://assets/characters/shell_normal_conch.png"),
 	&"charonia_tritonis": preload("res://assets/characters/shell_charonia_tritonis.png"),
@@ -151,7 +152,7 @@ func _sync_shell_overlay() -> void:
 		anchor_offset.x = -anchor_offset.x
 	_shell_overlay.position = anchor_offset.rotated(_animated_sprite.rotation)
 	_shell_overlay.rotation = _animated_sprite.rotation
-	_shell_overlay.scale = _animated_sprite.scale
+	_shell_overlay.scale = _animated_sprite.scale * HELD_SHELL_VISUAL_SCALE
 	_shell_overlay.flip_h = _animated_sprite.flip_h
 	_shell_overlay.flip_v = _animated_sprite.flip_v
 	_shell_overlay.modulate = _animated_sprite.modulate
