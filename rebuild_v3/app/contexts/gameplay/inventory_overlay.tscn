@@ -78,10 +78,11 @@ stretch_mode = 5
 
 [node name="CloseButton" type="Button" parent="PanelRoot"]
 unique_name_in_owner = true
-offset_left = 452.0
-offset_top = 78.0
-offset_right = 502.0
-offset_bottom = 128.0
+z_index = 5
+offset_left = 260.0
+offset_top = 36.0
+offset_right = 310.0
+offset_bottom = 86.0
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0.84, 0.95, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.72, 0.95, 1)
@@ -125,7 +126,7 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 3
 theme_override_constants/shadow_outline_size = 9
 theme_override_font_sizes/font_size = 14
-text = "Move selection · Space or click equips"
+text = "Click selects · Space equips · Esc confirms and closes"
 horizontal_alignment = 1
 
 [node name="ItemScroll" type="ScrollContainer" parent="PanelRoot/Content"]
