@@ -7,11 +7,18 @@ signal tether_finished
 @export_range(100.0, 4000.0, 10.0) var travel_speed: float = 1450.0
 @export_range(100.0, 4000.0, 10.0) var maximum_distance: float = 1500.0
 @export_range(0.1, 5.0, 0.05) var anchored_seconds: float = 1.25
-@export_range(10.0, 150.0, 1.0) var dart_display_height: float = 68.0
+@export_range(10.0, 150.0, 1.0) var dart_display_height: float = 34.0
 
 @export_category("Rope Motion")
 @export_range(0.0, 100.0, 1.0) var rope_wave_height: float = 4.0
 @export_range(0.0, 10.0, 0.05) var rope_wave_speed: float = 1.8
+
+@export_category("Dart Glow")
+@export var dart_glow_color: Color = Color(1.0, 0.34, 0.08, 1.0)
+@export_range(0.0, 1.0, 0.01) var dart_glow_min_alpha: float = 0.16
+@export_range(0.0, 1.0, 0.01) var dart_glow_max_alpha: float = 0.34
+@export_range(0.1, 12.0, 0.1) var dart_glow_pulse_speed: float = 3.2
+@export_range(1.0, 30.0, 0.5) var dart_point_glow_radius: float = 8.0
 
 @onready var _rope_glow: Line2D = %RopeGlow
 @onready var _rope: Line2D = %Rope
@@ -30,6 +37,7 @@ var _elapsed: float = 0.0
 func _ready() -> void:
 	set_physics_process(false)
 	_apply_dart_scale()
+	queue_redraw()
 
 
 func launch(origin: Vector2, direction: Vector2, source: Node2D) -> void:
@@ -133,13 +141,17 @@ func _update_visuals() -> void:
 	_dart.global_position = _dart_world_position
 	_dart_glow.global_position = _dart_world_position
 
-	var pulse: float = 0.5 + 0.5 * sin(_elapsed * 5.0)
+	var pulse: float = 0.5 + 0.5 * sin(_elapsed * dart_glow_pulse_speed)
 	var rope_glow_color: Color = _rope_glow.default_color
 	rope_glow_color.a = lerpf(0.48, 0.72, pulse)
 	_rope_glow.default_color = rope_glow_color
-	var dart_glow_color: Color = _dart_glow.modulate
-	dart_glow_color.a = lerpf(0.58, 0.82, pulse)
-	_dart_glow.modulate = dart_glow_color
+	_dart_glow.modulate = Color(
+		dart_glow_color.r,
+		dart_glow_color.g,
+		dart_glow_color.b,
+		lerpf(dart_glow_min_alpha, dart_glow_max_alpha, pulse),
+	)
+	queue_redraw()
 
 
 func _apply_dart_scale() -> void:
@@ -150,4 +162,27 @@ func _apply_dart_scale() -> void:
 		return
 	var scale_factor: float = dart_display_height / texture_height
 	_dart.scale = Vector2.ONE * scale_factor
-	_dart_glow.scale = Vector2.ONE * scale_factor * 1.28
+	_dart_glow.scale = Vector2.ONE * scale_factor * 1.10
+
+
+func _draw() -> void:
+	if _dart.texture == null:
+		return
+	var pulse: float = 0.5 + 0.5 * sin(_elapsed * dart_glow_pulse_speed)
+	var texture_width: float = float(_dart.texture.get_width()) * absf(_dart.scale.x)
+	var point_world_position: Vector2 = _dart_world_position + _direction * texture_width * 0.46
+	var point_local_position: Vector2 = to_local(point_world_position)
+	var outer_color: Color = Color(
+		dart_glow_color.r,
+		dart_glow_color.g,
+		dart_glow_color.b,
+		lerpf(0.05, 0.13, pulse),
+	)
+	var core_color: Color = Color(
+		1.0,
+		0.52,
+		0.16,
+		lerpf(0.16, 0.34, pulse),
+	)
+	draw_circle(point_local_position, dart_point_glow_radius * 1.7, outer_color)
+	draw_circle(point_local_position, dart_point_glow_radius * 0.55, core_color)
