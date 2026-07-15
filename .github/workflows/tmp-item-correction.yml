@@ -1,0 +1,275 @@
+name: Temporary validated item correction
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  correct:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/item-correction-pass-2026-07-16
+          fetch-depth: 0
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+      - name: Apply corrective pass
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def rep(path, old, new, count=-1):
+              p = Path(path)
+              s = p.read_text()
+              if old not in s:
+                  raise SystemExit(f"Missing pattern in {path}: {old[:120]!r}")
+              p.write_text(s.replace(old, new, count))
+
+          # HUD: remove the regression shadow/tint, restore full-size idle Item B,
+          # and only compact the shell while an actual timed effect is active.
+          p = Path('rebuild_v3/app/contexts/gameplay/gameplay_hud.gd')
+          s = p.read_text()
+          s = s.replace('@export var hud_shadow_enabled: bool = true', '@export var hud_shadow_enabled: bool = false')
+          s = s.replace('\t_create_panel_shadow()\n', '')
+          s = s.replace('var _missing_icon_warnings: Dictionary = {}', 'var _missing_icon_warnings: Dictionary = {}\nvar _item_b_timed_active: bool = false')
+          old = '''\tvar small_item_rect := Rect2(item_b_icon_rect.position, item_b_icon_rect.size * 0.52)\n\t_apply_control_rect(_item_b_glow, small_item_rect)\n\t_apply_control_rect(_item_b_icon, small_item_rect)\n\t_apply_control_rect(_item_status_countdown, Rect2(item_b_icon_rect.position + item_b_icon_rect.size * 0.43, item_b_icon_rect.size * 0.57))'''
+          new = '''\t_apply_control_rect(_item_b_glow, item_b_icon_rect)\n\t_apply_control_rect(_item_b_icon, item_b_icon_rect)\n\t_apply_control_rect(\n\t\t_item_status_countdown,\n\t\tRect2(item_b_icon_rect.position + item_b_icon_rect.size * 0.43, item_b_icon_rect.size * 0.57),\n\t)'''
+          if old not in s: raise SystemExit('HUD layout block missing')
+          s = s.replace(old, new)
+          insert_anchor = 'func _apply_control_rect(control: Control, target_rect: Rect2) -> void:'
+          method = '''func set_item_b_timed_active(is_active: bool) -> void:\n\tif _item_b_timed_active == is_active:\n\t\treturn\n\t_item_b_timed_active = is_active\n\tvar target_rect: Rect2 = item_b_icon_rect\n\tif is_active:\n\t\ttarget_rect = Rect2(item_b_icon_rect.position, item_b_icon_rect.size * 0.52)\n\t_apply_control_rect(_item_b_glow, target_rect)\n\t_apply_control_rect(_item_b_icon, target_rect)\n\t_set_slot_rest_state(_item_b_icon, _item_b_glow)\n\n\n'''
+          if insert_anchor not in s: raise SystemExit('HUD control rect anchor missing')
+          s = s.replace(insert_anchor, method + insert_anchor)
+          s = s.replace('Rect2(onos_value_rect.position + Vector2(onos_value_rect.size.x - 4.0, -8.0), Vector2(28.0, 28.0))', 'Rect2(onos_value_rect.position + Vector2(-34.0, -10.0), Vector2(28.0, 28.0))')
+          s = s.replace('_tyche_value.add_theme_color_override(&"font_color", onos_font_color)', '_tyche_value.add_theme_color_override(&"font_color", Color.WHITE)')
+          s = s.replace('Rect2(onos_value_rect.position + Vector2(onos_value_rect.size.x + 22.0, -2.0), Vector2(62.0, 25.0))', 'Rect2(onos_value_rect.position + Vector2(-5.0, -8.0), Vector2(62.0, 25.0))')
+          s = s.replace('''\tif is_instance_valid(_panel_shadow):\n\t\t_panel_shadow.texture = texture\n\t\t_panel_shadow.visible = hud_shadow_enabled\n''', '')
+          p.write_text(s)
+
+          p = Path('rebuild_v3/app/contexts/gameplay/gameplay_hud.tscn')
+          s = p.read_text()
+          s = s.replace('modulate = Color(1.0279732, 1.1638972, 1.1638972, 1)\n', '')
+          s = s.replace('self_modulate = Color(1.2743521, 1.3528494, 1.3528494, 0.6862745)\n', '')
+          p.write_text(s)
+
+          # The countdown can show either the ordinary hourglass or the 2x2 Mati
+          # sprite sheet, cropped frame-by-frame and cross-faded in the Item B box.
+          Path('rebuild_v3/app/contexts/gameplay/status_countdown_overlay.gd').write_text(r'''class_name CotcStatusCountdownOverlay
+          extends Control
+
+          const FRAME_TEXTURES: Array[Texture2D] = [
+          	preload("res://assets/ui/hourglass/frame-001-frame-001.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-002.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-003.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-004.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-005.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-006.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-007.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-008.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-009.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-010.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-011.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-012.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-013.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-014.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-015.png"),
+          	preload("res://assets/ui/hourglass/frame-001-frame-016.png"),
+          ]
+          const MATI_TEXTURE: Texture2D = preload("res://assets/objects/ui_mati.png")
+          const MATI_COLUMNS: int = 2
+          const MATI_ROWS: int = 2
+          const MATI_FRAME_COUNT: int = 4
+
+          @onready var _shadow: TextureRect = %Shadow
+          @onready var _hourglass: TextureRect = %Hourglass
+          var _crossfade: TextureRect
+          var _active_item_id: StringName = &""
+          var _remaining_seconds: float = 0.0
+          var _duration_seconds: float = 0.0
+          var _frame_index: int = -1
+          var _mati_mode: bool = false
+
+          func _ready() -> void:
+          	mouse_filter = Control.MOUSE_FILTER_IGNORE
+          	_crossfade = TextureRect.new()
+          	_crossfade.name = "Crossfade"
+          	_crossfade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+          	_crossfade.set_anchors_preset(Control.PRESET_FULL_RECT)
+          	_crossfade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+          	_crossfade.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+          	add_child(_crossfade)
+          	clear_countdown()
+
+          func set_countdown(item_id: StringName, remaining_seconds: float, duration_seconds: float) -> void:
+          	if String(item_id).is_empty() or remaining_seconds <= 0.0 or duration_seconds <= 0.0:
+          		clear_countdown()
+          		return
+          	_mati_mode = false
+          	_crossfade.hide()
+          	_shadow.show()
+          	_hourglass.modulate = Color.WHITE
+          	_active_item_id = item_id
+          	_remaining_seconds = clampf(remaining_seconds, 0.0, duration_seconds)
+          	_duration_seconds = maxf(duration_seconds, 0.001)
+          	var elapsed_ratio: float = clampf((_duration_seconds - _remaining_seconds) / _duration_seconds, 0.0, 0.999999)
+          	var next_frame_index: int = clampi(floori(elapsed_ratio * float(FRAME_TEXTURES.size())), 0, FRAME_TEXTURES.size() - 1)
+          	if next_frame_index != _frame_index:
+          		_frame_index = next_frame_index
+          		var frame_texture: Texture2D = FRAME_TEXTURES[_frame_index]
+          		_shadow.texture = frame_texture
+          		_hourglass.texture = frame_texture
+          	show()
+
+          func set_mati_progress(elapsed_seconds: float) -> void:
+          	_mati_mode = true
+          	_active_item_id = &"mati_amulet"
+          	_duration_seconds = 30.0
+          	_remaining_seconds = maxf(0.0, 30.0 - elapsed_seconds)
+          	_shadow.hide()
+          	_crossfade.show()
+          	var sequence_frame: float
+          	if elapsed_seconds < 5.0:
+          		sequence_frame = elapsed_seconds * 3.0
+          	elif elapsed_seconds < 25.0:
+          		sequence_frame = 15.0 + (elapsed_seconds - 5.0)
+          	else:
+          		sequence_frame = 35.0 + (elapsed_seconds - 25.0) * 3.0
+          	var current_index: int = floori(sequence_frame) % MATI_FRAME_COUNT
+          	var next_index: int = (current_index + 1) % MATI_FRAME_COUNT
+          	var blend: float = smoothstep(0.0, 1.0, sequence_frame - floor(sequence_frame))
+          	_hourglass.texture = _make_mati_frame(current_index)
+          	_crossfade.texture = _make_mati_frame(next_index)
+          	_hourglass.modulate = Color(1.0, 1.0, 1.0, 1.0 - blend)
+          	_crossfade.modulate = Color(1.0, 1.0, 1.0, blend)
+          	show()
+
+          func _make_mati_frame(frame_index: int) -> AtlasTexture:
+          	var texture_size: Vector2 = MATI_TEXTURE.get_size()
+          	var cell_size: Vector2 = Vector2(texture_size.x / MATI_COLUMNS, texture_size.y / MATI_ROWS)
+          	var column: int = frame_index % MATI_COLUMNS
+          	var row: int = frame_index / MATI_COLUMNS
+          	var atlas := AtlasTexture.new()
+          	atlas.atlas = MATI_TEXTURE
+          	atlas.region = Rect2(Vector2(column, row) * cell_size, cell_size)
+          	return atlas
+
+          func clear_countdown() -> void:
+          	_active_item_id = &""
+          	_remaining_seconds = 0.0
+          	_duration_seconds = 0.0
+          	_frame_index = -1
+          	_mati_mode = false
+          	if is_instance_valid(_crossfade):
+          		_crossfade.hide()
+          	_hourglass.modulate = Color.WHITE
+          	_shadow.show()
+          	hide()
+
+          func is_counting_down() -> bool:
+          	return visible and _remaining_seconds > 0.0
+
+          func get_active_item_id() -> StringName:
+          	return _active_item_id
+
+          func get_debug_lines() -> Array[String]:
+          	return [
+          		"[StatusCountdownOverlay]",
+          		"visible=%s" % str(visible),
+          		"item_id=%s" % String(_active_item_id),
+          		"remaining=%.3f" % _remaining_seconds,
+          		"duration=%.3f" % _duration_seconds,
+          		"frame=%d" % _frame_index,
+          		"mati_mode=%s" % str(_mati_mode),
+          	]
+          ''')
+
+          # Move Mati into the existing Item B timer area and freeze actual world nodes
+          # directly rather than relying on SceneTree pause toggling.
+          p = Path('rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd')
+          s = p.read_text()
+          s = s.replace('@onready var _mati_overlay: CotcMatiOverlay = %MatiOverlay\n', '')
+          s = s.replace('var _hylas_previous_process_mode := Node.PROCESS_MODE_INHERIT', 'var _gameplay_hud: CotcGameplayHud\nvar _mati_targets: Dictionary = {}\nvar _mati_tick_phase: float = 0.0')
+          s = s.replace('''\tif context != null:\n\t\t_status_countdown = context.get_node_or_null(\n\t\t\t"GameplayUI/GameplayHud/ItemBIcon/ItemStatusCountdown"\n\t\t) as CotcStatusCountdownOverlay\n\t\tif _status_countdown == null:\n\t\t\t_status_countdown = context.get_node_or_null("%ItemStatusCountdown") as CotcStatusCountdownOverlay''', '''\t_gameplay_hud = null\n\tif context != null:\n\t\t_gameplay_hud = context.get_node_or_null("GameplayUI/GameplayHud") as CotcGameplayHud\n\t\t_status_countdown = context.get_node_or_null("%ItemStatusCountdown") as CotcStatusCountdownOverlay''')
+          start = s.index('func _activate_mati() -> bool:')
+          end = s.index('func clear_active_effects() -> void:')
+          replacement = '''func _activate_mati() -> bool:\n\tif _mati_active or not is_instance_valid(_hylas):\n\t\treturn false\n\t_mati_active = true\n\t_mati_elapsed = 0.0\n\t_mati_tick_phase = 0.0\n\t_capture_mati_targets()\n\t_set_item_b_timed_active(true)\n\tif is_instance_valid(_status_countdown):\n\t\t_status_countdown.set_mati_progress(0.0)\n\treturn true\n\n\nfunc _update_mati(delta: float) -> void:\n\tif not _mati_active:\n\t\treturn\n\t_mati_elapsed = minf(30.0, _mati_elapsed + maxf(delta, 0.0))\n\tvar world_activity: float\n\tif _mati_elapsed < 5.0:\n\t\tworld_activity = 1.0 - (_mati_elapsed / 5.0)\n\telif _mati_elapsed < 25.0:\n\t\tworld_activity = 0.0\n\telse:\n\t\tworld_activity = (_mati_elapsed - 25.0) / 5.0\n\t_apply_mati_world_activity(clampf(world_activity, 0.0, 1.0), delta)\n\tif is_instance_valid(_status_countdown):\n\t\t_status_countdown.set_mati_progress(_mati_elapsed)\n\tif _mati_elapsed >= 30.0:\n\t\t_finish_mati()\n\n\nfunc _capture_mati_targets() -> void:\n\t_mati_targets.clear()\n\tfor group_name: StringName in [&"enemy", &"hazard", &"current", &"moving_object", &"conch_target"]:\n\t\tfor candidate: Node in get_tree().get_nodes_in_group(group_name):\n\t\t\tif not is_instance_valid(candidate) or candidate == _hylas or is_ancestor_of(candidate):\n\t\t\t\tcontinue\n\t\t\tvar instance_id: int = candidate.get_instance_id()\n\t\t\tif _mati_targets.has(instance_id):\n\t\t\t\tcontinue\n\t\t\t_mati_targets[instance_id] = {"node": candidate, "process_mode": candidate.process_mode}\n\n\nfunc _apply_mati_world_activity(activity: float, delta: float) -> void:\n\t_mati_tick_phase = fmod(_mati_tick_phase + maxf(delta, 0.0) * 12.0, 1.0)\n\tvar allow_tick: bool = activity >= 0.999 or _mati_tick_phase < activity\n\tfor entry_value: Variant in _mati_targets.values():\n\t\tif not (entry_value is Dictionary):\n\t\t\tcontinue\n\t\tvar entry: Dictionary = entry_value\n\t\tvar node: Node = entry.get("node") as Node\n\t\tif not is_instance_valid(node):\n\t\t\tcontinue\n\t\tvar original_mode: int = int(entry.get("process_mode", Node.PROCESS_MODE_INHERIT))\n\t\tnode.process_mode = original_mode as Node.ProcessMode if allow_tick else Node.PROCESS_MODE_DISABLED\n\n\nfunc _finish_mati() -> void:\n\tfor entry_value: Variant in _mati_targets.values():\n\t\tif not (entry_value is Dictionary):\n\t\t\tcontinue\n\t\tvar entry: Dictionary = entry_value\n\t\tvar node: Node = entry.get("node") as Node\n\t\tif is_instance_valid(node):\n\t\t\tnode.process_mode = int(entry.get("process_mode", Node.PROCESS_MODE_INHERIT)) as Node.ProcessMode\n\t_mati_targets.clear()\n\t_mati_active = false\n\t_mati_elapsed = 0.0\n\t_set_item_b_timed_active(false)\n\tif is_instance_valid(_status_countdown):\n\t\t_status_countdown.clear_countdown()\n\n\nfunc _set_item_b_timed_active(is_active: bool) -> void:\n\tif is_instance_valid(_gameplay_hud):\n\t\t_gameplay_hud.set_item_b_timed_active(is_active)\n\n\n'''
+          s = s[:start] + replacement + s[end:]
+          old_refresh = '''func _refresh_status_countdown() -> void:\n\tif not is_instance_valid(_status_countdown):\n\t\treturn\n\tif _purple_shield_remaining > 0.0:'''
+          new_refresh = '''func _refresh_status_countdown() -> void:\n\tif not is_instance_valid(_status_countdown):\n\t\treturn\n\tif _mati_active:\n\t\t_set_item_b_timed_active(true)\n\t\t_status_countdown.set_mati_progress(_mati_elapsed)\n\t\treturn\n\tif _purple_shield_remaining > 0.0:\n\t\t_set_item_b_timed_active(true)'''
+          if old_refresh not in s: raise SystemExit('world sync refresh anchor missing')
+          s = s.replace(old_refresh, new_refresh)
+          s = s.replace('''\tif _camouflage_remaining > 0.0:\n\t\t_status_countdown.set_countdown(''', '''\tif _camouflage_remaining > 0.0:\n\t\t_set_item_b_timed_active(true)\n\t\t_status_countdown.set_countdown(''')
+          s = s.replace('''\tif longest_remaining > 0.0:\n\t\t_status_countdown.set_countdown''', '''\tif longest_remaining > 0.0:\n\t\t_set_item_b_timed_active(true)\n\t\t_status_countdown.set_countdown''')
+          s = s.replace('\t_status_countdown.clear_countdown()\n\n\nfunc _on_greatfin_pickup_requested', '\t_status_countdown.clear_countdown()\n\t_set_item_b_timed_active(false)\n\n\nfunc _on_greatfin_pickup_requested')
+          p.write_text(s)
+
+          # Remove the obsolete full-screen Mati overlay from the item controller scene.
+          p = Path('rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn')
+          s = p.read_text()
+          s = s.replace('[gd_scene load_steps=10 format=3]', '[gd_scene load_steps=9 format=3]')
+          s = s.replace('[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/mati_overlay.gd" id="9_mati"]\n', '')
+          mati_block = '''\n[node name="MatiCanvas" type="CanvasLayer" parent="."]\nlayer = 35\n[node name="MatiOverlay" type="Control" parent="MatiCanvas"]\nunique_name_in_owner = true\nprocess_mode = 3\nlayout_mode = 3\nanchors_preset = 15\nanchor_right = 1.0\nanchor_bottom = 1.0\ngrow_horizontal = 2\ngrow_vertical = 2\nscript = ExtResource("9_mati")\n'''
+          if mati_block not in s: raise SystemExit('Mati scene block missing')
+          p.write_text(s.replace(mati_block, '\n'))
+
+          # Held shells: smaller than the reported screenshot and frame-aware rather
+          # than locked to one static anchor for every conch animation frame.
+          p = Path('scenes/characters/Hylas/hylas_item_visuals.gd')
+          s = p.read_text()
+          s = s.replace('const HELD_SHELL_VISUAL_SCALE: float = 0.62', 'const HELD_SHELL_VISUAL_SCALE: float = 0.42')
+          s = s.replace('var _base_sprite_scale: Vector2 = Vector2.ONE', '''@export var shell_frame_offsets: Array[Vector2] = [\n\tVector2(-6.0, 4.0),\n\tVector2(-2.0, 1.0),\n\tVector2(3.0, -2.0),\n\tVector2(7.0, -4.0),\n\tVector2(10.0, -3.0),\n\tVector2(12.0, 0.0),\n]\n\nvar _base_sprite_scale: Vector2 = Vector2.ONE''')
+          s = s.replace('''\tvar anchor_offset: Vector2 = _shell_overlay_anchor.position\n\tif _animated_sprite.flip_h:''', '''\tvar anchor_offset: Vector2 = _shell_overlay_anchor.position\n\tif _animated_sprite.animation == &"conch" and _animated_sprite.frame < shell_frame_offsets.size():\n\t\tanchor_offset += shell_frame_offsets[_animated_sprite.frame]\n\tif _animated_sprite.flip_h:''')
+          p.write_text(s)
+
+          # Guarantee pulse colour in the shader instead of relying on additive source RGB.
+          p = Path('rebuild_v3/features/effects/conch_pulse_arc.gdshader')
+          s = p.read_text()
+          s = s.replace('uniform float brightness : hint_range(0.0, 8.0, 0.05) = 1.35;', 'uniform float brightness : hint_range(0.0, 8.0, 0.05) = 1.35;\nuniform vec4 tint_color : source_color = vec4(1.0);')
+          s = s.replace('COLOR = vec4(source.rgb * brightness, final_mask);', 'COLOR = vec4(tint_color.rgb * light * brightness, final_mask * tint_color.a);')
+          p.write_text(s)
+          rep('rebuild_v3/features/effects/conch_pulse_item_profiles.gd', 'if _pulse_material != null:\n\t\t_pulse_material.set_shader_parameter(&"arc_degrees", arc_degrees)', 'if _pulse_material != null:\n\t\t_pulse_material.set_shader_parameter(&"tint_color", _active_pulse_tint)\n\t\t_pulse_material.set_shader_parameter(&"arc_degrees", arc_degrees)')
+
+          # Conus: use the supplied texture on both core and soft additive glow,
+          # remove the hard dart outline, thin the rope, and restore a usable hook size.
+          p = Path('rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.tscn')
+          s = p.read_text()
+          s = s.replace('dart_display_height = 17.0', 'dart_display_height = 24.0')
+          s = s.replace('width = 7.0\ndefault_color = Color(1, 0.28, 0.04, 0.62)', 'width = 8.0\ndefault_color = Color(1, 0.22, 0.02, 0.18)\ntexture = ExtResource("2_rope")\ntexture_mode = 2\ntexture_repeat = 2')
+          s = s.replace('texture_repeat = 1\nwidth = 3.0', 'texture_repeat = 2\nwidth = 1.8')
+          s = s.replace('material = SubResource("DartMaterial")\ntexture = ExtResource("3_dart")', 'texture = ExtResource("3_dart")')
+          p.write_text(s)
+          p = Path('rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd')
+          s = p.read_text().replace('var dart_display_height: float = 17.0', 'var dart_display_height: float = 24.0')
+          s = s.replace('lerpf(dart_glow_min_alpha, dart_glow_max_alpha, pulse)', 'lerpf(0.10, 0.24, pulse)')
+          p.write_text(s)
+          PY
+      - name: Validate Godot project
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --editor --path . --quit-after 120 > /tmp/godot_import.log 2>&1
+          godot --headless --path . --quit-after 8 > /tmp/godot_run.log 2>&1
+          if grep -E "SCRIPT ERROR|Parse Error|Failed loading resource|Cannot open file|Invalid cast" /tmp/godot_import.log /tmp/godot_run.log; then
+            cat /tmp/godot_import.log
+            cat /tmp/godot_run.log
+            exit 1
+          fi
+          git diff --check
+      - name: Commit validated correction
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          rm -f .github/workflows/tmp-item-correction.yml
+          rm -f rebuild_v3/app/contexts/gameplay/mati_overlay.gd rebuild_v3/app/contexts/gameplay/mati_overlay.gd.uid
+          git add -A
+          git diff --cached --check
+          git commit -m "Correct HUD, held shells, timers, Mati and Conus visuals"
+          git push origin HEAD:work/item-correction-pass-2026-07-16
