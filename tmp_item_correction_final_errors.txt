@@ -1,0 +1,95 @@
+import_status=0
+run_status=0
+=== matched errors ===
+=== diff check ===
+rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn:61: new blank line at EOF.
+=== import tail ===
+[  80% ] [90m[1mreimport[22m | rocktexture.jpeg[39m[0m
+[  80% ] [90m[1mreimport[22m | rockedge.png[39m[0m
+[  80% ] [90m[1mreimport[22m | rockcorner.png[39m[0m
+[  81% ] [90m[1mreimport[22m | rock15.webp[39m[0m
+[  81% ] [90m[1mreimport[22m | rock14.webp[39m[0m
+[  81% ] [90m[1mreimport[22m | rock13.webp[39m[0m
+[  81% ] [90m[1mreimport[22m | rock12.webp[39m[0m
+[  82% ] [90m[1mreimport[22m | rock11.webp[39m[0m
+[  82% ] [90m[1mreimport[22m | rock10.webp[39m[0m
+[  82% ] [90m[1mreimport[22m | rock9.webp[39m[0m
+[  83% ] [90m[1mreimport[22m | rock8.webp[39m[0m
+[  83% ] [90m[1mreimport[22m | rock7.webp[39m[0m
+[  83% ] [90m[1mreimport[22m | rock6.webp[39m[0m
+[  83% ] [90m[1mreimport[22m | rock5.webp[39m[0m
+[  84% ] [90m[1mreimport[22m | rock4.webp[39m[0m
+[  84% ] [90m[1mreimport[22m | rock3.webp[39m[0m
+[  84% ] [90m[1mreimport[22m | rock2.webp[39m[0m
+[  85% ] [90m[1mreimport[22m | hylas-jump_03a.webp[39m[0m
+[  85% ] [90m[1mreimport[22m | hylas-jump_03.webp[39m[0m
+[  85% ] [90m[1mreimport[22m | hylas-jump_02.webp[39m[0m
+[  85% ] [90m[1mreimport[22m | hylas-jump_01a.webp[39m[0m
+[  86% ] [90m[1mreimport[22m | hylas-jump_01.webp[39m[0m
+[  86% ] [90m[1mreimport[22m | hylas-idle_04.webp[39m[0m
+[  86% ] [90m[1mreimport[22m | hylas-idle_03.webp[39m[0m
+[  87% ] [90m[1mreimport[22m | hylas-idle_02.webp[39m[0m
+[  87% ] [90m[1mreimport[22m | hylas-idle_01.webp[39m[0m
+[  87% ] [90m[1mreimport[22m | hylas-greatfin-tailflip06.webp[39m[0m
+[  87% ] [90m[1mreimport[22m | hylas-greatfin-tailflip05.webp[39m[0m
+[  88% ] [90m[1mreimport[22m | hylas-greatfin-tailflip04.png[39m[0m
+[  88% ] [90m[1mreimport[22m | hylas-greatfin-tailflip03.webp[39m[0m
+[  88% ] [90m[1mreimport[22m | hylas-greatfin-tailflip02.webp[39m[0m
+[  89% ] [90m[1mreimport[22m | hylas-greatfin-tailflip01.webp[39m[0m
+[  89% ] [90m[1mreimport[22m | hylas-greatfin-swim04.webp[39m[0m
+[  89% ] [90m[1mreimport[22m | hylas-greatfin-swim03.webp[39m[0m
+[  89% ] [90m[1mreimport[22m | hylas-greatfin-swim02.webp[39m[0m
+[  90% ] [90m[1mreimport[22m | hylas-greatfin-swim01.webp[39m[0m
+[  90% ] [90m[1mreimport[22m | hylas-greatfin-stop05.webp[39m[0m
+[  90% ] [90m[1mreimport[22m | hylas-swim_05.webp[39m[0m
+[  91% ] [90m[1mreimport[22m | hylas-swim_04.webp[39m[0m
+[  91% ] [90m[1mreimport[22m | hylas-swim_03.webp[39m[0m
+[  91% ] [90m[1mreimport[22m | hylas-swim_02.webp[39m[0m
+[  91% ] [90m[1mreimport[22m | hylas-swim_01.webp[39m[0m
+[  92% ] [90m[1mreimport[22m | hylas-stop_07.webp[39m[0m
+[  92% ] [90m[1mreimport[22m | hylas-stop_06.webp[39m[0m
+[  92% ] [90m[1mreimport[22m | hylas-stop_05.webp[39m[0m
+[  93% ] [90m[1mreimport[22m | hylas-stop_04.webp[39m[0m
+[  93% ] [90m[1mreimport[22m | hylas-stop_03.webp[39m[0m
+[  93% ] [90m[1mreimport[22m | hylas-stop_02.webp[39m[0m
+[  93% ] [90m[1mreimport[22m | hylas-stop_01.webp[39m[0m
+[  94% ] [90m[1mreimport[22m | hylas-speed_06.webp[39m[0m
+[  94% ] [90m[1mreimport[22m | hylas-speed_05.webp[39m[0m
+[  94% ] [90m[1mreimport[22m | hylas-speed_04.webp[39m[0m
+[  95% ] [90m[1mreimport[22m | hylas-speed_03.webp[39m[0m
+[  95% ] [90m[1mreimport[22m | hylas-speed_02.webp[39m[0m
+[  95% ] [90m[1mreimport[22m | hylas-ricochet_02.webp[39m[0m
+[  95% ] [90m[1mreimport[22m | hylas-ricochet_01.webp[39m[0m
+[  96% ] [90m[1mreimport[22m | hylas-jump_04.webp[39m[0m
+[  96% ] [90m[1mreimport[22m | hylas-greatfin-crawl04.webp[39m[0m
+[  96% ] [90m[1mreimport[22m | hylas-greatfin-crawl03.webp[39m[0m
+[  97% ] [90m[1mreimport[22m | hylas-greatfin-crawl02.webp[39m[0m
+[  97% ] [90m[1mreimport[22m | hylas-greatfin-crawl01.webp[39m[0m
+[  97% ] [90m[1mreimport[22m | hylas-greatfin-conchA06.webp[39m[0m
+[  97% ] [90m[1mreimport[22m | hylas-greatfin-conchA05.webp[39m[0m
+[  98% ] [90m[1mreimport[22m | hylas-greatfin-conchA04.webp[39m[0m
+[  98% ] [90m[1mreimport[22m | hylas-greatfin-conchA03.webp[39m[0m
+[  98% ] [90m[1mreimport[22m | hylas-greatfin-conchA02.webp[39m[0m
+[  99% ] [90m[1mreimport[22m | hylas-greatfin-conchA01.webp[39m[0m
+[  99% ] [90m[1mreimport[22m | hylas-flip_07.webp[39m[0m
+[  99% ] [90m[1mreimport[22m | Finalizing Asset Import...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (347 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Executing post-reimport operations...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+=== run tail ===
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+WARNING: City gate interaction area is missing its CollisionShape2D.
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _configure_city_gate_interaction (res://rebuild_v3/app/contexts/gameplay/gameplay_context.gd:152)
+         [1] _ready (res://rebuild_v3/app/contexts/gameplay/gameplay_context.gd:48)
+         [2] _ready (res://rebuild_v3/app/contexts/gameplay/gameplay_inventory_audio.gd:39)
