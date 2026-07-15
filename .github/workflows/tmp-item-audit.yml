@@ -1,0 +1,31 @@
+name: Temporary item implementation audit
+on:
+  push:
+    branches: [work/item-visual-timing-pass-2026-07-16]
+permissions:
+  contents: write
+jobs:
+  audit:
+    if: ${{ !contains(github.event.head_commit.message, '[audit-done]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/item-visual-timing-pass-2026-07-16
+      - name: Build audit
+        shell: bash
+        run: |
+          set -e
+          {
+            echo '=== relevant filenames ==='
+            find rebuild_v3 assets scenes -type f | grep -Ei 'mati|tyche|pearl|status|countdown|item|ink|conus|hud|catalog' || true
+            echo '=== relevant references ==='
+            grep -RInE 'mati|tyche|pearl|world[_ -]?freeze|time[_ -]?scale|stored.*onos|stored.*value|ink.*active_seconds|paraly|ItemBIcon|ItemAIcon' rebuild_v3 scenes --include='*.gd' --include='*.tscn' --include='*.tres' || true
+          } > tmp_item_audit.txt
+      - name: Commit audit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tmp_item_audit.txt
+          git commit -m 'Record temporary item audit [audit-done]'
+          git push
