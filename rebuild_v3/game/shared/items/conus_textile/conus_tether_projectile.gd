@@ -7,10 +7,10 @@ signal tether_finished
 @export_range(100.0, 4000.0, 10.0) var travel_speed: float = 1450.0
 @export_range(100.0, 4000.0, 10.0) var maximum_distance: float = 1500.0
 @export_range(0.1, 5.0, 0.05) var anchored_seconds: float = 1.25
-@export_range(10.0, 150.0, 1.0) var dart_display_height: float = 44.0
+@export_range(10.0, 150.0, 1.0) var dart_display_height: float = 68.0
 
 @export_category("Rope Motion")
-@export_range(0.0, 100.0, 1.0) var rope_wave_height: float = 7.0
+@export_range(0.0, 100.0, 1.0) var rope_wave_height: float = 4.0
 @export_range(0.0, 10.0, 0.05) var rope_wave_speed: float = 1.8
 
 @onready var _rope_glow: Line2D = %RopeGlow
@@ -85,8 +85,20 @@ func _intersect_dart_path(from: Vector2, to: Vector2) -> Dictionary:
 func _anchor_tether(collider: Object) -> void:
 	_anchored = true
 	_anchored_remaining = anchored_seconds
-	if collider != null and collider.has_method(&"receive_conus_dart"):
-		collider.call(&"receive_conus_dart", _source)
+	var resolved_target: Node = _resolve_dart_target(collider)
+	if resolved_target != null and resolved_target.has_method(&"receive_conus_dart"):
+		resolved_target.call(&"receive_conus_dart", _source)
+
+
+func _resolve_dart_target(collider: Object) -> Node:
+	var current: Node = collider as Node
+	var parent_checks: int = 0
+	while current != null and parent_checks < 12:
+		if current.has_method(&"receive_conus_dart"):
+			return current
+		current = current.get_parent()
+		parent_checks += 1
+	return null
 
 
 func _get_rope_origin(fallback: Vector2) -> Vector2:
@@ -105,16 +117,29 @@ func _update_visuals() -> void:
 	var perpendicular: Vector2 = Vector2(-_direction.y, _direction.x)
 	var wave: float = sin(_elapsed * rope_wave_speed * TAU) * rope_wave_height
 	var points: PackedVector2Array = PackedVector2Array()
-	var segment_count: int = 10
+	var segment_count: int = 16
 	for index: int in range(segment_count + 1):
 		var t: float = float(index) / float(segment_count)
 		var envelope: float = sin(t * PI)
-		var offset: Vector2 = perpendicular * sin(t * PI * 2.0 + _elapsed * rope_wave_speed) * wave * envelope
+		var offset: Vector2 = (
+			perpendicular
+			* sin(t * PI * 2.0 + _elapsed * rope_wave_speed)
+			* wave
+			* envelope
+		)
 		points.append(local_start.lerp(local_end, t) + offset)
 	_rope.points = points
 	_rope_glow.points = points
 	_dart.global_position = _dart_world_position
 	_dart_glow.global_position = _dart_world_position
+
+	var pulse: float = 0.5 + 0.5 * sin(_elapsed * 5.0)
+	var rope_glow_color: Color = _rope_glow.default_color
+	rope_glow_color.a = lerpf(0.48, 0.72, pulse)
+	_rope_glow.default_color = rope_glow_color
+	var dart_glow_color: Color = _dart_glow.modulate
+	dart_glow_color.a = lerpf(0.58, 0.82, pulse)
+	_dart_glow.modulate = dart_glow_color
 
 
 func _apply_dart_scale() -> void:
@@ -125,4 +150,4 @@ func _apply_dart_scale() -> void:
 		return
 	var scale_factor: float = dart_display_height / texture_height
 	_dart.scale = Vector2.ONE * scale_factor
-	_dart_glow.scale = Vector2.ONE * scale_factor * 1.10
+	_dart_glow.scale = Vector2.ONE * scale_factor * 1.28
