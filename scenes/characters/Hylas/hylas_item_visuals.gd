@@ -5,7 +5,7 @@ const CAMOUFLAGE_SHADER: Shader = preload("res://scenes/characters/Hylas/hylas_c
 const SURGE_GLOW_SHADER: Shader = preload("res://scenes/characters/Hylas/hylas_item_glow.gdshader")
 const NORMAL_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_v3_sprite_frames.tres")
 const GREATFIN_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_greatfin_sprite_frames.tres")
-const GREATFIN_VISUAL_SCALE: float = 1.15
+const GREATFIN_VISUAL_SCALE: float = 1.30
 const SHELL_TEXTURES: Dictionary = {
 	&"normal_conch": preload("res://assets/characters/shell_normal_conch.png"),
 	&"charonia_tritonis": preload("res://assets/characters/shell_charonia_tritonis.png"),
@@ -14,6 +14,7 @@ const SHELL_TEXTURES: Dictionary = {
 }
 
 @onready var _animated_sprite: AnimatedSprite2D = get_parent().get_node_or_null("AnimatedSprite") as AnimatedSprite2D
+@onready var _shell_overlay_anchor: Marker2D = %ConchOverlayAnchor
 @onready var _shell_overlay: Sprite2D = %EquippedShellOverlay
 
 var _equipped_item_a: StringName = &"normal_conch"
@@ -144,7 +145,11 @@ func _sync_shell_overlay() -> void:
 	_shell_overlay.visible = should_show
 	if not should_show:
 		return
-	_shell_overlay.position = _animated_sprite.position
+
+	var anchor_offset: Vector2 = _shell_overlay_anchor.position
+	if _animated_sprite.flip_h:
+		anchor_offset.x = -anchor_offset.x
+	_shell_overlay.position = anchor_offset.rotated(_animated_sprite.rotation)
 	_shell_overlay.rotation = _animated_sprite.rotation
 	_shell_overlay.scale = _animated_sprite.scale
 	_shell_overlay.flip_h = _animated_sprite.flip_h
@@ -163,4 +168,5 @@ func get_debug_lines() -> Array[String]:
 		"transforming_active=%s" % str(_transforming_active),
 		"camouflage_active=%s" % str(_camouflage_active),
 		"surge_glow_active=%s" % str(_surge_glow_active),
+		"conch_anchor=%s" % str(_shell_overlay_anchor.position),
 	]
