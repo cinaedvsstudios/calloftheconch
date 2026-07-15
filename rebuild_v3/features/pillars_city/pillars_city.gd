@@ -20,7 +20,7 @@ const TARGET_ORACLE: StringName = &"oracle"
 
 @export_category("City Hylas")
 @export var city_hylas_scene: PackedScene = preload(
-	"res://rebuild_v3/features/hylas/hylas.tscn"
+	"res://scenes/characters/Hylas/hylas.tscn"
 )
 @export_range(60.0, 220.0, 1.0) var hylas_display_height: float = 118.0
 @export_range(40.0, 220.0, 1.0) var doorway_interaction_radius: float = 105.0
