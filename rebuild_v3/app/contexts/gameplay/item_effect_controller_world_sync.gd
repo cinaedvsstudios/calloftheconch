@@ -4,17 +4,24 @@ const PICKUP_REWARD_FIN: StringName = &"fin"
 const ITEM_MUREX_PECTEN: StringName = &"murex_pecten"
 const ITEM_HALIOTIS: StringName = &"haliotis"
 const ITEM_ARGONAUTA: StringName = &"argonauta"
+const BEHAVIOR_WORLD_FREEZE: StringName = &"world_freeze"
+const BEHAVIOR_TYCHE: StringName = &"tyche_margarites"
 
 @onready var _morph_audio: AudioStreamPlayer = %MorphAudio
 @onready var _powerdown_audio: AudioStreamPlayer = %PowerdownAudio
 @onready var _shield_audio: AudioStreamPlayer = %ShieldAudio
 @onready var _invisibility_audio: AudioStreamPlayer = %InvisibilityAudio
+@onready var _mati_overlay: CotcMatiOverlay = %MatiOverlay
 
 var _connected_level: CotcSeaOfPillars
 var _connected_game_state: CotcGameState
 var _morph_tween: Tween
 var _status_countdown: CotcStatusCountdownOverlay
 var _ink_cloud_status: Dictionary = {}
+var _mati_active := false
+var _mati_elapsed := 0.0
+var _mati_phase := 0.0
+var _hylas_previous_process_mode := Node.PROCESS_MODE_INHERIT
 
 
 func configure(context: Node, level: CotcSeaOfPillars, hylas: CotcHylas) -> void:
@@ -46,6 +53,7 @@ func bind_game_state(game_state: CotcGameState) -> void:
 
 
 func _process(delta: float) -> void:
+	_update_mati(delta)
 	super._process(delta)
 	if _surge_remaining > 0.0 and not Input.is_action_pressed(&"utility_item"):
 		_stop_surge()
@@ -57,8 +65,41 @@ func _exit_tree() -> void:
 	_disconnect_game_state()
 
 
+func handle_item_behavior(behavior_id: StringName, item_id: StringName, slot_id: StringName, origin: Vector2, direction: Vector2) -> bool:
+	if behavior_id == BEHAVIOR_WORLD_FREEZE: return _activate_mati()
+	if behavior_id == BEHAVIOR_TYCHE: return _connected_game_state != null and _connected_game_state.activate_tyche_margarites()
+	return super.handle_item_behavior(behavior_id,item_id,slot_id,origin,direction)
+
+func _activate_mati() -> bool:
+	if _mati_active or not is_instance_valid(_hylas): return false
+	_mati_active = true
+	_mati_elapsed = 0.0
+	_hylas_previous_process_mode = _hylas.process_mode
+	_hylas.process_mode = Node.PROCESS_MODE_ALWAYS
+	_mati_overlay.set_elapsed(0.0)
+	return true
+
+func _update_mati(delta: float) -> void:
+	if not _mati_active: return
+	_mati_elapsed = minf(30.0,_mati_elapsed+maxf(delta,0.0))
+	_mati_overlay.set_elapsed(_mati_elapsed)
+	var ratio := 1.0
+	if _mati_elapsed < 5.0: ratio = _mati_elapsed/5.0
+	elif _mati_elapsed >= 25.0: ratio = 1.0-((_mati_elapsed-25.0)/5.0)
+	_mati_phase = fmod(_mati_phase + delta*12.0,1.0)
+	get_tree().paused = ratio >= 0.999 or _mati_phase < ratio
+	if _mati_elapsed >= 30.0: _finish_mati()
+
+func _finish_mati() -> void:
+	get_tree().paused = false
+	if is_instance_valid(_hylas): _hylas.process_mode = _hylas_previous_process_mode
+	_mati_overlay.clear()
+	_mati_active = false
+	_mati_elapsed = 0.0
+
 func clear_active_effects() -> void:
 	_ink_cloud_status.clear()
+	if _mati_active: _finish_mati()
 	super.clear_active_effects()
 	if is_instance_valid(_status_countdown):
 		_status_countdown.clear_countdown()
@@ -162,6 +203,9 @@ func _on_greatfin_pickup_requested(_pickup_type_id: StringName) -> void:
 
 
 func _on_greatfin_changed(_is_active: bool) -> void:
+	if not _active:
+		_sync_greatfin_visual()
+		return
 	_play_greatfin_transition()
 
 
