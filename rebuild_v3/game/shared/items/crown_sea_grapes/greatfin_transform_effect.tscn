@@ -20,6 +20,7 @@ offset_top = -330.0
 offset_right = 405.0
 offset_bottom = 330.0
 pivot_offset = Vector2(405, 330)
+scale = Vector2(0.75, 0.75)
 rotation = 1.5707964
 mouse_filter = 2
 stream = ExtResource("1_video")
