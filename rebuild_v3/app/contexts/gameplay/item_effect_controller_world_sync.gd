@@ -23,7 +23,11 @@ func configure(context: Node, level: CotcSeaOfPillars, hylas: CotcHylas) -> void
 	_connected_level = level
 	_status_countdown = null
 	if context != null:
-		_status_countdown = context.get_node_or_null("%ItemStatusCountdown") as CotcStatusCountdownOverlay
+		_status_countdown = context.get_node_or_null(
+			"GameplayUI/GameplayHud/ItemBIcon/ItemStatusCountdown"
+		) as CotcStatusCountdownOverlay
+		if _status_countdown == null:
+			_status_countdown = context.get_node_or_null("%ItemStatusCountdown") as CotcStatusCountdownOverlay
 	if is_instance_valid(_connected_level) and not _connected_level.greatfin_pickup_requested.is_connected(_on_greatfin_pickup_requested):
 		_connected_level.greatfin_pickup_requested.connect(_on_greatfin_pickup_requested)
 	_refresh_status_countdown()
@@ -140,7 +144,7 @@ func _refresh_status_countdown() -> void:
 	var longest_remaining: float = 0.0
 	var longest_duration: float = 0.0
 	for status_value: Variant in _ink_cloud_status.values():
-		if not status_value is Vector2:
+		if not (status_value is Vector2):
 			continue
 		var status: Vector2 = status_value
 		if status.x > longest_remaining:
