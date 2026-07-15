@@ -1,115 +1,94 @@
 === relevant filenames ===
-rebuild_v3/features/items/ink_blob_projectile.gd.uid
-rebuild_v3/features/items/ink_paralysis_cloud.gd.uid
-rebuild_v3/features/items/conus_tether_projectile.gd.uid
-rebuild_v3/features/sea_of_pillars/sea_of_pillars_item_effects.gd.uid
-rebuild_v3/features/effects/conch_pulse_item_profiles.gd
-rebuild_v3/features/effects/conch_pulse_item_profiles.gd.uid
-rebuild_v3/shared/shaders/conus_dart_outline.gdshader.uid
-rebuild_v3/shared/shaders/ink_video_multiply.gdshader.uid
-rebuild_v3/shared/shaders/ink_video_multiply.gdshader
-rebuild_v3/shared/shaders/hud_drop_shadow.gdshader.uid
-rebuild_v3/shared/shaders/hud_drop_shadow.gdshader
-rebuild_v3/shared/shaders/conus_dart_outline.gdshader
-rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.tscn
-rebuild_v3/archive/obsolete_item_paths/ink_blob_projectile.tscn
-rebuild_v3/archive/obsolete_item_paths/ink_blob_projectile.gd.uid
-rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.gd.uid
-rebuild_v3/archive/obsolete_item_paths/conus_tether_projectile.gd.uid
-rebuild_v3/archive/obsolete_item_paths/ink_blob_projectile.gd
-rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.gd
-rebuild_v3/archive/obsolete_item_paths/conus_tether_projectile.tscn
-rebuild_v3/archive/obsolete_item_paths/conus_tether_projectile.gd
-rebuild_v3/archive/obsolete_level_wrappers/sea_of_pillars_item_effects.tscn.txt
-rebuild_v3/archive/obsolete_level_wrappers/sea_of_pillars_item_effects.gd.txt
-rebuild_v3/game/shared/items/murex_pecten/purple_shield_effect.tscn
-rebuild_v3/game/shared/items/crown_sea_grapes/greatfin_transform_effect.tscn
+rebuild_v3/game/shared/items/normal_conch/README.md
+rebuild_v3/game/shared/items/haliotis/README.md
 rebuild_v3/game/shared/items/README.md
-rebuild_v3/game/shared/items/tridacna_gigas/surge_effect.tscn
-rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd.uid
-rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.tscn
-rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd
-rebuild_v3/game/shared/items/charonia_tritonis/README.md
 rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn
+rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd
+rebuild_v3/game/shared/items/argonauta/ink_blob_projectile.gd
 rebuild_v3/game/shared/items/argonauta/ink_blob_projectile.tscn
 rebuild_v3/game/shared/items/argonauta/ink_blob_projectile.gd.uid
 rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd.uid
-rebuild_v3/game/shared/items/argonauta/ink_blob_projectile.gd
-rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd
-rebuild_v3/game/shared/items/terebridae/README.md
 rebuild_v3/game/shared/items/tyche_margarites/README.md
-rebuild_v3/game/shared/items/haliotis/README.md
-rebuild_v3/game/shared/items/normal_conch/README.md
+rebuild_v3/game/shared/items/tridacna_gigas/surge_effect.tscn
+rebuild_v3/game/shared/items/terebridae/README.md
+rebuild_v3/game/shared/items/charonia_tritonis/README.md
+rebuild_v3/game/shared/items/murex_pecten/purple_shield_effect.tscn
+rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.tscn
+rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd.uid
+rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd
+rebuild_v3/game/shared/items/crown_sea_grapes/greatfin_transform_effect.tscn
 rebuild_v3/game/shared/ui/gameplay_hud.tscn
-rebuild_v3/app/contexts/gameplay/gameplay_hud.gd.uid
-rebuild_v3/app/contexts/gameplay/status_countdown_overlay.gd
+rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.tscn
+rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.gd
+rebuild_v3/archive/obsolete_item_paths/ink_blob_projectile.gd
+rebuild_v3/archive/obsolete_item_paths/conus_tether_projectile.tscn
+rebuild_v3/archive/obsolete_item_paths/conus_tether_projectile.gd.uid
+rebuild_v3/archive/obsolete_item_paths/ink_blob_projectile.tscn
+rebuild_v3/archive/obsolete_item_paths/ink_blob_projectile.gd.uid
+rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.gd.uid
+rebuild_v3/archive/obsolete_item_paths/conus_tether_projectile.gd
+rebuild_v3/archive/obsolete_level_wrappers/sea_of_pillars_item_effects.gd.txt
+rebuild_v3/archive/obsolete_level_wrappers/sea_of_pillars_item_effects.tscn.txt
+rebuild_v3/features/effects/conch_pulse_item_profiles.gd.uid
+rebuild_v3/features/effects/conch_pulse_item_profiles.gd
+rebuild_v3/features/items/conus_tether_projectile.gd.uid
+rebuild_v3/features/items/ink_blob_projectile.gd.uid
+rebuild_v3/features/items/ink_paralysis_cloud.gd.uid
+rebuild_v3/features/sea_of_pillars/sea_of_pillars_item_effects.gd.uid
+rebuild_v3/shared/shaders/conus_dart_outline.gdshader
+rebuild_v3/shared/shaders/ink_video_multiply.gdshader.uid
+rebuild_v3/shared/shaders/conus_dart_outline.gdshader.uid
+rebuild_v3/shared/shaders/hud_drop_shadow.gdshader
+rebuild_v3/shared/shaders/hud_drop_shadow.gdshader.uid
+rebuild_v3/shared/shaders/ink_video_multiply.gdshader
+rebuild_v3/app/inventory/treasure_catalog.gd
+rebuild_v3/app/inventory/item_catalog.gd.uid
+rebuild_v3/app/inventory/item_catalog.gd
+rebuild_v3/app/inventory/treasure_catalog.gd.uid
 rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn
-rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd
-rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd.uid
-rebuild_v3/app/contexts/gameplay/status_countdown_overlay.tscn
 rebuild_v3/app/contexts/gameplay/item_effect_controller.gd.uid
 rebuild_v3/app/contexts/gameplay/item_effect_controller.gd
 rebuild_v3/app/contexts/gameplay/gameplay_hud.gd
-rebuild_v3/app/contexts/gameplay/status_countdown_overlay.gd.uid
 rebuild_v3/app/contexts/gameplay/gameplay_hud.tscn
-rebuild_v3/app/inventory/treasure_catalog.gd.uid
-rebuild_v3/app/inventory/item_catalog.gd
-rebuild_v3/app/inventory/treasure_catalog.gd
-rebuild_v3/app/inventory/item_catalog.gd.uid
-assets/characters/shell_conus_textile.png
-assets/characters/shell_conus_textile.png.import
-assets/ui/item_fish_tail_reserve.png.import
-assets/ui/item_fish_tail_reserve.png
-assets/objects/item_pelanos_cake.png.import
-assets/objects/conustext.jpg.import
-assets/objects/shell_conus_textile.png
-assets/objects/item_kestos_himas.png
-assets/objects/item_tyche_margarites.png
-assets/objects/item_mati_amulet.png.import
-assets/objects/item_mati_amulet.png
-assets/objects/ui_mati.png
-assets/objects/conusdart.png
-assets/objects/conusdart.png.import
-assets/objects/conustext.jpg
-assets/objects/shell_conus_textile.png.import
-assets/objects/ui_mati.png.import
-assets/objects/item_echo_amphora.png
-assets/objects/item_kestos_himas.png.import
-assets/objects/item_echo_amphora.png.import
-assets/objects/item_seaweed_grapes_box.png.import
-assets/objects/item_pelanos_cake.png
-assets/objects/item_tyche_margarites.png.import
-assets/objects/item_seaweed_grapes_box.png
+rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd
+rebuild_v3/app/contexts/gameplay/gameplay_hud.gd.uid
+rebuild_v3/app/contexts/gameplay/status_countdown_overlay.gd
+rebuild_v3/app/contexts/gameplay/status_countdown_overlay.tscn
+rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd.uid
+rebuild_v3/app/contexts/gameplay/status_countdown_overlay.gd.uid
 assets/effects/inkloop.ogv
 assets/effects/inkloop.ogv.uid
-scenes/characters/Hylas/hylas_item_visuals.gd
-scenes/characters/Hylas/hylas_item_glow.gdshader
-scenes/characters/Hylas/hylas_item_glow.gdshader.uid
-scenes/characters/Hylas/hylas_item_visuals.gd.uid
-scenes/enemies/Shark/shark_item_effects.gd
+assets/ui/item_fish_tail_reserve.png
+assets/ui/item_fish_tail_reserve.png.import
+assets/objects/ui_mati.png.import
+assets/objects/item_pelanos_cake.png
+assets/objects/conusdart.png
+assets/objects/item_kestos_himas.png
+assets/objects/item_tyche_margarites.png
+assets/objects/item_seaweed_grapes_box.png.import
+assets/objects/conusdart.png.import
+assets/objects/item_mati_amulet.png
+assets/objects/item_echo_amphora.png
+assets/objects/ui_mati.png
+assets/objects/item_pelanos_cake.png.import
+assets/objects/item_kestos_himas.png.import
+assets/objects/shell_conus_textile.png
+assets/objects/item_tyche_margarites.png.import
+assets/objects/conustext.jpg.import
+assets/objects/shell_conus_textile.png.import
+assets/objects/conustext.jpg
+assets/objects/item_echo_amphora.png.import
+assets/objects/item_seaweed_grapes_box.png
+assets/objects/item_mati_amulet.png.import
+assets/characters/shell_conus_textile.png
+assets/characters/shell_conus_textile.png.import
 scenes/enemies/Shark/shark_item_effects.gd.uid
+scenes/enemies/Shark/shark_item_effects.gd
+scenes/characters/Hylas/hylas_item_visuals.gd
+scenes/characters/Hylas/hylas_item_visuals.gd.uid
+scenes/characters/Hylas/hylas_item_glow.gdshader.uid
+scenes/characters/Hylas/hylas_item_glow.gdshader
 === relevant references ===
-rebuild_v3/features/black_bloom/black_bloom_sprite_frames.tres:10:animations = [{
-rebuild_v3/features/black_bloom/black_bloom_hazard.tscn:23:animation = &"sleep"
-rebuild_v3/features/black_bloom/black_bloom_hazard.gd:36:	_animated_sprite.animation_finished.connect(_on_animation_finished)
-rebuild_v3/features/black_bloom/black_bloom_hazard.gd:174:	_animated_sprite.animation = &"sleep"
-rebuild_v3/features/black_bloom/black_bloom_hazard.gd:179:func _on_animation_finished() -> void:
-rebuild_v3/features/black_bloom/black_bloom_hazard.gd:180:	if _awake and not is_stunned() and _animated_sprite.animation == &"wake":
-rebuild_v3/features/whale_travel/whale_travel_sprite_frames.tres:10:animations = [{
-rebuild_v3/features/whale_travel/whale_travel.gd:94:	# patrol position, so save/load and death do not shift with its animation.
-rebuild_v3/features/whale_travel/whale_travel.tscn:18:animation = &"swim"
-rebuild_v3/features/boulder/boulder.gd:109:		var collision: KinematicCollision2D = move_and_collide(remaining_motion)
-rebuild_v3/features/effects/surface_splash.gd:6:	animation_finished.connect(_on_animation_finished)
-rebuild_v3/features/effects/surface_splash.gd:23:func _on_animation_finished() -> void:
-rebuild_v3/features/effects/surface_splash.gd:24:	if animation == &"splash":
-rebuild_v3/features/effects/conch_pulse.gd:212:	if player_sprite == null or player_sprite.animation != &"conch":
-rebuild_v3/features/effects/surface_splash.tscn:11:animations = [{
-rebuild_v3/features/effects/surface_splash.tscn:20:animation = &"splash"
-rebuild_v3/editor/hylas_editor_preview.gd:81:	if not sprite.sprite_frames.has_animation(&"conch"):
-rebuild_v3/editor/hylas_editor_preview.gd:86:	sprite.animation = &"conch"
-rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.tscn:3:[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn" id="1_scene"]
-rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.gd:1:# Archived from res://rebuild_v3/features/items/ink_paralysis_cloud.gd
-rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.gd:2:# Active replacement: res://rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd
 rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn:3:[ext_resource type="Script" path="res://rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd" id="1_controller"]
 rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn:22:paralysis_radius = 300.0
 rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd:8:@export_range(0.1, 10.0, 0.1) var paralysis_refresh_seconds: float = 1.0
@@ -131,6 +110,40 @@ rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd:116:		var maximum_
 rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd:121:	if resolved_target.has_method(&"apply_item_paralysis"):
 rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd:122:		resolved_target.call(&"apply_item_paralysis", paralysis_refresh_seconds)
 rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd:134:				or current.has_method(&"apply_item_paralysis")
+rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.tscn:3:[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn" id="1_scene"]
+rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.gd:1:# Archived from res://rebuild_v3/features/items/ink_paralysis_cloud.gd
+rebuild_v3/archive/obsolete_item_paths/ink_paralysis_cloud.gd:2:# Active replacement: res://rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.gd
+rebuild_v3/features/black_bloom/black_bloom_sprite_frames.tres:10:animations = [{
+rebuild_v3/features/black_bloom/black_bloom_hazard.tscn:23:animation = &"sleep"
+rebuild_v3/features/black_bloom/black_bloom_hazard.gd:36:	_animated_sprite.animation_finished.connect(_on_animation_finished)
+rebuild_v3/features/black_bloom/black_bloom_hazard.gd:174:	_animated_sprite.animation = &"sleep"
+rebuild_v3/features/black_bloom/black_bloom_hazard.gd:179:func _on_animation_finished() -> void:
+rebuild_v3/features/black_bloom/black_bloom_hazard.gd:180:	if _awake and not is_stunned() and _animated_sprite.animation == &"wake":
+rebuild_v3/features/boulder/boulder.gd:109:		var collision: KinematicCollision2D = move_and_collide(remaining_motion)
+rebuild_v3/features/effects/surface_splash.tscn:11:animations = [{
+rebuild_v3/features/effects/surface_splash.tscn:20:animation = &"splash"
+rebuild_v3/features/effects/surface_splash.gd:6:	animation_finished.connect(_on_animation_finished)
+rebuild_v3/features/effects/surface_splash.gd:23:func _on_animation_finished() -> void:
+rebuild_v3/features/effects/surface_splash.gd:24:	if animation == &"splash":
+rebuild_v3/features/effects/conch_pulse.gd:212:	if player_sprite == null or player_sprite.animation != &"conch":
+rebuild_v3/features/whale_travel/whale_travel.tscn:18:animation = &"swim"
+rebuild_v3/features/whale_travel/whale_travel_sprite_frames.tres:10:animations = [{
+rebuild_v3/features/whale_travel/whale_travel.gd:94:	# patrol position, so save/load and death do not shift with its animation.
+rebuild_v3/editor/hylas_editor_preview.gd:81:	if not sprite.sprite_frames.has_animation(&"conch"):
+rebuild_v3/editor/hylas_editor_preview.gd:86:	sprite.animation = &"conch"
+rebuild_v3/app/services/settings_service.gd:289:		var stored_value: Variant = config.get_value("keybindings", action_key, [])
+rebuild_v3/app/services/settings_service.gd:290:		if not stored_value is Array:
+rebuild_v3/app/services/settings_service.gd:293:		for event_payload: Variant in stored_value as Array:
+rebuild_v3/app/inventory/item_catalog.gd:26:	"argonauta": {"id":"argonauta","display_name":"Argonauta","slot_id":"item_b","item_type":"active","icon_path":"res://assets/objects/shell_argonauta.png","ownership_source":"owned_shells","has_quantity":false,"activates_on_use":true,"sort_order":70,"behavior_id":"ink_prison","price_onos":0,"description":"Creates an ink cloud that briefly paralyses smaller enemies caught inside it."},
+rebuild_v3/app/inventory/item_catalog.gd:27:	"tyche_margarites": {"id":"tyche_margarites","display_name":"Tyche Margarites","slot_id":"item_b","item_type":"passive","icon_path":"res://assets/objects/item_tyche_margarites.png","ownership_source":"inventory","has_quantity":true,"activates_on_use":false,"sort_order":100,"behavior_id":"tyche_margarites","price_onos":15,"description":"Lucky pearl crown that stores multiplied eligible treasure value until cashed in at Myra."},
+rebuild_v3/app/inventory/item_catalog.gd:32:	"mati_amulet": {"id":"mati_amulet","display_name":"Mati Amulet","slot_id":"item_b","item_type":"active","icon_path":"res://assets/objects/item_mati_amulet.png","ownership_source":"inventory","has_quantity":true,"activates_on_use":true,"sort_order":150,"behavior_id":"world_freeze","price_onos":30,"description":"Single-use world freeze: five seconds slowing, twenty frozen and five returning."},
+rebuild_v3/app/contexts/gameplay/item_effect_controller.gd:11:	"res://rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn"
+rebuild_v3/app/contexts/gameplay/gameplay_hud.gd:85:@onready var _item_b_icon: TextureRect = %ItemBIcon
+rebuild_v3/app/contexts/gameplay/gameplay_hud.tscn:123:[node name="ItemBIcon" type="TextureRect" parent="."]
+rebuild_v3/app/contexts/gameplay/gameplay_hud.tscn:136:[node name="ItemStatusCountdown" parent="ItemBIcon" instance=ExtResource("4_countdown")]
+rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd:27:			"GameplayUI/GameplayHud/ItemBIcon/ItemStatusCountdown"
+rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd:105:	_ink_cloud_status[cloud_id] = Vector2(cloud.active_seconds, cloud.active_seconds)
+rebuild_v3/app/contexts/gameplay/death_overlay.gd:5:## limp Hylas animation and seabed drift remain visible behind the choices.
 rebuild_v3/app/contexts/settings/settings_context.gd:37:var _overwrite_confirmation_name: String = ""
 rebuild_v3/app/contexts/settings/settings_context.gd:94:	_overwrite_confirmation_name = ""
 rebuild_v3/app/contexts/settings/settings_context.gd:326:	_overwrite_confirmation_name = ""
@@ -144,38 +157,56 @@ rebuild_v3/app/contexts/continue/continue_context.gd:117:			_close_delete_confir
 rebuild_v3/app/contexts/continue/continue_context.gd:328:func _open_delete_confirmation() -> void:
 rebuild_v3/app/contexts/continue/continue_context.gd:337:func _close_delete_confirmation() -> void:
 rebuild_v3/app/contexts/continue/continue_context.gd:345:		_close_delete_confirmation()
-rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd:27:			"GameplayUI/GameplayHud/ItemBIcon/ItemStatusCountdown"
-rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd:105:	_ink_cloud_status[cloud_id] = Vector2(cloud.active_seconds, cloud.active_seconds)
-rebuild_v3/app/contexts/gameplay/item_effect_controller.gd:11:	"res://rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn"
-rebuild_v3/app/contexts/gameplay/gameplay_hud.gd:85:@onready var _item_b_icon: TextureRect = %ItemBIcon
-rebuild_v3/app/contexts/gameplay/gameplay_hud.tscn:123:[node name="ItemBIcon" type="TextureRect" parent="."]
-rebuild_v3/app/contexts/gameplay/gameplay_hud.tscn:136:[node name="ItemStatusCountdown" parent="ItemBIcon" instance=ExtResource("4_countdown")]
-rebuild_v3/app/contexts/gameplay/death_overlay.gd:5:## limp Hylas animation and seabed drift remain visible behind the choices.
 rebuild_v3/app/contexts/menu/menu_context.gd:108:	_start_echo_animation(generation)
 rebuild_v3/app/contexts/menu/menu_context.gd:109:	_start_title_animation(generation)
 rebuild_v3/app/contexts/menu/menu_context.gd:112:func _start_echo_animation(generation: int) -> void:
 rebuild_v3/app/contexts/menu/menu_context.gd:156:func _start_title_animation(generation: int) -> void:
-rebuild_v3/app/services/settings_service.gd:289:		var stored_value: Variant = config.get_value("keybindings", action_key, [])
-rebuild_v3/app/services/settings_service.gd:290:		if not stored_value is Array:
-rebuild_v3/app/services/settings_service.gd:293:		for event_payload: Variant in stored_value as Array:
-rebuild_v3/app/inventory/item_catalog.gd:26:	"argonauta": {"id":"argonauta","display_name":"Argonauta","slot_id":"item_b","item_type":"active","icon_path":"res://assets/objects/shell_argonauta.png","ownership_source":"owned_shells","has_quantity":false,"activates_on_use":true,"sort_order":70,"behavior_id":"ink_prison","price_onos":0,"description":"Creates an ink cloud that briefly paralyses smaller enemies caught inside it."},
-rebuild_v3/app/inventory/item_catalog.gd:27:	"tyche_margarites": {"id":"tyche_margarites","display_name":"Tyche Margarites","slot_id":"item_b","item_type":"passive","icon_path":"res://assets/objects/item_tyche_margarites.png","ownership_source":"inventory","has_quantity":true,"activates_on_use":false,"sort_order":100,"behavior_id":"tyche_margarites","price_onos":15,"description":"Lucky pearl crown that stores multiplied eligible treasure value until cashed in at Myra."},
-rebuild_v3/app/inventory/item_catalog.gd:32:	"mati_amulet": {"id":"mati_amulet","display_name":"Mati Amulet","slot_id":"item_b","item_type":"active","icon_path":"res://assets/objects/item_mati_amulet.png","ownership_source":"inventory","has_quantity":true,"activates_on_use":true,"sort_order":150,"behavior_id":"world_freeze","price_onos":30,"description":"Single-use world freeze: five seconds slowing, twenty frozen and five returning."},
+scenes/effects/PickupFeedback/pickup_feedback.gd:10:@export_range(0.1, 3.0, 0.05) var reward_animation_seconds: float = 0.95
+scenes/effects/PickupFeedback/pickup_feedback.gd:59:	var effect_seconds: float = video_seconds if video_seconds > 0.0 else reward_animation_seconds
+scenes/effects/PickupFeedback/pickup_feedback.gd:94:		reward_animation_seconds,
+scenes/objects/FishSchool/fish_school.gd:8:@export_category("Animation")
+scenes/objects/FishSchool/fish_school.tscn:20:animation = &"idle"
+scenes/objects/FishSchool/fish_school_sprite_frames.tres:8:animations = [{
+scenes/enemies/Jellyfish/jellyfish_enemy_sprite_frames.tres:11:animations = [{
+scenes/enemies/Jellyfish/jellyfish_enemy.gd:8:@export_category("Animation")
+scenes/enemies/Jellyfish/jellyfish_enemy.tscn:37:animation = &"idle"
+scenes/enemies/Shark/shark_enemy.tscn:32:animation = &"normal"
+scenes/enemies/Shark/shark_enemy.gd:12:@export_category("Animation")
+scenes/enemies/Shark/shark_enemy_sprite_frames.tres:14:animations = [{
+scenes/enemies/Shark/shark_item_effects.gd:5:## short paralysis while the shark remains inside the ink cloud.
+scenes/enemies/Shark/shark_item_effects.gd:10:func apply_item_paralysis(duration_seconds: float) -> void:
+scenes/enemies/Shark/shark_item_effects.gd:25:	apply_item_paralysis(conus_dart_stun_seconds)
 scenes/characters/Hylas/hylas_item_visuals.gd:100:	var animation_name: StringName = _animated_sprite.animation
 scenes/characters/Hylas/hylas_item_visuals.gd:104:	if _animated_sprite.sprite_frames.has_animation(animation_name):
 scenes/characters/Hylas/hylas_item_visuals.gd:105:		_animated_sprite.animation = animation_name
 scenes/characters/Hylas/hylas_item_visuals.gd:108:			_animated_sprite.sprite_frames.get_frame_count(animation_name) - 1,
 scenes/characters/Hylas/hylas_item_visuals.gd:111:			_animated_sprite.play(animation_name)
 scenes/characters/Hylas/hylas_item_visuals.gd:144:	var should_show: bool = _animated_sprite.visible and _animated_sprite.animation == &"conch"
-scenes/characters/Hylas/hylas_stop_release_transition.gd:15:	if animation == &"stop" and shift_is_held:
-scenes/characters/Hylas/hylas_stop_release_transition.gd:17:	elif animation != &"stop":
-scenes/characters/Hylas/hylas_stop_release_transition.gd:37:	animation = &"stop_release"
-scenes/characters/Hylas/hylas_phase6_fix.gd:25:	# frame set Hylas currently owns so the death animation cannot disappear after
-scenes/characters/Hylas/hylas_phase6_fix.gd:26:	# a transformation or equipment visual change.
-scenes/characters/Hylas/hylas_phase6_fix.gd:30:		_configure_death_animations()
-scenes/characters/Hylas/hylas_phase6_fix.gd:45:func _on_animation_finished() -> void:
-scenes/characters/Hylas/hylas_phase6_fix.gd:46:	if not _death_sequence_active or _animated_sprite.animation != DEATH_INTRO_ANIMATION:
-scenes/characters/Hylas/hylas_phase6_fix.gd:49:	_set_animation(DEATH_DRIFT_ANIMATION)
+scenes/characters/Hylas/hylas_shadow_sync.gd:10:	_animated_sprite.animation_changed.connect(_sync_texture)
+scenes/characters/Hylas/hylas_shadow_sync.gd:20:		_animated_sprite.animation,
+scenes/characters/Hylas/hylas.gd:113:	_set_animation(&"idle")
+scenes/characters/Hylas/hylas.gd:147:	_set_animation(&"idle")
+scenes/characters/Hylas/hylas.gd:259:	_set_animation(&"burst")
+scenes/characters/Hylas/hylas.gd:287:	_set_animation(&"swim")
+scenes/characters/Hylas/hylas.gd:322:	_set_animation(&"tail_flip")
+scenes/characters/Hylas/hylas.gd:334:		_set_animation(&"idle")
+scenes/characters/Hylas/hylas.gd:344:	_set_animation(&"conch")
+scenes/characters/Hylas/hylas.gd:356:		_set_animation(&"idle")
+scenes/characters/Hylas/hylas.gd:363:	_set_animation(&"swim")
+scenes/characters/Hylas/hylas.gd:381:		_set_animation(&"swim")
+scenes/characters/Hylas/hylas.gd:385:	_set_animation(&"idle")
+scenes/characters/Hylas/hylas.gd:406:	_set_animation(&"stop")
+scenes/characters/Hylas/hylas.gd:446:	_set_animation(&"jump")
+scenes/characters/Hylas/hylas.gd:461:		_set_animation(&"idle")
+scenes/characters/Hylas/hylas.gd:464:func _set_animation(animation_name: StringName) -> void:
+scenes/characters/Hylas/hylas.gd:465:	if _animated_sprite.animation == animation_name:
+scenes/characters/Hylas/hylas.gd:468:	_animated_sprite.animation = animation_name
+scenes/characters/Hylas/hylas.gd:492:	var texture: Texture2D = _animated_sprite.sprite_frames.get_frame_texture(_animated_sprite.animation, _animated_sprite.frame)
+scenes/characters/Hylas/hylas_land_controller.gd:123:	_set_animation(&"crawl")
+scenes/characters/Hylas/hylas_land_controller.gd:139:	_set_animation(&"idle")
+scenes/characters/Hylas/hylas_land_controller.gd:159:	_set_animation(&"crawl")
+scenes/characters/Hylas/hylas_land_controller.gd:170:		_set_animation(&"jump")
+scenes/characters/Hylas/hylas_land_controller.gd:177:		_set_animation(&"idle")
 scenes/characters/Hylas/hylas_reliable_input.gd:6:## This top-level Hylas controller also owns the animation-driven death state so
 scenes/characters/Hylas/hylas_reliable_input.gd:54:	_configure_death_animations()
 scenes/characters/Hylas/hylas_reliable_input.gd:55:	if not _animated_sprite.animation_finished.is_connected(_on_animation_finished):
@@ -236,47 +267,16 @@ scenes/characters/Hylas/hylas_motion_presentation.gd:215:	if _animated_sprite.an
 scenes/characters/Hylas/hylas_motion_presentation.gd:224:	if _animated_sprite.animation != &"stop":
 scenes/characters/Hylas/hylas_motion_presentation.gd:225:		_animated_sprite.animation = &"stop"
 scenes/characters/Hylas/hylas_motion_presentation.gd:235:	if not _burst_active or _animated_sprite.animation != &"burst":
-scenes/characters/Hylas/hylas.tscn:67:animation = &"idle"
-scenes/characters/Hylas/hylas_greatfin_sprite_frames.tres:46:animations = [{"frames":[{"duration":1.0,"texture":ExtResource("1_speed01")},{"duration":1.0,"texture":ExtResource("2_speed02")},{"duration":1.0,"texture":ExtResource("3_speed03")},{"duration":1.0,"texture":ExtResource("4_speed04")},{"duration":1.0,"texture":ExtResource("5_speed05")},{"duration":1.0,"texture":ExtResource("6_speed06")}],"loop":0,"name":&"burst","speed":16.0},{"frames":[{"duration":1.0,"texture":ExtResource("7_conch01")},{"duration":1.0,"texture":ExtResource("8_conch02")},{"duration":1.0,"texture":ExtResource("9_conch03")},{"duration":1.0,"texture":ExtResource("10_conch04")},{"duration":1.0,"texture":ExtResource("11_conch05")},{"duration":1.0,"texture":ExtResource("12_conch06")}],"loop":0,"name":&"conch","speed":9.0},{"frames":[{"duration":1.0,"texture":ExtResource("13_crawl01")},{"duration":1.0,"texture":ExtResource("14_crawl02")},{"duration":1.0,"texture":ExtResource("15_crawl03")},{"duration":1.0,"texture":ExtResource("16_crawl04")}],"loop":1,"name":&"crawl","speed":8.0},{"frames":[{"duration":1.0,"texture":ExtResource("32_idle01")},{"duration":1.0,"texture":ExtResource("33_idle02")},{"duration":1.0,"texture":ExtResource("34_idle03")},{"duration":1.0,"texture":ExtResource("35_idle04")}],"loop":1,"name":&"idle","speed":1.0},{"frames":[{"duration":1.0,"texture":ExtResource("36_jump01")},{"duration":1.0,"texture":ExtResource("37_jump01a")},{"duration":1.0,"texture":ExtResource("38_jump02")},{"duration":1.0,"texture":ExtResource("39_jump03")},{"duration":1.0,"texture":ExtResource("40_jump03a")},{"duration":1.0,"texture":ExtResource("41_jump04")}],"loop":0,"name":&"jump","speed":8.0},{"frames":[{"duration":1.0,"texture":ExtResource("17_stop01")},{"duration":1.0,"texture":ExtResource("18_stop02")},{"duration":1.0,"texture":ExtResource("19_stop03")},{"duration":1.0,"texture":ExtResource("20_stop04")},{"duration":1.0,"texture":ExtResource("21_stop05")}],"loop":0,"name":&"stop","speed":9.0},{"frames":[{"duration":1.0,"texture":ExtResource("21_stop05")}],"loop":0,"name":&"stop_release","speed":1.0},{"frames":[{"duration":1.0,"texture":ExtResource("22_swim01")},{"duration":1.0,"texture":ExtResource("23_swim02")},{"duration":1.0,"texture":ExtResource("24_swim03")},{"duration":1.0,"texture":ExtResource("25_swim04")}],"loop":1,"name":&"swim","speed":9.5},{"frames":[{"duration":1.0,"texture":ExtResource("26_flip01")},{"duration":1.0,"texture":ExtResource("27_flip02")},{"duration":1.0,"texture":ExtResource("28_flip03")},{"duration":1.0,"texture":ExtResource("29_flip04")},{"duration":1.0,"texture":ExtResource("30_flip05")},{"duration":1.0,"texture":ExtResource("31_flip06")}],"loop":0,"name":&"tail_flip","speed":12.0}]
-scenes/characters/Hylas/hylas.gd:113:	_set_animation(&"idle")
-scenes/characters/Hylas/hylas.gd:147:	_set_animation(&"idle")
-scenes/characters/Hylas/hylas.gd:259:	_set_animation(&"burst")
-scenes/characters/Hylas/hylas.gd:287:	_set_animation(&"swim")
-scenes/characters/Hylas/hylas.gd:322:	_set_animation(&"tail_flip")
-scenes/characters/Hylas/hylas.gd:334:		_set_animation(&"idle")
-scenes/characters/Hylas/hylas.gd:344:	_set_animation(&"conch")
-scenes/characters/Hylas/hylas.gd:356:		_set_animation(&"idle")
-scenes/characters/Hylas/hylas.gd:363:	_set_animation(&"swim")
-scenes/characters/Hylas/hylas.gd:381:		_set_animation(&"swim")
-scenes/characters/Hylas/hylas.gd:385:	_set_animation(&"idle")
-scenes/characters/Hylas/hylas.gd:406:	_set_animation(&"stop")
-scenes/characters/Hylas/hylas.gd:446:	_set_animation(&"jump")
-scenes/characters/Hylas/hylas.gd:461:		_set_animation(&"idle")
-scenes/characters/Hylas/hylas.gd:464:func _set_animation(animation_name: StringName) -> void:
-scenes/characters/Hylas/hylas.gd:465:	if _animated_sprite.animation == animation_name:
-scenes/characters/Hylas/hylas.gd:468:	_animated_sprite.animation = animation_name
-scenes/characters/Hylas/hylas.gd:492:	var texture: Texture2D = _animated_sprite.sprite_frames.get_frame_texture(_animated_sprite.animation, _animated_sprite.frame)
-scenes/characters/Hylas/hylas_land_controller.gd:123:	_set_animation(&"crawl")
-scenes/characters/Hylas/hylas_land_controller.gd:139:	_set_animation(&"idle")
-scenes/characters/Hylas/hylas_land_controller.gd:159:	_set_animation(&"crawl")
-scenes/characters/Hylas/hylas_land_controller.gd:170:		_set_animation(&"jump")
-scenes/characters/Hylas/hylas_land_controller.gd:177:		_set_animation(&"idle")
 scenes/characters/Hylas/hylas_v3_sprite_frames.tres:51:animations = [{
-scenes/characters/Hylas/hylas_shadow_sync.gd:10:	_animated_sprite.animation_changed.connect(_sync_texture)
-scenes/characters/Hylas/hylas_shadow_sync.gd:20:		_animated_sprite.animation,
+scenes/characters/Hylas/hylas_greatfin_sprite_frames.tres:46:animations = [{"frames":[{"duration":1.0,"texture":ExtResource("1_speed01")},{"duration":1.0,"texture":ExtResource("2_speed02")},{"duration":1.0,"texture":ExtResource("3_speed03")},{"duration":1.0,"texture":ExtResource("4_speed04")},{"duration":1.0,"texture":ExtResource("5_speed05")},{"duration":1.0,"texture":ExtResource("6_speed06")}],"loop":0,"name":&"burst","speed":16.0},{"frames":[{"duration":1.0,"texture":ExtResource("7_conch01")},{"duration":1.0,"texture":ExtResource("8_conch02")},{"duration":1.0,"texture":ExtResource("9_conch03")},{"duration":1.0,"texture":ExtResource("10_conch04")},{"duration":1.0,"texture":ExtResource("11_conch05")},{"duration":1.0,"texture":ExtResource("12_conch06")}],"loop":0,"name":&"conch","speed":9.0},{"frames":[{"duration":1.0,"texture":ExtResource("13_crawl01")},{"duration":1.0,"texture":ExtResource("14_crawl02")},{"duration":1.0,"texture":ExtResource("15_crawl03")},{"duration":1.0,"texture":ExtResource("16_crawl04")}],"loop":1,"name":&"crawl","speed":8.0},{"frames":[{"duration":1.0,"texture":ExtResource("32_idle01")},{"duration":1.0,"texture":ExtResource("33_idle02")},{"duration":1.0,"texture":ExtResource("34_idle03")},{"duration":1.0,"texture":ExtResource("35_idle04")}],"loop":1,"name":&"idle","speed":1.0},{"frames":[{"duration":1.0,"texture":ExtResource("36_jump01")},{"duration":1.0,"texture":ExtResource("37_jump01a")},{"duration":1.0,"texture":ExtResource("38_jump02")},{"duration":1.0,"texture":ExtResource("39_jump03")},{"duration":1.0,"texture":ExtResource("40_jump03a")},{"duration":1.0,"texture":ExtResource("41_jump04")}],"loop":0,"name":&"jump","speed":8.0},{"frames":[{"duration":1.0,"texture":ExtResource("17_stop01")},{"duration":1.0,"texture":ExtResource("18_stop02")},{"duration":1.0,"texture":ExtResource("19_stop03")},{"duration":1.0,"texture":ExtResource("20_stop04")},{"duration":1.0,"texture":ExtResource("21_stop05")}],"loop":0,"name":&"stop","speed":9.0},{"frames":[{"duration":1.0,"texture":ExtResource("21_stop05")}],"loop":0,"name":&"stop_release","speed":1.0},{"frames":[{"duration":1.0,"texture":ExtResource("22_swim01")},{"duration":1.0,"texture":ExtResource("23_swim02")},{"duration":1.0,"texture":ExtResource("24_swim03")},{"duration":1.0,"texture":ExtResource("25_swim04")}],"loop":1,"name":&"swim","speed":9.5},{"frames":[{"duration":1.0,"texture":ExtResource("26_flip01")},{"duration":1.0,"texture":ExtResource("27_flip02")},{"duration":1.0,"texture":ExtResource("28_flip03")},{"duration":1.0,"texture":ExtResource("29_flip04")},{"duration":1.0,"texture":ExtResource("30_flip05")},{"duration":1.0,"texture":ExtResource("31_flip06")}],"loop":0,"name":&"tail_flip","speed":12.0}]
 scenes/characters/Hylas/hylas_equipment_input.gd:239:	_set_animation(&"conch")
-scenes/enemies/Jellyfish/jellyfish_enemy.gd:8:@export_category("Animation")
-scenes/enemies/Jellyfish/jellyfish_enemy.tscn:37:animation = &"idle"
-scenes/enemies/Jellyfish/jellyfish_enemy_sprite_frames.tres:11:animations = [{
-scenes/enemies/Shark/shark_enemy_sprite_frames.tres:14:animations = [{
-scenes/enemies/Shark/shark_item_effects.gd:5:## short paralysis while the shark remains inside the ink cloud.
-scenes/enemies/Shark/shark_item_effects.gd:10:func apply_item_paralysis(duration_seconds: float) -> void:
-scenes/enemies/Shark/shark_item_effects.gd:25:	apply_item_paralysis(conus_dart_stun_seconds)
-scenes/enemies/Shark/shark_enemy.tscn:32:animation = &"normal"
-scenes/enemies/Shark/shark_enemy.gd:12:@export_category("Animation")
-scenes/objects/FishSchool/fish_school_sprite_frames.tres:8:animations = [{
-scenes/objects/FishSchool/fish_school.tscn:20:animation = &"idle"
-scenes/objects/FishSchool/fish_school.gd:8:@export_category("Animation")
-scenes/effects/PickupFeedback/pickup_feedback.gd:10:@export_range(0.1, 3.0, 0.05) var reward_animation_seconds: float = 0.95
-scenes/effects/PickupFeedback/pickup_feedback.gd:59:	var effect_seconds: float = video_seconds if video_seconds > 0.0 else reward_animation_seconds
-scenes/effects/PickupFeedback/pickup_feedback.gd:94:		reward_animation_seconds,
+scenes/characters/Hylas/hylas_stop_release_transition.gd:15:	if animation == &"stop" and shift_is_held:
+scenes/characters/Hylas/hylas_stop_release_transition.gd:17:	elif animation != &"stop":
+scenes/characters/Hylas/hylas_stop_release_transition.gd:37:	animation = &"stop_release"
+scenes/characters/Hylas/hylas.tscn:67:animation = &"idle"
+scenes/characters/Hylas/hylas_phase6_fix.gd:25:	# frame set Hylas currently owns so the death animation cannot disappear after
+scenes/characters/Hylas/hylas_phase6_fix.gd:26:	# a transformation or equipment visual change.
+scenes/characters/Hylas/hylas_phase6_fix.gd:30:		_configure_death_animations()
+scenes/characters/Hylas/hylas_phase6_fix.gd:45:func _on_animation_finished() -> void:
+scenes/characters/Hylas/hylas_phase6_fix.gd:46:	if not _death_sequence_active or _animated_sprite.animation != DEATH_INTRO_ANIMATION:
+scenes/characters/Hylas/hylas_phase6_fix.gd:49:	_set_animation(DEATH_DRIFT_ANIMATION)
