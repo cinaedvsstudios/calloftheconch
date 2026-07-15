@@ -5,6 +5,7 @@ const CAMOUFLAGE_SHADER: Shader = preload("res://scenes/characters/Hylas/hylas_c
 const SURGE_GLOW_SHADER: Shader = preload("res://scenes/characters/Hylas/hylas_item_glow.gdshader")
 const NORMAL_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_v3_sprite_frames.tres")
 const GREATFIN_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_greatfin_sprite_frames.tres")
+const GREATFIN_VISUAL_SCALE: float = 1.15
 const SHELL_TEXTURES: Dictionary = {
 	&"normal_conch": preload("res://assets/characters/shell_normal_conch.png"),
 	&"charonia_tritonis": preload("res://assets/characters/shell_charonia_tritonis.png"),
@@ -20,16 +21,19 @@ var _camouflage_active: bool = false
 var _surge_glow_active: bool = false
 var _transforming_active: bool = false
 var _greatfin_active: bool = false
+var _base_sprite_scale: Vector2 = Vector2.ONE
 var _base_sprite_material: Material
 var _camouflage_material: ShaderMaterial
 var _surge_glow_material: ShaderMaterial
 var _transform_material: ShaderMaterial
+
 
 func _ready() -> void:
 	if _animated_sprite == null:
 		push_error("Hylas ItemVisuals requires the sibling AnimatedSprite node.")
 		set_process(false)
 		return
+	_base_sprite_scale = _animated_sprite.scale
 	_base_sprite_material = _animated_sprite.material
 	_camouflage_material = ShaderMaterial.new()
 	_camouflage_material.shader = CAMOUFLAGE_SHADER
@@ -53,44 +57,60 @@ func _ready() -> void:
 	_refresh_sprite_material()
 	set_process(true)
 
+
 func _process(_delta: float) -> void:
 	_sync_shell_overlay()
+
 
 func set_equipped_item_a(item_id: StringName) -> void:
 	_equipped_item_a = item_id
 	_refresh_shell_texture()
 	_sync_shell_overlay()
 
+
 func set_camouflage_active(is_active: bool) -> void:
 	_camouflage_active = is_active
 	_refresh_sprite_material()
 
+
 func is_camouflage_active() -> bool:
 	return _camouflage_active
+
 
 func set_surge_glow_active(is_active: bool) -> void:
 	_surge_glow_active = is_active
 	_refresh_sprite_material()
 
+
 func set_transforming_active(is_active: bool) -> void:
 	_transforming_active = is_active
 	_refresh_sprite_material()
 
+
 func set_greatfin_active(is_active: bool) -> void:
-	if _greatfin_active == is_active:
+	if _animated_sprite == null:
 		return
+	var state_changed: bool = _greatfin_active != is_active
 	_greatfin_active = is_active
+	_animated_sprite.scale = _base_sprite_scale * (GREATFIN_VISUAL_SCALE if is_active else 1.0)
+	if not state_changed:
+		return
+
 	var animation_name: StringName = _animated_sprite.animation
 	var frame_index: int = _animated_sprite.frame
 	var was_playing: bool = _animated_sprite.is_playing()
 	_animated_sprite.sprite_frames = GREATFIN_FRAMES if is_active else NORMAL_FRAMES
 	if _animated_sprite.sprite_frames.has_animation(animation_name):
 		_animated_sprite.animation = animation_name
-		_animated_sprite.frame = mini(frame_index, _animated_sprite.sprite_frames.get_frame_count(animation_name) - 1)
+		_animated_sprite.frame = mini(
+			frame_index,
+			_animated_sprite.sprite_frames.get_frame_count(animation_name) - 1,
+		)
 		if was_playing:
 			_animated_sprite.play(animation_name)
 	else:
 		_animated_sprite.play(&"idle")
+
 
 func clear_item_visuals() -> void:
 	_camouflage_active = false
@@ -99,8 +119,10 @@ func clear_item_visuals() -> void:
 	_refresh_sprite_material()
 	_shell_overlay.hide()
 
+
 func _refresh_shell_texture() -> void:
 	_shell_overlay.texture = SHELL_TEXTURES.get(_equipped_item_a, null) as Texture2D
+
 
 func _refresh_sprite_material() -> void:
 	var resolved_material: Material = _base_sprite_material
@@ -112,6 +134,7 @@ func _refresh_sprite_material() -> void:
 		resolved_material = _surge_glow_material
 	_animated_sprite.material = resolved_material
 	_shell_overlay.material = resolved_material
+
 
 func _sync_shell_overlay() -> void:
 	if _animated_sprite == null or _shell_overlay.texture == null:
@@ -130,5 +153,14 @@ func _sync_shell_overlay() -> void:
 	_shell_overlay.self_modulate = _animated_sprite.self_modulate
 	_shell_overlay.z_index = _animated_sprite.z_index + 1
 
+
 func get_debug_lines() -> Array[String]:
-	return ["[HylasItemVisuals]", "equipped_item_a=%s" % String(_equipped_item_a), "greatfin_active=%s" % str(_greatfin_active), "transforming_active=%s" % str(_transforming_active), "camouflage_active=%s" % str(_camouflage_active), "surge_glow_active=%s" % str(_surge_glow_active)]
+	return [
+		"[HylasItemVisuals]",
+		"equipped_item_a=%s" % String(_equipped_item_a),
+		"greatfin_active=%s" % str(_greatfin_active),
+		"greatfin_visual_scale=%.2f" % GREATFIN_VISUAL_SCALE,
+		"transforming_active=%s" % str(_transforming_active),
+		"camouflage_active=%s" % str(_camouflage_active),
+		"surge_glow_active=%s" % str(_surge_glow_active),
+	]
