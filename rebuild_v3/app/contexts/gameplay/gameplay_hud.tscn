@@ -47,8 +47,6 @@ color = Color(0.035, 0.075, 0.13, 0.88)
 
 [node name="PanelTexture" type="TextureRect" parent="." unique_id=1278936827]
 unique_name_in_owner = true
-modulate = Color(1.0279732, 1.1638972, 1.1638972, 1)
-self_modulate = Color(1.2743521, 1.3528494, 1.3528494, 0.6862745)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
