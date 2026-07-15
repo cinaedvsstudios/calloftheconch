@@ -1,0 +1,54 @@
+name: Commit validated item correction
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  commit-correction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/item-correction-pass-2026-07-16
+          fetch-depth: 0
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+      - name: Apply validated correction
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          import subprocess,yaml
+          from pathlib import Path
+          data=yaml.load(Path('.github/workflows/tmp-item-correction-final.yml').read_text(),Loader=yaml.BaseLoader)
+          step=next(s for s in data['jobs']['final-correction']['steps'] if s.get('name')=='Apply final correction')
+          subprocess.run(['bash','-lc',step['run']],check=True)
+          p=Path('rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn')
+          p.write_text(p.read_text().rstrip()+'\n')
+          PY
+      - name: Validate and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --editor --path . --quit-after 120 > /tmp/import.log 2>&1 || true
+          godot --headless --path . --quit-after 8 > /tmp/run.log 2>&1 || true
+          if grep -E "SCRIPT ERROR|Parse Error|Failed loading resource|Cannot open file|Invalid cast" /tmp/import.log /tmp/run.log; then cat /tmp/import.log; cat /tmp/run.log; exit 1; fi
+          rm -f .github/workflows/tmp-item-correction.yml
+          rm -f .github/workflows/tmp-item-correction-driver.yml
+          rm -f .github/workflows/tmp-item-correction-error-report.yml
+          rm -f .github/workflows/tmp-item-correction-final.yml
+          rm -f .github/workflows/tmp-item-correction-final-report.yml
+          rm -f .github/workflows/tmp-item-correction-commit.yml
+          rm -f tmp_item_correction_errors.txt tmp_item_correction_final_errors.txt
+          rm -f rebuild_v3/app/contexts/gameplay/mati_overlay.gd rebuild_v3/app/contexts/gameplay/mati_overlay.gd.uid
+          git add -A
+          git diff --cached --check
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git commit -m "Correct HUD, held shells, timers, Mati and Conus visuals"
+          git push origin HEAD:work/item-correction-pass-2026-07-16
