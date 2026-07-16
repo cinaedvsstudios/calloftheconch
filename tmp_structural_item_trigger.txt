@@ -1,1 +1,1 @@
-Trigger PR validation after workflow registration.
+Trigger PR validation after the base-branch driver was registered.
