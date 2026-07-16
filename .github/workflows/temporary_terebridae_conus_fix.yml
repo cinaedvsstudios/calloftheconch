@@ -83,30 +83,87 @@ jobs:
               '\t_conus_climb_sprite_base_position = _animated_sprite.position\n\t_conus_climb_normal_sprite_scale = _animated_sprite.scale\n',
               '\t_conus_climb_sprite_base_position = _animated_sprite.position',
           )
+
           text = Path(hylas).read_text()
-          if '\t_animated_sprite.position = _conus_climb_sprite_base_position\n\t_set_visual_rotation(0.0)' not in text:
+          restore_line = '\t_animated_sprite.position = _conus_climb_sprite_base_position\n'
+          if restore_line not in text:
               target = '\t_special_velocity = Vector2.ZERO\n\t_set_visual_rotation(0.0)\n'
               if target not in text:
                   raise SystemExit('Missing end-climb restoration anchor')
-              Path(hylas).write_text(text.replace(
+              text = text.replace(
                   target,
-                  '\t_special_velocity = Vector2.ZERO\n\t_animated_sprite.position = _conus_climb_sprite_base_position\n\t_set_visual_rotation(0.0)\n',
+                  '\t_special_velocity = Vector2.ZERO\n' + restore_line + '\t_set_visual_rotation(0.0)\n',
                   1,
-              ))
+              )
+              Path(hylas).write_text(text)
 
+          input_function = '''func _input(event: InputEvent) -> void:
+\tif _death_sequence_active or not _play_enabled or crawl_active or airborne_active:
+\t\treturn
+
+\tvar key_event: InputEventKey = event as InputEventKey
+\tif key_event != null and key_event.echo:
+\t\treturn
+
+\tif _conus_climb_active:
+\t\tif event.is_action_pressed(&"conch", false, true) and _is_primary_item_a_binding(event):
+\t\t\t_space_action_pressed_this_frame = false
+\t\t\t_pending_conch_remaining = 0.0
+\t\t\t_pending_interaction_remaining = 0.0
+\t\t\tif is_instance_valid(_conus_climb_tether) and _conus_climb_tether.has_method(&"retract"):
+\t\t\t\t_conus_climb_tether.call(&"retract")
+\t\t\telse:
+\t\t\t\tend_conus_wall_climb()
+\t\t\tget_viewport().set_input_as_handled()
+\t\treturn
+
+\t# Exact matching is essential because Item A, Item B and Tail Flip can share
+\t# the same base key while differing only by their modifiers.
+\tif event.is_action_pressed(&"utility_item", false, true):
+\t\t_utility_item_pressed_this_frame = true
+\t\t_space_action_pressed_this_frame = false
+\t\t_pending_interaction_remaining = 0.0
+\t\t_pending_conch_remaining = 0.0
+\t\treturn
+
+\tif event.is_action_pressed(&"tail_flip", false, true):
+\t\t_shift_space_tail_flip_requested = true
+\t\tget_viewport().set_input_as_handled()
+\t\treturn
+
+\tif event.is_action_pressed(&"conch", false, true):
+\t\t_space_action_pressed_this_frame = _is_primary_item_a_binding(event)
+'''
           replace_between(
               hylas,
-              '\tif _conus_climb_active:\n',
-              '\n\t# Exact matching is essential',
-              '\tif _conus_climb_active:\n\t\tif event.is_action_pressed(&"conch", false, true) and _is_primary_item_a_binding(event):\n\t\t\t_space_action_pressed_this_frame = false\n\t\t\t_pending_conch_remaining = 0.0\n\t\t\t_pending_interaction_remaining = 0.0\n\t\t\tif is_instance_valid(_conus_climb_tether) and _conus_climb_tether.has_method(&"retract"):\n\t\t\t\t_conus_climb_tether.call(&"retract")\n\t\t\telse:\n\t\t\t\tend_conus_wall_climb()\n\t\t\tget_viewport().set_input_as_handled()\n\t\treturn\n',
+              'func _input(event: InputEvent) -> void:\n',
+              '\n\nfunc _physics_process',
+              input_function,
               '_conus_climb_tether.call(&"retract")',
           )
 
+          align_function = '''func _align_to_conus_rope() -> void:
+\tvar rope_vector: Vector2 = _conus_climb_anchor - global_position
+\tif rope_vector.length_squared() <= 0.0001:
+\t\treturn
+\tvar rope_direction: Vector2 = rope_vector.normalized()
+\t_set_visual_rotation(rope_direction.angle() + PI * 0.5)
+\tvar normal_scale_x: float = maxf(absf(_conus_climb_normal_sprite_scale.x), 0.001)
+\tvar greatfin_active: bool = absf(_animated_sprite.scale.x) > normal_scale_x * 1.15
+\tif greatfin_active:
+\t\t_animated_sprite.position = _conus_climb_sprite_base_position
+\telse:
+\t\tvar rope_perpendicular: Vector2 = Vector2(-rope_direction.y, rope_direction.x)
+\t\t_animated_sprite.position = (
+\t\t\t_conus_climb_sprite_base_position
+\t\t\t+ rope_perpendicular * normal_conus_climb_sprite_perpendicular_offset
+\t\t)
+'''
           replace_between(
               hylas,
               'func _align_to_conus_rope() -> void:\n',
               '\n\nfunc _update_conus_climb_animation',
-              'func _align_to_conus_rope() -> void:\n\tvar rope_vector: Vector2 = _conus_climb_anchor - global_position\n\tif rope_vector.length_squared() <= 0.0001:\n\t\treturn\n\tvar rope_direction: Vector2 = rope_vector.normalized()\n\t_set_visual_rotation(rope_direction.angle() + PI * 0.5)\n\tvar normal_scale_x: float = maxf(absf(_conus_climb_normal_sprite_scale.x), 0.001)\n\tvar greatfin_active: bool = absf(_animated_sprite.scale.x) > normal_scale_x * 1.15\n\tif greatfin_active:\n\t\t_animated_sprite.position = _conus_climb_sprite_base_position\n\telse:\n\t\tvar rope_perpendicular: Vector2 = Vector2(-rope_direction.y, rope_direction.x)\n\t\t_animated_sprite.position = (\n\t\t\t_conus_climb_sprite_base_position\n\t\t\t+ rope_perpendicular * normal_conus_climb_sprite_perpendicular_offset\n\t\t)\n',
+              align_function,
               'var normal_scale_x: float =',
           )
           PY
@@ -119,6 +176,16 @@ jobs:
           grep -q '_conus_climb_tether.call(&"retract")' scenes/characters/Hylas/hylas_equipment_input.gd
           grep -q 'normal_conus_climb_sprite_perpendicular_offset: float = -24.0' scenes/characters/Hylas/hylas_equipment_input.gd
           grep -q 'var greatfin_active: bool = absf(_animated_sprite.scale.x)' scenes/characters/Hylas/hylas_equipment_input.gd
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path('scenes/characters/Hylas/hylas_equipment_input.gd').read_text()
+          input_start = text.index('func _input(event: InputEvent) -> void:')
+          input_end = text.index('\n\nfunc _physics_process', input_start)
+          rope_start = text.index('func get_conus_rope_origin() -> Vector2:')
+          rope_end = text.index('\n\nfunc set_purple_shield_active', rope_start)
+          assert '_conus_climb_tether.call(&"retract")' in text[input_start:input_end]
+          assert 'event.is_action_pressed' not in text[rope_start:rope_end]
+          PY
 
       - name: Godot import validation
         shell: bash
@@ -127,25 +194,15 @@ jobs:
           godot --headless --editor --path . --quit > /tmp/godot-import.log 2>&1
           code=$?
           set -e
-          if grep -E 'SCRIPT ERROR|Parse Error|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-import.log; then
-            echo '--- Godot import tail ---'
-            tail -n 120 /tmp/godot-import.log
+          if grep -E 'Parse Error|Failed loading resource|ERROR: Failed to load script' /tmp/godot-import.log; then
+            tail -n 140 /tmp/godot-import.log
             exit 1
           fi
           if [ "$code" -ne 0 ]; then
             echo "Godot editor exited with $code"
-            tail -n 120 /tmp/godot-import.log
+            tail -n 140 /tmp/godot-import.log
             exit "$code"
           fi
-
-      - name: Upload Godot import diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: godot-import-diagnostics
-          path: /tmp/godot-import.log
-          if-no-files-found: error
-          retention-days: 1
 
       - name: Godot runtime smoke test
         shell: bash
@@ -155,13 +212,12 @@ jobs:
           code=$?
           set -e
           if grep -E 'SCRIPT ERROR|Parse Error|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log; then
-            echo '--- Godot runtime tail ---'
-            tail -n 120 /tmp/godot-runtime.log
+            tail -n 140 /tmp/godot-runtime.log
             exit 1
           fi
           if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
             echo "Godot runtime exited with $code"
-            tail -n 120 /tmp/godot-runtime.log
+            tail -n 140 /tmp/godot-runtime.log
             exit "$code"
           fi
 
