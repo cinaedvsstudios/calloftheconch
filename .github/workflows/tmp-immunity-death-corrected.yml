@@ -1,0 +1,62 @@
+name: Corrected immunity and death validation
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  apply-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/immunity-death-fixes-2026-07-16
+          fetch-depth: 0
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+      - name: Apply corrected direct production fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+          git show origin/main:.github/workflows/tmp-immunity-death-fixes.yml > /tmp/source-validator.yml
+          python3 - <<'PY'
+          import subprocess, yaml
+          from pathlib import Path
+          workflow = yaml.load(Path('/tmp/source-validator.yml').read_text(), Loader=yaml.BaseLoader)
+          steps = workflow['jobs']['apply-validate']['steps']
+          script = next(step['run'] for step in steps if step.get('name') == 'Apply direct production fixes')
+          subprocess.run(['bash', '-lc', script], check=True)
+
+          p = Path('rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_runtime.gd')
+          s = p.read_text()
+          old = '''func _on_damage_requested(hylas_body: Node, amount: int) -> void:\n\tif (\n\t\t\tis_instance_valid(_hylas)\n\t\t\tand (hylas_body == _hylas or hylas_body.is_in_group(&"hylas"))\n\t\t\tand _hylas.has_method(&"is_purple_shield_active")\n\t\t\tand bool(_hylas.call(&"is_purple_shield_active"))\n\t\t):\n\t\treturn\n\tsuper._on_damage_requested(hylas_body, amount)'''
+          new = '''func _on_damage_requested(\n\t\thylas_body: Node,\n\t\tamount: int,\n\t\tsource: Node = null,\n\t) -> void:\n\tsuper._on_damage_requested(hylas_body, amount, source)'''
+          if old not in s:
+              raise SystemExit('Old runtime damage override not found')
+          p.write_text(s.replace(old, new))
+          PY
+      - name: Validate Godot project
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --editor --path . --quit-after 120 > /tmp/import.log 2>&1
+          godot --headless --path . --quit-after 10 > /tmp/run.log 2>&1 || true
+          cat /tmp/import.log
+          cat /tmp/run.log
+          if grep -E "SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource|Cannot open file|Invalid cast|Invalid access|Shader error" /tmp/import.log /tmp/run.log; then exit 1; fi
+          git diff --check
+      - name: Commit validated fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          rm -f tmp_immunity_death_trigger.txt tmp_immunity_death_validation_error.txt
+          git add -A
+          git diff --cached --check
+          git commit -m "Fix timed immunity, Black Bloom Conus and death sequence"
+          git push origin HEAD:work/immunity-death-fixes-2026-07-16
