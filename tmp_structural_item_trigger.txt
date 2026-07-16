@@ -1,1 +1,1 @@
-Trigger PR validation with precise structural patch diagnostics.
+Trigger PR validation using direct production-file patching.
