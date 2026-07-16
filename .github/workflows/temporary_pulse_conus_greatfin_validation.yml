@@ -1,0 +1,90 @@
+name: Temporary pulse Conus and Greatfin validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    if: github.event.pull_request.head.ref == 'work/pulse-conus-greatfin-fix-2026-07-16'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/pulse-conus-greatfin-fix-2026-07-16
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+
+      - name: Apply direct production fixes
+        run: python3 .github/apply_pulse_conus_greatfin_fix.py
+
+      - name: Verify intended changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q '"stream_seconds": 5.0' rebuild_v3/app/contexts/gameplay/item_effect_controller.gd
+          grep -q 'requested_pulse_count' rebuild_v3/features/effects/conch_pulse_item_profiles.gd
+          grep -q 'old_echo.free()' rebuild_v3/features/effects/conch_pulse.gd
+          grep -q 'conus_climb_rope_length: float = 1500.0' scenes/characters/Hylas/hylas_equipment_input.gd
+          grep -q 'Input.is_action_just_pressed(&"conch")' scenes/characters/Hylas/hylas_equipment_input.gd
+          grep -q 'position = _animated_sprite.position' scenes/characters/Hylas/hylas_shadow_sync.gd
+          grep -q 'displayed_fins' rebuild_v3/app/contexts/gameplay/gameplay_hud.gd
+
+      - name: Godot import validation
+        shell: bash
+        run: |
+          set +e
+          godot --headless --editor --path . --quit > /tmp/godot-import.log 2>&1
+          code=$?
+          set -e
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed loading resource|ERROR: Failed to load script' /tmp/godot-import.log; then
+            tail -n 120 /tmp/godot-import.log
+            exit 1
+          fi
+          if [ "$code" -ne 0 ]; then
+            tail -n 120 /tmp/godot-import.log
+            exit "$code"
+          fi
+
+      - name: Godot runtime smoke test
+        shell: bash
+        run: |
+          set +e
+          timeout 20s godot --headless --path . --quit-after 5 > /tmp/godot-runtime.log 2>&1
+          code=$?
+          set -e
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log; then
+            tail -n 120 /tmp/godot-runtime.log
+            exit 1
+          fi
+          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
+            tail -n 120 /tmp/godot-runtime.log
+            exit "$code"
+          fi
+
+      - name: Commit validated production changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/apply_pulse_conus_greatfin_fix.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add rebuild_v3/app/contexts/gameplay/item_effect_controller.gd
+          git add rebuild_v3/features/effects/conch_pulse_item_profiles.gd
+          git add rebuild_v3/features/effects/conch_pulse.gd
+          git add scenes/characters/Hylas/hylas_equipment_input.gd
+          git add scenes/characters/Hylas/hylas_shadow_sync.gd
+          git add rebuild_v3/app/contexts/gameplay/gameplay_hud.gd
+          git add -u .github/apply_pulse_conus_greatfin_fix.py
+          git commit -m "Fix drill stream Conus tether and Greatfin HUD"
+          git push origin HEAD:work/pulse-conus-greatfin-fix-2026-07-16
