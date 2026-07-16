@@ -6,12 +6,11 @@
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/status_countdown_overlay.tscn" id="4_countdown"]
 
 [sub_resource type="Shader" id="Shader_hud_black_alpha"]
-code = "shader_type canvas_item;\nrender_mode unshaded, blend_mix;\n\nuniform float black_cutoff : hint_range(0.0, 0.2, 0.001) = 0.012;\nuniform float black_feather : hint_range(0.001, 0.2, 0.001) = 0.018;\n\nvoid fragment() {\n\tvec4 source = texture(TEXTURE, UV) * COLOR;\n\tfloat light = max(source.r, max(source.g, source.b));\n\tfloat exterior_alpha = smoothstep(black_cutoff, black_cutoff + black_feather, light);\n\tCOLOR = vec4(source.rgb, source.a * exterior_alpha);\n}"
+code = "shader_type canvas_item;\nrender_mode unshaded, blend_mix;\n\nuniform float black_cutoff : hint_range(0.0, 0.1, 0.001) = 0.012;\n\nvoid fragment() {\n\tvec4 source = texture(TEXTURE, UV);\n\tfloat light = max(source.r, max(source.g, source.b));\n\tif (source.a <= 0.0 || light <= black_cutoff) {\n\t\tdiscard;\n\t}\n\tCOLOR = source;\n}"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hud_black_alpha"]
 shader = SubResource("Shader_hud_black_alpha")
 shader_parameter/black_cutoff = 0.012
-shader_parameter/black_feather = 0.018
 
 [sub_resource type="SystemFont" id="LocationFont"]
 font_names = PackedStringArray("Cinzel", "Trajan Pro", "Times New Roman", "Georgia", "Noto Serif")

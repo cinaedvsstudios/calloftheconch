@@ -26,6 +26,8 @@ uniform float warp_strength_y : hint_range(0.0, 0.20, 0.001) = 0.006;
 uniform float warp_frequency_x : hint_range(0.0, 30.0, 0.1) = 6.0;
 uniform float warp_frequency_y : hint_range(0.0, 30.0, 0.1) = 3.5;
 uniform float warp_speed : hint_range(0.0, 5.0, 0.01) = 0.35;
+uniform bool mati_use_manual_time = false;
+uniform float mati_manual_time = 0.0;
 
 varying float local_y;
 
@@ -35,12 +37,13 @@ void vertex() {
 
 void fragment() {
 	// Animate the tiled texture coordinates
+	float animation_time = mati_use_manual_time ? mati_manual_time : TIME;
 	vec2 animated_uv = UV;
 
-	animated_uv += vec2(drift_speed_x, drift_speed_y) * TIME;
+	animated_uv += vec2(drift_speed_x, drift_speed_y) * animation_time;
 
-	animated_uv.x += sin((UV.y * warp_frequency_x) + TIME * warp_speed) * warp_strength_x;
-	animated_uv.y += sin((UV.x * warp_frequency_y) + TIME * warp_speed * 0.8) * warp_strength_y;
+	animated_uv.x += sin((UV.y * warp_frequency_x) + animation_time * warp_speed) * warp_strength_x;
+	animated_uv.y += sin((UV.x * warp_frequency_y) + animation_time * warp_speed * 0.8) * warp_strength_y;
 
 	vec4 overlay = texture(TEXTURE, animated_uv) * COLOR * tint;
 	vec3 background = texture(screen_texture, SCREEN_UV).rgb;

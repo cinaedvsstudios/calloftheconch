@@ -30,8 +30,7 @@ var _source: Node2D
 var _direction: Vector2 = Vector2.RIGHT
 var _dart_world_position: Vector2 = Vector2.ZERO
 var _travelled_distance: float = 0.0
-var _anchored_remaining: float = 0.0
-var _anchored: bool = false
+var _wall_tethered: bool = false
 var _elapsed: float = 0.0
 
 
@@ -46,8 +45,7 @@ func launch(origin: Vector2, direction: Vector2, source: Node2D) -> void:
 	_direction = direction.normalized() if direction.length_squared() > 0.0001 else Vector2.RIGHT
 	_dart_world_position = _get_rope_origin(origin) + _direction * 18.0
 	_travelled_distance = 0.0
-	_anchored_remaining = anchored_seconds
-	_anchored = false
+	_wall_tethered = false
 	_elapsed = 0.0
 	_dart.rotation = _direction.angle()
 	_dart_glow.rotation = _direction.angle()
@@ -57,12 +55,8 @@ func launch(origin: Vector2, direction: Vector2, source: Node2D) -> void:
 
 func _physics_process(delta: float) -> void:
 	_elapsed += delta
-	if _anchored:
-		_anchored_remaining = maxf(0.0, _anchored_remaining - delta)
+	if _wall_tethered:
 		_update_visuals()
-		if _anchored_remaining <= 0.0:
-			tether_finished.emit()
-			queue_free()
 		return
 
 	var step_distance: float = travel_speed * delta
@@ -92,22 +86,53 @@ func _intersect_dart_path(from: Vector2, to: Vector2) -> Dictionary:
 
 
 func _anchor_tether(collider: Object) -> void:
-	_anchored = true
-	_anchored_remaining = anchored_seconds
 	var resolved_target: Node = _resolve_dart_target(collider)
-	if resolved_target != null and resolved_target.has_method(&"receive_conus_dart"):
-		resolved_target.call(&"receive_conus_dart", _source)
+	if resolved_target != null:
+		_apply_conus_stun(resolved_target)
+		retract()
+		return
+	if collider == null:
+		retract()
+		return
+	_wall_tethered = true
+	_update_visuals()
+
+
+func retract() -> void:
+	if is_queued_for_deletion():
+		return
+	tether_finished.emit()
+	queue_free()
+
+
+func is_wall_tethered() -> bool:
+	return _wall_tethered
 
 
 func _resolve_dart_target(collider: Object) -> Node:
 	var current: Node = collider as Node
 	var parent_checks: int = 0
 	while current != null and parent_checks < 12:
-		if current.has_method(&"receive_conus_dart"):
+		if current.has_method(&"receive_conus_dart") or current.has_method(&"receive_conch_hit"):
 			return current
 		current = current.get_parent()
 		parent_checks += 1
 	return null
+
+
+func _apply_conus_stun(target: Node) -> void:
+	if target.has_method(&"receive_conus_dart"):
+		target.call(&"receive_conus_dart", _source)
+		return
+	if target.has_method(&"receive_conch_hit"):
+		var source_position: Vector2 = _source.global_position if is_instance_valid(_source) else _dart_world_position
+		target.call(
+			&"receive_conch_hit",
+			source_position,
+			_direction,
+			source_position.distance_to(_dart_world_position),
+			1.0,
+		)
 
 
 func _get_rope_origin(fallback: Vector2) -> Vector2:
