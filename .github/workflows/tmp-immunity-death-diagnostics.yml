@@ -1,0 +1,55 @@
+name: Temporary immunity and death diagnostics
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/immunity-death-fixes-2026-07-16
+          fetch-depth: 0
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+      - name: Reapply direct patch from validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+          git show origin/main:.github/workflows/tmp-immunity-death-fixes.yml > /tmp/source-validator.yml
+          python3 - <<'PY'
+          import subprocess, yaml
+          from pathlib import Path
+          workflow = yaml.load(Path('/tmp/source-validator.yml').read_text(), Loader=yaml.BaseLoader)
+          steps = workflow['jobs']['apply-validate']['steps']
+          script = next(step['run'] for step in steps if step.get('name') == 'Apply direct production fixes')
+          subprocess.run(['bash', '-lc', script], check=True)
+          PY
+      - name: Capture Godot diagnostics
+        shell: bash
+        run: |
+          set +e
+          godot --headless --editor --path . --quit-after 120 > /tmp/import.log 2>&1
+          import_status=$?
+          godot --headless --path . --quit-after 10 > /tmp/run.log 2>&1
+          run_status=$?
+          {
+            echo "IMPORT_STATUS=$import_status"
+            echo "RUN_STATUS=$run_status"
+            echo "===== IMPORT ====="
+            cat /tmp/import.log
+            echo "===== RUN ====="
+            cat /tmp/run.log
+          } > tmp_immunity_death_validation_error.txt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tmp_immunity_death_validation_error.txt
+          git commit -m "Record immunity and death validation diagnostics" || true
+          git push origin HEAD:work/immunity-death-fixes-2026-07-16
+          exit 0
