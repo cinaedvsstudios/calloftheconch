@@ -20,9 +20,9 @@ const FRAME_TEXTURES: Array[Texture2D] = [
 	preload("res://assets/ui/hourglass/frame-001-frame-016.png"),
 ]
 const MATI_TEXTURE: Texture2D = preload("res://assets/objects/ui_mati.png")
-const MATI_COLUMNS: int = 2
+const MATI_COLUMNS: int = 3
 const MATI_ROWS: int = 2
-const MATI_FRAME_COUNT: int = 4
+const MATI_FRAME_COUNT: int = 6
 
 @onready var _hourglass: TextureRect = %Hourglass
 var _crossfade: TextureRect
