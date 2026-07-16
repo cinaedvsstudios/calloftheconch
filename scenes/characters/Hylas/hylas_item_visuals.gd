@@ -6,7 +6,7 @@ const SURGE_GLOW_SHADER: Shader = preload("res://scenes/characters/Hylas/hylas_i
 const NORMAL_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_v3_sprite_frames.tres")
 const GREATFIN_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_greatfin_sprite_frames.tres")
 const GREATFIN_VISUAL_SCALE: float = 1.30
-const HELD_SHELL_VISUAL_SCALE: float = 0.42
+const HELD_SHELL_VISUAL_SCALE: float = 0.504
 const SHELL_TEXTURES: Dictionary = {
 	&"normal_conch": preload("res://assets/characters/shell_normal_conch.png"),
 	&"charonia_tritonis": preload("res://assets/characters/shell_charonia_tritonis.png"),
@@ -38,7 +38,6 @@ var _camouflage_material: ShaderMaterial
 var _surge_glow_material: ShaderMaterial
 var _transform_material: ShaderMaterial
 
-
 func _ready() -> void:
 	if _animated_sprite == null:
 		push_error("Hylas ItemVisuals requires the sibling AnimatedSprite node.")
@@ -68,35 +67,28 @@ func _ready() -> void:
 	_refresh_sprite_material()
 	set_process(true)
 
-
 func _process(_delta: float) -> void:
 	_sync_shell_overlay()
-
 
 func set_equipped_item_a(item_id: StringName) -> void:
 	_equipped_item_a = item_id
 	_refresh_shell_texture()
 	_sync_shell_overlay()
 
-
 func set_camouflage_active(is_active: bool) -> void:
 	_camouflage_active = is_active
 	_refresh_sprite_material()
 
-
 func is_camouflage_active() -> bool:
 	return _camouflage_active
-
 
 func set_surge_glow_active(is_active: bool) -> void:
 	_surge_glow_active = is_active
 	_refresh_sprite_material()
 
-
 func set_transforming_active(is_active: bool) -> void:
 	_transforming_active = is_active
 	_refresh_sprite_material()
-
 
 func set_greatfin_active(is_active: bool) -> void:
 	if _animated_sprite == null:
@@ -122,7 +114,6 @@ func set_greatfin_active(is_active: bool) -> void:
 	else:
 		_animated_sprite.play(&"idle")
 
-
 func clear_item_visuals() -> void:
 	_camouflage_active = false
 	_surge_glow_active = false
@@ -130,10 +121,8 @@ func clear_item_visuals() -> void:
 	_refresh_sprite_material()
 	_shell_overlay.hide()
 
-
 func _refresh_shell_texture() -> void:
 	_shell_overlay.texture = SHELL_TEXTURES.get(_equipped_item_a, null) as Texture2D
-
 
 func _refresh_sprite_material() -> void:
 	var resolved_material: Material = _base_sprite_material
@@ -145,7 +134,6 @@ func _refresh_sprite_material() -> void:
 		resolved_material = _surge_glow_material
 	_animated_sprite.material = resolved_material
 	_shell_overlay.material = resolved_material
-
 
 func _sync_shell_overlay() -> void:
 	if _animated_sprite == null or _shell_overlay.texture == null:
@@ -169,7 +157,6 @@ func _sync_shell_overlay() -> void:
 	_shell_overlay.modulate = _animated_sprite.modulate
 	_shell_overlay.self_modulate = _animated_sprite.self_modulate
 	_shell_overlay.z_index = _animated_sprite.z_index + 1
-
 
 func get_debug_lines() -> Array[String]:
 	return [
