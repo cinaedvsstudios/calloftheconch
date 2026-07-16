@@ -95,18 +95,27 @@ func _anchor_tether(collider: Object) -> void:
 		retract()
 		return
 	_wall_tethered = true
+	if is_instance_valid(_source) and _source.has_method(&"begin_conus_wall_climb"):
+		_source.call(&"begin_conus_wall_climb", _dart_world_position, self)
 	_update_visuals()
 
 
 func retract() -> void:
 	if is_queued_for_deletion():
 		return
+	if _wall_tethered and is_instance_valid(_source) and _source.has_method(&"end_conus_wall_climb"):
+		_source.call(&"end_conus_wall_climb", self)
+	_wall_tethered = false
 	tether_finished.emit()
 	queue_free()
 
 
 func is_wall_tethered() -> bool:
 	return _wall_tethered
+
+
+func get_anchor_position() -> Vector2:
+	return _dart_world_position
 
 
 func _resolve_dart_target(collider: Object) -> Node:
@@ -138,6 +147,10 @@ func _apply_conus_stun(target: Node) -> void:
 func _get_rope_origin(fallback: Vector2) -> Vector2:
 	if not is_instance_valid(_source):
 		return fallback
+	if _source.has_method(&"get_conus_rope_origin"):
+		var resolved_origin: Variant = _source.call(&"get_conus_rope_origin")
+		if resolved_origin is Vector2:
+			return resolved_origin
 	var marker: Node2D = _source.get_node_or_null("ConchPulseOrigin") as Node2D
 	if marker != null:
 		return marker.global_position
@@ -148,7 +161,12 @@ func _update_visuals() -> void:
 	var source_position: Vector2 = _get_rope_origin(_dart_world_position - _direction * 20.0)
 	var local_start: Vector2 = to_local(source_position)
 	var local_end: Vector2 = to_local(_dart_world_position)
-	var perpendicular: Vector2 = Vector2(-_direction.y, _direction.x)
+	var rope_direction: Vector2 = _dart_world_position - source_position
+	if rope_direction.length_squared() <= 0.0001:
+		rope_direction = _direction
+	else:
+		rope_direction = rope_direction.normalized()
+	var perpendicular: Vector2 = Vector2(-rope_direction.y, rope_direction.x)
 	var wave: float = sin(_elapsed * rope_wave_speed * TAU) * rope_wave_height
 	var points: PackedVector2Array = PackedVector2Array()
 	var segment_count: int = 16

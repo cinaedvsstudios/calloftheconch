@@ -9,7 +9,15 @@ extends "res://scenes/characters/Hylas/hylas_reliable_input.gd"
 signal item_a_requested(item_id: StringName, origin: Vector2, direction: Vector2)
 
 const NORMAL_CONCH_ID: StringName = &"normal_conch"
+const CONUS_TEXTILE_ID: StringName = &"conus_textile"
+const CONUS_CLIMB_ANIMATION: StringName = &"climb"
 const TRIDACNA_SURFACE_LAUNCH_VELOCITY_SCALE: float = 1.41421356237
+
+@export_category("Conus Wall Climb")
+@export_range(40.0, 900.0, 5.0) var conus_climb_speed: float = 260.0
+@export_range(40.0, 240.0, 1.0) var conus_climb_minimum_distance: float = 100.0
+@export_range(0.01, 0.90, 0.01) var conus_climb_input_deadzone: float = 0.16
+@export_range(0.0, 180.0, 1.0) var conus_rope_hand_offset: float = 62.0
 
 @onready var _item_visuals: CotcHylasItemVisuals = %ItemVisuals
 
@@ -19,6 +27,11 @@ var _item_surge_remaining: float = 0.0
 var _purple_shield_active: bool = false
 var _camouflage_active: bool = false
 var _normal_collision_layer: int = 1
+var _conus_climb_active: bool = false
+var _conus_climb_anchor: Vector2 = Vector2.ZERO
+var _conus_climb_maximum_distance: float = 0.0
+var _conus_climb_tether: Node
+var _conus_climb_previous_facing_left: bool = false
 
 
 func _ready() -> void:
@@ -104,6 +117,70 @@ func _begin_surface_jump() -> void:
 		velocity *= TRIDACNA_SURFACE_LAUNCH_VELOCITY_SCALE
 
 
+func begin_conus_wall_climb(anchor_position: Vector2, tether: Node) -> void:
+	if _death_sequence_active or not _play_enabled or not is_instance_valid(tether):
+		return
+	_conus_climb_active = true
+	_conus_climb_anchor = anchor_position
+	_conus_climb_tether = tether
+	_conus_climb_maximum_distance = maxf(
+		conus_climb_minimum_distance,
+		global_position.distance_to(anchor_position),
+	)
+	_conus_climb_previous_facing_left = _facing_left
+	_facing_left = false
+	_brake_active = false
+	_burst_active = false
+	_burst_remaining = 0.0
+	_tail_flip_remaining = 0.0
+	_conch_remaining = 0.0
+	_pending_conch_remaining = 0.0
+	_pending_surface_jump = false
+	_jump_elapsed = 0.0
+	_swim_velocity = Vector2.ZERO
+	_burst_coast_velocity = Vector2.ZERO
+	_special_velocity = Vector2.ZERO
+	velocity = Vector2.ZERO
+	_stop_movement_audio()
+	_animated_sprite.speed_scale = 1.0
+	_set_animation(CONUS_CLIMB_ANIMATION)
+	_animated_sprite.frame = 0
+	_animated_sprite.pause()
+	_align_to_conus_rope()
+
+
+func end_conus_wall_climb(tether: Node = null) -> void:
+	if not _conus_climb_active:
+		return
+	if tether != null and is_instance_valid(_conus_climb_tether) and tether != _conus_climb_tether:
+		return
+	_conus_climb_active = false
+	_conus_climb_tether = null
+	_conus_climb_maximum_distance = 0.0
+	_facing_left = _conus_climb_previous_facing_left
+	_animated_sprite.speed_scale = 1.0
+	velocity = Vector2.ZERO
+	_swim_velocity = Vector2.ZERO
+	_burst_coast_velocity = Vector2.ZERO
+	_special_velocity = Vector2.ZERO
+	_set_visual_rotation(0.0)
+	if _play_enabled and not _death_sequence_active:
+		_set_animation(&"idle")
+
+
+func is_conus_wall_climbing() -> bool:
+	return _conus_climb_active
+
+
+func get_conus_rope_origin() -> Vector2:
+	if _conus_climb_active:
+		var rope_vector: Vector2 = _conus_climb_anchor - global_position
+		if rope_vector.length_squared() > 0.0001:
+			return global_position + rope_vector.normalized() * conus_rope_hand_offset
+	var marker: Node2D = get_node_or_null("ConchPulseOrigin") as Node2D
+	return marker.global_position if marker != null else global_position
+
+
 func set_purple_shield_active(is_active: bool) -> void:
 	_purple_shield_active = is_active
 
@@ -133,6 +210,7 @@ func set_surge_glow_active(is_active: bool) -> void:
 
 
 func clear_item_effect_state() -> void:
+	end_conus_wall_climb()
 	_item_surge_remaining = 0.0
 	_purple_shield_active = false
 	_camouflage_active = false
@@ -155,6 +233,12 @@ func _input(event: InputEvent) -> void:
 	if key_event != null and key_event.echo:
 		return
 
+	if _conus_climb_active:
+		if event.is_action_pressed(&"conch", false, true) and _is_primary_item_a_binding(event):
+			item_a_requested.emit(CONUS_TEXTILE_ID, global_position, Vector2.ZERO)
+			get_viewport().set_input_as_handled()
+		return
+
 	# Exact matching is essential because Item A, Item B and Tail Flip can share
 	# the same base key while differing only by their modifiers.
 	if event.is_action_pressed(&"utility_item", false, true):
@@ -175,6 +259,10 @@ func _input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	_item_surge_remaining = maxf(0.0, _item_surge_remaining - delta)
+	if _conus_climb_active:
+		_update_conus_wall_climb(delta)
+		_utility_item_pressed_this_frame = false
+		return
 	super._physics_process(delta)
 	_utility_item_pressed_this_frame = false
 
@@ -230,10 +318,93 @@ func _can_begin_item_pose() -> bool:
 		or not _play_enabled
 		or crawl_active
 		or airborne_active
+		or _conus_climb_active
 		or _burst_active
 		or _tail_flip_remaining > 0.0
 		or _jump_elapsed > 0.0
 	)
+
+
+func _update_conus_wall_climb(delta: float) -> void:
+	if (
+			not is_instance_valid(_conus_climb_tether)
+			or not _conus_climb_tether.has_method(&"is_wall_tethered")
+			or not bool(_conus_climb_tether.call(&"is_wall_tethered"))
+		):
+		end_conus_wall_climb()
+		return
+	if _conus_climb_tether.has_method(&"get_anchor_position"):
+		var anchor_value: Variant = _conus_climb_tether.call(&"get_anchor_position")
+		if anchor_value is Vector2:
+			_conus_climb_anchor = anchor_value
+
+	_current_time += delta
+	_update_cooldowns(delta)
+	_update_camera_shake(delta)
+	_update_shadow()
+
+	var rope_vector: Vector2 = _conus_climb_anchor - global_position
+	if rope_vector.length_squared() <= 0.0001:
+		end_conus_wall_climb(_conus_climb_tether)
+		return
+	var rope_direction: Vector2 = rope_vector.normalized()
+	var rope_distance: float = rope_vector.length()
+	var input_direction: Vector2 = Input.get_vector(
+		&"move_left",
+		&"move_right",
+		&"move_up",
+		&"move_down",
+	)
+	var climb_axis: float = input_direction.dot(rope_direction)
+	if absf(climb_axis) < conus_climb_input_deadzone:
+		climb_axis = 0.0
+	if climb_axis > 0.0 and rope_distance <= conus_climb_minimum_distance:
+		climb_axis = 0.0
+	elif climb_axis < 0.0 and rope_distance >= _conus_climb_maximum_distance:
+		climb_axis = 0.0
+
+	velocity = rope_direction * climb_axis * conus_climb_speed
+	if climb_axis != 0.0:
+		move_and_slide()
+		global_position = _clamp_to_world(global_position)
+
+	var corrected_vector: Vector2 = _conus_climb_anchor - global_position
+	var corrected_distance: float = corrected_vector.length()
+	if corrected_distance > 0.0001:
+		var corrected_direction: Vector2 = corrected_vector / corrected_distance
+		if corrected_distance > _conus_climb_maximum_distance:
+			global_position = _conus_climb_anchor - corrected_direction * _conus_climb_maximum_distance
+		elif corrected_distance < conus_climb_minimum_distance:
+			global_position = _conus_climb_anchor - corrected_direction * conus_climb_minimum_distance
+
+	_swim_velocity = Vector2.ZERO
+	_burst_coast_velocity = Vector2.ZERO
+	_special_velocity = Vector2.ZERO
+	_align_to_conus_rope()
+	_update_conus_climb_animation(climb_axis)
+
+
+func _align_to_conus_rope() -> void:
+	var rope_vector: Vector2 = _conus_climb_anchor - global_position
+	if rope_vector.length_squared() <= 0.0001:
+		return
+	_set_visual_rotation(rope_vector.angle() + PI * 0.5)
+
+
+func _update_conus_climb_animation(climb_axis: float) -> void:
+	if _animated_sprite.animation != CONUS_CLIMB_ANIMATION:
+		_set_animation(CONUS_CLIMB_ANIMATION)
+	if climb_axis == 0.0:
+		_animated_sprite.speed_scale = 1.0
+		_animated_sprite.frame = 0
+		_animated_sprite.pause()
+		return
+	var desired_speed: float = 1.0 if climb_axis > 0.0 else -1.0
+	if not _animated_sprite.is_playing() or not is_equal_approx(_animated_sprite.speed_scale, desired_speed):
+		_animated_sprite.speed_scale = desired_speed
+		if desired_speed < 0.0 and _animated_sprite.frame == 0:
+			_animated_sprite.frame = _animated_sprite.sprite_frames.get_frame_count(CONUS_CLIMB_ANIMATION) - 1
+		_animated_sprite.play(CONUS_CLIMB_ANIMATION)
 
 
 func _resolve_item_direction(direction: Vector2) -> Vector2:
@@ -265,6 +436,8 @@ func get_debug_lines() -> Array[String]:
 	lines.append("item_surge_remaining=%.2f" % _item_surge_remaining)
 	lines.append("purple_shield_active=%s" % str(_purple_shield_active))
 	lines.append("camouflage_active=%s" % str(_camouflage_active))
+	lines.append("conus_climb_active=%s" % str(_conus_climb_active))
+	lines.append("conus_climb_anchor=%s" % str(_conus_climb_anchor))
 	if is_instance_valid(_item_visuals):
 		lines.append_array(_item_visuals.get_debug_lines())
 	return lines
