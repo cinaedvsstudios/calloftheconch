@@ -1,1 +1,1 @@
-Trigger PR validation after the base-branch driver was registered.
+Trigger PR validation after direct Conus bloom wiring was added.
