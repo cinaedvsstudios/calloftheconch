@@ -1,6 +1,6 @@
 name: Temporary structural item validation driver
 on:
-  push:
+  pull_request:
     branches: [main]
 permissions:
   contents: write
