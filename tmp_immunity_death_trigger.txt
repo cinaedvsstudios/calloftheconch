@@ -1,1 +1,1 @@
-Trigger direct immunity, Black Bloom, hourglass and death-sequence validation.
+Trigger detailed immunity, Black Bloom, hourglass and death-sequence diagnostics.
