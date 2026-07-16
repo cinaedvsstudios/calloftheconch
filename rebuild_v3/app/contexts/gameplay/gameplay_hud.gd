@@ -250,8 +250,8 @@ func _apply_element_layout() -> void:
 	_apply_control_rect(
 		_item_status_countdown,
 		Rect2(
-			item_b_icon_rect.position + item_b_icon_rect.size * Vector2(0.42, 0.43),
-			item_b_icon_rect.size * 0.50,
+			item_b_icon_rect.position + item_b_icon_rect.size * Vector2(0.08, 0.075),
+			item_b_icon_rect.size * Vector2(0.84, 0.85),
 		),
 	)
 	_apply_control_rect(_item_b_quantity, item_b_quantity_rect)

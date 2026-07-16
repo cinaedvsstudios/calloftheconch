@@ -70,7 +70,9 @@ func _process(_delta: float) -> void:
 		_finish_stun()
 
 	_resolve_hylas()
-	if _hylas == null:
+	if not _is_hylas_targetable():
+		if _awake:
+			_go_to_sleep()
 		return
 
 	var distance_to_hylas: float = global_position.distance_to(_hylas.global_position)
@@ -93,6 +95,10 @@ func receive_conch_hit(
 	_stun_ends_at_msec = Time.get_ticks_msec() + int(round(stun_duration * 1000.0))
 	if not was_already_stunned or not _stun_visual_active:
 		_begin_stun(not was_already_stunned)
+
+
+func receive_conus_dart(_source: Node2D) -> void:
+	receive_conch_hit(global_position, Vector2.ZERO, 0.0, 1.0)
 
 
 func is_stunned() -> bool:
@@ -137,6 +143,19 @@ func _finish_stun() -> void:
 	stun_finished.emit()
 
 
+func _is_targetable_hylas(candidate: Node) -> bool:
+	if not is_instance_valid(candidate):
+		return false
+	return not (
+		candidate.has_method(&"is_camouflage_active")
+		and bool(candidate.call(&"is_camouflage_active"))
+	)
+
+
+func _is_hylas_targetable() -> bool:
+	return _is_targetable_hylas(_hylas)
+
+
 func _resolve_hylas() -> void:
 	if _hylas != null and is_instance_valid(_hylas):
 		return
@@ -146,7 +165,7 @@ func _resolve_hylas() -> void:
 func _on_wake_area_body_entered(body: Node2D) -> void:
 	if is_stunned():
 		return
-	if body.is_in_group(&"hylas"):
+	if body.is_in_group(&"hylas") and _is_targetable_hylas(body):
 		_hylas = body
 		_wake_up()
 
@@ -154,7 +173,7 @@ func _on_wake_area_body_entered(body: Node2D) -> void:
 func _on_hurt_area_body_entered(body: Node2D) -> void:
 	if is_stunned():
 		return
-	if body.is_in_group(&"hylas"):
+	if body.is_in_group(&"hylas") and _is_targetable_hylas(body):
 		_hylas = body
 		if not _awake:
 			_wake_up()
@@ -185,13 +204,13 @@ func _damage_touching_hylas_if_needed() -> void:
 	if is_stunned() or not _hurt_area.monitoring:
 		return
 	for body: Node2D in _hurt_area.get_overlapping_bodies():
-		if body.is_in_group(&"hylas"):
+		if body.is_in_group(&"hylas") and _is_targetable_hylas(body):
 			_damage_hylas(body)
 			return
 
 
 func _damage_hylas(hylas_body: Node2D) -> void:
-	if is_stunned():
+	if is_stunned() or not _is_targetable_hylas(hylas_body):
 		return
 	var now: float = Time.get_ticks_msec() / 1000.0
 	if now - _last_damage_time < damage_cooldown:

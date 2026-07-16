@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/features/black_bloom/black_bloom_hazard.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://rebuild_v3/features/black_bloom/black_bloom_sprite_frames.tres" id="2_frames"]
@@ -12,6 +12,9 @@ radius = 560.0
 [sub_resource type="CapsuleShape2D" id="HurtShape"]
 radius = 170.0
 height = 1250.0
+
+[sub_resource type="CircleShape2D" id="ConusTargetShape"]
+radius = 210.0
 
 [node name="BlackBloomHazard" type="Node2D" groups=["enemy", "hazard"]]
 script = ExtResource("1_controller")
@@ -27,9 +30,16 @@ unique_name_in_owner = true
 position = Vector2(0, -210)
 scale = Vector2(1.25, 1.25)
 
-[node name="ConchTarget" type="Node2D" parent="." groups=["conch_target"]]
+[node name="ConchTarget" type="Area2D" parent="." groups=["conch_target"]]
 unique_name_in_owner = true
 position = Vector2(0, -610)
+collision_layer = 1
+collision_mask = 0
+monitoring = false
+monitorable = true
+
+[node name="CollisionShape" type="CollisionShape2D" parent="ConchTarget"]
+shape = SubResource("ConusTargetShape")
 
 [node name="WakeArea" type="Area2D" parent="."]
 unique_name_in_owner = true
