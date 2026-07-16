@@ -28,18 +28,17 @@ jobs:
           workflow = yaml.load(Path('.github/workflows/tmp-structural-item-fixes.yml').read_text(), Loader=yaml.BaseLoader)
           step = next(s for s in workflow['jobs']['apply-validate']['steps'] if s.get('name') == 'Apply direct production fixes')
           script = step['run']
-          old = '''rope_controller = Path('rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd').read_text()
-          if 'for line' not in rope_controller and 'get_children()' not in rope_controller:
-              raise SystemExit('Conus controller does not update Line2D children generically; inspect before commit')'''
-          new = '''p = Path('rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd')
+          marker = "rope_controller = Path('rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd').read_text()"
+          if marker not in script:
+              raise SystemExit('Expected Conus safety marker missing from branch workflow')
+          script = script.split(marker, 1)[0] + '''p = Path('rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd')
           rope_controller = p.read_text()
           rope_controller = rope_controller.replace('@onready var _rope_glow: Line2D = %RopeGlow', '@onready var _rope_bloom: Line2D = $RopeBloom\\n@onready var _rope_glow: Line2D = %RopeGlow')
           rope_controller = rope_controller.replace('\\t_rope.points = points\\n\\t_rope_glow.points = points', '\\t_rope.points = points\\n\\t_rope_glow.points = points\\n\\t_rope_bloom.points = points')
           rope_controller = rope_controller.replace('\\t_rope_glow.default_color = rope_glow_color', '\\t_rope_glow.default_color = rope_glow_color\\n\\t_rope_bloom.default_color = Color(1.0, 0.18, 0.01, lerpf(0.05, 0.12, pulse))')
-          p.write_text(rope_controller)'''
-          if old not in script:
-              raise SystemExit('Expected Conus safety block missing from branch workflow')
-          subprocess.run(['bash', '-lc', script.replace(old, new)], check=True)
+          p.write_text(rope_controller)
+          '''
+          subprocess.run(['bash', '-lc', script], check=True)
           PY
       - name: Validate Godot project
         shell: bash
