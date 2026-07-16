@@ -1,0 +1,53 @@
+name: Temporary structural item validation driver
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  apply-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/structural-item-fixes-2026-07-16
+          fetch-depth: 0
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+      - name: Apply branch patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          import subprocess, yaml
+          from pathlib import Path
+          workflow = yaml.load(Path('.github/workflows/tmp-structural-item-fixes.yml').read_text(), Loader=yaml.BaseLoader)
+          step = next(s for s in workflow['jobs']['apply-validate']['steps'] if s.get('name') == 'Apply direct production fixes')
+          subprocess.run(['bash', '-lc', step['run']], check=True)
+          PY
+      - name: Validate Godot project
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --editor --path . --quit-after 120 > /tmp/import.log 2>&1
+          godot --headless --path . --quit-after 10 > /tmp/run.log 2>&1
+          cat /tmp/import.log
+          cat /tmp/run.log
+          if grep -E "SCRIPT ERROR|Parse Error|Failed loading resource|Cannot open file|Invalid cast|Invalid access" /tmp/import.log /tmp/run.log; then exit 1; fi
+          git diff --check
+      - name: Commit validated fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          rm -f .github/workflows/tmp-structural-item-fixes.yml
+          rm -f tmp_structural_item_trigger.txt
+          git add -A
+          git diff --cached --check
+          git commit -m "Fix live HUD timers, pulse colour, audio loops and Mati world freeze"
+          git push origin HEAD:work/structural-item-fixes-2026-07-16
