@@ -30,6 +30,18 @@ script = ExtResource("1_controller")
 dart_display_height = 24.0
 rope_wave_height = 4.0
 
+[node name="RopeBloom" type="Line2D" parent="."]
+material = SubResource("GlowMaterial")
+width = 14.0
+default_color = Color(1, 0.18, 0.01, 0.08)
+texture = ExtResource("2_rope")
+texture_mode = 2
+texture_repeat = 2
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+antialiased = true
+
 [node name="RopeGlow" type="Line2D" parent="."]
 unique_name_in_owner = true
 material = SubResource("GlowMaterial")

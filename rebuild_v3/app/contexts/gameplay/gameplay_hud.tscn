@@ -1,9 +1,17 @@
-[gd_scene format=3 uid="uid://k2serfn5csof"]
+[gd_scene load_steps=7 format=3 uid="uid://k2serfn5csof"]
 
 [ext_resource type="Script" uid="uid://df704opte6x40" path="res://rebuild_v3/app/contexts/gameplay/gameplay_hud.gd" id="1_controller"]
 [ext_resource type="Texture2D" uid="uid://cyqc6r47jke0n" path="res://assets/ui/UI1.webp" id="2_lc38v"]
 [ext_resource type="Texture2D" uid="uid://cryc77jmj45iu" path="res://assets/ui/shell_normal_conch.png" id="3_2vbiw"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/status_countdown_overlay.tscn" id="4_countdown"]
+
+[sub_resource type="Shader" id="Shader_hud_black_alpha"]
+code = "shader_type canvas_item;\nrender_mode unshaded, blend_mix;\n\nuniform float black_cutoff : hint_range(0.0, 0.2, 0.001) = 0.012;\nuniform float black_feather : hint_range(0.001, 0.2, 0.001) = 0.018;\n\nvoid fragment() {\n\tvec4 source = texture(TEXTURE, UV) * COLOR;\n\tfloat light = max(source.r, max(source.g, source.b));\n\tfloat exterior_alpha = smoothstep(black_cutoff, black_cutoff + black_feather, light);\n\tCOLOR = vec4(source.rgb, source.a * exterior_alpha);\n}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hud_black_alpha"]
+shader = SubResource("Shader_hud_black_alpha")
+shader_parameter/black_cutoff = 0.012
+shader_parameter/black_feather = 0.018
 
 [sub_resource type="SystemFont" id="LocationFont"]
 font_names = PackedStringArray("Cinzel", "Trajan Pro", "Times New Roman", "Georgia", "Noto Serif")
@@ -54,6 +62,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+material = SubResource("ShaderMaterial_hud_black_alpha")
 texture = ExtResource("2_lc38v")
 expand_mode = 1
 stretch_mode = 5

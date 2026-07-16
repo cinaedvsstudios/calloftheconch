@@ -20,6 +20,7 @@ signal tether_finished
 @export_range(0.1, 12.0, 0.1) var dart_glow_pulse_speed: float = 3.2
 @export_range(1.0, 30.0, 0.5) var dart_point_glow_radius: float = 8.0
 
+@onready var _rope_bloom: Line2D = $RopeBloom
 @onready var _rope_glow: Line2D = %RopeGlow
 @onready var _rope: Line2D = %Rope
 @onready var _dart_glow: Sprite2D = %DartGlow
@@ -138,6 +139,7 @@ func _update_visuals() -> void:
 		points.append(local_start.lerp(local_end, t) + offset)
 	_rope.points = points
 	_rope_glow.points = points
+	_rope_bloom.points = points
 	_dart.global_position = _dart_world_position
 	_dart_glow.global_position = _dart_world_position
 
@@ -145,6 +147,7 @@ func _update_visuals() -> void:
 	var rope_glow_color: Color = _rope_glow.default_color
 	rope_glow_color = Color(1.0, 0.24, 0.03, lerpf(0.48, 0.78, pulse))
 	_rope_glow.default_color = rope_glow_color
+	_rope_bloom.default_color = Color(1.0, 0.18, 0.01, lerpf(0.05, 0.12, pulse))
 	_dart_glow.modulate = Color(
 		dart_glow_color.r,
 		dart_glow_color.g,

@@ -23,6 +23,27 @@ var _mati_phase := 0.0
 var _gameplay_hud: CotcGameplayHud
 var _mati_targets: Dictionary = {}
 var _mati_tick_phase: float = 0.0
+var _mati_hylas_process_mode: int = Node.PROCESS_MODE_INHERIT
+var _mati_water_material: ShaderMaterial
+var _mati_visual_time: float = 0.0
+
+
+func _ready() -> void:
+	super._ready()
+	if not _shield_audio.finished.is_connected(_on_shield_audio_finished):
+		_shield_audio.finished.connect(_on_shield_audio_finished)
+	if not _invisibility_audio.finished.is_connected(_on_invisibility_audio_finished):
+		_invisibility_audio.finished.connect(_on_invisibility_audio_finished)
+
+
+func _on_shield_audio_finished() -> void:
+	if _purple_shield_remaining > 0.0:
+		_shield_audio.play()
+
+
+func _on_invisibility_audio_finished() -> void:
+	if _camouflage_remaining > 0.0:
+		_invisibility_audio.play()
 
 
 func configure(context: Node, level: CotcSeaOfPillars, hylas: CotcHylas) -> void:
@@ -33,7 +54,7 @@ func configure(context: Node, level: CotcSeaOfPillars, hylas: CotcHylas) -> void
 	_gameplay_hud = null
 	if context != null:
 		_gameplay_hud = context.get_node_or_null("GameplayUI/GameplayHud") as CotcGameplayHud
-		_status_countdown = context.get_node_or_null("%ItemStatusCountdown") as CotcStatusCountdownOverlay
+		_status_countdown = _gameplay_hud.get_node_or_null("ItemStatusCountdown") as CotcStatusCountdownOverlay if is_instance_valid(_gameplay_hud) else null
 	if is_instance_valid(_connected_level) and not _connected_level.greatfin_pickup_requested.is_connected(_on_greatfin_pickup_requested):
 		_connected_level.greatfin_pickup_requested.connect(_on_greatfin_pickup_requested)
 	_refresh_status_countdown()
@@ -102,18 +123,34 @@ func _update_mati(delta: float) -> void:
 
 func _capture_mati_targets() -> void:
 	_mati_targets.clear()
-	for group_name: StringName in [&"enemy", &"hazard", &"current", &"moving_object", &"conch_target"]:
-		for candidate: Node in get_tree().get_nodes_in_group(group_name):
-			if not is_instance_valid(candidate) or candidate == _hylas or is_ancestor_of(candidate):
+	_mati_tick_phase = 0.0
+	_mati_visual_time = float(Time.get_ticks_msec()) / 1000.0
+	_mati_water_material = null
+	if is_instance_valid(_hylas):
+		_mati_hylas_process_mode = _hylas.process_mode
+		_hylas.process_mode = Node.PROCESS_MODE_ALWAYS
+	if is_instance_valid(_context):
+		for child: Node in _context.get_children():
+			if child == self or child.name == &"GameplayUI" or child.name == &"ItemEffectController":
 				continue
-			var instance_id: int = candidate.get_instance_id()
-			if _mati_targets.has(instance_id):
-				continue
-			_mati_targets[instance_id] = {"node": candidate, "process_mode": candidate.process_mode}
+			_mati_targets[child.get_instance_id()] = {
+				"node": child,
+				"process_mode": child.process_mode,
+			}
+		var water_mottle: CanvasItem = _context.get_node_or_null(
+			"SeaEnvironment/AtmosphereEffects/WaterMottle"
+		) as CanvasItem
+		if is_instance_valid(water_mottle) and water_mottle.material is ShaderMaterial:
+			_mati_water_material = water_mottle.material as ShaderMaterial
+			_mati_water_material.set_shader_parameter(&"mati_manual_time", _mati_visual_time)
+			_mati_water_material.set_shader_parameter(&"mati_use_manual_time", true)
 
 
 func _apply_mati_world_activity(activity: float, delta: float) -> void:
 	_mati_tick_phase = fmod(_mati_tick_phase + maxf(delta, 0.0) * 12.0, 1.0)
+	_mati_visual_time += maxf(delta, 0.0) * activity
+	if is_instance_valid(_mati_water_material):
+		_mati_water_material.set_shader_parameter(&"mati_manual_time", _mati_visual_time)
 	var allow_tick: bool = activity >= 0.999 or _mati_tick_phase < activity
 	for entry_value: Variant in _mati_targets.values():
 		if not (entry_value is Dictionary):
@@ -135,6 +172,11 @@ func _finish_mati() -> void:
 		if is_instance_valid(node):
 			node.process_mode = int(entry.get("process_mode", Node.PROCESS_MODE_INHERIT))
 	_mati_targets.clear()
+	if is_instance_valid(_hylas):
+		_hylas.process_mode = _mati_hylas_process_mode
+	if is_instance_valid(_mati_water_material):
+		_mati_water_material.set_shader_parameter(&"mati_use_manual_time", false)
+	_mati_water_material = null
 	_mati_active = false
 	_mati_elapsed = 0.0
 	_set_item_b_timed_active(false)
@@ -148,6 +190,8 @@ func _set_item_b_timed_active(is_active: bool) -> void:
 
 
 func clear_active_effects() -> void:
+	_shield_audio.stop()
+	_invisibility_audio.stop()
 	_ink_cloud_status.clear()
 	if _mati_active: _finish_mati()
 	super.clear_active_effects()
@@ -185,6 +229,16 @@ func _activate_camouflage() -> bool:
 		_invisibility_audio.play()
 		_refresh_status_countdown()
 	return activated
+
+
+func _stop_purple_shield() -> void:
+	_shield_audio.stop()
+	super._stop_purple_shield()
+
+
+func _stop_camouflage() -> void:
+	_invisibility_audio.stop()
+	super._stop_camouflage()
 
 
 func _on_ink_blob_impacted(impact_position: Vector2) -> void:

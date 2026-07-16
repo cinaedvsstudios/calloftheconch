@@ -42,6 +42,8 @@ const HUD_DROP_SHADOW_SHADER: Shader = preload(
 @export var item_b_quantity_rect: Rect2 = Rect2(298.0, 126.0, 34.0, 27.0)
 @export var item_b_empty_rect: Rect2 = Rect2(255.0, 75.0, 73.0, 80.0)
 @export var location_value_rect: Rect2 = Rect2(76.0, 167.0, 361.0, 37.0)
+@export var tyche_icon_rect: Rect2 = Rect2(74.0, 78.0, 28.0, 28.0)
+@export var tyche_value_rect: Rect2 = Rect2(102.0, 78.0, 62.0, 25.0)
 
 @export_category("HUD Text Style")
 @export_range(8, 72, 1) var onos_font_size: int = 23
@@ -333,7 +335,7 @@ func _create_tyche_display() -> void:
 	_tyche_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_tyche_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_tyche_icon)
-	_apply_control_rect(_tyche_icon, Rect2(onos_value_rect.position + Vector2(-34.0, -10.0), Vector2(28.0, 28.0)))
+	_apply_control_rect(_tyche_icon, tyche_icon_rect)
 	_tyche_value = Label.new()
 	_tyche_value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_tyche_value.add_theme_font_size_override(&"font_size", 14)
@@ -341,7 +343,7 @@ func _create_tyche_display() -> void:
 	_tyche_value.add_theme_color_override(&"font_outline_color", onos_outline_color)
 	_tyche_value.add_theme_constant_override(&"outline_size", 3)
 	add_child(_tyche_value)
-	_apply_control_rect(_tyche_value, Rect2(onos_value_rect.position + Vector2(-5.0, -8.0), Vector2(62.0, 25.0)))
+	_apply_control_rect(_tyche_value, tyche_value_rect)
 	_sync_tyche_display()
 
 func _sync_tyche_display() -> void:

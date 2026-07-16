@@ -61,7 +61,7 @@ func _apply_profile(profile: Dictionary) -> void:
 func _reset_pulse_state() -> void:
 	super._reset_pulse_state()
 	for pulse_sprite: Sprite2D in _pulse_sprites:
-		pulse_sprite.modulate = Color(_active_pulse_tint.r, _active_pulse_tint.g, _active_pulse_tint.b, 0.0)
+		pulse_sprite.modulate = Color(1.0, 1.0, 1.0, 0.0)
 
 func _play_origin_flash() -> void:
 	_origin_flash.self_modulate = Color(_active_flash_tint.r, _active_flash_tint.g, _active_flash_tint.b, _default_flash_modulate.a)

@@ -9,7 +9,7 @@ uniform float brightness : hint_range(0.0, 8.0, 0.05) = 1.35;
 uniform vec4 tint_color : source_color = vec4(1.0);
 
 void fragment() {
-	vec4 source = texture(TEXTURE, UV) * COLOR;
+	vec4 source = texture(TEXTURE, UV);
 	float light = max(source.r, max(source.g, source.b));
 	float texture_mask = source.a * smoothstep(cut_off, cut_off + fade_width, light);
 
@@ -24,5 +24,5 @@ void fragment() {
 	);
 
 	float final_mask = texture_mask * arc_mask;
-	COLOR = vec4(tint_color.rgb * light * brightness, final_mask * tint_color.a);
+	COLOR = vec4(tint_color.rgb * light * brightness, final_mask * tint_color.a * COLOR.a);
 }

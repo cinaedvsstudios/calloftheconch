@@ -11,14 +11,17 @@ uniform float evolution_speed : hint_range(0.0, 2.0, 0.001) = 0.5;
 uniform float threshold : hint_range(0.0, 1.0, 0.001) = 0.54;
 uniform float softness : hint_range(0.01, 0.50, 0.001) = 0.4;
 uniform float depth_strength : hint_range(0.0, 1.0, 0.001) = 0.16;
+uniform bool mati_use_manual_time = false;
+uniform float mati_manual_time = 0.0;
 
 void fragment() {
-	vec2 cloud_uv_a = UV * tile_count + flow_a * TIME;
-	vec2 cloud_uv_b = UV * tile_count * 0.73 + vec2(0.317, 0.683) + flow_b * TIME;
+	float animation_time = mati_use_manual_time ? mati_manual_time : TIME;
+	vec2 cloud_uv_a = UV * tile_count + flow_a * animation_time;
+	vec2 cloud_uv_b = UV * tile_count * 0.73 + vec2(0.317, 0.683) + flow_b * animation_time;
 
 	float cloud_a = texture(cloud_noise, cloud_uv_a).r;
 	float cloud_b = texture(cloud_noise, cloud_uv_b).r;
-	float blend_amount = 0.36 + sin(TIME * evolution_speed) * 0.14;
+	float blend_amount = 0.36 + sin(animation_time * evolution_speed) * 0.14;
 	float cloud_value = mix(cloud_a, cloud_b, blend_amount);
 	float cloud_mask = smoothstep(threshold - softness, threshold + softness, cloud_value);
 	float depth_fade = mix(1.0 - depth_strength, 1.0, UV.y);
