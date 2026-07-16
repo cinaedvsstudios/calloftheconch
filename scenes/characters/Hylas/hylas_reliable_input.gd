@@ -16,6 +16,7 @@ const DIE_05: Texture2D = preload("res://assets/characters/die05.webp")
 const DIE_06: Texture2D = preload("res://assets/characters/die06.webp")
 const DIE_07: Texture2D = preload("res://assets/characters/die07.webp")
 const DIE_08: Texture2D = preload("res://assets/characters/die08.webp")
+const DIE_09: Texture2D = preload("res://assets/characters/die09.webp")
 
 signal interaction_requested
 signal interaction_availability_changed(is_available: bool)
@@ -250,6 +251,8 @@ func _configure_death_animations() -> void:
 
 	sprite_frames.add_animation(DEATH_DRIFT_ANIMATION)
 	sprite_frames.add_frame(DEATH_DRIFT_ANIMATION, DIE_07)
+	sprite_frames.add_frame(DEATH_DRIFT_ANIMATION, DIE_08)
+	sprite_frames.add_frame(DEATH_DRIFT_ANIMATION, DIE_09)
 	sprite_frames.add_frame(DEATH_DRIFT_ANIMATION, DIE_08)
 	sprite_frames.set_animation_speed(DEATH_DRIFT_ANIMATION, death_drift_fps)
 	sprite_frames.set_animation_loop(DEATH_DRIFT_ANIMATION, true)

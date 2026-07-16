@@ -34,12 +34,9 @@ func show_item_reward_feedback(reward_kind: StringName) -> void:
 		_spawn_pickup_feedback(reward_kind)
 
 
-func _on_damage_requested(hylas_body: Node, amount: int) -> void:
-	if (
-			is_instance_valid(_hylas)
-			and (hylas_body == _hylas or hylas_body.is_in_group(&"hylas"))
-			and _hylas.has_method(&"is_purple_shield_active")
-			and bool(_hylas.call(&"is_purple_shield_active"))
-		):
-		return
-	super._on_damage_requested(hylas_body, amount)
+func _on_damage_requested(
+		hylas_body: Node,
+		amount: int,
+		source: Node = null,
+	) -> void:
+	super._on_damage_requested(hylas_body, amount, source)

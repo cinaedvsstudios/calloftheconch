@@ -17,10 +17,12 @@ var _utility_item_pressed_this_frame: bool = false
 var _item_surge_remaining: float = 0.0
 var _purple_shield_active: bool = false
 var _camouflage_active: bool = false
+var _normal_collision_layer: int = 1
 
 
 func _ready() -> void:
 	super._ready()
+	_normal_collision_layer = collision_layer
 	_item_visuals.set_equipped_item_a(_equipped_item_a)
 
 
@@ -104,12 +106,17 @@ func is_purple_shield_active() -> bool:
 
 func set_camouflage_active(is_active: bool) -> void:
 	_camouflage_active = is_active
+	collision_layer = 0 if is_active else _normal_collision_layer
 	if is_instance_valid(_item_visuals):
 		_item_visuals.set_camouflage_active(is_active)
 
 
 func is_camouflage_active() -> bool:
 	return _camouflage_active
+
+
+func is_contact_immune() -> bool:
+	return _purple_shield_active or _camouflage_active
 
 
 func set_surge_glow_active(is_active: bool) -> void:
@@ -121,6 +128,7 @@ func clear_item_effect_state() -> void:
 	_item_surge_remaining = 0.0
 	_purple_shield_active = false
 	_camouflage_active = false
+	collision_layer = _normal_collision_layer
 	if is_instance_valid(_item_visuals):
 		_item_visuals.clear_item_visuals()
 

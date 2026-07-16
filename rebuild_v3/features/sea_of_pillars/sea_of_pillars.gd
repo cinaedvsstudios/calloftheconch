@@ -37,6 +37,10 @@ signal city_entry_requested
 @export_range(0.0, 10.0, 0.1) var damage_invulnerability_seconds: float = 4.0
 @export_range(0, 100, 1) var duplicate_crown_sea_grapes_onos: int = 5
 
+@export_category("Purple Shield Barrier")
+@export_range(50.0, 400.0, 5.0) var purple_shield_barrier_radius: float = 155.0
+@export_range(50.0, 2000.0, 10.0) var purple_shield_push_speed: float = 620.0
+
 @export_category("Bubble Overlay")
 @export_range(0.001, 0.1, 0.001) var bubble_waterline_fade: float = 0.012
 @export_range(0.1, 10.0, 0.1) var bubble_waterline_update_interval: float = 2.0
@@ -92,6 +96,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _active:
+		_update_purple_shield_barrier(delta)
 	_bubble_waterline_update_elapsed += delta
 	if _bubble_waterline_update_elapsed < bubble_waterline_update_interval:
 		return
@@ -308,9 +314,9 @@ func _on_spawn_checkpoint_activated(level_id: StringName, spawn_point_id: String
 
 
 func _connect_runtime_state_sources() -> void:
-	var damage_callback: Callable = Callable(self, "_on_damage_requested")
-	var shark_callback: Callable = Callable(self, "_on_shark_contacted")
 	for node: Node in find_children("*", "", true, false):
+		var damage_callback: Callable = Callable(self, "_on_damage_requested").bind(node)
+		var shark_callback: Callable = Callable(self, "_on_shark_contacted").bind(node)
 		if node.has_signal(&"damage_requested") and not node.is_connected(&"damage_requested", damage_callback):
 			node.connect(&"damage_requested", damage_callback)
 		if node.has_signal(&"hylas_contacted") and not node.is_connected(&"hylas_contacted", shark_callback):
@@ -341,10 +347,59 @@ func _apply_persistent_world_state() -> void:
 			node.call(&"set_persistently_collected", _game_state.is_pickup_collected(persistent_id))
 
 
-func _on_damage_requested(hylas_body: Node, amount: int) -> void:
+func _is_hylas_contact_immune() -> bool:
+	return (
+		is_instance_valid(_hylas)
+		and _hylas.has_method(&"is_contact_immune")
+		and bool(_hylas.call(&"is_contact_immune"))
+	)
+
+
+func _is_purple_shield_active() -> bool:
+	return (
+		is_instance_valid(_hylas)
+		and _hylas.has_method(&"is_purple_shield_active")
+		and bool(_hylas.call(&"is_purple_shield_active"))
+	)
+
+
+func _update_purple_shield_barrier(delta: float) -> void:
+	if not _is_purple_shield_active():
+		return
+	for candidate: Node in get_tree().get_nodes_in_group(&"enemy"):
+		if not is_instance_valid(candidate) or not is_ancestor_of(candidate):
+			continue
+		if candidate.is_in_group(&"hazard"):
+			continue
+		var enemy: Node2D = candidate as Node2D
+		if enemy == null:
+			continue
+		var offset: Vector2 = _resolve_shield_contact_anchor(enemy) - _hylas.global_position
+		var distance: float = offset.length()
+		if distance >= purple_shield_barrier_radius:
+			continue
+		var direction: Vector2 = offset.normalized() if distance > 0.001 else Vector2.RIGHT
+		var correction: float = minf(
+			purple_shield_barrier_radius - distance,
+			purple_shield_push_speed * maxf(delta, 0.0),
+		)
+		enemy.global_position += direction * correction
+
+
+func _resolve_shield_contact_anchor(enemy: Node2D) -> Vector2:
+	for child_path: NodePath in [^"HurtArea", ^"ContactShape", ^"AnimatedSprite"]:
+		var anchor: Node2D = enemy.get_node_or_null(child_path) as Node2D
+		if is_instance_valid(anchor):
+			return anchor.global_position
+	return enemy.global_position
+
+
+func _on_damage_requested(hylas_body: Node, amount: int, _source: Node = null) -> void:
 	if not _active or _game_state == null or hylas_body == null or _respawn_pending:
 		return
 	if hylas_body != _hylas and not hylas_body.is_in_group(&"hylas"):
+		return
+	if _is_hylas_contact_immune():
 		return
 	var now_msec: int = Time.get_ticks_msec()
 	var immunity_msec: int = roundi(maxf(0.0, damage_invulnerability_seconds) * 1000.0)
@@ -359,8 +414,8 @@ func _on_damage_requested(hylas_body: Node, amount: int) -> void:
 		_hylas.call(&"play_fin_loss_sound")
 
 
-func _on_shark_contacted(hylas_body: Node2D) -> void:
-	_on_damage_requested(hylas_body, 1)
+func _on_shark_contacted(hylas_body: Node2D, source: Node = null) -> void:
+	_on_damage_requested(hylas_body, 1, source)
 
 
 func _on_food_pickup_collected(

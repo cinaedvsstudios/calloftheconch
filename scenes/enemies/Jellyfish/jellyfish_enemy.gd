@@ -267,6 +267,11 @@ func _set_alerted(is_alerted: bool, force: bool = false) -> void:
 func _is_hylas_in_activation_range() -> bool:
 	if not is_instance_valid(_hylas):
 		return false
+	if (
+			_hylas.has_method(&"is_camouflage_active")
+			and bool(_hylas.call(&"is_camouflage_active"))
+		):
+		return false
 	return global_position.distance_to(_hylas.global_position) <= _get_activation_distance()
 
 
@@ -339,7 +344,13 @@ func _damage_touching_hylas_if_needed() -> void:
 	if now - _last_damage_time < damage_cooldown:
 		return
 	for body: Node2D in _hurt_area.get_overlapping_bodies():
-		if body.is_in_group(&"hylas"):
+		if (
+				body.is_in_group(&"hylas")
+				and not (
+					body.has_method(&"is_camouflage_active")
+					and bool(body.call(&"is_camouflage_active"))
+				)
+			):
 			_last_damage_time = now
 			damage_requested.emit(body, damage_amount)
 			return
