@@ -16,7 +16,6 @@ var _connected_level: CotcSeaOfPillars
 var _connected_game_state: CotcGameState
 var _morph_tween: Tween
 var _status_countdown: CotcStatusCountdownOverlay
-var _ink_cloud_status: Dictionary = {}
 var _mati_active := false
 var _mati_elapsed := 0.0
 var _mati_phase := 0.0
@@ -25,6 +24,7 @@ var _mati_targets: Dictionary = {}
 var _mati_tick_phase: float = 0.0
 var _mati_hylas_process_mode: int = Node.PROCESS_MODE_INHERIT
 var _mati_water_material: ShaderMaterial
+var _mati_waterline_material: ShaderMaterial
 var _mati_visual_time: float = 0.0
 
 
@@ -126,6 +126,7 @@ func _capture_mati_targets() -> void:
 	_mati_tick_phase = 0.0
 	_mati_visual_time = float(Time.get_ticks_msec()) / 1000.0
 	_mati_water_material = null
+	_mati_waterline_material = null
 	if is_instance_valid(_hylas):
 		_mati_hylas_process_mode = _hylas.process_mode
 		_hylas.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -144,6 +145,12 @@ func _capture_mati_targets() -> void:
 			_mati_water_material = water_mottle.material as ShaderMaterial
 			_mati_water_material.set_shader_parameter(&"mati_manual_time", _mati_visual_time)
 			_mati_water_material.set_shader_parameter(&"mati_use_manual_time", true)
+	if is_instance_valid(_connected_level):
+		var waterlines: CanvasItem = _connected_level.get_node_or_null("ParallaxLayer/waterlines") as CanvasItem
+		if is_instance_valid(waterlines) and waterlines.material is ShaderMaterial:
+			_mati_waterline_material = waterlines.material as ShaderMaterial
+			_mati_waterline_material.set_shader_parameter(&"mati_manual_time", _mati_visual_time)
+			_mati_waterline_material.set_shader_parameter(&"mati_use_manual_time", true)
 
 
 func _apply_mati_world_activity(activity: float, delta: float) -> void:
@@ -151,6 +158,8 @@ func _apply_mati_world_activity(activity: float, delta: float) -> void:
 	_mati_visual_time += maxf(delta, 0.0) * activity
 	if is_instance_valid(_mati_water_material):
 		_mati_water_material.set_shader_parameter(&"mati_manual_time", _mati_visual_time)
+	if is_instance_valid(_mati_waterline_material):
+		_mati_waterline_material.set_shader_parameter(&"mati_manual_time", _mati_visual_time)
 	var allow_tick: bool = activity >= 0.999 or _mati_tick_phase < activity
 	for entry_value: Variant in _mati_targets.values():
 		if not (entry_value is Dictionary):
@@ -177,6 +186,9 @@ func _finish_mati() -> void:
 	if is_instance_valid(_mati_water_material):
 		_mati_water_material.set_shader_parameter(&"mati_use_manual_time", false)
 	_mati_water_material = null
+	if is_instance_valid(_mati_waterline_material):
+		_mati_waterline_material.set_shader_parameter(&"mati_use_manual_time", false)
+	_mati_waterline_material = null
 	_mati_active = false
 	_mati_elapsed = 0.0
 	_set_item_b_timed_active(false)
@@ -192,7 +204,6 @@ func _set_item_b_timed_active(is_active: bool) -> void:
 func clear_active_effects() -> void:
 	_shield_audio.stop()
 	_invisibility_audio.stop()
-	_ink_cloud_status.clear()
 	if _mati_active: _finish_mati()
 	super.clear_active_effects()
 	if is_instance_valid(_status_countdown):
@@ -246,26 +257,7 @@ func _on_ink_blob_impacted(impact_position: Vector2) -> void:
 	if cloud == null:
 		return
 	_clouds.add_child(cloud)
-	var cloud_id: int = cloud.get_instance_id()
-	_ink_cloud_status[cloud_id] = Vector2(cloud.active_seconds, cloud.active_seconds)
-	cloud.time_remaining_changed.connect(_on_ink_cloud_time_changed.bind(cloud_id))
-	cloud.cloud_finished.connect(_on_ink_cloud_finished.bind(cloud_id))
 	cloud.play_cloud(impact_position)
-	_refresh_status_countdown()
-
-
-func _on_ink_cloud_time_changed(
-		remaining_seconds: float,
-		duration_seconds: float,
-		cloud_id: int,
-	) -> void:
-	_ink_cloud_status[cloud_id] = Vector2(remaining_seconds, duration_seconds)
-	_refresh_status_countdown()
-
-
-func _on_ink_cloud_finished(cloud_id: int) -> void:
-	_ink_cloud_status.erase(cloud_id)
-	_refresh_status_countdown()
 
 
 func _refresh_status_countdown() -> void:
@@ -290,20 +282,6 @@ func _refresh_status_countdown() -> void:
 			_camouflage_remaining,
 			camouflage_seconds,
 		)
-		return
-
-	var longest_remaining: float = 0.0
-	var longest_duration: float = 0.0
-	for status_value: Variant in _ink_cloud_status.values():
-		if not (status_value is Vector2):
-			continue
-		var status: Vector2 = status_value
-		if status.x > longest_remaining:
-			longest_remaining = status.x
-			longest_duration = status.y
-	if longest_remaining > 0.0:
-		_set_item_b_timed_active(true)
-		_status_countdown.set_countdown(ITEM_ARGONAUTA, longest_remaining, longest_duration)
 		return
 	_status_countdown.clear_countdown()
 	_set_item_b_timed_active(false)

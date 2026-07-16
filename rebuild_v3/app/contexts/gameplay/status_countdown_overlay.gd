@@ -24,7 +24,6 @@ const MATI_COLUMNS: int = 2
 const MATI_ROWS: int = 2
 const MATI_FRAME_COUNT: int = 4
 
-@onready var _shadow: TextureRect = %Shadow
 @onready var _hourglass: TextureRect = %Hourglass
 var _crossfade: TextureRect
 var _active_item_id: StringName = &""
@@ -50,7 +49,6 @@ func set_countdown(item_id: StringName, remaining_seconds: float, duration_secon
 		return
 	_mati_mode = false
 	_crossfade.hide()
-	_shadow.show()
 	_hourglass.modulate = Color.WHITE
 	_active_item_id = item_id
 	_remaining_seconds = clampf(remaining_seconds, 0.0, duration_seconds)
@@ -60,7 +58,6 @@ func set_countdown(item_id: StringName, remaining_seconds: float, duration_secon
 	if next_frame_index != _frame_index:
 		_frame_index = next_frame_index
 		var frame_texture: Texture2D = FRAME_TEXTURES[_frame_index]
-		_shadow.texture = frame_texture
 		_hourglass.texture = frame_texture
 	show()
 
@@ -69,7 +66,6 @@ func set_mati_progress(elapsed_seconds: float) -> void:
 	_active_item_id = &"mati_amulet"
 	_duration_seconds = 30.0
 	_remaining_seconds = maxf(0.0, 30.0 - elapsed_seconds)
-	_shadow.hide()
 	_crossfade.show()
 	var sequence_frame: float
 	if elapsed_seconds < 5.0:
@@ -106,7 +102,6 @@ func clear_countdown() -> void:
 	if is_instance_valid(_crossfade):
 		_crossfade.hide()
 	_hourglass.modulate = Color.WHITE
-	_shadow.show()
 	hide()
 
 func is_counting_down() -> bool:

@@ -52,6 +52,7 @@ var _active: bool = false
 var _purple_shield_remaining: float = 0.0
 var _surge_remaining: float = 0.0
 var _camouflage_remaining: float = 0.0
+var _active_conus_tether: CotcConusTetherProjectile
 
 
 func _ready() -> void:
@@ -150,6 +151,7 @@ func clear_active_effects() -> void:
 	if is_instance_valid(_hylas):
 		if _hylas.has_method(&"clear_item_effect_state"):
 			_hylas.call(&"clear_item_effect_state")
+	_active_conus_tether = null
 	for child: Node in _projectiles.get_children():
 		child.queue_free()
 	for child: Node in _clouds.get_children():
@@ -192,6 +194,10 @@ func _activate_profiled_conch(
 
 
 func _activate_conus_dart(origin: Vector2, direction: Vector2) -> bool:
+	if is_instance_valid(_active_conus_tether):
+		_active_conus_tether.retract()
+		_active_conus_tether = null
+		return true
 	if not _hylas.has_method(&"activate_item_a_pose"):
 		return false
 	if not bool(_hylas.call(&"activate_item_a_pose", direction)):
@@ -201,8 +207,18 @@ func _activate_conus_dart(origin: Vector2, direction: Vector2) -> bool:
 	if projectile == null:
 		return false
 	_projectiles.add_child(projectile)
+	_active_conus_tether = projectile
+	projectile.tether_finished.connect(
+		_on_conus_tether_finished.bind(projectile),
+		Object.CONNECT_ONE_SHOT,
+	)
 	projectile.launch(origin + resolved_direction * 92.0, resolved_direction, _hylas)
 	return true
+
+
+func _on_conus_tether_finished(projectile: CotcConusTetherProjectile) -> void:
+	if _active_conus_tether == projectile:
+		_active_conus_tether = null
 
 
 func _activate_purple_shield() -> bool:
