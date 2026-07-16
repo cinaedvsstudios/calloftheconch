@@ -30,16 +30,32 @@ jobs:
           script = step['run']
           marker = "rope_controller = Path('rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd').read_text()"
           if marker not in script:
-              raise SystemExit('Expected Conus safety marker missing from branch workflow')
-          script = script.split(marker, 1)[0] + '''p = Path('rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd')
+              Path('/tmp/structural_patch_error.txt').write_text('Expected Conus safety marker missing from branch workflow\n')
+          else:
+              script = script.split(marker, 1)[0] + '''p = Path('rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.gd')
           rope_controller = p.read_text()
           rope_controller = rope_controller.replace('@onready var _rope_glow: Line2D = %RopeGlow', '@onready var _rope_bloom: Line2D = $RopeBloom\\n@onready var _rope_glow: Line2D = %RopeGlow')
           rope_controller = rope_controller.replace('\\t_rope.points = points\\n\\t_rope_glow.points = points', '\\t_rope.points = points\\n\\t_rope_glow.points = points\\n\\t_rope_bloom.points = points')
           rope_controller = rope_controller.replace('\\t_rope_glow.default_color = rope_glow_color', '\\t_rope_glow.default_color = rope_glow_color\\n\\t_rope_bloom.default_color = Color(1.0, 0.18, 0.01, lerpf(0.05, 0.12, pulse))')
           p.write_text(rope_controller)
           '''
-          subprocess.run(['bash', '-lc', script], check=True)
+              result = subprocess.run(['bash', '-lc', script], text=True, capture_output=True)
+              if result.returncode != 0:
+                  Path('/tmp/structural_patch_error.txt').write_text(
+                      f'returncode={result.returncode}\n=== stdout ===\n{result.stdout}\n=== stderr ===\n{result.stderr}\n'
+                  )
           PY
+          if [ -f /tmp/structural_patch_error.txt ]; then
+            cat /tmp/structural_patch_error.txt
+            git reset --hard HEAD
+            cp /tmp/structural_patch_error.txt tmp_structural_patch_error.txt
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git add tmp_structural_patch_error.txt
+            git commit -m "Record structural item patch failure"
+            git push origin HEAD:work/structural-item-fixes-2026-07-16
+            exit 1
+          fi
       - name: Validate Godot project
         shell: bash
         run: |
@@ -57,7 +73,7 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           rm -f .github/workflows/tmp-structural-item-fixes.yml
-          rm -f tmp_structural_item_trigger.txt
+          rm -f tmp_structural_item_trigger.txt tmp_structural_patch_error.txt
           git add -A
           git diff --cached --check
           git commit -m "Fix live HUD timers, pulse colour, audio loops and Mati world freeze"
