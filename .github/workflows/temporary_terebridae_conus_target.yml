@@ -1,0 +1,110 @@
+name: Temporary Terebridae and Conus target validation
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    if: github.event.pull_request.head.ref == 'work/terebridae-conus-alignment-fix-2026-07-16-v2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/terebridae-conus-alignment-fix-2026-07-16-v2
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+
+      - name: Apply corrected production patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git show origin/main:.github/workflows/temporary_terebridae_conus_fix.yml > /tmp/current_driver.yml
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path('/tmp/current_driver.yml').read_text()
+          marker = "          python3 - <<'PY'\n"
+          start = text.index(marker) + len(marker)
+          end = text.index("\n          PY", start)
+          block = text[start:end]
+          lines = []
+          for line in block.splitlines():
+              lines.append(line[10:] if line.startswith('          ') else line)
+          Path('/tmp/apply_corrected_fix.py').write_text('\n'.join(lines) + '\n')
+          PY
+          python3 /tmp/apply_corrected_fix.py
+
+      - name: Verify intended direct changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q '"duration": 5.0' rebuild_v3/app/contexts/gameplay/item_effect_controller.gd
+          grep -q '_conus_climb_tether.call(&"retract")' scenes/characters/Hylas/hylas_equipment_input.gd
+          grep -q 'normal_conus_climb_sprite_perpendicular_offset: float = -24.0' scenes/characters/Hylas/hylas_equipment_input.gd
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path('scenes/characters/Hylas/hylas_equipment_input.gd').read_text()
+          input_start = text.index('func _input(event: InputEvent) -> void:')
+          input_end = text.index('\n\nfunc _physics_process', input_start)
+          rope_start = text.index('func get_conus_rope_origin() -> Vector2:')
+          rope_end = text.index('\n\nfunc set_purple_shield_active', rope_start)
+          assert '_conus_climb_tether.call(&"retract")' in text[input_start:input_end]
+          assert 'event.is_action_pressed' not in text[rope_start:rope_end]
+          PY
+
+      - name: Godot import validation
+        shell: bash
+        run: |
+          set +e
+          godot --headless --editor --path . --quit > /tmp/godot-import.log 2>&1
+          code=$?
+          set -e
+          if grep -E 'Parse Error|Failed loading resource|ERROR: Failed to load script' /tmp/godot-import.log; then
+            tail -n 140 /tmp/godot-import.log
+            exit 1
+          fi
+          if [ "$code" -ne 0 ]; then
+            tail -n 140 /tmp/godot-import.log
+            exit "$code"
+          fi
+
+      - name: Godot runtime smoke test
+        shell: bash
+        run: |
+          set +e
+          timeout 20s godot --headless --path . --quit-after 5 > /tmp/godot-runtime.log 2>&1
+          code=$?
+          set -e
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log; then
+            tail -n 140 /tmp/godot-runtime.log
+            exit 1
+          fi
+          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
+            tail -n 140 /tmp/godot-runtime.log
+            exit "$code"
+          fi
+
+      - name: Commit validated production changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/terebridae_conus_fix_trigger.txt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add rebuild_v3/app/contexts/gameplay/item_effect_controller.gd \
+                  scenes/characters/Hylas/hylas_equipment_input.gd
+          git add -u .github/terebridae_conus_fix_trigger.txt
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Fix Terebridae duration and Conus retraction alignment"
+          git push origin HEAD:work/terebridae-conus-alignment-fix-2026-07-16-v2
