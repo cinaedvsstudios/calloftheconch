@@ -46,6 +46,10 @@
 [ext_resource type="Texture2D" uid="uid://d078olauu8nfb" path="res://assets/characters/hylas-crawl_02.webp" id="44_crawl_02"]
 [ext_resource type="Texture2D" uid="uid://bqo5401phuado" path="res://assets/characters/hylas-crawl_03.webp" id="45_crawl_03"]
 [ext_resource type="Texture2D" uid="uid://bdfl7epsph2wo" path="res://assets/characters/hylas-crawl_04.webp" id="46_crawl_04"]
+[ext_resource type="Texture2D" path="res://assets/characters/hylas-climb01.webp" id="47_climb_01"]
+[ext_resource type="Texture2D" path="res://assets/characters/hylas-climb02.webp" id="48_climb_02"]
+[ext_resource type="Texture2D" path="res://assets/characters/hylas-climb03.webp" id="49_climb_03"]
+[ext_resource type="Texture2D" path="res://assets/characters/hylas-climb04.webp" id="50_climb_04"]
 
 [resource]
 animations = [{
@@ -91,6 +95,23 @@ animations = [{
 "loop": 0,
 "name": &"conch",
 "speed": 9.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("47_climb_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_climb_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_climb_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("50_climb_04")
+}],
+"loop": 1,
+"name": &"climb",
+"speed": 7.0
 }, {
 "frames": [{
 "duration": 1.0,

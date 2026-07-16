@@ -1,3 +1,0 @@
-Trigger direct Conus wall-tether climb implementation and Godot validation.
-Retry using pull-request validation path.
-Runtime validation refined to inspect actual Godot errors.
