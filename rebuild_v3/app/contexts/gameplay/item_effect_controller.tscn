@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/crown_sea_grapes/greatfin_transform_effect.tscn" id="2_transform"]
@@ -8,6 +8,10 @@
 [ext_resource type="AudioStream" path="res://assets/audio/powerdown2.mp3" id="6_powerdown"]
 [ext_resource type="AudioStream" path="res://assets/audio/magic force field.mp3" id="7_shield_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/invisibility.mp3" id="8_invisibility"]
+[ext_resource type="AudioStream" path="res://assets/audio/conus.mp3" id="9_conus_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/Terebridae.mp3" id="10_terebridae_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/Mati01.mp3" id="11_mati_initial_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/Mati02.mp3" id="12_mati_duration_audio"]
 
 [node name="ItemEffectController" type="Node2D"]
 process_mode = 3
@@ -52,6 +56,28 @@ volume_db = -5.0
 unique_name_in_owner = true
 stream = ExtResource("8_invisibility")
 volume_db = -4.0
+
+[node name="ConusAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("9_conus_audio")
+volume_db = -4.0
+
+[node name="TerebridaeAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("10_terebridae_audio")
+volume_db = -4.0
+
+[node name="MatiInitialAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("11_mati_initial_audio")
+volume_db = -3.0
+
+[node name="MatiDurationAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("12_mati_duration_audio")
+volume_db = -5.0
 
 [node name="Projectiles" type="Node2D" parent="."]
 unique_name_in_owner = true
