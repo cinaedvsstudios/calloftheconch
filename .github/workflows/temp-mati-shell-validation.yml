@@ -1,0 +1,35 @@
+name: Temporary Mati and shell scale validation
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+      - name: Import project
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --editor --path . --quit 2>&1 | tee /tmp/godot-import.log
+          ! grep -E "SCRIPT ERROR|Parse Error|Failed to load|ERROR:" /tmp/godot-import.log
+      - name: Runtime smoke test
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 20s godot --headless --path . 2>&1 | tee /tmp/godot-run.log || test $? -eq 124
+          ! grep -E "SCRIPT ERROR|Parse Error|Failed to load|ERROR:" /tmp/godot-run.log
+      - name: Verify direct changes
+        shell: bash
+        run: |
+          grep -q 'const MATI_COLUMNS: int = 3' rebuild_v3/app/contexts/gameplay/status_countdown_overlay.gd
+          grep -q 'const MATI_ROWS: int = 2' rebuild_v3/app/contexts/gameplay/status_countdown_overlay.gd
+          grep -q 'const MATI_FRAME_COUNT: int = 6' rebuild_v3/app/contexts/gameplay/status_countdown_overlay.gd
+          grep -q 'const HELD_SHELL_VISUAL_SCALE: float = 0.504' scenes/characters/Hylas/hylas_item_visuals.gd
