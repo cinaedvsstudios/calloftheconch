@@ -32,59 +32,96 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
 
-          def replace_once(path: str, old: str, new: str) -> None:
+          def insert_after(path: str, needle: str, insertion: str, already: str) -> None:
               file_path = Path(path)
               text = file_path.read_text()
-              if new in text:
+              if already in text:
                   return
-              if old not in text:
-                  raise SystemExit(f"Missing expected block in {path}: {old[:180]!r}")
-              file_path.write_text(text.replace(old, new, 1))
+              index = text.find(needle)
+              if index < 0:
+                  raise SystemExit(f"Missing insertion anchor in {path}: {needle!r}")
+              index += len(needle)
+              file_path.write_text(text[:index] + insertion + text[index:])
+
+          def replace_between(path: str, start: str, end: str, replacement: str, already: str) -> None:
+              file_path = Path(path)
+              text = file_path.read_text()
+              if already in text:
+                  return
+              start_index = text.find(start)
+              if start_index < 0:
+                  raise SystemExit(f"Missing start anchor in {path}: {start!r}")
+              end_index = text.find(end, start_index + len(start))
+              if end_index < 0:
+                  raise SystemExit(f"Missing end anchor in {path}: {end!r}")
+              file_path.write_text(text[:start_index] + replacement + text[end_index:])
 
           controller = 'rebuild_v3/app/contexts/gameplay/item_effect_controller.gd'
-          replace_once(
+          insert_after(
               controller,
-              '\t\t\t"echo_alpha_decay": 0.06,\n\t\t\t"pulse_interval_scale": 0.48,\n',
-              '\t\t\t"echo_alpha_decay": 0.06,\n\t\t\t"pulse_interval_scale": 0.48,\n\t\t\t"duration": 5.0,\n',
+              '\t\t\t"pulse_interval_scale": 0.48,\n',
+              '\t\t\t"duration": 5.0,\n',
+              '"duration": 5.0',
           )
 
           visuals = 'scenes/characters/Hylas/hylas_item_visuals.gd'
-          replace_once(
+          insert_after(
               visuals,
-              '\telse:\n\t\t_animated_sprite.play(&"idle")\n\n\nfunc clear_item_visuals() -> void:\n',
-              '\telse:\n\t\t_animated_sprite.play(&"idle")\n\n\nfunc is_greatfin_active() -> bool:\n\treturn _greatfin_active\n\n\nfunc clear_item_visuals() -> void:\n',
+              '\telse:\n\t\t_animated_sprite.play(&"idle")\n',
+              '\n\nfunc is_greatfin_active() -> bool:\n\treturn _greatfin_active\n',
+              'func is_greatfin_active() -> bool:',
           )
 
           hylas = 'scenes/characters/Hylas/hylas_equipment_input.gd'
-          replace_once(
+          insert_after(
               hylas,
               '@export_range(0.0, 180.0, 1.0) var conus_rope_hand_offset: float = 62.0\n',
-              '@export_range(0.0, 180.0, 1.0) var conus_rope_hand_offset: float = 62.0\n@export_range(-120.0, 120.0, 1.0) var normal_conus_climb_sprite_perpendicular_offset: float = -24.0\n',
+              '@export_range(-120.0, 120.0, 1.0) var normal_conus_climb_sprite_perpendicular_offset: float = -24.0\n',
+              'normal_conus_climb_sprite_perpendicular_offset',
           )
-          replace_once(
+          insert_after(
               hylas,
-              'var _conus_climb_tether: Node\nvar _conus_climb_previous_facing_left: bool = false\n',
-              'var _conus_climb_tether: Node\nvar _conus_climb_previous_facing_left: bool = false\nvar _conus_climb_sprite_base_position: Vector2 = Vector2.ZERO\n',
+              'var _conus_climb_previous_facing_left: bool = false\n',
+              'var _conus_climb_sprite_base_position: Vector2 = Vector2.ZERO\n',
+              '_conus_climb_sprite_base_position',
           )
-          replace_once(
+          insert_after(
               hylas,
-              '\t_normal_collision_layer = collision_layer\n\t_item_visuals.set_equipped_item_a(_equipped_item_a)\n',
-              '\t_normal_collision_layer = collision_layer\n\t_conus_climb_sprite_base_position = _animated_sprite.position\n\t_item_visuals.set_equipped_item_a(_equipped_item_a)\n',
+              '\t_normal_collision_layer = collision_layer\n',
+              '\t_conus_climb_sprite_base_position = _animated_sprite.position\n',
+              '\t_conus_climb_sprite_base_position = _animated_sprite.position',
           )
-          replace_once(
+          insert_after(
               hylas,
-              '\t_special_velocity = Vector2.ZERO\n\t_set_visual_rotation(0.0)\n\tif _play_enabled and not _death_sequence_active:\n',
-              '\t_special_velocity = Vector2.ZERO\n\t_animated_sprite.position = _conus_climb_sprite_base_position\n\t_set_visual_rotation(0.0)\n\tif _play_enabled and not _death_sequence_active:\n',
+              '\t_special_velocity = Vector2.ZERO\n\t_set_visual_rotation(0.0)\n',
+              '',
+              '\t_animated_sprite.position = _conus_climb_sprite_base_position\n\t_set_visual_rotation(0.0)',
           )
-          replace_once(
+          text = Path(hylas).read_text()
+          if '\t_animated_sprite.position = _conus_climb_sprite_base_position\n\t_set_visual_rotation(0.0)' not in text:
+              target = '\t_special_velocity = Vector2.ZERO\n\t_set_visual_rotation(0.0)\n'
+              if target not in text:
+                  raise SystemExit('Missing end-climb restoration anchor')
+              Path(hylas).write_text(text.replace(
+                  target,
+                  '\t_special_velocity = Vector2.ZERO\n\t_animated_sprite.position = _conus_climb_sprite_base_position\n\t_set_visual_rotation(0.0)\n',
+                  1,
+              ))
+
+          replace_between(
               hylas,
-              '\tif _conus_climb_active:\n\t\tif event.is_action_pressed(&"conch", false, true) and _is_primary_item_a_binding(event):\n\t\t\titem_a_requested.emit(CONUS_TEXTILE_ID, global_position, Vector2.ZERO)\n\t\t\tget_viewport().set_input_as_handled()\n\t\treturn\n',
+              '\tif _conus_climb_active:\n',
+              '\n\t# Exact matching is essential',
               '\tif _conus_climb_active:\n\t\tif event.is_action_pressed(&"conch", false, true) and _is_primary_item_a_binding(event):\n\t\t\t_space_action_pressed_this_frame = false\n\t\t\t_pending_conch_remaining = 0.0\n\t\t\t_pending_interaction_remaining = 0.0\n\t\t\tif is_instance_valid(_conus_climb_tether) and _conus_climb_tether.has_method(&"retract"):\n\t\t\t\t_conus_climb_tether.call(&"retract")\n\t\t\telse:\n\t\t\t\tend_conus_wall_climb()\n\t\t\tget_viewport().set_input_as_handled()\n\t\treturn\n',
+              '_conus_climb_tether.call(&"retract")',
           )
-          replace_once(
+
+          replace_between(
               hylas,
-              'func _align_to_conus_rope() -> void:\n\tvar rope_vector: Vector2 = _conus_climb_anchor - global_position\n\tif rope_vector.length_squared() <= 0.0001:\n\t\treturn\n\t_set_visual_rotation(rope_vector.angle() + PI * 0.5)\n',
+              'func _align_to_conus_rope() -> void:\n',
+              '\n\nfunc _update_conus_climb_animation',
               'func _align_to_conus_rope() -> void:\n\tvar rope_vector: Vector2 = _conus_climb_anchor - global_position\n\tif rope_vector.length_squared() <= 0.0001:\n\t\treturn\n\tvar rope_direction: Vector2 = rope_vector.normalized()\n\t_set_visual_rotation(rope_direction.angle() + PI * 0.5)\n\tvar greatfin_active: bool = (\n\t\tis_instance_valid(_item_visuals)\n\t\tand _item_visuals.is_greatfin_active()\n\t)\n\tif greatfin_active:\n\t\t_animated_sprite.position = _conus_climb_sprite_base_position\n\telse:\n\t\tvar rope_perpendicular: Vector2 = Vector2(-rope_direction.y, rope_direction.x)\n\t\t_animated_sprite.position = (\n\t\t\t_conus_climb_sprite_base_position\n\t\t\t+ rope_perpendicular * normal_conus_climb_sprite_perpendicular_offset\n\t\t)\n',
+              'var greatfin_active: bool = (',
           )
           PY
 
