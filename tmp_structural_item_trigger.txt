@@ -1,1 +1,1 @@
-Trigger PR validation after direct Conus bloom wiring was added.
+Trigger PR validation with indentation-safe direct patch loading.
