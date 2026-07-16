@@ -18,6 +18,7 @@ const TRIDACNA_SURFACE_LAUNCH_VELOCITY_SCALE: float = 1.41421356237
 @export_range(40.0, 240.0, 1.0) var conus_climb_minimum_distance: float = 100.0
 @export_range(0.01, 0.90, 0.01) var conus_climb_input_deadzone: float = 0.16
 @export_range(0.0, 180.0, 1.0) var conus_rope_hand_offset: float = 62.0
+@export_range(-120.0, 120.0, 1.0) var normal_conus_climb_sprite_perpendicular_offset: float = -24.0
 
 @onready var _item_visuals: CotcHylasItemVisuals = %ItemVisuals
 
@@ -32,11 +33,15 @@ var _conus_climb_anchor: Vector2 = Vector2.ZERO
 var _conus_climb_maximum_distance: float = 0.0
 var _conus_climb_tether: Node
 var _conus_climb_previous_facing_left: bool = false
+var _conus_climb_sprite_base_position: Vector2 = Vector2.ZERO
+var _conus_climb_normal_sprite_scale: Vector2 = Vector2.ONE
 
 
 func _ready() -> void:
 	super._ready()
 	_normal_collision_layer = collision_layer
+	_conus_climb_sprite_base_position = _animated_sprite.position
+	_conus_climb_normal_sprite_scale = _animated_sprite.scale
 	_item_visuals.set_equipped_item_a(_equipped_item_a)
 
 
@@ -163,6 +168,7 @@ func end_conus_wall_climb(tether: Node = null) -> void:
 	_swim_velocity = Vector2.ZERO
 	_burst_coast_velocity = Vector2.ZERO
 	_special_velocity = Vector2.ZERO
+	_animated_sprite.position = _conus_climb_sprite_base_position
 	_set_visual_rotation(0.0)
 	if _play_enabled and not _death_sequence_active:
 		_set_animation(&"idle")
@@ -235,7 +241,13 @@ func _input(event: InputEvent) -> void:
 
 	if _conus_climb_active:
 		if event.is_action_pressed(&"conch", false, true) and _is_primary_item_a_binding(event):
-			item_a_requested.emit(CONUS_TEXTILE_ID, global_position, Vector2.ZERO)
+			_space_action_pressed_this_frame = false
+			_pending_conch_remaining = 0.0
+			_pending_interaction_remaining = 0.0
+			if is_instance_valid(_conus_climb_tether) and _conus_climb_tether.has_method(&"retract"):
+				_conus_climb_tether.call(&"retract")
+			else:
+				end_conus_wall_climb()
 			get_viewport().set_input_as_handled()
 		return
 
@@ -388,7 +400,18 @@ func _align_to_conus_rope() -> void:
 	var rope_vector: Vector2 = _conus_climb_anchor - global_position
 	if rope_vector.length_squared() <= 0.0001:
 		return
-	_set_visual_rotation(rope_vector.angle() + PI * 0.5)
+	var rope_direction: Vector2 = rope_vector.normalized()
+	_set_visual_rotation(rope_direction.angle() + PI * 0.5)
+	var normal_scale_x: float = maxf(absf(_conus_climb_normal_sprite_scale.x), 0.001)
+	var greatfin_active: bool = absf(_animated_sprite.scale.x) > normal_scale_x * 1.15
+	if greatfin_active:
+		_animated_sprite.position = _conus_climb_sprite_base_position
+	else:
+		var rope_perpendicular: Vector2 = Vector2(-rope_direction.y, rope_direction.x)
+		_animated_sprite.position = (
+			_conus_climb_sprite_base_position
+			+ rope_perpendicular * normal_conus_climb_sprite_perpendicular_offset
+		)
 
 
 func _update_conus_climb_animation(climb_axis: float) -> void:
