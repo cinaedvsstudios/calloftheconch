@@ -9,6 +9,7 @@ extends "res://scenes/characters/Hylas/hylas_reliable_input.gd"
 signal item_a_requested(item_id: StringName, origin: Vector2, direction: Vector2)
 
 const NORMAL_CONCH_ID: StringName = &"normal_conch"
+const TRIDACNA_SURFACE_LAUNCH_VELOCITY_SCALE: float = 1.41421356237
 
 @onready var _item_visuals: CotcHylasItemVisuals = %ItemVisuals
 
@@ -94,6 +95,13 @@ func activate_item_surge(duration_seconds: float = 0.90) -> bool:
 
 func is_item_surge_active() -> bool:
 	return _item_surge_remaining > 0.0 and _burst_active
+
+
+func _begin_surface_jump() -> void:
+	var use_tridacna_launch: bool = _item_surge_remaining > 0.0
+	super._begin_surface_jump()
+	if use_tridacna_launch and airborne_active:
+		velocity *= TRIDACNA_SURFACE_LAUNCH_VELOCITY_SCALE
 
 
 func set_purple_shield_active(is_active: bool) -> void:

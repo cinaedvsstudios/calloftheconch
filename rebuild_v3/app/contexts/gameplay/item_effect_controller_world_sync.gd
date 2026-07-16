@@ -11,6 +11,10 @@ const BEHAVIOR_TYCHE: StringName = &"tyche_margarites"
 @onready var _powerdown_audio: AudioStreamPlayer = %PowerdownAudio
 @onready var _shield_audio: AudioStreamPlayer = %ShieldAudio
 @onready var _invisibility_audio: AudioStreamPlayer = %InvisibilityAudio
+@onready var _conus_audio: AudioStreamPlayer = %ConusAudio
+@onready var _terebridae_audio: AudioStreamPlayer = %TerebridaeAudio
+@onready var _mati_initial_audio: AudioStreamPlayer = %MatiInitialAudio
+@onready var _mati_duration_audio: AudioStreamPlayer = %MatiDurationAudio
 
 var _connected_level: CotcSeaOfPillars
 var _connected_game_state: CotcGameState
@@ -34,6 +38,8 @@ func _ready() -> void:
 		_shield_audio.finished.connect(_on_shield_audio_finished)
 	if not _invisibility_audio.finished.is_connected(_on_invisibility_audio_finished):
 		_invisibility_audio.finished.connect(_on_invisibility_audio_finished)
+	if not _mati_duration_audio.finished.is_connected(_on_mati_duration_audio_finished):
+		_mati_duration_audio.finished.connect(_on_mati_duration_audio_finished)
 
 
 func _on_shield_audio_finished() -> void:
@@ -44,6 +50,11 @@ func _on_shield_audio_finished() -> void:
 func _on_invisibility_audio_finished() -> void:
 	if _camouflage_remaining > 0.0:
 		_invisibility_audio.play()
+
+
+func _on_mati_duration_audio_finished() -> void:
+	if _mati_active:
+		_mati_duration_audio.play()
 
 
 func configure(context: Node, level: CotcSeaOfPillars, hylas: CotcHylas) -> void:
@@ -90,12 +101,40 @@ func handle_item_behavior(behavior_id: StringName, item_id: StringName, slot_id:
 	if behavior_id == BEHAVIOR_TYCHE: return _connected_game_state != null and _connected_game_state.activate_tyche_margarites()
 	return super.handle_item_behavior(behavior_id,item_id,slot_id,origin,direction)
 
+
+func _activate_profiled_conch(
+		behavior_id: StringName,
+		origin: Vector2,
+		direction: Vector2,
+	) -> bool:
+	var activated: bool = super._activate_profiled_conch(behavior_id, origin, direction)
+	if activated and behavior_id == BEHAVIOR_SONIC_DRILL and _terebridae_audio.stream != null:
+		_terebridae_audio.stop()
+		_terebridae_audio.play()
+	return activated
+
+
+func _activate_conus_dart(origin: Vector2, direction: Vector2) -> bool:
+	var was_retracting: bool = is_instance_valid(_active_conus_tether)
+	var activated: bool = super._activate_conus_dart(origin, direction)
+	if activated and not was_retracting and _conus_audio.stream != null:
+		_conus_audio.stop()
+		_conus_audio.play()
+	return activated
+
+
 func _activate_mati() -> bool:
 	if _mati_active or not is_instance_valid(_hylas):
 		return false
 	_mati_active = true
 	_mati_elapsed = 0.0
 	_mati_tick_phase = 0.0
+	if _mati_initial_audio.stream != null:
+		_mati_initial_audio.stop()
+		_mati_initial_audio.play()
+	if _mati_duration_audio.stream != null:
+		_mati_duration_audio.stop()
+		_mati_duration_audio.play()
 	_capture_mati_targets()
 	_set_item_b_timed_active(true)
 	if is_instance_valid(_status_countdown):
@@ -173,6 +212,8 @@ func _apply_mati_world_activity(activity: float, delta: float) -> void:
 
 
 func _finish_mati() -> void:
+	_mati_initial_audio.stop()
+	_mati_duration_audio.stop()
 	for entry_value: Variant in _mati_targets.values():
 		if not (entry_value is Dictionary):
 			continue
@@ -204,6 +245,10 @@ func _set_item_b_timed_active(is_active: bool) -> void:
 func clear_active_effects() -> void:
 	_shield_audio.stop()
 	_invisibility_audio.stop()
+	_conus_audio.stop()
+	_terebridae_audio.stop()
+	_mati_initial_audio.stop()
+	_mati_duration_audio.stop()
 	if _mati_active: _finish_mati()
 	super.clear_active_effects()
 	if is_instance_valid(_status_countdown):

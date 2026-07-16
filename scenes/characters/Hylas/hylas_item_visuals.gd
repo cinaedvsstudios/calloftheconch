@@ -13,6 +13,10 @@ const SHELL_TEXTURES: Dictionary = {
 	&"terebridae": preload("res://assets/characters/shell_terebridae.png"),
 	&"conus_textile": preload("res://assets/characters/shell_conus_textile.png"),
 }
+const HELD_SHELL_SCALE_MULTIPLIERS: Dictionary = {
+	&"charonia_tritonis": 1.20,
+	&"terebridae": 1.20,
+}
 
 @onready var _animated_sprite: AnimatedSprite2D = get_parent().get_node_or_null("AnimatedSprite") as AnimatedSprite2D
 @onready var _shell_overlay_anchor: Marker2D = %ConchOverlayAnchor
@@ -151,7 +155,10 @@ func _sync_shell_overlay() -> void:
 		anchor_offset.x = -anchor_offset.x
 	_shell_overlay.position = anchor_offset.rotated(_animated_sprite.rotation)
 	_shell_overlay.rotation = _animated_sprite.rotation
-	_shell_overlay.scale = _animated_sprite.scale * HELD_SHELL_VISUAL_SCALE
+	var item_scale: float = float(
+		HELD_SHELL_SCALE_MULTIPLIERS.get(_equipped_item_a, 1.0)
+	)
+	_shell_overlay.scale = _animated_sprite.scale * HELD_SHELL_VISUAL_SCALE * item_scale
 	_shell_overlay.flip_h = _animated_sprite.flip_h
 	_shell_overlay.flip_v = _animated_sprite.flip_v
 	_shell_overlay.modulate = _animated_sprite.modulate
