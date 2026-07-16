@@ -91,12 +91,6 @@ jobs:
               '\t_conus_climb_sprite_base_position = _animated_sprite.position\n',
               '\t_conus_climb_sprite_base_position = _animated_sprite.position',
           )
-          insert_after(
-              hylas,
-              '\t_special_velocity = Vector2.ZERO\n\t_set_visual_rotation(0.0)\n',
-              '',
-              '\t_animated_sprite.position = _conus_climb_sprite_base_position\n\t_set_visual_rotation(0.0)',
-          )
           text = Path(hylas).read_text()
           if '\t_animated_sprite.position = _conus_climb_sprite_base_position\n\t_set_visual_rotation(0.0)' not in text:
               target = '\t_special_velocity = Vector2.ZERO\n\t_set_visual_rotation(0.0)\n'
@@ -137,18 +131,38 @@ jobs:
       - name: Godot import validation
         shell: bash
         run: |
-          set -o pipefail
-          godot --headless --editor --path . --quit 2>&1 | tee /tmp/godot-import.log
-          ! grep -E 'SCRIPT ERROR|Parse Error|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-import.log
+          set +e
+          godot --headless --editor --path . --quit > /tmp/godot-import.log 2>&1
+          code=$?
+          set -e
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-import.log; then
+            echo '--- Godot import tail ---'
+            tail -n 120 /tmp/godot-import.log
+            exit 1
+          fi
+          if [ "$code" -ne 0 ]; then
+            echo "Godot editor exited with $code"
+            tail -n 120 /tmp/godot-import.log
+            exit "$code"
+          fi
 
       - name: Godot runtime smoke test
         shell: bash
         run: |
-          set -o pipefail
-          timeout 20s godot --headless --path . --quit-after 5 2>&1 | tee /tmp/godot-runtime.log || code=$?
-          code=${code:-0}
-          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then exit "$code"; fi
-          ! grep -E 'SCRIPT ERROR|Parse Error|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log
+          set +e
+          timeout 20s godot --headless --path . --quit-after 5 > /tmp/godot-runtime.log 2>&1
+          code=$?
+          set -e
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log; then
+            echo '--- Godot runtime tail ---'
+            tail -n 120 /tmp/godot-runtime.log
+            exit 1
+          fi
+          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
+            echo "Godot runtime exited with $code"
+            tail -n 120 /tmp/godot-runtime.log
+            exit "$code"
+          fi
 
       - name: Commit validated production changes
         shell: bash
