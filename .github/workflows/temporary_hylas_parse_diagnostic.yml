@@ -1,0 +1,64 @@
+name: Temporary Hylas parse diagnostic
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  parse:
+    if: github.event.pull_request.head.ref == 'work/terebridae-conus-alignment-fix-2026-07-16'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/terebridae-conus-alignment-fix-2026-07-16
+          fetch-depth: 0
+
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+
+      - name: Apply the current direct patch in the runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git show origin/main:.github/workflows/temporary_terebridae_conus_fix.yml > /tmp/current_driver.yml
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path('/tmp/current_driver.yml').read_text()
+          marker = "          python3 - <<'PY'\n"
+          start = text.index(marker) + len(marker)
+          end = text.index("\n          PY", start)
+          block = text[start:end]
+          lines = []
+          for line in block.splitlines():
+              lines.append(line[10:] if line.startswith('          ') else line)
+          Path('/tmp/apply_current_fix.py').write_text('\n'.join(lines) + '\n')
+          PY
+          python3 /tmp/apply_current_fix.py
+
+      - name: Parse Hylas equipment script directly
+        shell: bash
+        run: |
+          set +e
+          godot --headless --path . --check-only --script scenes/characters/Hylas/hylas_equipment_input.gd > /tmp/hylas-parse.log 2>&1
+          code=$?
+          set -e
+          cat /tmp/hylas-parse.log
+          exit "$code"
+
+      - name: Upload focused parser output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hylas-parse-diagnostic
+          path: /tmp/hylas-parse.log
+          if-no-files-found: error
+          retention-days: 1
