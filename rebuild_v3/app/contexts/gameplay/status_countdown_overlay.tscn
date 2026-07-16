@@ -1,12 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/status_countdown_overlay.gd" id="1_controller"]
-[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/hud_drop_shadow.gdshader" id="2_shadow_shader"]
-
-[sub_resource type="ShaderMaterial" id="HourglassShadowMaterial"]
-shader = ExtResource("2_shadow_shader")
-shader_parameter/shadow_color = Color(0, 0, 0, 0.78)
-shader_parameter/blur_radius = 5.0
 
 [node name="StatusCountdownOverlay" type="Control"]
 visible = false
@@ -18,23 +12,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_controller")
-
-[node name="Shadow" type="TextureRect" parent="."]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 6.0
-offset_right = 4.0
-offset_bottom = 6.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-material = SubResource("HourglassShadowMaterial")
-expand_mode = 1
-stretch_mode = 5
 
 [node name="Hourglass" type="TextureRect" parent="."]
 unique_name_in_owner = true
