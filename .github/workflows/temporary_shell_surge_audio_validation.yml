@@ -1,0 +1,286 @@
+name: Temporary shell surge and audio validation
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  apply-validate:
+    if: github.event.pull_request.head.ref == 'work/shell-surge-audio-pass-2026-07-16'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/shell-surge-audio-pass-2026-07-16
+          fetch-depth: 0
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+      - name: Apply direct production changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              p = Path(path)
+              text = p.read_text()
+              if new in text:
+                  return
+              if old not in text:
+                  raise SystemExit(f"Missing expected block in {path}: {old[:180]!r}")
+              p.write_text(text.replace(old, new, 1))
+
+          # Charonia and Terebridae are each 20% larger than the accepted base held-shell size.
+          path = 'scenes/characters/Hylas/hylas_item_visuals.gd'
+          replace_once(
+              path,
+              '''const SHELL_TEXTURES: Dictionary = {
+\t&"normal_conch": preload("res://assets/characters/shell_normal_conch.png"),
+\t&"charonia_tritonis": preload("res://assets/characters/shell_charonia_tritonis.png"),
+\t&"terebridae": preload("res://assets/characters/shell_terebridae.png"),
+\t&"conus_textile": preload("res://assets/characters/shell_conus_textile.png"),
+}''',
+              '''const SHELL_TEXTURES: Dictionary = {
+\t&"normal_conch": preload("res://assets/characters/shell_normal_conch.png"),
+\t&"charonia_tritonis": preload("res://assets/characters/shell_charonia_tritonis.png"),
+\t&"terebridae": preload("res://assets/characters/shell_terebridae.png"),
+\t&"conus_textile": preload("res://assets/characters/shell_conus_textile.png"),
+}
+const HELD_SHELL_SCALE_MULTIPLIERS: Dictionary = {
+\t&"charonia_tritonis": 1.20,
+\t&"terebridae": 1.20,
+}''',
+          )
+          replace_once(
+              path,
+              '\t_shell_overlay.scale = _animated_sprite.scale * HELD_SHELL_VISUAL_SCALE',
+              '''\tvar item_scale: float = float(
+\t\tHELD_SHELL_SCALE_MULTIPLIERS.get(_equipped_item_a, 1.0)
+\t)
+\t_shell_overlay.scale = _animated_sprite.scale * HELD_SHELL_VISUAL_SCALE * item_scale''',
+          )
+
+          # A √2 velocity multiplier gives a ballistic arc with 2× height and 2× range.
+          path = 'scenes/characters/Hylas/hylas_equipment_input.gd'
+          replace_once(
+              path,
+              'const NORMAL_CONCH_ID: StringName = &"normal_conch"',
+              '''const NORMAL_CONCH_ID: StringName = &"normal_conch"
+const TRIDACNA_SURFACE_LAUNCH_VELOCITY_SCALE: float = 1.41421356237''',
+          )
+          replace_once(
+              path,
+              '''func is_item_surge_active() -> bool:
+\treturn _item_surge_remaining > 0.0 and _burst_active''',
+              '''func is_item_surge_active() -> bool:
+\treturn _item_surge_remaining > 0.0 and _burst_active
+
+
+func _begin_surface_jump() -> void:
+\tvar use_tridacna_launch: bool = _item_surge_remaining > 0.0
+\tsuper._begin_surface_jump()
+\tif use_tridacna_launch and airborne_active:
+\t\tvelocity *= TRIDACNA_SURFACE_LAUNCH_VELOCITY_SCALE''',
+          )
+
+          # Add the four supplied audio streams to the existing item controller scene.
+          path = 'rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn'
+          replace_once(path, '[gd_scene load_steps=9 format=3]', '[gd_scene load_steps=13 format=3]')
+          replace_once(
+              path,
+              '''[ext_resource type="AudioStream" path="res://assets/audio/invisibility.mp3" id="8_invisibility"]''',
+              '''[ext_resource type="AudioStream" path="res://assets/audio/invisibility.mp3" id="8_invisibility"]
+[ext_resource type="AudioStream" path="res://assets/audio/conus.mp3" id="9_conus_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/Terebridae.mp3" id="10_terebridae_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/Mati01.mp3" id="11_mati_initial_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/Mati02.mp3" id="12_mati_duration_audio"]''',
+          )
+          replace_once(
+              path,
+              '''[node name="InvisibilityAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("8_invisibility")
+volume_db = -4.0''',
+              '''[node name="InvisibilityAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("8_invisibility")
+volume_db = -4.0
+
+[node name="ConusAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("9_conus_audio")
+volume_db = -4.0
+
+[node name="TerebridaeAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("10_terebridae_audio")
+volume_db = -4.0
+
+[node name="MatiInitialAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("11_mati_initial_audio")
+volume_db = -3.0
+
+[node name="MatiDurationAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("12_mati_duration_audio")
+volume_db = -5.0''',
+          )
+
+          # Wire the supplied sounds into the live item actions and Mati lifecycle.
+          path = 'rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd'
+          replace_once(
+              path,
+              '''@onready var _invisibility_audio: AudioStreamPlayer = %InvisibilityAudio''',
+              '''@onready var _invisibility_audio: AudioStreamPlayer = %InvisibilityAudio
+@onready var _conus_audio: AudioStreamPlayer = %ConusAudio
+@onready var _terebridae_audio: AudioStreamPlayer = %TerebridaeAudio
+@onready var _mati_initial_audio: AudioStreamPlayer = %MatiInitialAudio
+@onready var _mati_duration_audio: AudioStreamPlayer = %MatiDurationAudio''',
+          )
+          replace_once(
+              path,
+              '''\tif not _invisibility_audio.finished.is_connected(_on_invisibility_audio_finished):
+\t\t_invisibility_audio.finished.connect(_on_invisibility_audio_finished)''',
+              '''\tif not _invisibility_audio.finished.is_connected(_on_invisibility_audio_finished):
+\t\t_invisibility_audio.finished.connect(_on_invisibility_audio_finished)
+\tif not _mati_duration_audio.finished.is_connected(_on_mati_duration_audio_finished):
+\t\t_mati_duration_audio.finished.connect(_on_mati_duration_audio_finished)''',
+          )
+          replace_once(
+              path,
+              '''func _on_invisibility_audio_finished() -> void:
+\tif _camouflage_remaining > 0.0:
+\t\t_invisibility_audio.play()''',
+              '''func _on_invisibility_audio_finished() -> void:
+\tif _camouflage_remaining > 0.0:
+\t\t_invisibility_audio.play()
+
+
+func _on_mati_duration_audio_finished() -> void:
+\tif _mati_active:
+\t\t_mati_duration_audio.play()''',
+          )
+          replace_once(
+              path,
+              '''func _activate_mati() -> bool:
+\tif _mati_active or not is_instance_valid(_hylas):
+\t\treturn false
+\t_mati_active = true
+\t_mati_elapsed = 0.0
+\t_mati_tick_phase = 0.0''',
+              '''func _activate_mati() -> bool:
+\tif _mati_active or not is_instance_valid(_hylas):
+\t\treturn false
+\t_mati_active = true
+\t_mati_elapsed = 0.0
+\t_mati_tick_phase = 0.0
+\tif _mati_initial_audio.stream != null:
+\t\t_mati_initial_audio.stop()
+\t\t_mati_initial_audio.play()
+\tif _mati_duration_audio.stream != null:
+\t\t_mati_duration_audio.stop()
+\t\t_mati_duration_audio.play()''',
+          )
+          replace_once(
+              path,
+              '''func handle_item_behavior(behavior_id: StringName, item_id: StringName, slot_id: StringName, origin: Vector2, direction: Vector2) -> bool:
+\tif behavior_id == BEHAVIOR_WORLD_FREEZE: return _activate_mati()
+\tif behavior_id == BEHAVIOR_TYCHE: return _connected_game_state != null and _connected_game_state.activate_tyche_margarites()
+\treturn super.handle_item_behavior(behavior_id,item_id,slot_id,origin,direction)''',
+              '''func handle_item_behavior(behavior_id: StringName, item_id: StringName, slot_id: StringName, origin: Vector2, direction: Vector2) -> bool:
+\tif behavior_id == BEHAVIOR_WORLD_FREEZE: return _activate_mati()
+\tif behavior_id == BEHAVIOR_TYCHE: return _connected_game_state != null and _connected_game_state.activate_tyche_margarites()
+\treturn super.handle_item_behavior(behavior_id,item_id,slot_id,origin,direction)
+
+
+func _activate_profiled_conch(
+\t\tbehavior_id: StringName,
+\t\torigin: Vector2,
+\t\tdirection: Vector2,
+\t) -> bool:
+\tvar activated: bool = super._activate_profiled_conch(behavior_id, origin, direction)
+\tif activated and behavior_id == BEHAVIOR_SONIC_DRILL and _terebridae_audio.stream != null:
+\t\t_terebridae_audio.stop()
+\t\t_terebridae_audio.play()
+\treturn activated
+
+
+func _activate_conus_dart(origin: Vector2, direction: Vector2) -> bool:
+\tvar was_retracting: bool = is_instance_valid(_active_conus_tether)
+\tvar activated: bool = super._activate_conus_dart(origin, direction)
+\tif activated and not was_retracting and _conus_audio.stream != null:
+\t\t_conus_audio.stop()
+\t\t_conus_audio.play()
+\treturn activated''',
+          )
+          replace_once(
+              path,
+              '''func _finish_mati() -> void:
+\tfor entry_value: Variant in _mati_targets.values():''',
+              '''func _finish_mati() -> void:
+\t_mati_initial_audio.stop()
+\t_mati_duration_audio.stop()
+\tfor entry_value: Variant in _mati_targets.values():''',
+          )
+          replace_once(
+              path,
+              '''func clear_active_effects() -> void:
+\t_shield_audio.stop()
+\t_invisibility_audio.stop()''',
+              '''func clear_active_effects() -> void:
+\t_shield_audio.stop()
+\t_invisibility_audio.stop()
+\t_conus_audio.stop()
+\t_terebridae_audio.stop()
+\t_mati_initial_audio.stop()
+\t_mati_duration_audio.stop()''',
+          )
+
+          trigger = Path('.github/shell_surge_audio_trigger.txt')
+          if trigger.exists():
+              trigger.unlink()
+          PY
+      - name: Import project
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --editor --path . --quit 2>&1 | tee /tmp/godot-import.log
+          ! grep -E "SCRIPT ERROR|Parse Error|Failed to load|ERROR:" /tmp/godot-import.log
+      - name: Runtime smoke test
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 20s godot --headless --path . 2>&1 | tee /tmp/godot-run.log || test $? -eq 124
+          ! grep -E "SCRIPT ERROR|Parse Error|Failed to load|ERROR:" /tmp/godot-run.log
+      - name: Verify direct changes
+        shell: bash
+        run: |
+          grep -q 'HELD_SHELL_SCALE_MULTIPLIERS' scenes/characters/Hylas/hylas_item_visuals.gd
+          grep -q 'TRIDACNA_SURFACE_LAUNCH_VELOCITY_SCALE: float = 1.41421356237' scenes/characters/Hylas/hylas_equipment_input.gd
+          grep -q 'res://assets/audio/conus.mp3' rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn
+          grep -q 'res://assets/audio/Terebridae.mp3' rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn
+          grep -q 'res://assets/audio/Mati01.mp3' rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn
+          grep -q 'res://assets/audio/Mati02.mp3' rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn
+          grep -q '_on_mati_duration_audio_finished' rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd
+          test ! -e .github/shell_surge_audio_trigger.txt
+      - name: Commit validated changes
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scenes/characters/Hylas/hylas_item_visuals.gd \
+                  scenes/characters/Hylas/hylas_equipment_input.gd \
+                  rebuild_v3/app/contexts/gameplay/item_effect_controller.tscn \
+                  rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd \
+                  .github/shell_surge_audio_trigger.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'Wire item audio and enhance Tridacna launch'
+            git push origin HEAD:work/shell-surge-audio-pass-2026-07-16
+          fi
