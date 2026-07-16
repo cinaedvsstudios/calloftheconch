@@ -1,0 +1,129 @@
+name: Temporary Terebridae and Conus validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    if: github.event.pull_request.head.ref == 'work/terebridae-conus-alignment-fix-2026-07-16'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/terebridae-conus-alignment-fix-2026-07-16
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+
+      - name: Apply direct production fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              file_path = Path(path)
+              text = file_path.read_text()
+              if new in text:
+                  return
+              if old not in text:
+                  raise SystemExit(f"Missing expected block in {path}: {old[:180]!r}")
+              file_path.write_text(text.replace(old, new, 1))
+
+          controller = 'rebuild_v3/app/contexts/gameplay/item_effect_controller.gd'
+          replace_once(
+              controller,
+              '\t\t\t"echo_alpha_decay": 0.06,\n\t\t\t"pulse_interval_scale": 0.48,\n',
+              '\t\t\t"echo_alpha_decay": 0.06,\n\t\t\t"pulse_interval_scale": 0.48,\n\t\t\t"duration": 5.0,\n',
+          )
+
+          visuals = 'scenes/characters/Hylas/hylas_item_visuals.gd'
+          replace_once(
+              visuals,
+              '\telse:\n\t\t_animated_sprite.play(&"idle")\n\n\nfunc clear_item_visuals() -> void:\n',
+              '\telse:\n\t\t_animated_sprite.play(&"idle")\n\n\nfunc is_greatfin_active() -> bool:\n\treturn _greatfin_active\n\n\nfunc clear_item_visuals() -> void:\n',
+          )
+
+          hylas = 'scenes/characters/Hylas/hylas_equipment_input.gd'
+          replace_once(
+              hylas,
+              '@export_range(0.0, 180.0, 1.0) var conus_rope_hand_offset: float = 62.0\n',
+              '@export_range(0.0, 180.0, 1.0) var conus_rope_hand_offset: float = 62.0\n@export_range(-120.0, 120.0, 1.0) var normal_conus_climb_sprite_perpendicular_offset: float = -24.0\n',
+          )
+          replace_once(
+              hylas,
+              'var _conus_climb_tether: Node\nvar _conus_climb_previous_facing_left: bool = false\n',
+              'var _conus_climb_tether: Node\nvar _conus_climb_previous_facing_left: bool = false\nvar _conus_climb_sprite_base_position: Vector2 = Vector2.ZERO\n',
+          )
+          replace_once(
+              hylas,
+              '\t_normal_collision_layer = collision_layer\n\t_item_visuals.set_equipped_item_a(_equipped_item_a)\n',
+              '\t_normal_collision_layer = collision_layer\n\t_conus_climb_sprite_base_position = _animated_sprite.position\n\t_item_visuals.set_equipped_item_a(_equipped_item_a)\n',
+          )
+          replace_once(
+              hylas,
+              '\t_special_velocity = Vector2.ZERO\n\t_set_visual_rotation(0.0)\n\tif _play_enabled and not _death_sequence_active:\n',
+              '\t_special_velocity = Vector2.ZERO\n\t_animated_sprite.position = _conus_climb_sprite_base_position\n\t_set_visual_rotation(0.0)\n\tif _play_enabled and not _death_sequence_active:\n',
+          )
+          replace_once(
+              hylas,
+              '\tif _conus_climb_active:\n\t\tif event.is_action_pressed(&"conch", false, true) and _is_primary_item_a_binding(event):\n\t\t\titem_a_requested.emit(CONUS_TEXTILE_ID, global_position, Vector2.ZERO)\n\t\t\tget_viewport().set_input_as_handled()\n\t\treturn\n',
+              '\tif _conus_climb_active:\n\t\tif event.is_action_pressed(&"conch", false, true) and _is_primary_item_a_binding(event):\n\t\t\t_space_action_pressed_this_frame = false\n\t\t\t_pending_conch_remaining = 0.0\n\t\t\t_pending_interaction_remaining = 0.0\n\t\t\tif is_instance_valid(_conus_climb_tether) and _conus_climb_tether.has_method(&"retract"):\n\t\t\t\t_conus_climb_tether.call(&"retract")\n\t\t\telse:\n\t\t\t\tend_conus_wall_climb()\n\t\t\tget_viewport().set_input_as_handled()\n\t\treturn\n',
+          )
+          replace_once(
+              hylas,
+              'func _align_to_conus_rope() -> void:\n\tvar rope_vector: Vector2 = _conus_climb_anchor - global_position\n\tif rope_vector.length_squared() <= 0.0001:\n\t\treturn\n\t_set_visual_rotation(rope_vector.angle() + PI * 0.5)\n',
+              'func _align_to_conus_rope() -> void:\n\tvar rope_vector: Vector2 = _conus_climb_anchor - global_position\n\tif rope_vector.length_squared() <= 0.0001:\n\t\treturn\n\tvar rope_direction: Vector2 = rope_vector.normalized()\n\t_set_visual_rotation(rope_direction.angle() + PI * 0.5)\n\tvar greatfin_active: bool = (\n\t\tis_instance_valid(_item_visuals)\n\t\tand _item_visuals.is_greatfin_active()\n\t)\n\tif greatfin_active:\n\t\t_animated_sprite.position = _conus_climb_sprite_base_position\n\telse:\n\t\tvar rope_perpendicular: Vector2 = Vector2(-rope_direction.y, rope_direction.x)\n\t\t_animated_sprite.position = (\n\t\t\t_conus_climb_sprite_base_position\n\t\t\t+ rope_perpendicular * normal_conus_climb_sprite_perpendicular_offset\n\t\t)\n',
+          )
+          PY
+
+      - name: Verify intended direct changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q '"duration": 5.0' rebuild_v3/app/contexts/gameplay/item_effect_controller.gd
+          grep -q 'func is_greatfin_active' scenes/characters/Hylas/hylas_item_visuals.gd
+          grep -q '_conus_climb_tether.call(&"retract")' scenes/characters/Hylas/hylas_equipment_input.gd
+          grep -q 'normal_conus_climb_sprite_perpendicular_offset: float = -24.0' scenes/characters/Hylas/hylas_equipment_input.gd
+
+      - name: Godot import validation
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --editor --path . --quit 2>&1 | tee /tmp/godot-import.log
+          ! grep -E 'SCRIPT ERROR|Parse Error|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-import.log
+
+      - name: Godot runtime smoke test
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 20s godot --headless --path . --quit-after 5 2>&1 | tee /tmp/godot-runtime.log || code=$?
+          code=${code:-0}
+          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then exit "$code"; fi
+          ! grep -E 'SCRIPT ERROR|Parse Error|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log
+
+      - name: Commit validated production changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/terebridae_conus_fix_trigger.txt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add rebuild_v3/app/contexts/gameplay/item_effect_controller.gd \
+                  scenes/characters/Hylas/hylas_item_visuals.gd \
+                  scenes/characters/Hylas/hylas_equipment_input.gd
+          git add -u .github/terebridae_conus_fix_trigger.txt
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Fix Terebridae duration and Conus retraction alignment"
+          git push origin HEAD:work/terebridae-conus-alignment-fix-2026-07-16
