@@ -1,0 +1,220 @@
+name: Temporary immunity and death validation
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  apply-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/immunity-death-fixes-2026-07-16
+          fetch-depth: 0
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+      - name: Apply direct production fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace(path: str, old: str, new: str, count: int = -1) -> None:
+              p = Path(path)
+              text = p.read_text()
+              if old not in text:
+                  raise SystemExit(f"Missing expected block in {path}: {old[:160]!r}")
+              p.write_text(text.replace(old, new, count))
+
+          # Larger, centered raw hourglass display in the Item B recess.
+          replace(
+              'rebuild_v3/app/contexts/gameplay/gameplay_hud.gd',
+              '''\t_apply_control_rect(\n\t\t_item_status_countdown,\n\t\tRect2(\n\t\t\titem_b_icon_rect.position + item_b_icon_rect.size * Vector2(0.42, 0.43),\n\t\t\titem_b_icon_rect.size * 0.50,\n\t\t),\n\t)''',
+              '''\t_apply_control_rect(\n\t\t_item_status_countdown,\n\t\tRect2(\n\t\t\titem_b_icon_rect.position + item_b_icon_rect.size * Vector2(0.08, 0.075),\n\t\t\titem_b_icon_rect.size * Vector2(0.84, 0.85),\n\t\t),\n\t)''',
+          )
+
+          # Camouflage removes Hylas from enemy Area2D detection while retaining
+          # terrain collision through the unchanged collision mask. Both timed
+          # protections expose one direct contact-immunity query.
+          p = Path('scenes/characters/Hylas/hylas_equipment_input.gd')
+          s = p.read_text()
+          s = s.replace(
+              'var _purple_shield_active: bool = false\nvar _camouflage_active: bool = false',
+              'var _purple_shield_active: bool = false\nvar _camouflage_active: bool = false\nvar _normal_collision_layer: int = 1',
+          )
+          s = s.replace(
+              '''func _ready() -> void:\n\tsuper._ready()\n\t_item_visuals.set_equipped_item_a(_equipped_item_a)''',
+              '''func _ready() -> void:\n\tsuper._ready()\n\t_normal_collision_layer = collision_layer\n\t_item_visuals.set_equipped_item_a(_equipped_item_a)''',
+          )
+          s = s.replace(
+              '''func set_camouflage_active(is_active: bool) -> void:\n\t_camouflage_active = is_active\n\tif is_instance_valid(_item_visuals):\n\t\t_item_visuals.set_camouflage_active(is_active)''',
+              '''func set_camouflage_active(is_active: bool) -> void:\n\t_camouflage_active = is_active\n\tcollision_layer = 0 if is_active else _normal_collision_layer\n\tif is_instance_valid(_item_visuals):\n\t\t_item_visuals.set_camouflage_active(is_active)''',
+          )
+          s = s.replace(
+              '''func is_camouflage_active() -> bool:\n\treturn _camouflage_active''',
+              '''func is_camouflage_active() -> bool:\n\treturn _camouflage_active\n\n\nfunc is_contact_immune() -> bool:\n\treturn _purple_shield_active or _camouflage_active''',
+          )
+          s = s.replace(
+              '''func clear_item_effect_state() -> void:\n\t_item_surge_remaining = 0.0\n\t_purple_shield_active = false\n\t_camouflage_active = false''',
+              '''func clear_item_effect_state() -> void:\n\t_item_surge_remaining = 0.0\n\t_purple_shield_active = false\n\t_camouflage_active = false\n\tcollision_layer = _normal_collision_layer''',
+          )
+          p.write_text(s)
+
+          # Black Bloom's existing ConchTarget becomes ray-collidable, so Conus
+          # reaches the live hazard controller instead of passing through it.
+          p = Path('rebuild_v3/features/black_bloom/black_bloom_hazard.tscn')
+          s = p.read_text()
+          s = s.replace('[gd_scene load_steps=8 format=3]', '[gd_scene load_steps=9 format=3]')
+          s = s.replace(
+              '''[sub_resource type="CapsuleShape2D" id="HurtShape"]\nradius = 170.0\nheight = 1250.0''',
+              '''[sub_resource type="CapsuleShape2D" id="HurtShape"]\nradius = 170.0\nheight = 1250.0\n\n[sub_resource type="CircleShape2D" id="ConusTargetShape"]\nradius = 210.0''',
+          )
+          s = s.replace(
+              '''[node name="ConchTarget" type="Node2D" parent="." groups=["conch_target"]]\nunique_name_in_owner = true\nposition = Vector2(0, -610)''',
+              '''[node name="ConchTarget" type="Area2D" parent="." groups=["conch_target"]]\nunique_name_in_owner = true\nposition = Vector2(0, -610)\ncollision_layer = 1\ncollision_mask = 0\nmonitoring = false\nmonitorable = true\n\n[node name="CollisionShape" type="CollisionShape2D" parent="ConchTarget"]\nshape = SubResource("ConusTargetShape")''',
+          )
+          p.write_text(s)
+
+          # Black Bloom uses its existing stun state for Conus and fully ignores a
+          # camouflaged Hylas rather than waking or applying touch damage.
+          p = Path('rebuild_v3/features/black_bloom/black_bloom_hazard.gd')
+          s = p.read_text()
+          s = s.replace(
+              '''\t_resolve_hylas()\n\tif _hylas == null:\n\t\treturn''',
+              '''\t_resolve_hylas()\n\tif not _is_hylas_targetable():\n\t\tif _awake:\n\t\t\t_go_to_sleep()\n\t\treturn''',
+              1,
+          )
+          s = s.replace(
+              '''func is_stunned() -> bool:\n\treturn Time.get_ticks_msec() < _stun_ends_at_msec''',
+              '''func receive_conus_dart(_source: Node2D) -> void:\n\treceive_conch_hit(global_position, Vector2.ZERO, 0.0, 1.0)\n\n\nfunc is_stunned() -> bool:\n\treturn Time.get_ticks_msec() < _stun_ends_at_msec''',
+          )
+          s = s.replace(
+              '''func _resolve_hylas() -> void:\n\tif _hylas != null and is_instance_valid(_hylas):\n\t\treturn\n\t_hylas = get_tree().get_first_node_in_group(&"hylas") as Node2D''',
+              '''func _is_targetable_hylas(candidate: Node) -> bool:\n\tif not is_instance_valid(candidate):\n\t\treturn false\n\treturn not (\n\t\tcandidate.has_method(&"is_camouflage_active")\n\t\tand bool(candidate.call(&"is_camouflage_active"))\n\t)\n\n\nfunc _is_hylas_targetable() -> bool:\n\treturn _is_targetable_hylas(_hylas)\n\n\nfunc _resolve_hylas() -> void:\n\tif _hylas != null and is_instance_valid(_hylas):\n\t\treturn\n\t_hylas = get_tree().get_first_node_in_group(&"hylas") as Node2D''',
+          )
+          s = s.replace(
+              '''\tif body.is_in_group(&"hylas"):\n\t\t_hylas = body\n\t\t_wake_up()''',
+              '''\tif body.is_in_group(&"hylas") and _is_targetable_hylas(body):\n\t\t_hylas = body\n\t\t_wake_up()''',
+              1,
+          )
+          s = s.replace(
+              '''\tif body.is_in_group(&"hylas"):\n\t\t_hylas = body\n\t\tif not _awake:\n\t\t\t_wake_up()\n\t\t_damage_hylas(body)''',
+              '''\tif body.is_in_group(&"hylas") and _is_targetable_hylas(body):\n\t\t_hylas = body\n\t\tif not _awake:\n\t\t\t_wake_up()\n\t\t_damage_hylas(body)''',
+          )
+          s = s.replace(
+              '''\tfor body: Node2D in _hurt_area.get_overlapping_bodies():\n\t\tif body.is_in_group(&"hylas"):\n\t\t\t_damage_hylas(body)''',
+              '''\tfor body: Node2D in _hurt_area.get_overlapping_bodies():\n\t\tif body.is_in_group(&"hylas") and _is_targetable_hylas(body):\n\t\t\t_damage_hylas(body)''',
+          )
+          s = s.replace(
+              '''func _damage_hylas(hylas_body: Node2D) -> void:\n\tif is_stunned():''',
+              '''func _damage_hylas(hylas_body: Node2D) -> void:\n\tif is_stunned() or not _is_targetable_hylas(hylas_body):''',
+          )
+          p.write_text(s)
+
+          # Jellyfish alert and contact logic also treats camouflage as absence.
+          p = Path('scenes/enemies/Jellyfish/jellyfish_enemy.gd')
+          s = p.read_text()
+          s = s.replace(
+              '''func _is_hylas_in_activation_range() -> bool:\n\tif not is_instance_valid(_hylas):\n\t\treturn false\n\treturn global_position.distance_to(_hylas.global_position) <= _get_activation_distance()''',
+              '''func _is_hylas_in_activation_range() -> bool:\n\tif not is_instance_valid(_hylas):\n\t\treturn false\n\tif (\n\t\t\t_hylas.has_method(&"is_camouflage_active")\n\t\t\tand bool(_hylas.call(&"is_camouflage_active"))\n\t\t):\n\t\treturn false\n\treturn global_position.distance_to(_hylas.global_position) <= _get_activation_distance()''',
+          )
+          s = s.replace(
+              '''\tfor body: Node2D in _hurt_area.get_overlapping_bodies():\n\t\tif body.is_in_group(&"hylas"):\n\t\t\t_last_damage_time = now''',
+              '''\tfor body: Node2D in _hurt_area.get_overlapping_bodies():\n\t\tif (\n\t\t\t\tbody.is_in_group(&"hylas")\n\t\t\t\tand not (\n\t\t\t\t\tbody.has_method(&"is_camouflage_active")\n\t\t\t\t\tand bool(body.call(&"is_camouflage_active"))\n\t\t\t\t)\n\t\t\t):\n\t\t\t_last_damage_time = now''',
+          )
+          p.write_text(s)
+
+          # The live level is the central damage gate. Timed shield/camouflage
+          # immunity is therefore enforced for every current and future enemy or
+          # hazard signal, while the shield also pushes moving enemies outside its
+          # visible barrier instead of allowing overlap.
+          p = Path('rebuild_v3/features/sea_of_pillars/sea_of_pillars.gd')
+          s = p.read_text()
+          s = s.replace(
+              '''@export_category("Fin Damage and Respawn")\n@export_range(0.0, 10.0, 0.1) var damage_invulnerability_seconds: float = 4.0\n@export_range(0, 100, 1) var duplicate_crown_sea_grapes_onos: int = 5''',
+              '''@export_category("Fin Damage and Respawn")\n@export_range(0.0, 10.0, 0.1) var damage_invulnerability_seconds: float = 4.0\n@export_range(0, 100, 1) var duplicate_crown_sea_grapes_onos: int = 5\n\n@export_category("Purple Shield Barrier")\n@export_range(50.0, 400.0, 5.0) var purple_shield_barrier_radius: float = 155.0\n@export_range(50.0, 2000.0, 10.0) var purple_shield_push_speed: float = 620.0''',
+          )
+          s = s.replace(
+              '''func _process(delta: float) -> void:\n\t_bubble_waterline_update_elapsed += delta''',
+              '''func _process(delta: float) -> void:\n\tif _active:\n\t\t_update_purple_shield_barrier(delta)\n\t_bubble_waterline_update_elapsed += delta''',
+          )
+          s = s.replace(
+              '''func _connect_runtime_state_sources() -> void:\n\tvar damage_callback: Callable = Callable(self, "_on_damage_requested")\n\tvar shark_callback: Callable = Callable(self, "_on_shark_contacted")\n\tfor node: Node in find_children("*", "", true, false):\n\t\tif node.has_signal(&"damage_requested") and not node.is_connected(&"damage_requested", damage_callback):\n\t\t\tnode.connect(&"damage_requested", damage_callback)\n\t\tif node.has_signal(&"hylas_contacted") and not node.is_connected(&"hylas_contacted", shark_callback):\n\t\t\tnode.connect(&"hylas_contacted", shark_callback)''',
+              '''func _connect_runtime_state_sources() -> void:\n\tfor node: Node in find_children("*", "", true, false):\n\t\tvar damage_callback: Callable = Callable(self, "_on_damage_requested").bind(node)\n\t\tvar shark_callback: Callable = Callable(self, "_on_shark_contacted").bind(node)\n\t\tif node.has_signal(&"damage_requested") and not node.is_connected(&"damage_requested", damage_callback):\n\t\t\tnode.connect(&"damage_requested", damage_callback)\n\t\tif node.has_signal(&"hylas_contacted") and not node.is_connected(&"hylas_contacted", shark_callback):\n\t\t\tnode.connect(&"hylas_contacted", shark_callback)''',
+          )
+          damage_anchor = 'func _on_damage_requested(hylas_body: Node, amount: int) -> void:'
+          helpers = '''func _is_hylas_contact_immune() -> bool:\n\treturn (\n\t\tis_instance_valid(_hylas)\n\t\tand _hylas.has_method(&"is_contact_immune")\n\t\tand bool(_hylas.call(&"is_contact_immune"))\n\t)\n\n\nfunc _is_purple_shield_active() -> bool:\n\treturn (\n\t\tis_instance_valid(_hylas)\n\t\tand _hylas.has_method(&"is_purple_shield_active")\n\t\tand bool(_hylas.call(&"is_purple_shield_active"))\n\t)\n\n\nfunc _update_purple_shield_barrier(delta: float) -> void:\n\tif not _is_purple_shield_active():\n\t\treturn\n\tfor candidate: Node in get_tree().get_nodes_in_group(&"enemy"):\n\t\tif not is_instance_valid(candidate) or not is_ancestor_of(candidate):\n\t\t\tcontinue\n\t\tif candidate.is_in_group(&"hazard"):\n\t\t\tcontinue\n\t\tvar enemy: Node2D = candidate as Node2D\n\t\tif enemy == null:\n\t\t\tcontinue\n\t\tvar offset: Vector2 = _resolve_shield_contact_anchor(enemy) - _hylas.global_position\n\t\tvar distance: float = offset.length()\n\t\tif distance >= purple_shield_barrier_radius:\n\t\t\tcontinue\n\t\tvar direction: Vector2 = offset.normalized() if distance > 0.001 else Vector2.RIGHT\n\t\tvar correction: float = minf(\n\t\t\tpurple_shield_barrier_radius - distance,\n\t\t\tpurple_shield_push_speed * maxf(delta, 0.0),\n\t\t)\n\t\tenemy.global_position += direction * correction\n\n\nfunc _resolve_shield_contact_anchor(enemy: Node2D) -> Vector2:\n\tfor child_path: NodePath in [^"HurtArea", ^"ContactShape", ^"AnimatedSprite"]:\n\t\tvar anchor: Node2D = enemy.get_node_or_null(child_path) as Node2D\n\t\tif is_instance_valid(anchor):\n\t\t\treturn anchor.global_position\n\treturn enemy.global_position\n\n\n'''
+          if damage_anchor not in s:
+              raise SystemExit('Damage handler anchor missing')
+          s = s.replace(damage_anchor, helpers + 'func _on_damage_requested(hylas_body: Node, amount: int, _source: Node = null) -> void:')
+          s = s.replace(
+              '''\tif hylas_body != _hylas and not hylas_body.is_in_group(&"hylas"):\n\t\treturn\n\tvar now_msec: int = Time.get_ticks_msec()''',
+              '''\tif hylas_body != _hylas and not hylas_body.is_in_group(&"hylas"):\n\t\treturn\n\tif _is_hylas_contact_immune():\n\t\treturn\n\tvar now_msec: int = Time.get_ticks_msec()''',
+          )
+          s = s.replace(
+              '''func _on_shark_contacted(hylas_body: Node2D) -> void:\n\t_on_damage_requested(hylas_body, 1)''',
+              '''func _on_shark_contacted(hylas_body: Node2D, source: Node = null) -> void:\n\t_on_damage_requested(hylas_body, 1, source)''',
+          )
+          p.write_text(s)
+
+          # Death drift now includes the newly supplied ninth frame and the exact
+          # 07-08-09-08 repeating cadence.
+          p = Path('scenes/characters/Hylas/hylas_reliable_input.gd')
+          s = p.read_text()
+          s = s.replace(
+              'const DIE_08: Texture2D = preload("res://assets/characters/die08.webp")',
+              'const DIE_08: Texture2D = preload("res://assets/characters/die08.webp")\nconst DIE_09: Texture2D = preload("res://assets/characters/die09.webp")',
+          )
+          s = s.replace(
+              '''\tsprite_frames.add_frame(DEATH_DRIFT_ANIMATION, DIE_07)\n\tsprite_frames.add_frame(DEATH_DRIFT_ANIMATION, DIE_08)''',
+              '''\tsprite_frames.add_frame(DEATH_DRIFT_ANIMATION, DIE_07)\n\tsprite_frames.add_frame(DEATH_DRIFT_ANIMATION, DIE_08)\n\tsprite_frames.add_frame(DEATH_DRIFT_ANIMATION, DIE_09)\n\tsprite_frames.add_frame(DEATH_DRIFT_ANIMATION, DIE_08)''',
+          )
+          p.write_text(s)
+
+          # The top-level live Hylas controller now opens the death menu after a
+          # fixed three-second drift, independently of seabed distance.
+          Path('scenes/characters/Hylas/hylas_phase6_fix.gd').write_text('''extends "res://scenes/characters/Hylas/hylas_equipment_input.gd"\n\nsignal surge_ram_started(origin: Vector2, direction: Vector2, duration: float)\n\n@export_category("Death Menu Timing")\n@export_range(0.5, 10.0, 0.1) var death_menu_drift_seconds: float = 3.0\n\nvar _death_menu_notification_sent: bool = false\nvar _death_menu_drift_elapsed: float = 0.0\n\n\nfunc activate_item_surge(duration_seconds: float = 30.0) -> bool:\n\tvar activated: bool = super.activate_item_surge(duration_seconds)\n\tif not activated:\n\t\treturn false\n\tvar direction: Vector2 = _burst_direction\n\tif direction.length_squared() <= 0.0001:\n\t\tdirection = Vector2.LEFT if _facing_left else Vector2.RIGHT\n\tsurge_ram_started.emit(global_position, direction.normalized(), duration_seconds)\n\treturn true\n\n\nfunc start_death_sequence() -> void:\n\tif is_death_sequence_active():\n\t\treturn\n\n\t# Greatfin and equipment visuals can replace SpriteFrames at runtime. Build the\n\t# death animations into a local copy of the currently active frame set.\n\tif is_instance_valid(_animated_sprite) and _animated_sprite.sprite_frames != null:\n\t\tvar local_frames: SpriteFrames = _animated_sprite.sprite_frames.duplicate(true) as SpriteFrames\n\t\t_animated_sprite.sprite_frames = local_frames\n\t\t_configure_death_animations()\n\n\tvar item_visuals: Node = get_node_or_null("ItemVisuals")\n\tif item_visuals != null and item_visuals.has_method(&"clear_item_visuals"):\n\t\titem_visuals.call(&"clear_item_visuals")\n\n\t_death_menu_notification_sent = false\n\t_death_menu_drift_elapsed = 0.0\n\tsuper.start_death_sequence()\n\n\nfunc cancel_death_sequence() -> void:\n\t_death_menu_notification_sent = false\n\t_death_menu_drift_elapsed = 0.0\n\tsuper.cancel_death_sequence()\n\n\nfunc _on_animation_finished() -> void:\n\tif not _death_sequence_active or _animated_sprite.animation != DEATH_INTRO_ANIMATION:\n\t\treturn\n\t_death_drift_active = true\n\t_death_menu_drift_elapsed = 0.0\n\t_set_animation(DEATH_DRIFT_ANIMATION)\n\n\nfunc _update_death_sequence(delta: float) -> void:\n\tsuper._update_death_sequence(delta)\n\tif not _death_drift_active or _death_menu_notification_sent:\n\t\treturn\n\t_death_menu_drift_elapsed += maxf(delta, 0.0)\n\tif _death_menu_drift_elapsed < death_menu_drift_seconds:\n\t\treturn\n\t_death_menu_notification_sent = true\n\tdeath_drift_started.emit()\n\n\nfunc get_debug_lines() -> Array[String]:\n\tvar lines: Array[String] = super.get_debug_lines()\n\tlines.append("death_menu_notified=%s" % str(_death_menu_notification_sent))\n\tlines.append("death_menu_drift_elapsed=%.2f" % _death_menu_drift_elapsed)\n\tlines.append("death_menu_drift_seconds=%.2f" % death_menu_drift_seconds)\n\treturn lines\n''')
+
+          # Static assertions keep this pass tied to the live implementation.
+          assertions = {
+              'rebuild_v3/app/contexts/gameplay/gameplay_hud.gd': ['Vector2(0.84, 0.85)'],
+              'rebuild_v3/features/black_bloom/black_bloom_hazard.tscn': ['ConusTargetShape', 'collision_layer = 1'],
+              'scenes/characters/Hylas/hylas_equipment_input.gd': ['func is_contact_immune()', 'collision_layer = 0 if is_active'],
+              'rebuild_v3/features/sea_of_pillars/sea_of_pillars.gd': ['_update_purple_shield_barrier', '_is_hylas_contact_immune'],
+              'scenes/characters/Hylas/hylas_reliable_input.gd': ['DIE_09', 'add_frame(DEATH_DRIFT_ANIMATION, DIE_09)'],
+              'scenes/characters/Hylas/hylas_phase6_fix.gd': ['death_menu_drift_seconds: float = 3.0', 'death_drift_started.emit()'],
+          }
+          for path, needles in assertions.items():
+              text = Path(path).read_text()
+              for needle in needles:
+                  if needle not in text:
+                      raise SystemExit(f'Missing assertion {needle!r} in {path}')
+          if not Path('assets/characters/die09.webp').exists():
+              raise SystemExit('The supplied die09.webp asset is missing')
+          PY
+      - name: Validate Godot project
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --editor --path . --quit-after 120 > /tmp/import.log 2>&1
+          godot --headless --path . --quit-after 10 > /tmp/run.log 2>&1 || true
+          cat /tmp/import.log
+          cat /tmp/run.log
+          if grep -E "SCRIPT ERROR|Parse Error|Failed loading resource|Cannot open file|Invalid cast|Invalid access|Shader error" /tmp/import.log /tmp/run.log; then exit 1; fi
+          git diff --check
+      - name: Commit validated fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          rm -f tmp_immunity_death_trigger.txt
+          git add -A
+          git diff --cached --check
+          git commit -m "Fix timed immunity, Black Bloom Conus and death sequence"
+          git push origin HEAD:work/immunity-death-fixes-2026-07-16
