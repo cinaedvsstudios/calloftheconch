@@ -1,1 +1,1 @@
-Trigger PR validation with indentation-safe direct patch loading.
+Trigger PR validation with precise structural patch diagnostics.
