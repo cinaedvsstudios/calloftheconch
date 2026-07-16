@@ -64,14 +64,6 @@ jobs:
               '"duration": 5.0',
           )
 
-          visuals = 'scenes/characters/Hylas/hylas_item_visuals.gd'
-          insert_after(
-              visuals,
-              '\telse:\n\t\t_animated_sprite.play(&"idle")\n',
-              '\n\nfunc is_greatfin_active() -> bool:\n\treturn _greatfin_active\n',
-              'func is_greatfin_active() -> bool:',
-          )
-
           hylas = 'scenes/characters/Hylas/hylas_equipment_input.gd'
           insert_after(
               hylas,
@@ -82,13 +74,13 @@ jobs:
           insert_after(
               hylas,
               'var _conus_climb_previous_facing_left: bool = false\n',
-              'var _conus_climb_sprite_base_position: Vector2 = Vector2.ZERO\n',
+              'var _conus_climb_sprite_base_position: Vector2 = Vector2.ZERO\nvar _conus_climb_normal_sprite_scale: Vector2 = Vector2.ONE\n',
               '_conus_climb_sprite_base_position',
           )
           insert_after(
               hylas,
               '\t_normal_collision_layer = collision_layer\n',
-              '\t_conus_climb_sprite_base_position = _animated_sprite.position\n',
+              '\t_conus_climb_sprite_base_position = _animated_sprite.position\n\t_conus_climb_normal_sprite_scale = _animated_sprite.scale\n',
               '\t_conus_climb_sprite_base_position = _animated_sprite.position',
           )
           text = Path(hylas).read_text()
@@ -114,8 +106,8 @@ jobs:
               hylas,
               'func _align_to_conus_rope() -> void:\n',
               '\n\nfunc _update_conus_climb_animation',
-              'func _align_to_conus_rope() -> void:\n\tvar rope_vector: Vector2 = _conus_climb_anchor - global_position\n\tif rope_vector.length_squared() <= 0.0001:\n\t\treturn\n\tvar rope_direction: Vector2 = rope_vector.normalized()\n\t_set_visual_rotation(rope_direction.angle() + PI * 0.5)\n\tvar greatfin_active: bool = (\n\t\tis_instance_valid(_item_visuals)\n\t\tand _item_visuals.is_greatfin_active()\n\t)\n\tif greatfin_active:\n\t\t_animated_sprite.position = _conus_climb_sprite_base_position\n\telse:\n\t\tvar rope_perpendicular: Vector2 = Vector2(-rope_direction.y, rope_direction.x)\n\t\t_animated_sprite.position = (\n\t\t\t_conus_climb_sprite_base_position\n\t\t\t+ rope_perpendicular * normal_conus_climb_sprite_perpendicular_offset\n\t\t)\n',
-              'var greatfin_active: bool = (',
+              'func _align_to_conus_rope() -> void:\n\tvar rope_vector: Vector2 = _conus_climb_anchor - global_position\n\tif rope_vector.length_squared() <= 0.0001:\n\t\treturn\n\tvar rope_direction: Vector2 = rope_vector.normalized()\n\t_set_visual_rotation(rope_direction.angle() + PI * 0.5)\n\tvar normal_scale_x: float = maxf(absf(_conus_climb_normal_sprite_scale.x), 0.001)\n\tvar greatfin_active: bool = absf(_animated_sprite.scale.x) > normal_scale_x * 1.15\n\tif greatfin_active:\n\t\t_animated_sprite.position = _conus_climb_sprite_base_position\n\telse:\n\t\tvar rope_perpendicular: Vector2 = Vector2(-rope_direction.y, rope_direction.x)\n\t\t_animated_sprite.position = (\n\t\t\t_conus_climb_sprite_base_position\n\t\t\t+ rope_perpendicular * normal_conus_climb_sprite_perpendicular_offset\n\t\t)\n',
+              'var normal_scale_x: float =',
           )
           PY
 
@@ -124,9 +116,9 @@ jobs:
         run: |
           set -euo pipefail
           grep -q '"duration": 5.0' rebuild_v3/app/contexts/gameplay/item_effect_controller.gd
-          grep -q 'func is_greatfin_active' scenes/characters/Hylas/hylas_item_visuals.gd
           grep -q '_conus_climb_tether.call(&"retract")' scenes/characters/Hylas/hylas_equipment_input.gd
           grep -q 'normal_conus_climb_sprite_perpendicular_offset: float = -24.0' scenes/characters/Hylas/hylas_equipment_input.gd
+          grep -q 'var greatfin_active: bool = absf(_animated_sprite.scale.x)' scenes/characters/Hylas/hylas_equipment_input.gd
 
       - name: Godot import validation
         shell: bash
@@ -181,7 +173,6 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add rebuild_v3/app/contexts/gameplay/item_effect_controller.gd \
-                  scenes/characters/Hylas/hylas_item_visuals.gd \
                   scenes/characters/Hylas/hylas_equipment_input.gd
           git add -u .github/terebridae_conus_fix_trigger.txt
           if git diff --cached --quiet; then exit 0; fi
