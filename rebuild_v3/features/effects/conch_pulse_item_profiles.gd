@@ -97,8 +97,6 @@ func _apply_profile(profile: Dictionary) -> void:
 	if not profile.is_empty() and arc_degrees >= 60.0:
 		_active_flash_scale_multiplier = maxf(_active_flash_scale_multiplier, 1.5)
 	_active_emission_profile_id = _resolve_emission_profile(profile)
-	if _active_emission_profile_id == EMISSION_PROFILE_TEREBRIDAE:
-		pulse_interval = TEREBRIDAE_REPEAT_INTERVAL
 	if _pulse_material != null:
 		_pulse_material.set_shader_parameter(&"tint_color", _active_pulse_tint)
 		_pulse_material.set_shader_parameter(&"arc_degrees", arc_degrees)
