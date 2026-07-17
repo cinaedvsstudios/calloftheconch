@@ -6,6 +6,7 @@
 [ext_resource type="Shader" uid="uid://vp7nqtlaohv3" path="res://rebuild_v3/features/effects/conch_pulse_flash.gdshader" id="5_flash_shader"]
 [ext_resource type="VideoStream" uid="uid://djd8vxpgepw1f" path="res://assets/effects/conchbeam.ogv" id="5_hk3gq"]
 [ext_resource type="Script" uid="uid://c3ow2nq2oqud" path="res://rebuild_v3/editor/conch_pulse_editor_preview.gd" id="6_editor_preview"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_fx_2d.tscn" id="7_weapon_emission"]
 
 [sub_resource type="ShaderMaterial" id="SonarArcMaterial"]
 resource_local_to_scene = true
@@ -39,6 +40,11 @@ texture = ExtResource("2_sonar")
 
 [node name="OriginFlashPivot" type="Node2D" parent="." unique_id=257524493]
 unique_name_in_owner = true
+
+[node name="WeaponEmissionFX" parent="OriginFlashPivot" instance=ExtResource("7_weapon_emission")]
+unique_name_in_owner = true
+z_index = 3
+scale = Vector2(2.6, 2.6)
 
 [node name="OriginFlashVisual" type="Node2D" parent="OriginFlashPivot" unique_id=659016289]
 unique_name_in_owner = true
