@@ -10,11 +10,12 @@ const HELD_SHELL_VISUAL_SCALE: float = 0.504
 const NORMAL_CONCH_ID: StringName = &"normal_conch"
 const SUPER_CONCH_ID: StringName = &"charonia_tritonis"
 const TEREBRIDAE_ID: StringName = &"terebridae"
+const CONUS_TEXTILE_ID: StringName = &"conus_textile"
 const SHELL_TEXTURES: Dictionary = {
 	NORMAL_CONCH_ID: preload("res://assets/characters/shell_normal_conch.png"),
 	SUPER_CONCH_ID: preload("res://assets/characters/shell_charonia_tritonis.png"),
 	TEREBRIDAE_ID: preload("res://assets/characters/shell_terebridae.png"),
-	&"conus_textile": preload("res://assets/characters/shell_conus_textile.png"),
+	CONUS_TEXTILE_ID: preload("res://assets/characters/shell_conus_textile.png"),
 }
 const HELD_SHELL_SCALE_MULTIPLIERS: Dictionary = {
 	SUPER_CONCH_ID: 1.20,
@@ -22,7 +23,8 @@ const HELD_SHELL_SCALE_MULTIPLIERS: Dictionary = {
 }
 const HELD_SHELL_POSITION_OFFSETS: Dictionary = {
 	SUPER_CONCH_ID: Vector2(0.0, -1.0),
-	TEREBRIDAE_ID: Vector2(0.0, -5.0),
+	TEREBRIDAE_ID: Vector2(0.0, -10.0),
+	CONUS_TEXTILE_ID: Vector2(0.0, -12.0),
 }
 
 @onready var _animated_sprite: AnimatedSprite2D = get_parent().get_node_or_null("AnimatedSprite") as AnimatedSprite2D
@@ -136,7 +138,12 @@ func get_shell_rope_origin() -> Vector2:
 	if _animated_sprite == null or _shell_overlay.texture == null:
 		return global_position
 	_sync_shell_overlay()
-	return _shell_overlay.global_position
+	var opening_direction: float = -1.0 if _shell_overlay.flip_h else 1.0
+	var opening_offset: Vector2 = Vector2(
+		float(_shell_overlay.texture.get_width()) * 0.42 * opening_direction,
+		0.0,
+	)
+	return _shell_overlay.to_global(opening_offset)
 
 func _refresh_shell_texture() -> void:
 	_shell_overlay.texture = SHELL_TEXTURES.get(_equipped_item_a, null) as Texture2D
@@ -168,8 +175,10 @@ func _sync_shell_overlay() -> void:
 	)
 	if item_position_offset is Vector2:
 		anchor_offset += item_position_offset
-	if _animated_sprite.frame < shell_frame_offsets.size():
-		anchor_offset += shell_frame_offsets[_animated_sprite.frame]
+	var source_frame_index: int = _get_source_conch_frame_index()
+	if source_frame_index >= 0 and source_frame_index < shell_frame_offsets.size():
+		anchor_offset += shell_frame_offsets[source_frame_index]
+	anchor_offset *= _get_live_visual_scale_ratio()
 	if _animated_sprite.flip_h:
 		anchor_offset.x = -anchor_offset.x
 	_shell_overlay.position = anchor_offset.rotated(_animated_sprite.rotation)
@@ -184,6 +193,18 @@ func _sync_shell_overlay() -> void:
 	_shell_overlay.self_modulate = _animated_sprite.self_modulate
 	_shell_overlay.modulate.a *= _get_shell_frame_alpha()
 	_shell_overlay.z_index = _animated_sprite.z_index - 1
+
+func _get_live_visual_scale_ratio() -> Vector2:
+	return Vector2(
+		absf(_animated_sprite.scale.x) / maxf(absf(_base_sprite_scale.x), 0.001),
+		absf(_animated_sprite.scale.y) / maxf(absf(_base_sprite_scale.y), 0.001),
+	)
+
+func _get_source_conch_frame_index() -> int:
+	var frame_count: int = _animated_sprite.sprite_frames.get_frame_count(&"conch")
+	if frame_count >= 10:
+		return clampi(_animated_sprite.frame - 2, 0, 5)
+	return clampi(_animated_sprite.frame, 0, 5)
 
 func _get_shell_frame_alpha() -> float:
 	if _equipped_item_a != NORMAL_CONCH_ID and _equipped_item_a != SUPER_CONCH_ID:
