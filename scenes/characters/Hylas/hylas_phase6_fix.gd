@@ -20,6 +20,14 @@ func activate_item_surge(duration_seconds: float = 30.0) -> bool:
 	return true
 
 
+func hold_current_item_pose_for_duration(duration_seconds: float) -> void:
+	if duration_seconds <= 0.0 or not is_instance_valid(_animated_sprite):
+		return
+	if _animated_sprite.animation != &"conch":
+		return
+	_conch_remaining = maxf(_conch_remaining, duration_seconds)
+
+
 func start_death_sequence() -> void:
 	if is_death_sequence_active():
 		return
