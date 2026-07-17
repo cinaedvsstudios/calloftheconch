@@ -9,6 +9,12 @@ const PROFILE_CONUS_TEXTILE: StringName = &"conus_textile"
 @export_category("Weapon Emission VFX")
 @export_range(0.10, 1.00, 0.01) var effect_duration: float = 0.42
 
+@export_category("Optional Autoplay")
+@export var autoplay_on_ready: bool = false
+@export var autoplay_profile_id: StringName = PROFILE_NORMAL_CONCH
+@export var autoplay_parent_anchor_method: StringName = &""
+@export var autoplay_direction_node_path: NodePath = ^""
+
 @onready var _radial_glow: Sprite2D = %RadialGlow
 @onready var _additive_core: Sprite2D = %AdditiveCore
 @onready var _primary_sparks: GPUParticles2D = %PrimarySparks
@@ -26,6 +32,8 @@ func _ready() -> void:
 	_finish_timer.timeout.connect(stop_effect)
 	_duplicate_particle_materials()
 	stop_effect()
+	if autoplay_on_ready:
+		call_deferred(&"_play_deferred_autoplay")
 
 
 func play_profile(
@@ -175,6 +183,35 @@ func is_active() -> bool:
 
 func get_active_profile_id() -> StringName:
 	return _active_profile_id
+
+
+func _play_deferred_autoplay() -> void:
+	if not is_inside_tree():
+		return
+	var source: Node = get_parent()
+	var effect_position: Vector2 = global_position
+	var effect_direction: Vector2 = Vector2.RIGHT
+
+	if source != null:
+		if (
+				not String(autoplay_parent_anchor_method).is_empty()
+				and source.has_method(autoplay_parent_anchor_method)
+		):
+			var anchor_value: Variant = source.call(autoplay_parent_anchor_method)
+			if anchor_value is Vector2:
+				effect_position = anchor_value
+
+		if not String(autoplay_direction_node_path).is_empty():
+			var direction_node: Node2D = source.get_node_or_null(
+				autoplay_direction_node_path
+			) as Node2D
+			if direction_node != null:
+				effect_direction = Vector2.RIGHT.rotated(direction_node.rotation)
+
+	top_level = true
+	global_position = effect_position
+	global_rotation = 0.0
+	play_profile(autoplay_profile_id, effect_direction)
 
 
 func _normalize_profile_id(profile_id: StringName) -> StringName:
