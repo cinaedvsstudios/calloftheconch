@@ -51,7 +51,6 @@ jobs:
           code=$?
           set -e
           if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource' /tmp/godot-import.log; then
-            echo 'Relevant Godot import errors:'
             grep -n -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource' /tmp/godot-import.log | tail -n 80
             tail -n 120 /tmp/godot-import.log
             exit 1
@@ -63,24 +62,44 @@ jobs:
           fi
 
       - name: Runtime smoke test
+        id: runtime
         shell: bash
         run: |
           set +e
           timeout 25s godot --headless --path . --quit-after 5 > /tmp/godot-runtime.log 2>&1
           code=$?
           set -e
-          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log; then
-            echo 'Relevant Godot runtime errors:'
-            grep -n -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log | tail -n 80
-            echo 'Runtime log tail:'
+          failed=false
+          {
+            echo "exit_code=$code"
+            echo
+            echo "matching_errors:"
+            grep -n -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log | tail -n 80 || true
+            echo
+            echo "runtime_tail:"
             tail -n 120 /tmp/godot-runtime.log
-            exit 1
+          } > /tmp/runtime-summary.txt
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log > /dev/null; then
+            failed=true
+          elif [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
+            failed=true
           fi
-          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
-            echo "Godot runtime exited with code $code"
-            tail -n 120 /tmp/godot-runtime.log
-            exit "$code"
-          fi
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
+
+      - name: Upload runtime diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terebridae-runtime-diagnostic
+          path: /tmp/runtime-summary.txt
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Fail on runtime error
+        if: steps.runtime.outputs.failed == 'true'
+        run: |
+          cat /tmp/runtime-summary.txt
+          exit 1
 
       - name: Remove temporary validation files
         run: |
