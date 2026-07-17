@@ -33,6 +33,7 @@ var _conus_climb_anchor: Vector2 = Vector2.ZERO
 var _conus_climb_maximum_distance: float = 0.0
 var _conus_climb_tether: Node
 var _conus_climb_previous_facing_left: bool = false
+var _conus_climb_wait_for_conch_release: bool = false
 var _conus_climb_sprite_base_position: Vector2 = Vector2.ZERO
 var _conus_climb_normal_sprite_scale: Vector2 = Vector2.ONE
 
@@ -128,6 +129,7 @@ func begin_conus_wall_climb(anchor_position: Vector2, tether: Node) -> void:
 	_conus_climb_active = true
 	_conus_climb_anchor = anchor_position
 	_conus_climb_tether = tether
+	_conus_climb_wait_for_conch_release = Input.is_action_pressed(&"conch")
 	_conus_climb_maximum_distance = maxf(
 		conus_climb_minimum_distance,
 		global_position.distance_to(anchor_position),
@@ -161,6 +163,7 @@ func end_conus_wall_climb(tether: Node = null) -> void:
 		return
 	_conus_climb_active = false
 	_conus_climb_tether = null
+	_conus_climb_wait_for_conch_release = false
 	_conus_climb_maximum_distance = 0.0
 	_facing_left = _conus_climb_previous_facing_left
 	_animated_sprite.speed_scale = 1.0
@@ -240,15 +243,8 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if _conus_climb_active:
-		if event.is_action_pressed(&"conch", false, true) and _is_primary_item_a_binding(event):
-			_space_action_pressed_this_frame = false
-			_pending_conch_remaining = 0.0
-			_pending_interaction_remaining = 0.0
-			if is_instance_valid(_conus_climb_tether) and _conus_climb_tether.has_method(&"retract"):
-				_conus_climb_tether.call(&"retract")
-			else:
-				end_conus_wall_climb()
-			get_viewport().set_input_as_handled()
+		# Climb retraction is owned by _physics_process so firing and retraction
+		# read the same Input action state.
 		return
 
 	# Exact matching is essential because Item A, Item B and Tail Flip can share
@@ -272,6 +268,19 @@ func _input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
 	_item_surge_remaining = maxf(0.0, _item_surge_remaining - delta)
 	if _conus_climb_active:
+		if _conus_climb_wait_for_conch_release:
+			if not Input.is_action_pressed(&"conch"):
+				_conus_climb_wait_for_conch_release = false
+		elif Input.is_action_just_pressed(&"conch"):
+			_space_action_pressed_this_frame = false
+			_pending_conch_remaining = 0.0
+			_pending_interaction_remaining = 0.0
+			_utility_item_pressed_this_frame = false
+			if is_instance_valid(_conus_climb_tether) and _conus_climb_tether.has_method(&"retract"):
+				_conus_climb_tether.call(&"retract")
+			else:
+				end_conus_wall_climb()
+			return
 		_update_conus_wall_climb(delta)
 		_utility_item_pressed_this_frame = false
 		return

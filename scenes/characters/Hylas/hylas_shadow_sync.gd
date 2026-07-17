@@ -27,5 +27,6 @@ func _sync_texture() -> void:
 func _sync_to_animated_sprite() -> void:
 	_sync_texture()
 	flip_h = _animated_sprite.flip_h
+	position = _animated_sprite.position
 	rotation = _animated_sprite.rotation
 	scale = _animated_sprite.scale
