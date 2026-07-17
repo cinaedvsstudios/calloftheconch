@@ -25,7 +25,7 @@ class FakeTether:
 			hylas.call(&"end_conus_wall_climb", self)
 
 
-func _initialize() -> void:
+func _init() -> void:
 	var hylas: Node = HYLAS_SCENE.instantiate()
 	root.add_child(hylas)
 	hylas.call(
