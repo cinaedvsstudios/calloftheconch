@@ -20,6 +20,8 @@ signal tether_finished
 @export_range(0.1, 12.0, 0.1) var dart_glow_pulse_speed: float = 3.2
 @export_range(1.0, 30.0, 0.5) var dart_point_glow_radius: float = 8.0
 
+@onready var _launch_emission: CotcWeaponEmissionFX2D = %LaunchEmission
+@onready var _impact_emission: CotcWeaponEmissionFX2D = %ImpactEmission
 @onready var _rope_bloom: Line2D = $RopeBloom
 @onready var _rope_glow: Line2D = %RopeGlow
 @onready var _rope: Line2D = %Rope
@@ -34,12 +36,11 @@ var _travelled_distance: float = 0.0
 var _wall_tethered: bool = false
 var _elapsed: float = 0.0
 
-
 func _ready() -> void:
 	set_physics_process(false)
+	_impact_emission.stop_effect()
 	_apply_dart_scale()
 	queue_redraw()
-
 
 func launch(origin: Vector2, direction: Vector2, source: Node2D) -> void:
 	_source = source
@@ -54,7 +55,6 @@ func launch(origin: Vector2, direction: Vector2, source: Node2D) -> void:
 	_dart_glow.rotation = _direction.angle()
 	_update_visuals()
 	set_physics_process(true)
-
 
 func _physics_process(delta: float) -> void:
 	_elapsed += delta
@@ -78,7 +78,6 @@ func _physics_process(delta: float) -> void:
 			_anchor_tether(null)
 	_update_visuals()
 
-
 func _intersect_dart_path(from: Vector2, to: Vector2) -> Dictionary:
 	var query: PhysicsRayQueryParameters2D = PhysicsRayQueryParameters2D.create(from, to, 1)
 	query.collide_with_areas = true
@@ -86,7 +85,6 @@ func _intersect_dart_path(from: Vector2, to: Vector2) -> Dictionary:
 	if _source is CollisionObject2D:
 		query.exclude = [(_source as CollisionObject2D).get_rid()]
 	return get_world_2d().direct_space_state.intersect_ray(query)
-
 
 func _anchor_tether(collider: Object) -> void:
 	var resolved_target: Node = _resolve_dart_target(collider)
@@ -97,11 +95,19 @@ func _anchor_tether(collider: Object) -> void:
 	if collider == null:
 		retract()
 		return
+	_play_wall_impact_effect()
 	_wall_tethered = true
 	if is_instance_valid(_source) and _source.has_method(&"begin_conus_wall_climb"):
 		_source.call(&"begin_conus_wall_climb", _dart_world_position, self)
 	_update_visuals()
 
+func _play_wall_impact_effect() -> void:
+	if not is_instance_valid(_impact_emission):
+		return
+	_impact_emission.top_level = true
+	_impact_emission.global_position = _dart_world_position
+	_impact_emission.global_rotation = 0.0
+	_impact_emission.play_profile(&"conus_textile", -_direction)
 
 func retract() -> void:
 	if is_queued_for_deletion():
@@ -112,18 +118,14 @@ func retract() -> void:
 	tether_finished.emit()
 	queue_free()
 
-
 func is_wall_tethered() -> bool:
 	return _wall_tethered
-
 
 func get_anchor_position() -> Vector2:
 	return _dart_world_position
 
-
 func get_launch_emission_origin() -> Vector2:
 	return _launch_emission_world_position
-
 
 func _resolve_dart_target(collider: Object) -> Node:
 	var current: Node = collider as Node
@@ -134,7 +136,6 @@ func _resolve_dart_target(collider: Object) -> Node:
 		current = current.get_parent()
 		parent_checks += 1
 	return null
-
 
 func _apply_conus_stun(target: Node) -> void:
 	if target.has_method(&"receive_conus_dart"):
@@ -150,7 +151,6 @@ func _apply_conus_stun(target: Node) -> void:
 			1.0,
 		)
 
-
 func _get_rope_origin(fallback: Vector2) -> Vector2:
 	if not is_instance_valid(_source):
 		return fallback
@@ -162,7 +162,6 @@ func _get_rope_origin(fallback: Vector2) -> Vector2:
 	if marker != null:
 		return marker.global_position
 	return _source.global_position + _direction * 100.0
-
 
 func _update_visuals() -> void:
 	var source_position: Vector2 = _get_rope_origin(_dart_world_position - _direction * 20.0)
@@ -206,7 +205,6 @@ func _update_visuals() -> void:
 	)
 	queue_redraw()
 
-
 func _apply_dart_scale() -> void:
 	if _dart.texture == null:
 		return
@@ -216,7 +214,6 @@ func _apply_dart_scale() -> void:
 	var scale_factor: float = dart_display_height / texture_height
 	_dart.scale = Vector2.ONE * scale_factor
 	_dart_glow.scale = Vector2.ONE * scale_factor * 1.10
-
 
 func _draw() -> void:
 	if _dart.texture == null:
