@@ -51,11 +51,7 @@ func _update_conch(delta: float) -> void:
 		return
 
 	_conch_remaining = maxf(0.0, _conch_remaining - delta)
-	_special_velocity = _special_velocity.move_toward(
-		Vector2.ZERO,
-		idle_momentum_deceleration * delta,
-	)
-	_update_held_conch_steering(delta)
+	_update_terebridae_motion(delta)
 
 	var frame_count: int = _animated_sprite.sprite_frames.get_frame_count(&"conch")
 	var hold_frame: int = _get_terebridae_hold_frame(frame_count)
@@ -85,6 +81,30 @@ func _update_conch(delta: float) -> void:
 	if _terebridae_release_remaining <= 0.0:
 		_finish_terebridae_pose()
 
+func _update_terebridae_motion(delta: float) -> void:
+	var input_direction: Vector2 = Input.get_vector(
+		&"move_left",
+		&"move_right",
+		&"move_up",
+		&"move_down",
+	)
+	if input_direction.length_squared() <= 0.0001:
+		_special_velocity = _special_velocity.move_toward(
+			Vector2.ZERO,
+			idle_momentum_deceleration * delta,
+		)
+		return
+
+	var swim_direction: Vector2 = _normal_swim_direction(input_direction)
+	_special_velocity = _special_velocity.move_toward(
+		swim_direction * swim_speed,
+		swim_acceleration * delta,
+	)
+	_set_visual_rotation(
+		_direction_rotation(swim_direction, normal_swim_vertical_angle_degrees)
+	)
+	_animated_sprite.flip_h = _facing_left
+
 func _get_terebridae_hold_frame(frame_count: int) -> int:
 	if frame_count >= 10:
 		return NORMAL_TEREBRIDAE_HOLD_FRAME_INDEX
@@ -94,20 +114,6 @@ func _get_terebridae_release_frame(frame_count: int) -> int:
 	if frame_count >= 10:
 		return NORMAL_TEREBRIDAE_RELEASE_FRAME_INDEX
 	return maxi(0, frame_count - 1)
-
-func _update_held_conch_steering(delta: float) -> void:
-	var vertical_input: float = Input.get_axis(&"move_up", &"move_down")
-	if absf(vertical_input) <= 0.01:
-		return
-	var vertical_axis: float = -1.0 if vertical_input < 0.0 else 1.0
-	var facing_axis: float = -1.0 if _facing_left else 1.0
-	var target_rotation: float = (
-		vertical_axis
-		* facing_axis
-		* deg_to_rad(conch_direction_angle_degrees)
-	)
-	var rotation_step: float = deg_to_rad(conch_steer_speed_degrees) * delta
-	_set_visual_rotation(move_toward(_visual_rotation, target_rotation, rotation_step))
 
 func _finish_terebridae_pose() -> void:
 	_clear_terebridae_pose_state()
@@ -132,16 +138,14 @@ func begin_conus_wall_climb(anchor_position: Vector2, tether: Node) -> void:
 	super.begin_conus_wall_climb(anchor_position, tether)
 	if not _conus_climb_active or not is_instance_valid(_animated_sprite):
 		return
+
+	_facing_left = _conus_climb_previous_facing_left
 	_animated_sprite.scale = _conus_climb_previous_visual_scale
-	if _animated_sprite.sprite_frames.has_animation(_conus_climb_previous_animation):
-		_animated_sprite.animation = _conus_climb_previous_animation
-		_animated_sprite.frame = mini(
-			_conus_climb_previous_frame,
-			_animated_sprite.sprite_frames.get_frame_count(
-				_conus_climb_previous_animation
-			) - 1,
-		)
-		_animated_sprite.pause()
+	var conch_frame_count: int = _animated_sprite.sprite_frames.get_frame_count(&"conch")
+	_animated_sprite.animation = &"conch"
+	_animated_sprite.frame = _get_terebridae_hold_frame(conch_frame_count)
+	_animated_sprite.flip_h = _facing_left
+	_animated_sprite.pause()
 
 func end_conus_wall_climb(tether: Node = null) -> void:
 	var was_climbing: bool = _conus_climb_active
@@ -272,6 +276,7 @@ func _update_conus_climb_animation(climb_axis: float) -> void:
 
 	if not _conus_climb_started:
 		_conus_climb_started = true
+		_facing_left = false
 		_animated_sprite.scale = (
 			_conus_climb_previous_visual_scale
 			* CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER
