@@ -3,6 +3,7 @@ extends AnimatedSprite2D
 
 const RING_POINT_COUNT: int = 40
 const RING_BASE_RADIUS: float = 50.0
+const FALLBACK_HORIZONTAL_SPEED: float = 220.0
 
 @export_category("Surface Splash VFX")
 @export_range(0.20, 2.00, 0.01) var effect_duration: float = 0.90
@@ -19,9 +20,11 @@ const RING_BASE_RADIUS: float = 50.0
 var _droplet_material: ParticleProcessMaterial
 var _mist_material: ParticleProcessMaterial
 var _ring_tween: Tween
+var _default_is_exit: bool = true
 
 
 func _ready() -> void:
+	_default_is_exit = not name.to_lower().contains("entry")
 	animation_finished.connect(_on_animation_finished)
 	_effect_timer.timeout.connect(stop_splash)
 	_duplicate_particle_materials()
@@ -31,17 +34,22 @@ func _ready() -> void:
 
 func trigger(
 		world_position: Vector2,
-		is_exit: bool = true,
+		is_exit_override: Variant = null,
 		horizontal_velocity: float = 0.0,
 	) -> void:
+	var is_exit: bool = _default_is_exit
+	if is_exit_override is bool:
+		is_exit = bool(is_exit_override)
+	var resolved_horizontal_velocity: float = _resolve_horizontal_velocity(horizontal_velocity)
+
 	stop_splash()
 	global_position = world_position
 	show()
 	self_modulate = Color.WHITE
 	frame = 0
-	_configure_particles(is_exit, horizontal_velocity)
+	_configure_particles(is_exit, resolved_horizontal_velocity)
 	_start_particles()
-	_start_surface_ring(is_exit, horizontal_velocity)
+	_start_surface_ring(is_exit, resolved_horizontal_velocity)
 	play(&"splash")
 	_effect_timer.start(effect_duration)
 
@@ -60,6 +68,27 @@ func stop_splash() -> void:
 	_surface_ring.scale = Vector2.ONE
 	_surface_ring.modulate = Color.WHITE
 	hide()
+
+
+func _resolve_horizontal_velocity(provided_velocity: float) -> float:
+	if not is_zero_approx(provided_velocity):
+		return provided_velocity
+	var level_owner: Node = owner
+	if level_owner == null:
+		level_owner = get_parent()
+	if level_owner == null:
+		return 0.0
+
+	var hylas: CharacterBody2D = level_owner.get_node_or_null("%Hylas") as CharacterBody2D
+	if hylas == null:
+		return 0.0
+	if not is_zero_approx(hylas.velocity.x):
+		return hylas.velocity.x
+
+	var hylas_sprite: AnimatedSprite2D = hylas.get_node_or_null("%AnimatedSprite") as AnimatedSprite2D
+	if hylas_sprite == null:
+		return 0.0
+	return -FALLBACK_HORIZONTAL_SPEED if hylas_sprite.flip_h else FALLBACK_HORIZONTAL_SPEED
 
 
 func _duplicate_particle_materials() -> void:
