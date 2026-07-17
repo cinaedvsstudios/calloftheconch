@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/effects/splash3.webp" id="4_splash_3"]
 [ext_resource type="Texture2D" path="res://assets/effects/splash4.webp" id="5_splash_4"]
 [ext_resource type="Texture2D" path="res://assets/effects/splash5.webp" id="6_splash_5"]
+[ext_resource type="Texture2D" path="res://rebuild_v3/features/effects/splash_particle.svg" id="7_particle"]
 
 [sub_resource type="SpriteFrames" id="SurfaceSplashFrames"]
 animations = [{
@@ -15,8 +16,102 @@ animations = [{
 "speed": 12.0
 }]
 
+[sub_resource type="CanvasItemMaterial" id="SplashAdditiveMaterial"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="DropletGradient"]
+offsets = PackedFloat32Array(0, 0.58, 1)
+colors = PackedColorArray(0.95, 1, 1, 1, 0.42, 0.92, 1, 0.94, 0.08, 0.58, 0.92, 0)
+
+[sub_resource type="GradientTexture1D" id="DropletColorRamp"]
+gradient = SubResource("DropletGradient")
+
+[sub_resource type="ParticleProcessMaterial" id="DropletProcessMaterial"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(42, 4, 1)
+direction = Vector3(0, -1, 0)
+spread = 54.0
+gravity = Vector3(0, 620, 0)
+initial_velocity_min = 260.0
+initial_velocity_max = 480.0
+damping_min = 10.0
+damping_max = 30.0
+scale_min = 0.12
+scale_max = 0.34
+color_ramp = SubResource("DropletColorRamp")
+
+[sub_resource type="Gradient" id="MistGradient"]
+offsets = PackedFloat32Array(0, 0.45, 1)
+colors = PackedColorArray(0.88, 0.99, 1, 0.72, 0.45, 0.9, 1, 0.42, 0.18, 0.66, 0.92, 0)
+
+[sub_resource type="GradientTexture1D" id="MistColorRamp"]
+gradient = SubResource("MistGradient")
+
+[sub_resource type="ParticleProcessMaterial" id="MistProcessMaterial"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(56, 6, 1)
+direction = Vector3(0, -1, 0)
+spread = 68.0
+gravity = Vector3(0, 170, 0)
+initial_velocity_min = 80.0
+initial_velocity_max = 175.0
+damping_min = 18.0
+damping_max = 42.0
+scale_min = 0.28
+scale_max = 0.68
+color_ramp = SubResource("MistColorRamp")
+
 [node name="SurfaceSplash" type="AnimatedSprite2D"]
 sprite_frames = SubResource("SurfaceSplashFrames")
 animation = &"splash"
 centered = true
 script = ExtResource("1_controller")
+
+[node name="SurfaceRing" type="Line2D" parent="."]
+unique_name_in_owner = true
+visible = false
+show_behind_parent = true
+z_index = -1
+material = SubResource("SplashAdditiveMaterial")
+width = 7.0
+default_color = Color(0.78, 0.96, 1, 0.95)
+closed = true
+antialiased = true
+
+[node name="FineMist" type="GPUParticles2D" parent="."]
+unique_name_in_owner = true
+show_behind_parent = true
+z_index = -1
+material = SubResource("SplashAdditiveMaterial")
+emitting = false
+amount = 18
+lifetime = 0.62
+one_shot = true
+explosiveness = 0.96
+randomness = 0.72
+local_coords = false
+visibility_rect = Rect2(-320, -320, 640, 640)
+process_material = SubResource("MistProcessMaterial")
+texture = ExtResource("7_particle")
+
+[node name="DropletBurst" type="GPUParticles2D" parent="."]
+unique_name_in_owner = true
+z_index = 1
+material = SubResource("SplashAdditiveMaterial")
+emitting = false
+amount = 24
+lifetime = 0.78
+one_shot = true
+explosiveness = 1.0
+randomness = 0.55
+local_coords = false
+visibility_rect = Rect2(-360, -360, 720, 720)
+process_material = SubResource("DropletProcessMaterial")
+texture = ExtResource("7_particle")
+
+[node name="EffectTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.9
+one_shot = true
