@@ -148,6 +148,42 @@ func end_conus_wall_climb(tether: Node = null) -> void:
 		_animated_sprite.scale = restore_scale
 
 
+func get_conus_rope_origin() -> Vector2:
+	if _conus_climb_active:
+		var rope_vector: Vector2 = _conus_climb_anchor - global_position
+		if rope_vector.length_squared() > 0.0001:
+			return (
+				global_position
+				+ rope_vector.normalized()
+				* conus_rope_hand_offset
+				* CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER
+			)
+	return super.get_conus_rope_origin()
+
+
+func _align_to_conus_rope() -> void:
+	var rope_vector: Vector2 = _conus_climb_anchor - global_position
+	if rope_vector.length_squared() <= 0.0001:
+		return
+	var rope_direction: Vector2 = rope_vector.normalized()
+	_set_visual_rotation(rope_direction.angle() + PI * 0.5)
+	var normal_scale_x: float = maxf(absf(_conus_climb_normal_sprite_scale.x), 0.001)
+	var greatfin_active: bool = (
+		absf(_conus_climb_previous_visual_scale.x)
+		> normal_scale_x * 1.15
+	)
+	if greatfin_active:
+		_animated_sprite.position = _conus_climb_sprite_base_position
+	else:
+		var rope_perpendicular: Vector2 = Vector2(-rope_direction.y, rope_direction.x)
+		_animated_sprite.position = (
+			_conus_climb_sprite_base_position
+			+ rope_perpendicular
+			* normal_conus_climb_sprite_perpendicular_offset
+			* CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER
+		)
+
+
 func clear_item_effect_state() -> void:
 	_clear_terebridae_pose_state()
 	super.clear_item_effect_state()
