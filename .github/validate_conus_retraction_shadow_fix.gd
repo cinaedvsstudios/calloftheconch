@@ -1,6 +1,7 @@
 extends SceneTree
 
 const HYLAS_SCENE: PackedScene = preload("res://scenes/characters/Hylas/hylas.tscn")
+const TEST_DELTA: float = 1.0 / 60.0
 
 
 class FakeTether:
@@ -25,20 +26,8 @@ class FakeTether:
 
 
 func _initialize() -> void:
-	call_deferred(&"_run_validation")
-
-
-func _fail(message: String) -> void:
-	push_error(message)
-	Input.action_release(&"conch")
-	quit(1)
-
-
-func _run_validation() -> void:
 	var hylas: Node = HYLAS_SCENE.instantiate()
 	root.add_child(hylas)
-	await process_frame
-
 	hylas.call(
 		&"configure_world",
 		Rect2(Vector2(-2000.0, -2000.0), Vector2(4000.0, 4000.0)),
@@ -51,11 +40,11 @@ func _run_validation() -> void:
 	tether.hylas = hylas
 	root.add_child(tether)
 
-	# Simulate the original firing press still being held when the tether anchors.
+	# Hold the original firing press while the tether anchors. The release latch
+	# must prevent this same press from retracting it.
 	Input.action_press(&"conch")
 	hylas.call(&"begin_conus_wall_climb", tether.anchor_position, tether)
-	await physics_frame
-	await process_frame
+	hylas.call(&"_physics_process", TEST_DELTA)
 
 	if tether.retract_called:
 		_fail("Conus tether retracted from the original firing press.")
@@ -66,6 +55,7 @@ func _run_validation() -> void:
 
 	var animated_sprite: AnimatedSprite2D = hylas.get_node("AnimatedSprite") as AnimatedSprite2D
 	var shadow_sprite: Sprite2D = hylas.get_node("ShadowSprite") as Sprite2D
+	shadow_sprite.call(&"_sync_to_animated_sprite")
 	if animated_sprite.position.is_equal_approx(Vector2.ZERO):
 		_fail("Normal climb alignment did not apply its sprite offset.")
 		return
@@ -76,12 +66,12 @@ func _run_validation() -> void:
 		)
 		return
 
-	# Release the firing press, then press Space again. This second press must be
-	# consumed by the climb state and retract the existing tether without refiring.
+	# Release the firing press so the latch clears, then press Space again. The
+	# second press must retract the existing tether before ordinary firing can run.
 	Input.action_release(&"conch")
-	await physics_frame
+	hylas.call(&"_physics_process", TEST_DELTA)
 	Input.action_press(&"conch")
-	await physics_frame
+	hylas.call(&"_physics_process", TEST_DELTA)
 
 	if not tether.retract_called:
 		_fail("The second Conus press did not retract the wall tether.")
@@ -91,8 +81,11 @@ func _run_validation() -> void:
 		return
 
 	Input.action_release(&"conch")
-	hylas.queue_free()
-	tether.queue_free()
-	await process_frame
 	print("Conus retraction and shadow alignment validation passed.")
 	quit(0)
+
+
+func _fail(message: String) -> void:
+	push_error(message)
+	Input.action_release(&"conch")
+	quit(1)
