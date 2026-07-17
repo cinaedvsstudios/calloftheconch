@@ -46,11 +46,20 @@ jobs:
       - name: Import and parse project
         shell: bash
         run: |
-          set -o pipefail
-          timeout 600s godot --headless --editor --path . --quit-after 3 2>&1 | tee /tmp/godot-import.log
+          set +e
+          timeout 600s godot --headless --editor --path . --quit-after 3 > /tmp/godot-import.log 2>&1
+          code=$?
+          set -e
           if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource' /tmp/godot-import.log; then
-            echo 'Godot reported a script or resource error.'
+            echo 'Relevant Godot import errors:'
+            grep -n -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource' /tmp/godot-import.log | tail -n 80
+            tail -n 120 /tmp/godot-import.log
             exit 1
+          fi
+          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
+            echo "Godot import exited with code $code"
+            tail -n 120 /tmp/godot-import.log
+            exit "$code"
           fi
 
       - name: Runtime smoke test
