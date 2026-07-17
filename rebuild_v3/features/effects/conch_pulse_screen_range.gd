@@ -8,7 +8,12 @@ extends "res://rebuild_v3/features/effects/conch_pulse.gd"
 @export_range(0.05, 1.0, 0.01) var visual_fade_end_fraction: float = 0.50
 @export_range(0.5, 1.0, 0.01) var visual_end_scale: float = 0.92
 
+@export_category("Continuous Stream")
+@export_range(0.0, 10.0, 0.05) var continuous_emission_duration: float = 0.0
+
 var _minimum_pulse_diameter: float = 700.0
+var _continuous_next_emit_time: float = 0.0
+var _continuous_pulse_started_at: Array[float] = []
 
 
 func _ready() -> void:
@@ -24,6 +29,17 @@ func _process(delta: float) -> void:
 	pulse_range = _calculate_screen_edge_diameter(global_position, _pulse_direction)
 	_sequence_elapsed += delta
 	_update_pulse_stream()
+
+	if continuous_emission_duration > 0.0:
+		if (
+				_continuous_next_emit_time > continuous_emission_duration
+				and not _has_active_continuous_pulses()
+			):
+			_sequence_active = false
+			set_process(false)
+			_hide_when_finished()
+		return
+
 	var final_pulse_delay: float = float(maxi(0, _pulse_sprites.size() - 1)) * pulse_interval
 	if _sequence_elapsed >= final_pulse_delay + pulse_duration:
 		_sequence_active = false
@@ -50,6 +66,14 @@ func trigger_from_player(origin: Vector2, direction: Vector2, player_origin: Vec
 	super.trigger_from_player(origin, pulse_direction, player_origin)
 
 
+func _reset_pulse_state() -> void:
+	super._reset_pulse_state()
+	_continuous_next_emit_time = 0.0
+	_continuous_pulse_started_at.resize(_pulse_sprites.size())
+	for pulse_index: int in range(_continuous_pulse_started_at.size()):
+		_continuous_pulse_started_at[pulse_index] = -1.0
+
+
 func _update_pulse_stream() -> void:
 	var fade_start_fraction: float = clampf(visual_fade_start_fraction, 0.05, 0.95)
 	var fade_end_fraction: float = clampf(
@@ -59,12 +83,24 @@ func _update_pulse_stream() -> void:
 	)
 	var reach_edge_time: float = maxf(0.01, pulse_duration * fade_start_fraction)
 	var fade_end_time: float = maxf(reach_edge_time + 0.01, pulse_duration * fade_end_fraction)
+	var continuous_stream_active: bool = continuous_emission_duration > 0.0
+
+	if continuous_stream_active:
+		_emit_continuous_pulses()
 
 	for pulse_index: int in range(_pulse_sprites.size()):
-		if _pulse_finished[pulse_index]:
-			continue
+		if continuous_stream_active:
+			if _continuous_pulse_started_at[pulse_index] < 0.0:
+				continue
+		else:
+			if _pulse_finished[pulse_index]:
+				continue
 
-		var local_elapsed: float = _sequence_elapsed - float(pulse_index) * pulse_interval
+		var local_elapsed: float = (
+			_sequence_elapsed - _continuous_pulse_started_at[pulse_index]
+			if continuous_stream_active
+			else _sequence_elapsed - float(pulse_index) * pulse_interval
+		)
 		if local_elapsed < 0.0:
 			continue
 
@@ -91,7 +127,11 @@ func _update_pulse_stream() -> void:
 			visual_diameter = pulse_range * lerpf(1.0, visual_end_scale, eased_fade)
 
 		_apply_diameter(pulse_sprite, visual_diameter)
-		var echo_strength: float = maxf(0.25, 1.0 - float(pulse_index) * echo_alpha_decay)
+		var echo_strength: float = (
+			1.0
+			if continuous_stream_active
+			else maxf(0.25, 1.0 - float(pulse_index) * echo_alpha_decay)
+		)
 		pulse_sprite.modulate.a = visual_alpha * echo_strength
 
 		var current_radius: float = hit_diameter * 0.5
@@ -105,11 +145,45 @@ func _update_pulse_stream() -> void:
 			pulse_sprite.modulate.a = 0.0
 			pulse_sprite.hide()
 			pulse_wave_finished.emit(pulse_index)
+			if continuous_stream_active:
+				_continuous_pulse_started_at[pulse_index] = -1.0
 
 	if _flash_active and _sequence_elapsed >= fade_end_time:
 		_flash_active = false
 		_origin_flash.stop()
 		_origin_flash.hide()
+
+
+func _emit_continuous_pulses() -> void:
+	var emission_interval: float = maxf(0.01, pulse_interval)
+	var emission_limit: float = minf(_sequence_elapsed, continuous_emission_duration)
+	while _continuous_next_emit_time <= emission_limit + 0.0001:
+		var pulse_index: int = _find_available_continuous_pulse()
+		if pulse_index < 0:
+			return
+		_continuous_pulse_started_at[pulse_index] = _continuous_next_emit_time
+		_pulse_started[pulse_index] = false
+		_pulse_finished[pulse_index] = false
+		_pulse_previous_radius[pulse_index] = 0.0
+		_pulse_hit_targets[pulse_index] = {}
+		var pulse_sprite: Sprite2D = _pulse_sprites[pulse_index]
+		pulse_sprite.modulate.a = 0.0
+		pulse_sprite.hide()
+		_continuous_next_emit_time += emission_interval
+
+
+func _find_available_continuous_pulse() -> int:
+	for pulse_index: int in range(_continuous_pulse_started_at.size()):
+		if _continuous_pulse_started_at[pulse_index] < 0.0:
+			return pulse_index
+	return -1
+
+
+func _has_active_continuous_pulses() -> bool:
+	for started_at: float in _continuous_pulse_started_at:
+		if started_at >= 0.0:
+			return true
+	return false
 
 
 func _calculate_screen_edge_diameter(origin: Vector2, direction: Vector2) -> float:
