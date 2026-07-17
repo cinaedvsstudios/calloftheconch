@@ -60,11 +60,16 @@ jobs:
           timeout 25s godot --headless --path . --quit-after 5 > /tmp/godot-runtime.log 2>&1
           code=$?
           set -e
-          cat /tmp/godot-runtime.log
           if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log; then
+            echo 'Relevant Godot runtime errors:'
+            grep -n -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log | tail -n 80
+            echo 'Runtime log tail:'
+            tail -n 120 /tmp/godot-runtime.log
             exit 1
           fi
           if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
+            echo "Godot runtime exited with code $code"
+            tail -n 120 /tmp/godot-runtime.log
             exit "$code"
           fi
 
