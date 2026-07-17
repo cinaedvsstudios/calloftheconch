@@ -2,11 +2,20 @@ extends "res://scenes/characters/Hylas/hylas_equipment_input.gd"
 
 signal surge_ram_started(origin: Vector2, direction: Vector2, duration: float)
 
+const TEREBRIDAE_HOLD_FRAME_INDEX: int = 6
+const TEREBRIDAE_RELEASE_FRAME_INDEX: int = 7
+const CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER: float = 1.15
+
 @export_category("Death Menu Timing")
 @export_range(0.5, 10.0, 0.1) var death_menu_drift_seconds: float = 3.0
 
 var _death_menu_notification_sent: bool = false
 var _death_menu_drift_elapsed: float = 0.0
+var _terebridae_pose_active: bool = false
+var _terebridae_release_active: bool = false
+var _terebridae_stream_remaining: float = 0.0
+var _terebridae_release_remaining: float = 0.0
+var _conus_climb_previous_visual_scale: Vector2 = Vector2.ONE
 
 
 func activate_item_surge(duration_seconds: float = 30.0) -> bool:
@@ -25,12 +34,117 @@ func hold_current_item_pose_for_duration(duration_seconds: float) -> void:
 		return
 	if _animated_sprite.animation != &"conch":
 		return
-	_conch_remaining = maxf(_conch_remaining, duration_seconds)
+	_terebridae_pose_active = true
+	_terebridae_release_active = false
+	_terebridae_stream_remaining = duration_seconds
+	_terebridae_release_remaining = 0.0
+	var release_duration: float = 1.0 / maxf(0.1, conch_animation_fps)
+	_conch_remaining = maxf(_conch_remaining, duration_seconds + release_duration)
+	if not _animated_sprite.is_playing():
+		_animated_sprite.play(&"conch")
+
+
+func _update_conch(delta: float) -> void:
+	if not _terebridae_pose_active:
+		super._update_conch(delta)
+		return
+
+	_conch_remaining = maxf(0.0, _conch_remaining - delta)
+	_special_velocity = _special_velocity.move_toward(
+		Vector2.ZERO,
+		idle_momentum_deceleration * delta,
+	)
+	_update_held_conch_steering(delta)
+
+	var frame_count: int = _animated_sprite.sprite_frames.get_frame_count(&"conch")
+	var hold_frame: int = mini(TEREBRIDAE_HOLD_FRAME_INDEX, frame_count - 1)
+	var release_frame: int = mini(TEREBRIDAE_RELEASE_FRAME_INDEX, frame_count - 1)
+
+	if _terebridae_stream_remaining > 0.0:
+		_terebridae_stream_remaining = maxf(0.0, _terebridae_stream_remaining - delta)
+		if _animated_sprite.animation != &"conch":
+			_set_animation(&"conch")
+		if _animated_sprite.frame >= hold_frame:
+			_animated_sprite.frame = hold_frame
+			_animated_sprite.pause()
+		return
+
+	if not _terebridae_release_active:
+		_terebridae_release_active = true
+		_terebridae_release_remaining = 1.0 / maxf(0.1, conch_animation_fps)
+		_animated_sprite.animation = &"conch"
+		_animated_sprite.frame = release_frame
+		_animated_sprite.pause()
+		return
+
+	_terebridae_release_remaining = maxf(0.0, _terebridae_release_remaining - delta)
+	_animated_sprite.animation = &"conch"
+	_animated_sprite.frame = release_frame
+	_animated_sprite.pause()
+	if _terebridae_release_remaining <= 0.0:
+		_finish_terebridae_pose()
+
+
+func _update_held_conch_steering(delta: float) -> void:
+	var vertical_input: float = Input.get_axis(&"move_up", &"move_down")
+	if absf(vertical_input) <= 0.01:
+		return
+	var vertical_axis: float = -1.0 if vertical_input < 0.0 else 1.0
+	var facing_axis: float = -1.0 if _facing_left else 1.0
+	var target_rotation: float = (
+		vertical_axis
+		* facing_axis
+		* deg_to_rad(conch_direction_angle_degrees)
+	)
+	var rotation_step: float = deg_to_rad(conch_steer_speed_degrees) * delta
+	_set_visual_rotation(move_toward(_visual_rotation, target_rotation, rotation_step))
+
+
+func _finish_terebridae_pose() -> void:
+	_clear_terebridae_pose_state()
+	_conch_remaining = 0.0
+	_set_visual_rotation(0.0)
+	if _play_enabled and not _death_sequence_active:
+		_set_animation(&"idle")
+
+
+func _clear_terebridae_pose_state() -> void:
+	_terebridae_pose_active = false
+	_terebridae_release_active = false
+	_terebridae_stream_remaining = 0.0
+	_terebridae_release_remaining = 0.0
+
+
+func begin_conus_wall_climb(anchor_position: Vector2, tether: Node) -> void:
+	if is_instance_valid(_animated_sprite):
+		_conus_climb_previous_visual_scale = _animated_sprite.scale
+	super.begin_conus_wall_climb(anchor_position, tether)
+	if not _conus_climb_active or not is_instance_valid(_animated_sprite):
+		return
+	_animated_sprite.scale = (
+		_conus_climb_previous_visual_scale
+		* CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER
+	)
+	_align_to_conus_rope()
+
+
+func end_conus_wall_climb(tether: Node = null) -> void:
+	var was_climbing: bool = _conus_climb_active
+	var restore_scale: Vector2 = _conus_climb_previous_visual_scale
+	super.end_conus_wall_climb(tether)
+	if was_climbing and not _conus_climb_active and is_instance_valid(_animated_sprite):
+		_animated_sprite.scale = restore_scale
+
+
+func clear_item_effect_state() -> void:
+	_clear_terebridae_pose_state()
+	super.clear_item_effect_state()
 
 
 func start_death_sequence() -> void:
 	if is_death_sequence_active():
 		return
+	_clear_terebridae_pose_state()
 
 	# Greatfin and equipment visuals can replace SpriteFrames at runtime. Build the
 	# death animations into a local copy of the currently active frame set.
@@ -78,4 +192,7 @@ func get_debug_lines() -> Array[String]:
 	lines.append("death_menu_notified=%s" % str(_death_menu_notification_sent))
 	lines.append("death_menu_drift_elapsed=%.2f" % _death_menu_drift_elapsed)
 	lines.append("death_menu_drift_seconds=%.2f" % death_menu_drift_seconds)
+	lines.append("terebridae_pose_active=%s" % str(_terebridae_pose_active))
+	lines.append("terebridae_stream_remaining=%.2f" % _terebridae_stream_remaining)
+	lines.append("conus_climb_visual_scale=%.2f" % CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER)
 	return lines
