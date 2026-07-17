@@ -61,49 +61,17 @@ jobs:
             exit "$code"
           fi
 
-      - name: Runtime smoke test
-        id: runtime
+      - name: Run focused conch-pulse validation
         shell: bash
         run: |
-          set +e
-          timeout 25s godot --headless --path . --quit-after 5 > /tmp/godot-runtime.log 2>&1
-          code=$?
-          set -e
-          failed=false
-          {
-            echo "exit_code=$code"
-            echo
-            echo "matching_errors:"
-            grep -n -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log | tail -n 80 || true
-            echo
-            echo "runtime_tail:"
-            tail -n 120 /tmp/godot-runtime.log
-          } > /tmp/runtime-summary.txt
-          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource|ERROR:.*(script|resource)' /tmp/godot-runtime.log > /dev/null; then
-            failed=true
-          elif [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
-            failed=true
-          fi
-          echo "failed=$failed" >> "$GITHUB_OUTPUT"
-
-      - name: Upload runtime diagnostic
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: terebridae-runtime-diagnostic
-          path: /tmp/runtime-summary.txt
-          if-no-files-found: error
-          retention-days: 1
-
-      - name: Fail on runtime error
-        if: steps.runtime.outputs.failed == 'true'
-        run: |
-          cat /tmp/runtime-summary.txt
-          exit 1
+          set -o pipefail
+          timeout 60s godot --headless --path . --script .github/validate_terebridae_continuous_stream.gd 2>&1 | tee /tmp/terebridae-validation.log
+          grep -F 'Terebridae continuous stream validation passed:' /tmp/terebridae-validation.log
 
       - name: Remove temporary validation files
         run: |
           rm .github/apply_terebridae_continuous_stream.py
+          rm .github/validate_terebridae_continuous_stream.gd
           rm .github/workflows/validate_terebridae_continuous_stream.yml
 
       - name: Commit verified production change
