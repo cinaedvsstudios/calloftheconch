@@ -125,6 +125,12 @@ func clear_item_visuals() -> void:
 	_refresh_sprite_material()
 	_shell_overlay.hide()
 
+func get_shell_rope_origin() -> Vector2:
+	if _animated_sprite == null or _shell_overlay.texture == null:
+		return get_parent().global_position
+	_sync_shell_overlay()
+	return _shell_overlay.global_position
+
 func _refresh_shell_texture() -> void:
 	_shell_overlay.texture = SHELL_TEXTURES.get(_equipped_item_a, null) as Texture2D
 
@@ -163,7 +169,7 @@ func _sync_shell_overlay() -> void:
 	_shell_overlay.flip_v = _animated_sprite.flip_v
 	_shell_overlay.modulate = _animated_sprite.modulate
 	_shell_overlay.self_modulate = _animated_sprite.self_modulate
-	_shell_overlay.z_index = _animated_sprite.z_index + 1
+	_shell_overlay.z_index = _animated_sprite.z_index - 1
 
 func get_debug_lines() -> Array[String]:
 	return [
