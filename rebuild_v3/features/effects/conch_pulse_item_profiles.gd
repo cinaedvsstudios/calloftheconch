@@ -1,5 +1,11 @@
 extends "res://rebuild_v3/features/effects/conch_pulse_screen_range.gd"
 
+const EMISSION_PROFILE_NORMAL: StringName = &"normal_conch"
+const EMISSION_PROFILE_SUPER: StringName = &"super_conch"
+const EMISSION_PROFILE_TEREBRIDAE: StringName = &"terebridae"
+
+@onready var _weapon_emission: CotcWeaponEmissionFX2D = %WeaponEmissionFX
+
 var _default_arc_degrees: float
 var _default_close_arc_degrees: float
 var _default_sonar_brightness: float
@@ -13,6 +19,7 @@ var _default_flash_scale: Vector2 = Vector2.ONE
 var _active_pulse_tint: Color = Color.WHITE
 var _active_flash_tint: Color = Color.WHITE
 var _active_flash_scale_multiplier: float = 1.0
+var _active_emission_profile_id: StringName = EMISSION_PROFILE_NORMAL
 var _profile_trigger_pending: bool = false
 
 
@@ -30,6 +37,7 @@ func _ready() -> void:
 	_active_pulse_tint = _default_pulse_tint
 	_active_flash_tint = _default_flash_modulate
 	super._ready()
+	_weapon_emission.stop_effect()
 
 
 func trigger_from_player(origin: Vector2, direction: Vector2, player_origin: Vector2) -> void:
@@ -43,6 +51,11 @@ func trigger_profile_from_player(origin: Vector2, direction: Vector2, player_ori
 	_profile_trigger_pending = true
 	_apply_profile(profile)
 	trigger_from_player(origin, direction, player_origin)
+
+
+func stop() -> void:
+	_weapon_emission.stop_effect()
+	super.stop()
 
 
 func _apply_profile(profile: Dictionary) -> void:
@@ -62,10 +75,22 @@ func _apply_profile(profile: Dictionary) -> void:
 	_active_flash_scale_multiplier = float(profile.get("flash_scale_multiplier", 1.0))
 	if not profile.is_empty() and arc_degrees >= 60.0:
 		_active_flash_scale_multiplier = maxf(_active_flash_scale_multiplier, 1.5)
+	_active_emission_profile_id = _resolve_emission_profile(profile)
 	if _pulse_material != null:
 		_pulse_material.set_shader_parameter(&"tint_color", _active_pulse_tint)
 		_pulse_material.set_shader_parameter(&"arc_degrees", arc_degrees)
 		_pulse_material.set_shader_parameter(&"brightness", sonar_brightness)
+
+
+func _resolve_emission_profile(profile: Dictionary) -> StringName:
+	var explicit_profile: StringName = StringName(str(profile.get("emission_profile_id", "")))
+	if not String(explicit_profile).is_empty():
+		return explicit_profile
+	if continuous_emission_duration > 0.0:
+		return EMISSION_PROFILE_TEREBRIDAE
+	if not profile.is_empty() and arc_degrees >= 60.0:
+		return EMISSION_PROFILE_SUPER
+	return EMISSION_PROFILE_NORMAL
 
 
 func _reset_pulse_state() -> void:
@@ -77,6 +102,14 @@ func _reset_pulse_state() -> void:
 func _play_origin_flash() -> void:
 	_origin_flash.self_modulate = Color(_active_flash_tint.r, _active_flash_tint.g, _active_flash_tint.b, _default_flash_modulate.a)
 	_origin_flash.scale = _default_flash_scale * _active_flash_scale_multiplier
+	var primary_override: Variant = null
+	if _active_emission_profile_id != EMISSION_PROFILE_NORMAL:
+		primary_override = _active_flash_tint
+	_weapon_emission.play_profile(
+		_active_emission_profile_id,
+		Vector2.RIGHT,
+		primary_override,
+	)
 	super._play_origin_flash()
 
 
@@ -87,4 +120,6 @@ func get_debug_lines() -> Array[String]:
 	lines.append("profile_tint=%s" % str(_active_pulse_tint))
 	lines.append("profile_flash_scale=%.2f" % _active_flash_scale_multiplier)
 	lines.append("profile_stream_duration=%.2f" % continuous_emission_duration)
+	lines.append("weapon_emission_active=%s" % str(_weapon_emission.is_active()))
+	lines.append("weapon_emission_profile=%s" % String(_active_emission_profile_id))
 	return lines
