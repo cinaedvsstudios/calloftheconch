@@ -73,7 +73,7 @@ script = ExtResource("17_item_visuals")
 
 [node name="ConchOverlayAnchor" type="Marker2D" parent="ItemVisuals"]
 unique_name_in_owner = true
-position = Vector2(58, -42)
+position = Vector2(54, -42)
 
 [node name="EquippedShellOverlay" type="Sprite2D" parent="ItemVisuals"]
 unique_name_in_owner = true
