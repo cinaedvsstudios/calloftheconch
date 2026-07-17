@@ -26,6 +26,10 @@ class FakeTether:
 
 
 func _init() -> void:
+	call_deferred(&"_run_validation")
+
+
+func _run_validation() -> void:
 	var hylas: Node = HYLAS_SCENE.instantiate()
 	root.add_child(hylas)
 	hylas.call(
