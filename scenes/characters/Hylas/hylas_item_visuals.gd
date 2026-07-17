@@ -127,7 +127,7 @@ func clear_item_visuals() -> void:
 
 func get_shell_rope_origin() -> Vector2:
 	if _animated_sprite == null or _shell_overlay.texture == null:
-		return get_parent().global_position
+		return global_position
 	_sync_shell_overlay()
 	return _shell_overlay.global_position
 
