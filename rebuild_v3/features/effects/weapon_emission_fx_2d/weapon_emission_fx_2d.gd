@@ -7,7 +7,7 @@ const PROFILE_TEREBRIDAE: StringName = &"terebridae"
 const PROFILE_CONUS_TEXTILE: StringName = &"conus_textile"
 
 @export_category("Weapon Emission VFX")
-@export_range(0.10, 1.00, 0.01) var effect_duration: float = 0.28
+@export_range(0.10, 1.00, 0.01) var effect_duration: float = 0.20
 
 @export_category("Optional Autoplay")
 @export var autoplay_on_ready: bool = false
@@ -47,8 +47,8 @@ func play_profile(
 	var primary_color: Color = Color(0.10, 0.88, 1.00, 1.00)
 	var accent_color: Color = Color(0.70, 0.96, 1.00, 1.00)
 	var core_color: Color = Color(0.90, 0.99, 1.00, 1.00)
-	var glow_scale: float = 1.32
-	var core_scale: float = 0.54
+	var glow_scale: float = 0.99
+	var core_scale: float = 0.405
 	var primary_amount: int = 16
 	var accent_amount: int = 7
 	var spark_spread: float = 42.0
@@ -66,8 +66,8 @@ func play_profile(
 			primary_color = Color(0.16, 1.00, 0.30, 1.00)
 			accent_color = Color(0.76, 1.00, 0.80, 1.00)
 			core_color = Color(0.96, 1.00, 0.96, 1.00)
-			glow_scale = 1.62
-			core_scale = 0.66
+			glow_scale = 1.215
+			core_scale = 0.495
 			primary_amount = 23
 			accent_amount = 10
 			spark_spread = 54.0
@@ -78,13 +78,13 @@ func play_profile(
 			spark_scale_min = 0.11
 			spark_scale_max = 0.26
 			angular_velocity = 120.0
-			play_duration = maxf(effect_duration, 0.32)
+			play_duration = maxf(effect_duration, 0.24)
 		PROFILE_TEREBRIDAE:
 			primary_color = Color(1.00, 0.08, 0.88, 1.00)
 			accent_color = Color(1.00, 0.66, 0.94, 1.00)
 			core_color = Color(1.00, 0.88, 0.98, 1.00)
-			glow_scale = 1.08
-			core_scale = 0.50
+			glow_scale = 0.81
+			core_scale = 0.375
 			primary_amount = 18
 			accent_amount = 8
 			spark_spread = 17.0
@@ -95,13 +95,13 @@ func play_profile(
 			spark_scale_min = 0.08
 			spark_scale_max = 0.19
 			angular_velocity = 300.0
-			play_duration = minf(effect_duration, 0.24)
+			play_duration = minf(effect_duration, 0.16)
 		PROFILE_CONUS_TEXTILE:
 			primary_color = Color(1.00, 0.42, 0.06, 1.00)
 			accent_color = Color(0.62, 0.18, 1.00, 1.00)
 			core_color = Color(1.00, 0.91, 0.78, 1.00)
-			glow_scale = 1.24
-			core_scale = 0.52
+			glow_scale = 0.93
+			core_scale = 0.39
 			primary_amount = 16
 			accent_amount = 11
 			spark_spread = 32.0
@@ -112,7 +112,7 @@ func play_profile(
 			spark_scale_min = 0.09
 			spark_scale_max = 0.21
 			angular_velocity = 180.0
-			play_duration = maxf(effect_duration, 0.30)
+			play_duration = maxf(effect_duration, 0.22)
 
 	if primary_override is Color:
 		primary_color = primary_override
@@ -196,7 +196,7 @@ func _play_deferred_autoplay() -> void:
 		if (
 				not String(autoplay_parent_anchor_method).is_empty()
 				and source.has_method(autoplay_parent_anchor_method)
-			):
+		):
 			var anchor_value: Variant = source.call(autoplay_parent_anchor_method)
 			if anchor_value is Vector2:
 				effect_position = anchor_value
