@@ -16,6 +16,8 @@ var _terebridae_release_active: bool = false
 var _terebridae_stream_remaining: float = 0.0
 var _terebridae_release_remaining: float = 0.0
 var _conus_climb_previous_visual_scale: Vector2 = Vector2.ONE
+var _conus_climb_previous_animation: StringName = &"idle"
+var _conus_climb_previous_frame: int = 0
 
 
 func activate_item_surge(duration_seconds: float = 30.0) -> bool:
@@ -130,6 +132,8 @@ func _clear_terebridae_pose_state() -> void:
 func begin_conus_wall_climb(anchor_position: Vector2, tether: Node) -> void:
 	if is_instance_valid(_animated_sprite):
 		_conus_climb_previous_visual_scale = _animated_sprite.scale
+		_conus_climb_previous_animation = _animated_sprite.animation
+		_conus_climb_previous_frame = _animated_sprite.frame
 	super.begin_conus_wall_climb(anchor_position, tether)
 	if not _conus_climb_active or not is_instance_valid(_animated_sprite):
 		return
@@ -137,6 +141,15 @@ func begin_conus_wall_climb(anchor_position: Vector2, tether: Node) -> void:
 		_conus_climb_previous_visual_scale
 		* CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER
 	)
+	if _animated_sprite.sprite_frames.has_animation(_conus_climb_previous_animation):
+		_animated_sprite.animation = _conus_climb_previous_animation
+		_animated_sprite.frame = mini(
+			_conus_climb_previous_frame,
+			_animated_sprite.sprite_frames.get_frame_count(
+				_conus_climb_previous_animation
+			) - 1,
+		)
+		_animated_sprite.pause()
 	_align_to_conus_rope()
 
 
@@ -149,6 +162,13 @@ func end_conus_wall_climb(tether: Node = null) -> void:
 
 
 func get_conus_rope_origin() -> Vector2:
+	if (
+			not _conus_climb_active
+			and is_instance_valid(_animated_sprite)
+			and _animated_sprite.animation == &"conch"
+			and is_instance_valid(_item_visuals)
+		):
+		return _item_visuals.get_shell_rope_origin()
 	if _conus_climb_active:
 		var rope_vector: Vector2 = _conus_climb_anchor - global_position
 		if rope_vector.length_squared() > 0.0001:
@@ -182,6 +202,40 @@ func _align_to_conus_rope() -> void:
 			* normal_conus_climb_sprite_perpendicular_offset
 			* CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER
 		)
+
+
+func _update_conus_climb_animation(climb_axis: float) -> void:
+	if climb_axis == 0.0:
+		_animated_sprite.speed_scale = 1.0
+		_animated_sprite.pause()
+		return
+
+	var desired_speed: float = 1.0 if climb_axis > 0.0 else -1.0
+	if _animated_sprite.animation != CONUS_CLIMB_ANIMATION:
+		_set_animation(CONUS_CLIMB_ANIMATION)
+		_animated_sprite.frame = (
+			0
+			if desired_speed > 0.0
+			else _animated_sprite.sprite_frames.get_frame_count(
+				CONUS_CLIMB_ANIMATION
+			) - 1
+		)
+		_animated_sprite.speed_scale = desired_speed
+		_animated_sprite.play(CONUS_CLIMB_ANIMATION)
+		return
+
+	if (
+			not _animated_sprite.is_playing()
+			or not is_equal_approx(_animated_sprite.speed_scale, desired_speed)
+		):
+		_animated_sprite.speed_scale = desired_speed
+		if desired_speed < 0.0 and _animated_sprite.frame == 0:
+			_animated_sprite.frame = (
+				_animated_sprite.sprite_frames.get_frame_count(
+					CONUS_CLIMB_ANIMATION
+				) - 1
+			)
+		_animated_sprite.play(CONUS_CLIMB_ANIMATION)
 
 
 func clear_item_effect_state() -> void:
