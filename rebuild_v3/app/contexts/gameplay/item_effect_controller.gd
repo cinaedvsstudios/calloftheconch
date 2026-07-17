@@ -188,7 +188,7 @@ func _activate_profiled_conch(
 			"flash_tint": sonic_drill_tint,
 			"echo_alpha_decay": 0.06,
 			"pulse_interval_scale": 0.48,
-			"duration": 5.0,
+			"stream_duration": 5.0,
 		}
 	_level.call(&"trigger_special_conch", origin, direction, profile)
 	return true
