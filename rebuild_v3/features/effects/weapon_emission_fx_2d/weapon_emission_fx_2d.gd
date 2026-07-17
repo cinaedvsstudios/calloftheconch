@@ -7,7 +7,7 @@ const PROFILE_TEREBRIDAE: StringName = &"terebridae"
 const PROFILE_CONUS_TEXTILE: StringName = &"conus_textile"
 
 @export_category("Weapon Emission VFX")
-@export_range(0.10, 1.00, 0.01) var effect_duration: float = 0.42
+@export_range(0.10, 1.00, 0.01) var effect_duration: float = 0.28
 
 @export_category("Optional Autoplay")
 @export var autoplay_on_ready: bool = false
@@ -56,8 +56,8 @@ func play_profile(
 	var primary_velocity_max: float = 430.0
 	var accent_velocity_min: float = 150.0
 	var accent_velocity_max: float = 310.0
-	var spark_scale_min: float = 0.14
-	var spark_scale_max: float = 0.30
+	var spark_scale_min: float = 0.09
+	var spark_scale_max: float = 0.22
 	var angular_velocity: float = 90.0
 	var play_duration: float = effect_duration
 
@@ -75,10 +75,10 @@ func play_profile(
 			primary_velocity_max = 530.0
 			accent_velocity_min = 190.0
 			accent_velocity_max = 390.0
-			spark_scale_min = 0.17
-			spark_scale_max = 0.38
+			spark_scale_min = 0.11
+			spark_scale_max = 0.26
 			angular_velocity = 120.0
-			play_duration = maxf(effect_duration, 0.48)
+			play_duration = maxf(effect_duration, 0.32)
 		PROFILE_TEREBRIDAE:
 			primary_color = Color(1.00, 0.08, 0.88, 1.00)
 			accent_color = Color(1.00, 0.66, 0.94, 1.00)
@@ -92,10 +92,10 @@ func play_profile(
 			primary_velocity_max = 520.0
 			accent_velocity_min = 210.0
 			accent_velocity_max = 390.0
-			spark_scale_min = 0.12
-			spark_scale_max = 0.27
+			spark_scale_min = 0.08
+			spark_scale_max = 0.19
 			angular_velocity = 300.0
-			play_duration = minf(effect_duration, 0.36)
+			play_duration = minf(effect_duration, 0.24)
 		PROFILE_CONUS_TEXTILE:
 			primary_color = Color(1.00, 0.42, 0.06, 1.00)
 			accent_color = Color(0.62, 0.18, 1.00, 1.00)
@@ -109,10 +109,10 @@ func play_profile(
 			primary_velocity_max = 465.0
 			accent_velocity_min = 185.0
 			accent_velocity_max = 350.0
-			spark_scale_min = 0.13
-			spark_scale_max = 0.31
+			spark_scale_min = 0.09
+			spark_scale_max = 0.21
 			angular_velocity = 180.0
-			play_duration = maxf(effect_duration, 0.42)
+			play_duration = maxf(effect_duration, 0.30)
 
 	if primary_override is Color:
 		primary_color = primary_override
@@ -196,7 +196,7 @@ func _play_deferred_autoplay() -> void:
 		if (
 				not String(autoplay_parent_anchor_method).is_empty()
 				and source.has_method(autoplay_parent_anchor_method)
-		):
+			):
 			var anchor_value: Variant = source.call(autoplay_parent_anchor_method)
 			if anchor_value is Vector2:
 				effect_position = anchor_value
