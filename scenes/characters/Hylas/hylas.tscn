@@ -17,6 +17,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/powerdown1.mp3" id="15_powerdown_audio"]
 [ext_resource type="Script" path="res://rebuild_v3/editor/hylas_editor_preview.gd" id="16_editor_preview"]
 [ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_item_visuals.gd" id="17_item_visuals"]
+[ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_action_vfx.gd" id="18_action_vfx"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
 shader = ExtResource("10_shadow_shader")
@@ -79,6 +80,10 @@ position = Vector2(44, -47)
 [node name="EquippedShellOverlay" type="Sprite2D" parent="ItemVisuals"]
 unique_name_in_owner = true
 visible = false
+
+[node name="ActionVFX" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("18_action_vfx")
 
 [node name="CollisionShape" type="CollisionShape2D" parent="." unique_id=2142548371]
 unique_name_in_owner = true
