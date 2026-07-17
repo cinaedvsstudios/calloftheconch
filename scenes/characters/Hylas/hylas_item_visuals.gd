@@ -162,10 +162,12 @@ func _sync_shell_overlay() -> void:
 		return
 
 	var anchor_offset: Vector2 = _shell_overlay_anchor.position
-	anchor_offset += HELD_SHELL_POSITION_OFFSETS.get(
+	var item_position_offset: Variant = HELD_SHELL_POSITION_OFFSETS.get(
 		_equipped_item_a,
 		Vector2.ZERO,
-	) as Vector2
+	)
+	if item_position_offset is Vector2:
+		anchor_offset += item_position_offset
 	if _animated_sprite.frame < shell_frame_offsets.size():
 		anchor_offset += shell_frame_offsets[_animated_sprite.frame]
 	if _animated_sprite.flip_h:
