@@ -35,7 +35,7 @@ rope_wave_height = 4.0
 z_index = 4
 autoplay_on_ready = true
 autoplay_profile_id = &"conus_textile"
-autoplay_parent_anchor_method = &"get_anchor_position"
+autoplay_parent_anchor_method = &"get_launch_emission_origin"
 autoplay_direction_node_path = NodePath("Dart")
 
 [node name="RopeBloom" type="Line2D" parent="."]
