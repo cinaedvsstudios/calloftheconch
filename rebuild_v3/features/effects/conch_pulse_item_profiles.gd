@@ -51,6 +51,7 @@ func trigger_profile_from_player(origin: Vector2, direction: Vector2, player_ori
 	_profile_trigger_pending = true
 	_apply_profile(profile)
 	trigger_from_player(origin, direction, player_origin)
+	_hold_terebridae_pose_for_stream()
 
 
 func stop() -> void:
@@ -91,6 +92,19 @@ func _resolve_emission_profile(profile: Dictionary) -> StringName:
 	if not profile.is_empty() and arc_degrees >= 60.0:
 		return EMISSION_PROFILE_SUPER
 	return EMISSION_PROFILE_NORMAL
+
+
+func _hold_terebridae_pose_for_stream() -> void:
+	if _active_emission_profile_id != EMISSION_PROFILE_TEREBRIDAE:
+		return
+	if not is_instance_valid(_player_source):
+		return
+	if not _player_source.has_method(&"hold_current_item_pose_for_duration"):
+		return
+	_player_source.call(
+		&"hold_current_item_pose_for_duration",
+		continuous_emission_duration,
+	)
 
 
 func _reset_pulse_state() -> void:
