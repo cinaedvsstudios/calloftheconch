@@ -29,6 +29,7 @@ signal tether_finished
 var _source: Node2D
 var _direction: Vector2 = Vector2.RIGHT
 var _dart_world_position: Vector2 = Vector2.ZERO
+var _launch_emission_world_position: Vector2 = Vector2.ZERO
 var _travelled_distance: float = 0.0
 var _wall_tethered: bool = false
 var _elapsed: float = 0.0
@@ -43,7 +44,9 @@ func _ready() -> void:
 func launch(origin: Vector2, direction: Vector2, source: Node2D) -> void:
 	_source = source
 	_direction = direction.normalized() if direction.length_squared() > 0.0001 else Vector2.RIGHT
-	_dart_world_position = _get_rope_origin(origin) + _direction * 18.0
+	var rope_origin: Vector2 = _get_rope_origin(origin)
+	_launch_emission_world_position = rope_origin
+	_dart_world_position = rope_origin + _direction * 18.0
 	_travelled_distance = 0.0
 	_wall_tethered = false
 	_elapsed = 0.0
@@ -116,6 +119,10 @@ func is_wall_tethered() -> bool:
 
 func get_anchor_position() -> Vector2:
 	return _dart_world_position
+
+
+func get_launch_emission_origin() -> Vector2:
+	return _launch_emission_world_position
 
 
 func _resolve_dart_target(collider: Object) -> Node:
