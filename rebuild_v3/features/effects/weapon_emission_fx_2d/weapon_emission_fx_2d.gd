@@ -56,8 +56,8 @@ func play_profile(
 	var primary_velocity_max: float = 430.0
 	var accent_velocity_min: float = 150.0
 	var accent_velocity_max: float = 310.0
-	var spark_scale_min: float = 0.09
-	var spark_scale_max: float = 0.22
+	var spark_scale_min: float = 0.0675
+	var spark_scale_max: float = 0.165
 	var angular_velocity: float = 90.0
 	var play_duration: float = effect_duration
 
@@ -66,8 +66,8 @@ func play_profile(
 			primary_color = Color(0.16, 1.00, 0.30, 1.00)
 			accent_color = Color(0.76, 1.00, 0.80, 1.00)
 			core_color = Color(0.96, 1.00, 0.96, 1.00)
-			glow_scale = 1.215
-			core_scale = 0.495
+			glow_scale = 0.91125
+			core_scale = 0.37125
 			primary_amount = 23
 			accent_amount = 10
 			spark_spread = 54.0
@@ -75,8 +75,8 @@ func play_profile(
 			primary_velocity_max = 530.0
 			accent_velocity_min = 190.0
 			accent_velocity_max = 390.0
-			spark_scale_min = 0.11
-			spark_scale_max = 0.26
+			spark_scale_min = 0.055
+			spark_scale_max = 0.13
 			angular_velocity = 120.0
 			play_duration = maxf(effect_duration, 0.24)
 		PROFILE_TEREBRIDAE:
