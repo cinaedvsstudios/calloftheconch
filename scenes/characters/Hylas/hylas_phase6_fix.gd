@@ -18,7 +18,8 @@ var _terebridae_release_remaining: float = 0.0
 var _conus_climb_previous_visual_scale: Vector2 = Vector2.ONE
 var _conus_climb_previous_animation: StringName = &"idle"
 var _conus_climb_previous_frame: int = 0
-
+var _conus_climb_started: bool = false
+var _conus_wait_for_direction_release: bool = false
 
 func activate_item_surge(duration_seconds: float = 30.0) -> bool:
 	var activated: bool = super.activate_item_surge(duration_seconds)
@@ -29,7 +30,6 @@ func activate_item_surge(duration_seconds: float = 30.0) -> bool:
 		direction = Vector2.LEFT if _facing_left else Vector2.RIGHT
 	surge_ram_started.emit(global_position, direction.normalized(), duration_seconds)
 	return true
-
 
 func hold_current_item_pose_for_duration(duration_seconds: float) -> void:
 	if duration_seconds <= 0.0 or not is_instance_valid(_animated_sprite):
@@ -44,7 +44,6 @@ func hold_current_item_pose_for_duration(duration_seconds: float) -> void:
 	_conch_remaining = maxf(_conch_remaining, duration_seconds + release_duration)
 	if not _animated_sprite.is_playing():
 		_animated_sprite.play(&"conch")
-
 
 func _update_conch(delta: float) -> void:
 	if not _terebridae_pose_active:
@@ -86,18 +85,15 @@ func _update_conch(delta: float) -> void:
 	if _terebridae_release_remaining <= 0.0:
 		_finish_terebridae_pose()
 
-
 func _get_terebridae_hold_frame(frame_count: int) -> int:
 	if frame_count >= 10:
 		return NORMAL_TEREBRIDAE_HOLD_FRAME_INDEX
 	return maxi(0, frame_count - 2)
 
-
 func _get_terebridae_release_frame(frame_count: int) -> int:
 	if frame_count >= 10:
 		return NORMAL_TEREBRIDAE_RELEASE_FRAME_INDEX
 	return maxi(0, frame_count - 1)
-
 
 func _update_held_conch_steering(delta: float) -> void:
 	var vertical_input: float = Input.get_axis(&"move_up", &"move_down")
@@ -113,7 +109,6 @@ func _update_held_conch_steering(delta: float) -> void:
 	var rotation_step: float = deg_to_rad(conch_steer_speed_degrees) * delta
 	_set_visual_rotation(move_toward(_visual_rotation, target_rotation, rotation_step))
 
-
 func _finish_terebridae_pose() -> void:
 	_clear_terebridae_pose_state()
 	_conch_remaining = 0.0
@@ -121,26 +116,23 @@ func _finish_terebridae_pose() -> void:
 	if _play_enabled and not _death_sequence_active:
 		_set_animation(&"idle")
 
-
 func _clear_terebridae_pose_state() -> void:
 	_terebridae_pose_active = false
 	_terebridae_release_active = false
 	_terebridae_stream_remaining = 0.0
 	_terebridae_release_remaining = 0.0
 
-
 func begin_conus_wall_climb(anchor_position: Vector2, tether: Node) -> void:
 	if is_instance_valid(_animated_sprite):
 		_conus_climb_previous_visual_scale = _animated_sprite.scale
 		_conus_climb_previous_animation = _animated_sprite.animation
 		_conus_climb_previous_frame = _animated_sprite.frame
+	_conus_climb_started = false
+	_conus_wait_for_direction_release = true
 	super.begin_conus_wall_climb(anchor_position, tether)
 	if not _conus_climb_active or not is_instance_valid(_animated_sprite):
 		return
-	_animated_sprite.scale = (
-		_conus_climb_previous_visual_scale
-		* CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER
-	)
+	_animated_sprite.scale = _conus_climb_previous_visual_scale
 	if _animated_sprite.sprite_frames.has_animation(_conus_climb_previous_animation):
 		_animated_sprite.animation = _conus_climb_previous_animation
 		_animated_sprite.frame = mini(
@@ -150,8 +142,6 @@ func begin_conus_wall_climb(anchor_position: Vector2, tether: Node) -> void:
 			) - 1,
 		)
 		_animated_sprite.pause()
-	_align_to_conus_rope()
-
 
 func end_conus_wall_climb(tether: Node = null) -> void:
 	var was_climbing: bool = _conus_climb_active
@@ -159,9 +149,16 @@ func end_conus_wall_climb(tether: Node = null) -> void:
 	super.end_conus_wall_climb(tether)
 	if was_climbing and not _conus_climb_active and is_instance_valid(_animated_sprite):
 		_animated_sprite.scale = restore_scale
-
+		_conus_climb_started = false
+		_conus_wait_for_direction_release = false
 
 func get_conus_rope_origin() -> Vector2:
+	if (
+			_conus_climb_active
+			and not _conus_climb_started
+			and is_instance_valid(_item_visuals)
+		):
+		return _item_visuals.get_shell_rope_origin()
 	if (
 			not _conus_climb_active
 			and is_instance_valid(_animated_sprite)
@@ -180,8 +177,72 @@ func get_conus_rope_origin() -> Vector2:
 			)
 	return super.get_conus_rope_origin()
 
+func _update_conus_wall_climb(delta: float) -> void:
+	if (
+			not is_instance_valid(_conus_climb_tether)
+			or not _conus_climb_tether.has_method(&"is_wall_tethered")
+			or not bool(_conus_climb_tether.call(&"is_wall_tethered"))
+		):
+		end_conus_wall_climb()
+		return
+	if _conus_climb_tether.has_method(&"get_anchor_position"):
+		var anchor_value: Variant = _conus_climb_tether.call(&"get_anchor_position")
+		if anchor_value is Vector2:
+			_conus_climb_anchor = anchor_value
+
+	_current_time += delta
+	_update_cooldowns(delta)
+	_update_camera_shake(delta)
+	_update_shadow()
+
+	var rope_vector: Vector2 = _conus_climb_anchor - global_position
+	if rope_vector.length_squared() <= 0.0001:
+		end_conus_wall_climb(_conus_climb_tether)
+		return
+	var rope_direction: Vector2 = rope_vector.normalized()
+	var rope_distance: float = rope_vector.length()
+	var input_direction: Vector2 = Input.get_vector(
+		&"move_left",
+		&"move_right",
+		&"move_up",
+		&"move_down",
+	)
+	if _conus_wait_for_direction_release:
+		if input_direction.length_squared() <= conus_climb_input_deadzone * conus_climb_input_deadzone:
+			_conus_wait_for_direction_release = false
+		input_direction = Vector2.ZERO
+
+	var climb_axis: float = input_direction.dot(rope_direction)
+	if absf(climb_axis) < conus_climb_input_deadzone:
+		climb_axis = 0.0
+	if climb_axis > 0.0 and rope_distance <= conus_climb_minimum_distance:
+		climb_axis = 0.0
+	elif climb_axis < 0.0 and rope_distance >= _conus_climb_maximum_distance:
+		climb_axis = 0.0
+
+	velocity = rope_direction * climb_axis * conus_climb_speed
+	if climb_axis != 0.0:
+		move_and_slide()
+		global_position = _clamp_to_world(global_position)
+
+	var corrected_vector: Vector2 = _conus_climb_anchor - global_position
+	var corrected_distance: float = corrected_vector.length()
+	if corrected_distance > 0.0001:
+		var corrected_direction: Vector2 = corrected_vector / corrected_distance
+		if corrected_distance > _conus_climb_maximum_distance:
+			global_position = _conus_climb_anchor - corrected_direction * _conus_climb_maximum_distance
+		elif corrected_distance < conus_climb_minimum_distance:
+			global_position = _conus_climb_anchor - corrected_direction * conus_climb_minimum_distance
+
+	_swim_velocity = Vector2.ZERO
+	_burst_coast_velocity = Vector2.ZERO
+	_special_velocity = Vector2.ZERO
+	_align_to_conus_rope()
+	_update_conus_climb_animation(climb_axis)
 
 func _align_to_conus_rope() -> void:
+	if _conus_climb_active and not _conus_climb_started:
+		return
 	var rope_vector: Vector2 = _conus_climb_anchor - global_position
 	if rope_vector.length_squared() <= 0.0001:
 		return
@@ -203,12 +264,19 @@ func _align_to_conus_rope() -> void:
 			* CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER
 		)
 
-
 func _update_conus_climb_animation(climb_axis: float) -> void:
 	if climb_axis == 0.0:
 		_animated_sprite.speed_scale = 1.0
 		_animated_sprite.pause()
 		return
+
+	if not _conus_climb_started:
+		_conus_climb_started = true
+		_animated_sprite.scale = (
+			_conus_climb_previous_visual_scale
+			* CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER
+		)
+		_align_to_conus_rope()
 
 	var desired_speed: float = 1.0 if climb_axis > 0.0 else -1.0
 	if _animated_sprite.animation != CONUS_CLIMB_ANIMATION:
@@ -237,16 +305,18 @@ func _update_conus_climb_animation(climb_axis: float) -> void:
 			)
 		_animated_sprite.play(CONUS_CLIMB_ANIMATION)
 
-
 func clear_item_effect_state() -> void:
 	_clear_terebridae_pose_state()
 	super.clear_item_effect_state()
-
+	_conus_climb_started = false
+	_conus_wait_for_direction_release = false
 
 func start_death_sequence() -> void:
 	if is_death_sequence_active():
 		return
 	_clear_terebridae_pose_state()
+	_conus_climb_started = false
+	_conus_wait_for_direction_release = false
 
 	# Greatfin and equipment visuals can replace SpriteFrames at runtime. Build the
 	# death animations into a local copy of the currently active frame set.
@@ -263,12 +333,10 @@ func start_death_sequence() -> void:
 	_death_menu_drift_elapsed = 0.0
 	super.start_death_sequence()
 
-
 func cancel_death_sequence() -> void:
 	_death_menu_notification_sent = false
 	_death_menu_drift_elapsed = 0.0
 	super.cancel_death_sequence()
-
 
 func _on_animation_finished() -> void:
 	if not _death_sequence_active or _animated_sprite.animation != DEATH_INTRO_ANIMATION:
@@ -276,7 +344,6 @@ func _on_animation_finished() -> void:
 	_death_drift_active = true
 	_death_menu_drift_elapsed = 0.0
 	_set_animation(DEATH_DRIFT_ANIMATION)
-
 
 func _update_death_sequence(delta: float) -> void:
 	super._update_death_sequence(delta)
@@ -288,7 +355,6 @@ func _update_death_sequence(delta: float) -> void:
 	_death_menu_notification_sent = true
 	death_drift_started.emit()
 
-
 func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = super.get_debug_lines()
 	lines.append("death_menu_notified=%s" % str(_death_menu_notification_sent))
@@ -297,4 +363,6 @@ func get_debug_lines() -> Array[String]:
 	lines.append("terebridae_pose_active=%s" % str(_terebridae_pose_active))
 	lines.append("terebridae_stream_remaining=%.2f" % _terebridae_stream_remaining)
 	lines.append("conus_climb_visual_scale=%.2f" % CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER)
+	lines.append("conus_climb_started=%s" % str(_conus_climb_started))
+	lines.append("conus_wait_for_direction_release=%s" % str(_conus_wait_for_direction_release))
 	return lines
