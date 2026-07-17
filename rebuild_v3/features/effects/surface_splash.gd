@@ -24,7 +24,7 @@ var _default_is_exit: bool = true
 
 
 func _ready() -> void:
-	_default_is_exit = not name.to_lower().contains("entry")
+	_default_is_exit = not String(name).to_lower().contains("entry")
 	animation_finished.connect(_on_animation_finished)
 	_effect_timer.timeout.connect(stop_splash)
 	_duplicate_particle_materials()
@@ -109,11 +109,10 @@ func _duplicate_particle_materials() -> void:
 
 func _prepare_surface_ring() -> void:
 	var ring_points: PackedVector2Array = PackedVector2Array()
-	for point_index: int in range(RING_POINT_COUNT):
+	for point_index: int in range(RING_POINT_COUNT + 1):
 		var angle: float = TAU * float(point_index) / float(RING_POINT_COUNT)
 		ring_points.append(Vector2(cos(angle), sin(angle)) * RING_BASE_RADIUS)
 	_surface_ring.points = ring_points
-	_surface_ring.closed = true
 	_surface_ring.hide()
 
 
@@ -186,25 +185,25 @@ func _start_surface_ring(is_exit: bool, horizontal_velocity: float) -> void:
 	_ring_tween.set_parallel(true)
 	_ring_tween.tween_property(
 		_surface_ring,
-		&"scale",
+		^"scale",
 		target_scale,
 		ring_duration,
 	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_ring_tween.tween_property(
 		_surface_ring,
-		&"position:x",
+		^"position:x",
 		target_offset,
 		ring_duration,
 	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_ring_tween.tween_property(
 		_surface_ring,
-		&"width",
+		^"width",
 		2.0,
 		ring_duration,
 	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_ring_tween.tween_property(
 		_surface_ring,
-		&"modulate:a",
+		^"modulate:a",
 		0.0,
 		ring_duration,
 	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
