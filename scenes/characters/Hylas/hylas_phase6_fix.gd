@@ -2,8 +2,8 @@ extends "res://scenes/characters/Hylas/hylas_equipment_input.gd"
 
 signal surge_ram_started(origin: Vector2, direction: Vector2, duration: float)
 
-const TEREBRIDAE_HOLD_FRAME_INDEX: int = 6
-const TEREBRIDAE_RELEASE_FRAME_INDEX: int = 7
+const NORMAL_TEREBRIDAE_HOLD_FRAME_INDEX: int = 6
+const NORMAL_TEREBRIDAE_RELEASE_FRAME_INDEX: int = 7
 const CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER: float = 1.15
 
 @export_category("Death Menu Timing")
@@ -57,8 +57,8 @@ func _update_conch(delta: float) -> void:
 	_update_held_conch_steering(delta)
 
 	var frame_count: int = _animated_sprite.sprite_frames.get_frame_count(&"conch")
-	var hold_frame: int = mini(TEREBRIDAE_HOLD_FRAME_INDEX, frame_count - 1)
-	var release_frame: int = mini(TEREBRIDAE_RELEASE_FRAME_INDEX, frame_count - 1)
+	var hold_frame: int = _get_terebridae_hold_frame(frame_count)
+	var release_frame: int = _get_terebridae_release_frame(frame_count)
 
 	if _terebridae_stream_remaining > 0.0:
 		_terebridae_stream_remaining = maxf(0.0, _terebridae_stream_remaining - delta)
@@ -83,6 +83,18 @@ func _update_conch(delta: float) -> void:
 	_animated_sprite.pause()
 	if _terebridae_release_remaining <= 0.0:
 		_finish_terebridae_pose()
+
+
+func _get_terebridae_hold_frame(frame_count: int) -> int:
+	if frame_count >= 10:
+		return NORMAL_TEREBRIDAE_HOLD_FRAME_INDEX
+	return maxi(0, frame_count - 2)
+
+
+func _get_terebridae_release_frame(frame_count: int) -> int:
+	if frame_count >= 10:
+		return NORMAL_TEREBRIDAE_RELEASE_FRAME_INDEX
+	return maxi(0, frame_count - 1)
 
 
 func _update_held_conch_steering(delta: float) -> void:
