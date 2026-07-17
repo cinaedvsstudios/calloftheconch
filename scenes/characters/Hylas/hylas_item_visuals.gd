@@ -7,22 +7,29 @@ const NORMAL_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas
 const GREATFIN_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_greatfin_sprite_frames.tres")
 const GREATFIN_VISUAL_SCALE: float = 1.30
 const HELD_SHELL_VISUAL_SCALE: float = 0.504
+const NORMAL_CONCH_ID: StringName = &"normal_conch"
+const SUPER_CONCH_ID: StringName = &"charonia_tritonis"
+const TEREBRIDAE_ID: StringName = &"terebridae"
 const SHELL_TEXTURES: Dictionary = {
-	&"normal_conch": preload("res://assets/characters/shell_normal_conch.png"),
-	&"charonia_tritonis": preload("res://assets/characters/shell_charonia_tritonis.png"),
-	&"terebridae": preload("res://assets/characters/shell_terebridae.png"),
+	NORMAL_CONCH_ID: preload("res://assets/characters/shell_normal_conch.png"),
+	SUPER_CONCH_ID: preload("res://assets/characters/shell_charonia_tritonis.png"),
+	TEREBRIDAE_ID: preload("res://assets/characters/shell_terebridae.png"),
 	&"conus_textile": preload("res://assets/characters/shell_conus_textile.png"),
 }
 const HELD_SHELL_SCALE_MULTIPLIERS: Dictionary = {
-	&"charonia_tritonis": 1.20,
-	&"terebridae": 1.20,
+	SUPER_CONCH_ID: 1.20,
+	TEREBRIDAE_ID: 1.20,
+}
+const HELD_SHELL_POSITION_OFFSETS: Dictionary = {
+	SUPER_CONCH_ID: Vector2(0.0, -1.0),
+	TEREBRIDAE_ID: Vector2(0.0, -5.0),
 }
 
 @onready var _animated_sprite: AnimatedSprite2D = get_parent().get_node_or_null("AnimatedSprite") as AnimatedSprite2D
 @onready var _shell_overlay_anchor: Marker2D = %ConchOverlayAnchor
 @onready var _shell_overlay: Sprite2D = %EquippedShellOverlay
 
-var _equipped_item_a: StringName = &"normal_conch"
+var _equipped_item_a: StringName = NORMAL_CONCH_ID
 var _camouflage_active: bool = false
 var _surge_glow_active: bool = false
 var _transforming_active: bool = false
@@ -155,7 +162,11 @@ func _sync_shell_overlay() -> void:
 		return
 
 	var anchor_offset: Vector2 = _shell_overlay_anchor.position
-	if _animated_sprite.animation == &"conch" and _animated_sprite.frame < shell_frame_offsets.size():
+	anchor_offset += HELD_SHELL_POSITION_OFFSETS.get(
+		_equipped_item_a,
+		Vector2.ZERO,
+	) as Vector2
+	if _animated_sprite.frame < shell_frame_offsets.size():
 		anchor_offset += shell_frame_offsets[_animated_sprite.frame]
 	if _animated_sprite.flip_h:
 		anchor_offset.x = -anchor_offset.x
@@ -169,7 +180,22 @@ func _sync_shell_overlay() -> void:
 	_shell_overlay.flip_v = _animated_sprite.flip_v
 	_shell_overlay.modulate = _animated_sprite.modulate
 	_shell_overlay.self_modulate = _animated_sprite.self_modulate
+	_shell_overlay.modulate.a *= _get_shell_frame_alpha()
 	_shell_overlay.z_index = _animated_sprite.z_index - 1
+
+func _get_shell_frame_alpha() -> float:
+	if _equipped_item_a != NORMAL_CONCH_ID and _equipped_item_a != SUPER_CONCH_ID:
+		return 1.0
+	var frame_count: int = _animated_sprite.sprite_frames.get_frame_count(&"conch")
+	if frame_count <= 1:
+		return 1.0
+	var fade_frame: int = 6 if frame_count >= 10 else maxi(0, frame_count - 2)
+	var hidden_frame: int = 7 if frame_count >= 10 else maxi(0, frame_count - 1)
+	if _animated_sprite.frame >= hidden_frame:
+		return 0.0
+	if _animated_sprite.frame == fade_frame:
+		return 1.0 - clampf(_animated_sprite.frame_progress, 0.0, 1.0)
+	return 1.0
 
 func get_debug_lines() -> Array[String]:
 	return [
