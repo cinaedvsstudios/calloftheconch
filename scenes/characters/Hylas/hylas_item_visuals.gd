@@ -3,7 +3,6 @@ extends Node2D
 
 const CAMOUFLAGE_SHADER: Shader = preload("res://scenes/characters/Hylas/hylas_camouflage.gdshader")
 const SURGE_GLOW_SHADER: Shader = preload("res://scenes/characters/Hylas/hylas_item_glow.gdshader")
-const NORMAL_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_v3_sprite_frames.tres")
 const GREATFIN_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_greatfin_sprite_frames.tres")
 const NORMAL_IDLE_ANIMATION: StringName = &"idle"
 const NORMAL_IDLE_SCALE_MULTIPLIER: float = 1.15
@@ -39,6 +38,8 @@ var _surge_glow_active: bool = false
 var _transforming_active: bool = false
 var _greatfin_active: bool = false
 var _normal_idle_scale_applied: bool = false
+var _normal_runtime_frames: SpriteFrames
+var _greatfin_runtime_frames: SpriteFrames
 @export var shell_frame_offsets: Array[Vector2] = [
 	Vector2(-6.0, 4.0),
 	Vector2(-2.0, 1.0),
@@ -111,6 +112,7 @@ func set_transforming_active(is_active: bool) -> void:
 func set_greatfin_active(is_active: bool) -> void:
 	if _animated_sprite == null:
 		return
+	_prepare_runtime_sprite_frames()
 	_remove_normal_idle_scale()
 	var state_changed: bool = _greatfin_active != is_active
 	_greatfin_active = is_active
@@ -122,7 +124,7 @@ func set_greatfin_active(is_active: bool) -> void:
 	var animation_name: StringName = _animated_sprite.animation
 	var frame_index: int = _animated_sprite.frame
 	var was_playing: bool = _animated_sprite.is_playing()
-	_animated_sprite.sprite_frames = GREATFIN_FRAMES if is_active else NORMAL_FRAMES
+	_animated_sprite.sprite_frames = _greatfin_runtime_frames if is_active else _normal_runtime_frames
 	if _animated_sprite.sprite_frames.has_animation(animation_name):
 		_animated_sprite.animation = animation_name
 		_animated_sprite.frame = mini(
@@ -166,6 +168,21 @@ func _refresh_sprite_material() -> void:
 		resolved_material = _surge_glow_material
 	_animated_sprite.material = resolved_material
 	_shell_overlay.material = resolved_material
+
+func _prepare_runtime_sprite_frames() -> void:
+	if _normal_runtime_frames == null:
+		_normal_runtime_frames = _animated_sprite.sprite_frames
+	if _greatfin_runtime_frames != null:
+		return
+	_greatfin_runtime_frames = GREATFIN_FRAMES.duplicate(true) as SpriteFrames
+	if (
+			_normal_runtime_frames.has_animation(NORMAL_IDLE_ANIMATION)
+			and _greatfin_runtime_frames.has_animation(NORMAL_IDLE_ANIMATION)
+		):
+		_greatfin_runtime_frames.set_animation_speed(
+			NORMAL_IDLE_ANIMATION,
+			_normal_runtime_frames.get_animation_speed(NORMAL_IDLE_ANIMATION),
+		)
 
 func _sync_normal_idle_scale() -> void:
 	if not is_instance_valid(_animated_sprite):
