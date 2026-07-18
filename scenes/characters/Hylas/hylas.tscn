@@ -16,7 +16,7 @@
 [ext_resource type="AudioStream" uid="uid://bhb7h74vkj73s" path="res://assets/audio/fall on land.mp3" id="14_land_impact_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/powerdown1.mp3" id="15_powerdown_audio"]
 [ext_resource type="Script" path="res://rebuild_v3/editor/hylas_editor_preview.gd" id="16_editor_preview"]
-[ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_item_visuals.gd" id="17_item_visuals"]
+[ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_item_visuals_idle_scale.gd" id="17_item_visuals"]
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_action_vfx.gd" id="18_action_vfx"]
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_action_vfx_contact_mirror.gd" id="19_action_vfx_refinement"]
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_tail_flip_orbit_frame_sync.gd" id="20_orbit_sync"]
