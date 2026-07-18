@@ -22,8 +22,8 @@ extends Area2D
 
 @export_category("Water Forces")
 @export_range(0.0, 2.0, 0.01) var current_influence: float = 0.32
-@export_range(0.0, 1000.0, 1.0) var conch_push_speed: float = 115.0
-@export_range(1.0, 2000.0, 1.0) var conch_push_decay: float = 260.0
+@export_range(0.0, 1000.0, 1.0) var conch_push_speed: float = 180.0
+@export_range(1.0, 2000.0, 1.0) var conch_push_decay: float = 180.0
 
 @onready var _sprite: AnimatedSprite2D = %AnimatedSprite
 
@@ -53,7 +53,6 @@ func _ready() -> void:
 	_sprite.play(&"idle")
 	set_physics_process(true)
 	monitorable = true
-	_connect_to_level_conch_signal()
 
 
 func set_distance_active(is_active: bool) -> void:
@@ -67,6 +66,7 @@ func set_distance_active(is_active: bool) -> void:
 		return
 	_sprite.pause()
 	_external_currents.clear()
+	_conch_impulse = Vector2.ZERO
 
 
 func _physics_process(delta: float) -> void:
@@ -119,48 +119,10 @@ func receive_conch_hit(
 	var away_direction: Vector2 = global_position - origin
 	if away_direction.length_squared() <= 0.001:
 		away_direction = pulse_direction
-	var applied_strength: float = clampf(strength, 0.18, 1.0)
+	if away_direction.length_squared() <= 0.001:
+		return
+	var applied_strength: float = clampf(strength, 0.55, 1.35)
 	_conch_impulse += away_direction.normalized() * conch_push_speed * applied_strength
-
-
-func _connect_to_level_conch_signal() -> void:
-	var ancestor: Node = get_parent()
-	var callback := Callable(self, "_on_level_conch_target_hit")
-	while ancestor != null:
-		if ancestor.has_signal(&"conch_target_hit"):
-			if not ancestor.is_connected(&"conch_target_hit", callback):
-				ancestor.connect(&"conch_target_hit", callback)
-			return
-		ancestor = ancestor.get_parent()
-
-
-func _on_level_conch_target_hit(
-		target: Node2D,
-		hit_position: Vector2,
-		_pulse_index: int,
-	) -> void:
-	if target != self:
-		return
-	var origin: Vector2 = hit_position
-	var pulse_direction: Vector2 = Vector2.RIGHT
-	var hylas: Node2D = get_tree().get_first_node_in_group(&"hylas") as Node2D
-	if hylas != null:
-		origin = hylas.global_position
-		var target_offset: Vector2 = hit_position - origin
-		if target_offset.length_squared() > 0.001:
-			pulse_direction = target_offset.normalized()
-		var visible_width: float = get_viewport_rect().size.x
-		var camera: Camera2D = get_viewport().get_camera_2d()
-		if camera != null:
-			visible_width /= maxf(0.01, absf(camera.zoom.x))
-		var hit_strength: float = clampf(
-			1.0 - target_offset.length() / maxf(1.0, visible_width),
-			0.18,
-			1.0,
-		)
-		receive_conch_hit(origin, pulse_direction, target_offset.length(), hit_strength)
-		return
-	receive_conch_hit(origin, pulse_direction, 0.0, 0.5)
 
 
 func _choose_next_patrol_target(initial_target: bool) -> void:
