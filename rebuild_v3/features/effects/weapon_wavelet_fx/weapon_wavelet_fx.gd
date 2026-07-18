@@ -81,16 +81,5 @@ func _sync_screen_rect() -> void:
 	var viewport: Viewport = get_viewport()
 	if viewport == null:
 		return
-	var viewport_size: Vector2 = viewport.get_visible_rect().size
-	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
-		return
 	var screen_center: Vector2 = viewport.get_canvas_transform() * _world_position
 	_wavelet_rect.position = screen_center - (_wavelet_rect.size * 0.5)
-	_wavelet_material.set_shader_parameter(
-		&"screen_pos",
-		_wavelet_rect.position / viewport_size,
-	)
-	_wavelet_material.set_shader_parameter(
-		&"screen_size",
-		_wavelet_rect.size / viewport_size,
-	)
