@@ -9,17 +9,17 @@ const CONCH_PROFILE_NORMAL: StringName = &"normal_conch"
 const CONCH_PROFILE_SUPER: StringName = &"super_conch"
 const CONCH_PROFILE_TEREBRIDAE: StringName = &"terebridae"
 
-const NORMAL_ENEMY_NUDGE_DISTANCE: float = 2.0
-const SUPER_ENEMY_NUDGE_DISTANCE: float = 4.0
-const TEREBRIDAE_ENEMY_TWITCH_DISTANCE: float = 2.0
-const TEREBRIDAE_TWITCH_OUT_SECONDS: float = 0.035
-const TEREBRIDAE_TWITCH_RETURN_SECONDS: float = 0.055
+const NORMAL_ENEMY_NUDGE_DISTANCE: float = 10.0
+const SUPER_ENEMY_NUDGE_DISTANCE: float = 18.0
+const TEREBRIDAE_ENEMY_TWITCH_DISTANCE: float = 14.0
+const TEREBRIDAE_TWITCH_OUT_SECONDS: float = 0.07
+const TEREBRIDAE_TWITCH_RETURN_SECONDS: float = 0.12
 
-const NORMAL_AMBIENT_PUSH_SPEED: float = 18.0
-const SUPER_AMBIENT_PUSH_SPEED: float = 32.0
-const TEREBRIDAE_AMBIENT_PUSH_SPEED: float = 55.0
-const AMBIENT_PUSH_DECAY: float = 220.0
-const TEREBRIDAE_AMBIENT_PUSH_DECAY: float = 1400.0
+const NORMAL_AMBIENT_PUSH_SPEED: float = 85.0
+const SUPER_AMBIENT_PUSH_SPEED: float = 120.0
+const TEREBRIDAE_AMBIENT_PUSH_SPEED: float = 170.0
+const AMBIENT_PUSH_DECAY: float = 400.0
+const TEREBRIDAE_AMBIENT_PUSH_DECAY: float = 1800.0
 
 
 func trigger_special_conch(origin: Vector2, direction: Vector2, profile: Dictionary) -> bool:
