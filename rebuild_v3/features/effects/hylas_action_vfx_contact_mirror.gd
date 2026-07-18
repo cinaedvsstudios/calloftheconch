@@ -21,7 +21,7 @@ func play_impact_sparks(
 		return
 	var spark_direction: Vector2 = outward_normal
 	if spark_direction.length_squared() <= 0.0001:
-		spark_direction = Vector2.LEFT if _sprite.flip_h else Vector2.RIGHT
+		spark_direction = Vector2.LEFT if _tail_flip_faces_left() else Vector2.RIGHT
 	else:
 		spark_direction = spark_direction.normalized()
 	_contact_spark_fx.global_position = world_position
@@ -50,15 +50,51 @@ func _build_contact_spark_fx() -> void:
 
 
 func _update_orbit_geometry(progress: float) -> void:
-	# Build one canonical right-facing orbit first, then mirror the completed line
-	# geometry around Hylas. This guarantees a true horizontal flip and avoids the
-	# phase calculation cancelling the visual mirror.
-	super._update_orbit_geometry(progress)
-	if _sprite.flip_h:
-		_mirror_completed_orbit_lines()
+	# This method deliberately does not call the inherited geometry builder.
+	# The inherited builder contains its own facing reversal. Rebuilding the
+	# canonical points here and applying one CanvasItem mirror avoids the two
+	# facing operations cancelling one another.
+	var faces_left: bool = _tail_flip_faces_left()
+	for band: Dictionary in _orbit_bands:
+		var height: float = float(band.get("height", 0.0))
+		var radius_scale: float = float(band.get("radius_scale", 1.0))
+		var phase_offset: float = float(band.get("phase_offset", 0.0))
+		var back_line: Line2D = band.get("back") as Line2D
+		var front_line: Line2D = band.get("front") as Line2D
+		var highlight_line: Line2D = band.get("highlight") as Line2D
+
+		_apply_line_facing_transform(back_line, faces_left)
+		_apply_line_facing_transform(front_line, faces_left)
+		_apply_line_facing_transform(highlight_line, faces_left)
+
+		var front_points: PackedVector2Array = PackedVector2Array()
+		var back_points: PackedVector2Array = PackedVector2Array()
+		for point_index: int in range(ORBIT_SEGMENTS + 1):
+			var phase: float = TAU * float(point_index) / float(ORBIT_SEGMENTS)
+			var point: Vector2 = _canonical_orbit_point(phase, height, radius_scale)
+			if phase <= PI:
+				front_points.append(point)
+			if phase >= PI:
+				back_points.append(point)
+		_set_line_points(front_line, front_points)
+		_set_line_points(back_line, back_points)
+
+		var center_phase: float = progress * TAU + phase_offset
+		var highlight_points: PackedVector2Array = PackedVector2Array()
+		for highlight_index: int in range(ORBIT_HIGHLIGHT_SEGMENTS + 1):
+			var ratio: float = float(highlight_index) / float(ORBIT_HIGHLIGHT_SEGMENTS)
+			var phase: float = center_phase + lerpf(
+				-ORBIT_HIGHLIGHT_SPAN * 0.5,
+				ORBIT_HIGHLIGHT_SPAN * 0.5,
+				ratio,
+			)
+			highlight_points.append(_canonical_orbit_point(phase, height, radius_scale))
+		_set_line_points(highlight_line, highlight_points)
+		var visible_phase: float = fposmod(center_phase, TAU)
+		highlight_line.z_index = _sprite.z_index + (3 if visible_phase <= PI else -1)
 
 
-func _orbit_point(phase: float, height: float, radius_scale: float) -> Vector2:
+func _canonical_orbit_point(phase: float, height: float, radius_scale: float) -> Vector2:
 	var texture: Texture2D = _current_texture()
 	var display_size: Vector2 = Vector2(230.0, 180.0)
 	if texture != null:
@@ -76,18 +112,25 @@ func _orbit_point(phase: float, height: float, radius_scale: float) -> Vector2:
 	return _player.global_position + Vector2(0.0, height - 6.0) + local_point
 
 
-func _mirror_completed_orbit_lines() -> void:
-	var mirror_axis_x: float = _player.global_position.x
-	for band: Dictionary in _orbit_bands:
-		_mirror_line_points(band.get("back") as Line2D, mirror_axis_x)
-		_mirror_line_points(band.get("front") as Line2D, mirror_axis_x)
-		_mirror_line_points(band.get("highlight") as Line2D, mirror_axis_x)
+func _tail_flip_faces_left() -> bool:
+	if not is_instance_valid(_player):
+		return false
+	var direction_value: Variant = _player.get("_tail_flip_direction")
+	if direction_value is Vector2 and direction_value.length_squared() > 0.0001:
+		return direction_value.x < 0.0
+	return is_instance_valid(_sprite) and _sprite.flip_h
 
 
-func _mirror_line_points(line: Line2D, mirror_axis_x: float) -> void:
-	if not is_instance_valid(line) or line.points.is_empty():
+func _apply_line_facing_transform(line: Line2D, faces_left: bool) -> void:
+	if not is_instance_valid(line):
 		return
-	var mirrored_points: PackedVector2Array = PackedVector2Array()
-	for point: Vector2 in line.points:
-		mirrored_points.append(Vector2(mirror_axis_x * 2.0 - point.x, point.y))
-	line.points = mirrored_points
+	line.global_rotation = 0.0
+	if faces_left:
+		# The orbit points are world-space coordinates and each Line2D is top-level.
+		# A negative X scale plus a translated origin is therefore a literal mirror
+		# around Hylas's current world-space X position.
+		line.global_position = Vector2(_player.global_position.x * 2.0, 0.0)
+		line.scale = Vector2(-1.0, 1.0)
+	else:
+		line.global_position = Vector2.ZERO
+		line.scale = Vector2.ONE
