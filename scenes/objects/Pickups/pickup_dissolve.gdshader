@@ -5,6 +5,8 @@ uniform float seed: hint_range(0.01, 1.0) = 0.5;
 uniform vec2 direction = vec2(0.0, -0.22);
 uniform float mask_vignette_strength: hint_range(0.0, 1.0) = 0.42;
 uniform vec2 mask_vignette_center = vec2(0.5, 0.45);
+uniform vec4 flash_color: source_color = vec4(0.12, 1.0, 1.0, 1.0);
+uniform float flash_strength: hint_range(0.0, 1.0) = 0.0;
 
 float pickup_random(vec2 uv) {
 	return fract(sin(dot(uv.xy, vec2(12.9898, 78.233))) * 43758.5453123);
@@ -24,6 +26,10 @@ void fragment() {
 	float dust_cut = clamp(offset.x * strength, 0.0, 3.0);
 	float dissolve_alpha = source_color.a - dust_cut - strength;
 	dissolve_alpha -= circle_clip * strength * mask_vignette_strength * 3.0;
+
+	float flash_mix = clamp(flash_strength * flash_color.a, 0.0, 1.0);
+	vec3 bright_flash = max(source_color.rgb, flash_color.rgb);
+	source_color.rgb = mix(source_color.rgb, bright_flash, flash_mix);
 
 	COLOR = source_color;
 	COLOR.a = clamp(dissolve_alpha, 0.0, source_color.a);
