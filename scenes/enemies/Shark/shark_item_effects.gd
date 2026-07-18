@@ -1,10 +1,28 @@
 extends "res://scenes/enemies/Shark/shark_enemy.gd"
 
 ## Keeps ordinary shark behaviour unchanged while adding the shared Phase 6
-## equipment hooks. Haliotis hides Hylas from pursuit, and Argonauta refreshes a
-## short paralysis while the shark remains inside the ink cloud.
+## equipment hooks. Haliotis hides Hylas from pursuit, Argonauta refreshes a
+## short paralysis while the shark remains inside the ink cloud, and the shared
+## Conch pulse applies a restrained movement response through the shark's own
+## frozen drift velocity.
 
 @export_range(0.1, 20.0, 0.1) var conus_dart_stun_seconds: float = 3.5
+@export_range(0.0, 400.0, 1.0) var conch_response_speed: float = 95.0
+
+
+func receive_conch_hit(
+		origin: Vector2,
+		pulse_direction: Vector2,
+		distance: float,
+		strength: float,
+	) -> void:
+	super.receive_conch_hit(origin, pulse_direction, distance, strength)
+	var away_direction: Vector2 = global_position - origin
+	if away_direction.length_squared() <= 0.001:
+		away_direction = pulse_direction
+	if away_direction.length_squared() <= 0.001:
+		return
+	_frozen_drift_velocity += away_direction.normalized() * conch_response_speed * clampf(strength, 0.0, 1.25)
 
 
 func apply_item_paralysis(duration_seconds: float) -> void:
