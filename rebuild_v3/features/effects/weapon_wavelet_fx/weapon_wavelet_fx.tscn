@@ -7,10 +7,12 @@
 resource_local_to_scene = true
 shader = ExtResource("2_shader")
 shader_parameter/progression = 0.0
-shader_parameter/fade = 0.72
-shader_parameter/thickness = 0.12
-shader_parameter/wavelet_factor = 3.0
-shader_parameter/deformation_length = 6.0
+shader_parameter/fade = 0.9
+shader_parameter/thickness = 0.1
+shader_parameter/wavelet_factor = 4.0
+shader_parameter/deformation_length = 16.0
+shader_parameter/screen_pos = Vector2(0, 0)
+shader_parameter/screen_size = Vector2(0, 0)
 
 [node name="WeaponWaveletFX" type="CanvasLayer"]
 layer = 1025
