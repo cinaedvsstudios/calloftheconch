@@ -157,7 +157,11 @@ func _physics_process(delta: float) -> void:
 		and _animated_sprite.animation == &"tail_flip"
 	)
 	super._physics_process(delta)
-	if tail_flip_was_active:
+	var tail_flip_is_active: bool = (
+		_tail_flip_remaining > 0.0
+		and _animated_sprite.animation == &"tail_flip"
+	)
+	if tail_flip_was_active or tail_flip_is_active:
 		_report_tail_flip_slide_impacts()
 	_update_stop_pose_hold()
 	_update_burst_presentation()
