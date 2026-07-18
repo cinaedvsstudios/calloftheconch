@@ -1,7 +1,8 @@
 extends "res://scenes/characters/Hylas/hylas_item_visuals.gd"
 
 const NORMAL_IDLE_ANIMATION: StringName = &"idle"
-const NORMAL_IDLE_SCALE_MULTIPLIER: float = 1.15
+# Two successive 15% increases: 1.15 * 1.15 = 1.3225.
+const NORMAL_IDLE_SCALE_MULTIPLIER: float = 1.3225
 
 var _normal_idle_scale_applied: bool = false
 
