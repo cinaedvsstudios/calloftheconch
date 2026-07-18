@@ -20,9 +20,11 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="BodyShape_fish_03"]
+resource_local_to_scene = true
 size = Vector2(100, 55)
 
 [sub_resource type="RectangleShape2D" id="ReceiverShape_fish_03"]
+resource_local_to_scene = true
 size = Vector2(130, 78)
 
 [node name="AmbientFish03" type="CharacterBody2D" groups=["ambient_fish", "conch_target", "current_receiver", "scenery"]]
