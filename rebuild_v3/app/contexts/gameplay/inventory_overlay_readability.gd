@@ -16,8 +16,6 @@ func open_inventory() -> void:
 func close_inventory() -> void:
 	if not _is_open:
 		return
-	if _selection_dirty:
-		super._equip_selected_item()
 	_selection_dirty = false
 	super.close_inventory()
 
@@ -90,8 +88,7 @@ func _equip_selected_item() -> void:
 
 
 func _on_item_mouse_entered(_item_id: StringName) -> void:
-	# Hovering should not silently change the item that Escape or the close button
-	# will confirm. A deliberate click or directional input changes selection.
+	# Hovering should not silently change the item selected by keyboard input.
 	pass
 
 
