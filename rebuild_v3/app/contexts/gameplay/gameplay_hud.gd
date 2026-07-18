@@ -365,7 +365,7 @@ func _sync_from_state() -> void:
 		_set_equipment_slot(SLOT_B, &"")
 		return
 	_onos_value.text = str(_game_state.onos)
-	_fin_value.text = str(_game_state.current_fins)
+	_fin_value.text = "5" if _game_state.greatfin_active else str(_game_state.current_fins)
 	_set_fin_panel(_resolve_fin_panel_index())
 	_sync_equipment_from_state()
 	_sync_tyche_display()
