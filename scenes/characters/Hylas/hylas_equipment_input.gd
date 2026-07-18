@@ -9,9 +9,12 @@ extends "res://scenes/characters/Hylas/hylas_reliable_input.gd"
 signal item_a_requested(item_id: StringName, origin: Vector2, direction: Vector2)
 
 const NORMAL_CONCH_ID: StringName = &"normal_conch"
+const SUPER_CONCH_ID: StringName = &"charonia_tritonis"
 const CONUS_TEXTILE_ID: StringName = &"conus_textile"
 const CONUS_CLIMB_ANIMATION: StringName = &"climb"
 const TRIDACNA_SURFACE_LAUNCH_VELOCITY_SCALE: float = 1.41421356237
+const NORMAL_CONCH_AUDIO_STREAM: AudioStream = preload("res://assets/audio/Conch_noise.mp3")
+const SUPER_CONCH_AUDIO_STREAM: AudioStream = preload("res://assets/audio/Super Conch_noise.mp3")
 
 @export_category("Conus Wall Climb")
 @export_range(40.0, 900.0, 5.0) var conus_climb_speed: float = 260.0
@@ -44,16 +47,32 @@ func _ready() -> void:
 	_conus_climb_sprite_base_position = _animated_sprite.position
 	_conus_climb_normal_sprite_scale = _animated_sprite.scale
 	_item_visuals.set_equipped_item_a(_equipped_item_a)
+	_sync_equipped_conch_audio()
 
 
 func set_equipped_item_a(item_id: StringName) -> void:
 	_equipped_item_a = item_id if not String(item_id).is_empty() else NORMAL_CONCH_ID
 	if is_instance_valid(_item_visuals):
 		_item_visuals.set_equipped_item_a(_equipped_item_a)
+	_sync_equipped_conch_audio()
 
 
 func get_equipped_item_a() -> StringName:
 	return _equipped_item_a
+
+
+func _sync_equipped_conch_audio() -> void:
+	if not is_instance_valid(_conch_audio):
+		return
+	_conch_audio.stop()
+	match _equipped_item_a:
+		NORMAL_CONCH_ID:
+			_conch_audio.stream = NORMAL_CONCH_AUDIO_STREAM
+		SUPER_CONCH_ID:
+			_conch_audio.stream = SUPER_CONCH_AUDIO_STREAM
+		_:
+			# Terebridae and Conus play their dedicated audio from the item controller.
+			_conch_audio.stream = null
 
 
 func activate_normal_conch(direction: Vector2) -> bool:

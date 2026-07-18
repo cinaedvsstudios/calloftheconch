@@ -9,7 +9,7 @@ extends "res://scenes/characters/Hylas/hylas.gd"
 @export_range(0.10, 5.0, 0.01) var conch_gameplay_duration: float = 0.5555556
 
 @export_category("Animation Speeds")
-@export_range(0.1, 60.0, 0.1) var idle_animation_fps: float = 2.50
+@export_range(0.1, 60.0, 0.1) var idle_animation_fps: float = 2.0
 @export_range(0.1, 60.0, 0.1) var tail_flip_animation_fps: float = 10.0
 @export_range(0.1, 60.0, 0.1) var conch_animation_fps: float = 18.0
 @export_range(0.1, 60.0, 0.1) var stop_animation_fps: float = 9.0
