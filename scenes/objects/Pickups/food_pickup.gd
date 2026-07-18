@@ -10,8 +10,8 @@ signal pickup_collected(
 	full_health_onos_value: int,
 )
 
-const PICKUP_DISSOLVE_EFFECT_SCENE: PackedScene = preload(
-	"res://scenes/effects/PickupDissolve/pickup_dissolve_effect.tscn"
+const PICKUP_DISSOLVE_SHADER: Shader = preload(
+	"res://scenes/objects/Pickups/pickup_dissolve.gdshader"
 )
 
 @export_category("Pickup Identity")
@@ -50,9 +50,14 @@ const PICKUP_DISSOLVE_EFFECT_SCENE: PackedScene = preload(
 
 var _collected: bool = false
 var _distance_active: bool = true
+var _dissolving: bool = false
+var _base_sprite_material: Material
+var _dissolve_material: ShaderMaterial
+var _dissolve_tween: Tween
 
 
 func _ready() -> void:
+	_base_sprite_material = _sprite.material
 	body_entered.connect(_on_body_entered)
 	_apply_display_scale()
 	_configure_collision()
@@ -72,6 +77,13 @@ func assign_persistent_id(level_id: StringName) -> StringName:
 
 func set_persistently_collected(is_collected: bool) -> void:
 	_collected = is_collected
+	if _dissolving:
+		_apply_collection_state()
+		return
+	if not _collected:
+		_kill_dissolve_tween()
+		_dissolve_material = null
+		_restore_sprite_material()
 	_apply_collection_state()
 
 
@@ -85,24 +97,26 @@ func set_distance_active(is_active: bool) -> void:
 
 
 func _apply_collection_state() -> void:
-	visible = not _collected
-	monitoring = _distance_active and not _collected
+	var should_hide: bool = _collected and not _dissolving
+	visible = not should_hide
+	monitoring = _distance_active and not _collected and not _dissolving
 	if is_instance_valid(_collision_shape):
-		_collision_shape.set_deferred(&"disabled", _collected or not _distance_active)
-	if not _collected and is_instance_valid(_sprite):
-		_sprite.modulate = Color.WHITE
+		_collision_shape.set_deferred(&"disabled", _collected or _dissolving or not _distance_active)
+	if not _collected and not _dissolving and is_instance_valid(_sprite):
+		_restore_sprite_material()
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if _collected or not body.is_in_group(&"hylas"):
+	if _collected or _dissolving or not body.is_in_group(&"hylas"):
 		return
 	_collect()
 
 
 func _collect() -> void:
-	_spawn_collection_dissolve_effect()
 	_collected = true
+	_dissolving = true
 	_apply_collection_state()
+	_begin_collection_dissolve()
 	pickup_collected.emit(
 		pickup_type_id,
 		pickup_instance_id,
@@ -113,36 +127,101 @@ func _collect() -> void:
 	)
 
 
-func _spawn_collection_dissolve_effect() -> void:
+func _begin_collection_dissolve() -> void:
 	if not is_instance_valid(_sprite) or _sprite.texture == null:
+		_finish_runtime_dissolve()
 		return
-	var dissolve_effect: Node = PICKUP_DISSOLVE_EFFECT_SCENE.instantiate()
-	var effect_parent: Node = get_tree().current_scene
-	if effect_parent == null:
-		effect_parent = get_parent()
-	if effect_parent == null:
-		dissolve_effect.queue_free()
+	_kill_dissolve_tween()
+	_dissolve_material = _create_dissolve_material()
+	_sprite.material = _dissolve_material
+	_sprite.modulate = Color.WHITE
+	_set_dissolve_strength(0.0)
+	_spawn_magic_sparkles()
+	_dissolve_tween = create_tween()
+	_dissolve_tween.tween_method(
+		Callable(self, "_set_dissolve_strength"),
+		0.0,
+		1.0,
+		maxf(0.05, dissolve_seconds)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_dissolve_tween.finished.connect(Callable(self, "_finish_runtime_dissolve"), Object.CONNECT_ONE_SHOT)
+
+
+func _create_dissolve_material() -> ShaderMaterial:
+	var dissolve_material: ShaderMaterial = ShaderMaterial.new()
+	dissolve_material.resource_local_to_scene = true
+	dissolve_material.shader = PICKUP_DISSOLVE_SHADER
+	dissolve_material.set_shader_parameter(&"strength", 0.0)
+	dissolve_material.set_shader_parameter(&"seed", randf_range(0.05, 1.0))
+	dissolve_material.set_shader_parameter(&"direction", dissolve_direction)
+	dissolve_material.set_shader_parameter(&"mask_vignette_strength", dissolve_vignette_strength)
+	dissolve_material.set_shader_parameter(&"mask_vignette_center", dissolve_vignette_center)
+	return dissolve_material
+
+
+func _set_dissolve_strength(strength: float) -> void:
+	if _dissolve_material == null:
 		return
-	effect_parent.add_child(dissolve_effect)
-	if dissolve_effect.has_method(&"play_from_sprite"):
-		dissolve_effect.call(
-			&"play_from_sprite",
-			_sprite,
-			maxf(0.05, dissolve_seconds),
-			dissolve_direction,
-			dissolve_vignette_strength,
-			dissolve_vignette_center,
-			sparkle_count,
-			sparkle_lifetime,
-			sparkle_spread_degrees,
-			sparkle_min_speed,
-			sparkle_max_speed,
-			sparkle_min_scale,
-			sparkle_max_scale,
-			sparkle_color
-		)
-	else:
-		dissolve_effect.queue_free()
+	_dissolve_material.set_shader_parameter(&"strength", clampf(strength, 0.0, 1.0))
+
+
+func _finish_runtime_dissolve() -> void:
+	_dissolving = false
+	_dissolve_tween = null
+	_apply_collection_state()
+
+
+func _kill_dissolve_tween() -> void:
+	if _dissolve_tween != null and _dissolve_tween.is_valid():
+		_dissolve_tween.kill()
+	_dissolve_tween = null
+
+
+func _restore_sprite_material() -> void:
+	if not is_instance_valid(_sprite):
+		return
+	_sprite.material = _base_sprite_material
+	_sprite.modulate = Color.WHITE
+
+
+func _spawn_magic_sparkles() -> void:
+	if sparkle_count <= 0 or not is_instance_valid(_sprite):
+		return
+	var sparkle_texture: Texture2D = _create_sparkle_texture()
+	var lifetime: float = maxf(0.05, sparkle_lifetime)
+	var half_spread: float = deg_to_rad(sparkle_spread_degrees) * 0.5
+	for index: int in range(sparkle_count):
+		var sparkle: Sprite2D = Sprite2D.new()
+		sparkle.name = "PickupMagicSparkle"
+		sparkle.texture = sparkle_texture
+		sparkle.centered = true
+		sparkle.z_index = _sprite.z_index + 2
+		sparkle.position = _sprite.position + Vector2(randf_range(-4.0, 4.0), randf_range(-4.0, 4.0))
+		var sparkle_scale: float = randf_range(sparkle_min_scale, sparkle_max_scale)
+		sparkle.scale = Vector2.ONE * sparkle_scale
+		sparkle.modulate = sparkle_color
+		add_child(sparkle)
+
+		var angle: float = -PI * 0.5 + randf_range(-half_spread, half_spread)
+		var distance: float = randf_range(sparkle_min_speed, sparkle_max_speed) * lifetime
+		var target_position: Vector2 = sparkle.position + Vector2(cos(angle), sin(angle)) * distance
+		var tween: Tween = create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(sparkle, ^"position", target_position, lifetime).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween.tween_property(sparkle, ^"modulate:a", 0.0, lifetime).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		tween.finished.connect(Callable(sparkle, "queue_free"), Object.CONNECT_ONE_SHOT)
+
+
+func _create_sparkle_texture() -> Texture2D:
+	var image: Image = Image.create(5, 5, false, Image.FORMAT_RGBA8)
+	image.fill(Color(1.0, 1.0, 1.0, 0.0))
+	for x in range(5):
+		for y in range(5):
+			var distance: float = Vector2(x - 2, y - 2).length()
+			if distance <= 2.0:
+				var alpha: float = clampf(1.0 - distance / 2.15, 0.0, 1.0)
+				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
+	return ImageTexture.create_from_image(image)
 
 
 func _apply_display_scale() -> void:
