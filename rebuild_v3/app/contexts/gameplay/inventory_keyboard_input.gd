@@ -18,7 +18,7 @@ func _input(event: InputEvent) -> void:
 	if key_event == null or not key_event.pressed or key_event.echo:
 		return
 
-	if event.is_action_pressed(&"pause", false, true) or event.is_action_pressed(&"inventory", false, true):
+	if event.is_action_pressed(&"pause") or event.is_action_pressed(&"inventory"):
 		_inventory.close_inventory()
 		_accept_event()
 		return
