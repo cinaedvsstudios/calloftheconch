@@ -121,6 +121,7 @@ func _spawn_collection_dissolve_effect() -> void:
 	if effect_parent == null:
 		effect_parent = get_parent()
 	if effect_parent == null:
+		dissolve_effect.queue_free()
 		return
 	effect_parent.add_child(dissolve_effect)
 	if dissolve_effect.has_method(&"play_from_sprite"):
@@ -138,7 +139,7 @@ func _spawn_collection_dissolve_effect() -> void:
 			sparkle_max_speed,
 			sparkle_min_scale,
 			sparkle_max_scale,
-			sparkle_color,
+			sparkle_color
 		)
 	else:
 		dissolve_effect.queue_free()
