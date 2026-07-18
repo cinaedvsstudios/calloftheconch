@@ -1,45 +1,9 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_fx_2d.gd" id="1_controller"]
 [ext_resource type="Texture2D" path="res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_radial.svg" id="2_radial"]
 [ext_resource type="Texture2D" path="res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_spark.svg" id="3_spark"]
-
-[sub_resource type="Shader" id="WeaponWaveletShader"]
-code = "shader_type canvas_item;
-render_mode unshaded;
-
-uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;
-uniform vec4 wave_color : source_color = vec4(0.10, 0.88, 1.00, 1.00);
-uniform float distortion_strength : hint_range(0.0, 0.02, 0.0001) = 0.002;
-uniform float ring_radius : hint_range(0.0, 1.0, 0.01) = 0.58;
-uniform float ring_softness : hint_range(0.01, 0.30, 0.01) = 0.14;
-uniform float wave_opacity : hint_range(0.0, 1.0, 0.01) = 0.55;
-
-void fragment() {
-	vec4 vertex_color = COLOR;
-	vec2 centered = UV - vec2(0.5);
-	float centered_length = max(length(centered), 0.0001);
-	float radius = centered_length * 2.0;
-	float ring_distance = abs(radius - ring_radius);
-	float ring = 1.0 - smoothstep(0.0, ring_softness, ring_distance);
-	float texture_mask = texture(TEXTURE, UV).a;
-	float alpha = ring * texture_mask * wave_opacity * vertex_color.a;
-	vec2 direction = centered / centered_length;
-	vec2 screen_offset = direction * distortion_strength * alpha;
-	vec4 displaced_screen = texture(screen_texture, SCREEN_UV + screen_offset);
-	vec3 tinted_screen = displaced_screen.rgb + wave_color.rgb * alpha * 0.22;
-	COLOR = vec4(tinted_screen, alpha);
-}
-"
-
-[sub_resource type="ShaderMaterial" id="WeaponWaveletMaterial"]
-resource_local_to_scene = true
-shader = SubResource("WeaponWaveletShader")
-shader_parameter/wave_color = Color(0.1, 0.88, 1, 1)
-shader_parameter/distortion_strength = 0.002
-shader_parameter/ring_radius = 0.58
-shader_parameter/ring_softness = 0.14
-shader_parameter/wave_opacity = 0.55
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/weapon_wavelet_fx/weapon_wavelet_fx.tscn" id="4_wavelet"]
 
 [sub_resource type="CanvasItemMaterial" id="EmissionAdditiveMaterial"]
 blend_mode = 1
@@ -84,8 +48,8 @@ script = ExtResource("1_controller")
 unique_name_in_owner = true
 show_behind_parent = true
 z_index = -1
-material = SubResource("WeaponWaveletMaterial")
-modulate = Color(1, 1, 1, 0)
+material = SubResource("EmissionAdditiveMaterial")
+modulate = Color(0.1, 0.88, 1, 0)
 texture = ExtResource("2_radial")
 
 [node name="AdditiveCore" type="Sprite2D" parent="."]
@@ -124,6 +88,9 @@ local_coords = true
 visibility_rect = Rect2(-260, -200, 520, 400)
 process_material = SubResource("AccentSparkProcessMaterial")
 texture = ExtResource("3_spark")
+
+[node name="WeaponWaveletFX" parent="." instance=ExtResource("4_wavelet")]
+unique_name_in_owner = true
 
 [node name="FinishTimer" type="Timer" parent="."]
 unique_name_in_owner = true
