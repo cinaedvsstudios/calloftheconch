@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_inventory_audio.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_prototype.tscn" id="2_level"]
@@ -14,8 +14,6 @@
 [ext_resource type="AudioStream" path="res://assets/audio/pickup6.mp3" id="12_item_click_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/pickup1.mp3" id="13_item_equip_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/pickup4.mp3" id="14_inventory_open_audio"]
-[ext_resource type="PackedScene" path="res://scenes/objects/Pickups/food_scavenged_fish_pickup.tscn" id="15_test_fish"]
-[ext_resource type="PackedScene" path="res://scenes/objects/Pickups/food_scavenged_fish2_pickup.tscn" id="16_test_fish2"]
 
 [node name="GameplayContext" type="Node"]
 process_mode = 3
@@ -24,25 +22,6 @@ script = ExtResource("1_controller")
 [node name="SeaOfPillars" parent="." instance=ExtResource("2_level")]
 unique_name_in_owner = true
 process_mode = 1
-
-[node name="PickupDissolveTestCluster" type="Node2D" parent="."]
-process_mode = 1
-
-[node name="DissolveTestFishA" parent="PickupDissolveTestCluster" instance=ExtResource("15_test_fish")]
-position = Vector2(3380, 2820)
-scale = Vector2(0.3, 0.3)
-
-[node name="DissolveTestFishB" parent="PickupDissolveTestCluster" instance=ExtResource("16_test_fish2")]
-position = Vector2(3560, 2920)
-scale = Vector2(0.3, 0.3)
-
-[node name="DissolveTestFishC" parent="PickupDissolveTestCluster" instance=ExtResource("15_test_fish")]
-position = Vector2(3740, 3020)
-scale = Vector2(0.3, 0.3)
-
-[node name="DissolveTestFishD" parent="PickupDissolveTestCluster" instance=ExtResource("16_test_fish2")]
-position = Vector2(3920, 3120)
-scale = Vector2(0.3, 0.3)
 
 [node name="ItemEffectController" parent="." instance=ExtResource("11_item_effects")]
 unique_name_in_owner = true
