@@ -2,6 +2,11 @@ class_name CotcHylasTailFlipOrbitFrameSync
 extends Node
 
 const TAIL_FLIP_ANIMATION: StringName = &"tail_flip"
+const ORBIT_REVOLUTIONS: float = 2.0
+# The orbit geometry is tilted by -18 degrees. These progress offsets place the
+# middle highlight visually at 5 o'clock for each mirrored Hylas orientation.
+const RIGHT_FACING_START_PROGRESS: float = 13.0 / 60.0
+const LEFT_FACING_START_PROGRESS: float = 17.0 / 60.0
 
 @onready var _refinement: Node = get_parent()
 @onready var _player: CharacterBody2D = get_parent().get_parent().get_parent() as CharacterBody2D
@@ -25,20 +30,33 @@ func _process(_delta: float) -> void:
 		return
 
 	var frame_count: int = _sprite.sprite_frames.get_frame_count(TAIL_FLIP_ANIMATION)
+	var start_progress: float = (
+		LEFT_FACING_START_PROGRESS if _sprite.flip_h else RIGHT_FACING_START_PROGRESS
+	)
 	if frame_count <= 1:
-		_refinement.call(&"_update_orbit_geometry", 1.0)
+		_refinement.call(&"_update_orbit_geometry", start_progress)
 		return
 
 	var final_frame_index: float = float(frame_count - 1)
 	var frame_progress: float = clampf(_sprite.frame_progress, 0.0, 1.0)
-	var orbit_progress: float = clampf(
+	var animation_progress: float = clampf(
 		(float(_sprite.frame) + frame_progress) / final_frame_index,
 		0.0,
 		1.0,
 	)
-	# The refinement's right-facing geometry advances clockwise in screen space,
-	# while its left-facing geometry already advances anticlockwise. Reverse only
-	# the right-facing progress so both directions always orbit anticlockwise.
-	if not _sprite.flip_h:
-		orbit_progress = 1.0 - orbit_progress
+
+	# The mirrored orbit geometry uses opposite phase signs. Advance two complete
+	# anticlockwise turns over the active frames and return precisely to 5 o'clock
+	# when the final frame first appears.
+	var orbit_progress: float
+	if _sprite.flip_h:
+		orbit_progress = fposmod(
+			start_progress + animation_progress * ORBIT_REVOLUTIONS,
+			1.0,
+		)
+	else:
+		orbit_progress = fposmod(
+			start_progress - animation_progress * ORBIT_REVOLUTIONS,
+			1.0,
+		)
 	_refinement.call(&"_update_orbit_geometry", orbit_progress)
