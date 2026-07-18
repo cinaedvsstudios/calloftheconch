@@ -109,7 +109,7 @@ unique_name_in_owner = true
 visible = true
 scale = Vector2(0.8, 0.8)
 
-[node name="SurfaceSplashAnchor" type="Marker2D" parent="."]
+[node name="SurfaceSplashAnchor" type="Marker2D" parent="." unique_id=1966886696]
 unique_name_in_owner = true
 
 [node name="ConchPulseOrigin" type="Marker2D" parent="."]
