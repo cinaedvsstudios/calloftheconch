@@ -27,7 +27,7 @@ func play_from_sprite(
 		sparkle_max_speed: float,
 		sparkle_min_scale: float,
 		sparkle_max_scale: float,
-		sparkle_color: Color,
+		sparkle_color: Color
 	) -> void:
 	if not is_instance_valid(source_sprite) or source_sprite.texture == null:
 		queue_free()
@@ -37,7 +37,7 @@ func play_from_sprite(
 	var dissolve_material: ShaderMaterial = _create_dissolve_material(
 		dissolve_direction,
 		vignette_strength,
-		vignette_center,
+		vignette_center
 	)
 	_dissolve_sprite = _create_sprite_copy(source_sprite, dissolve_material)
 	add_child(_dissolve_sprite)
@@ -52,7 +52,7 @@ func play_from_sprite(
 		sparkle_max_speed,
 		sparkle_min_scale,
 		sparkle_max_scale,
-		sparkle_color,
+		sparkle_color
 	)
 
 	var duration: float = maxf(0.05, effect_seconds)
@@ -61,9 +61,9 @@ func play_from_sprite(
 		dissolve_material,
 		^"shader_parameter/strength",
 		1.0,
-		duration,
+		duration
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	dissolve_tween.finished.connect(queue_free, Object.CONNECT_ONE_SHOT)
+	dissolve_tween.finished.connect(Callable(self, "queue_free"), Object.CONNECT_ONE_SHOT)
 
 
 func _create_sprite_copy(source_sprite: Sprite2D, dissolve_material: ShaderMaterial) -> Sprite2D:
@@ -89,7 +89,7 @@ func _create_sprite_copy(source_sprite: Sprite2D, dissolve_material: ShaderMater
 func _create_dissolve_material(
 		dissolve_direction: Vector2,
 		vignette_strength: float,
-		vignette_center: Vector2,
+		vignette_center: Vector2
 	) -> ShaderMaterial:
 	var dissolve_material: ShaderMaterial = ShaderMaterial.new()
 	dissolve_material.resource_local_to_scene = true
@@ -111,7 +111,7 @@ func _spawn_magic_sparkles(
 		sparkle_max_speed: float,
 		sparkle_min_scale: float,
 		sparkle_max_scale: float,
-		sparkle_color: Color,
+		sparkle_color: Color
 	) -> void:
 	if sparkle_count <= 0:
 		return
@@ -135,7 +135,7 @@ func _spawn_magic_sparkles(
 	sparkles.color = sparkle_color
 	add_child(sparkles)
 	sparkles.position = screen_position
-	sparkles.finished.connect(sparkles.queue_free, Object.CONNECT_ONE_SHOT)
+	sparkles.finished.connect(Callable(sparkles, "queue_free"), Object.CONNECT_ONE_SHOT)
 	sparkles.emitting = true
 
 
