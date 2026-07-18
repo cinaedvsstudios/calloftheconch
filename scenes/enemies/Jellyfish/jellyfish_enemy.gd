@@ -46,8 +46,8 @@ signal frozen_finished()
 
 @export_category("Water Forces")
 @export_range(0.0, 2.0, 0.01) var current_influence: float = 0.32
-@export_range(0.0, 400.0, 1.0) var conch_response_speed: float = 82.0
-@export_range(1.0, 1600.0, 1.0) var conch_response_decay: float = 520.0
+@export_range(0.0, 500.0, 1.0) var conch_response_speed: float = 170.0
+@export_range(1.0, 1600.0, 1.0) var conch_response_decay: float = 170.0
 
 @onready var _sprite: AnimatedSprite2D = %AnimatedSprite
 @onready var _hurt_area: Area2D = %HurtArea
@@ -271,7 +271,8 @@ func _add_conch_response_velocity(origin: Vector2, pulse_direction: Vector2, str
 		away_direction = pulse_direction
 	if away_direction.length_squared() <= 0.001:
 		return
-	_conch_response_velocity += away_direction.normalized() * conch_response_speed * clampf(strength, 0.0, 1.25)
+	var applied_strength: float = clampf(strength, 0.55, 1.35)
+	_conch_response_velocity += away_direction.normalized() * conch_response_speed * applied_strength
 
 
 func _update_conch_response(delta: float) -> void:

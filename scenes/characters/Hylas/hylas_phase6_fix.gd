@@ -9,6 +9,11 @@ const CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER: float = 1.15
 @export_category("Death Menu Timing")
 @export_range(0.5, 10.0, 0.1) var death_menu_drift_seconds: float = 3.0
 
+@export_category("Conch Recoil")
+@export_range(0.0, 300.0, 1.0) var normal_conch_recoil_speed: float = 72.0
+@export_range(0.0, 300.0, 1.0) var super_conch_recoil_speed: float = 108.0
+@export_range(0.0, 300.0, 1.0) var terebridae_recoil_speed: float = 86.0
+
 var _death_menu_notification_sent: bool = false
 var _death_menu_drift_elapsed: float = 0.0
 var _terebridae_pose_active: bool = false
@@ -21,6 +26,18 @@ var _conus_climb_previous_frame: int = 0
 var _conus_climb_started: bool = false
 var _conus_wait_for_direction_release: bool = false
 
+func activate_normal_conch(direction: Vector2) -> bool:
+	var activated: bool = super.activate_normal_conch(direction)
+	if activated:
+		_apply_conch_recoil(_resolve_item_direction(direction), normal_conch_recoil_speed)
+	return activated
+
+func activate_item_a_pose(direction: Vector2) -> bool:
+	var activated: bool = super.activate_item_a_pose(direction)
+	if activated:
+		_apply_conch_recoil(_resolve_item_direction(direction), _get_equipped_conch_recoil_speed())
+	return activated
+
 func activate_item_surge(duration_seconds: float = 30.0) -> bool:
 	var activated: bool = super.activate_item_surge(duration_seconds)
 	if not activated:
@@ -30,6 +47,27 @@ func activate_item_surge(duration_seconds: float = 30.0) -> bool:
 		direction = Vector2.LEFT if _facing_left else Vector2.RIGHT
 	surge_ram_started.emit(global_position, direction.normalized(), duration_seconds)
 	return true
+
+func _get_equipped_conch_recoil_speed() -> float:
+	match _equipped_item_a:
+		SUPER_CONCH_ID:
+			return super_conch_recoil_speed
+		&"terebridae":
+			return terebridae_recoil_speed
+		_:
+			return 0.0
+
+func _apply_conch_recoil(direction: Vector2, recoil_speed: float) -> void:
+	if recoil_speed <= 0.0:
+		return
+	if _death_sequence_active or not _play_enabled or crawl_active or airborne_active:
+		return
+	if _conus_climb_active:
+		return
+	var recoil_direction: Vector2 = direction
+	if recoil_direction.length_squared() <= 0.0001:
+		recoil_direction = Vector2.LEFT if _facing_left else Vector2.RIGHT
+	_special_velocity += -recoil_direction.normalized() * recoil_speed
 
 func hold_current_item_pose_for_duration(duration_seconds: float) -> void:
 	if duration_seconds <= 0.0 or not is_instance_valid(_animated_sprite):
@@ -367,6 +405,9 @@ func get_debug_lines() -> Array[String]:
 	lines.append("death_menu_drift_seconds=%.2f" % death_menu_drift_seconds)
 	lines.append("terebridae_pose_active=%s" % str(_terebridae_pose_active))
 	lines.append("terebridae_stream_remaining=%.2f" % _terebridae_stream_remaining)
+	lines.append("conch_recoil_normal=%.1f" % normal_conch_recoil_speed)
+	lines.append("conch_recoil_super=%.1f" % super_conch_recoil_speed)
+	lines.append("conch_recoil_terebridae=%.1f" % terebridae_recoil_speed)
 	lines.append("conus_climb_visual_scale=%.2f" % CONUS_CLIMB_VISUAL_SCALE_MULTIPLIER)
 	lines.append("conus_climb_started=%s" % str(_conus_climb_started))
 	lines.append("conus_wait_for_direction_release=%s" % str(_conus_wait_for_direction_release))
