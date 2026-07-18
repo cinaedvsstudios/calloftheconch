@@ -49,6 +49,15 @@ func _build_contact_spark_fx() -> void:
 		additive_core.hide()
 
 
+func _update_orbit_geometry(progress: float) -> void:
+	# Build one canonical right-facing orbit first, then mirror the completed line
+	# geometry around Hylas. This guarantees a true horizontal flip and avoids the
+	# phase calculation cancelling the visual mirror.
+	super._update_orbit_geometry(progress)
+	if _sprite.flip_h:
+		_mirror_completed_orbit_lines()
+
+
 func _orbit_point(phase: float, height: float, radius_scale: float) -> Vector2:
 	var texture: Texture2D = _current_texture()
 	var display_size: Vector2 = Vector2(230.0, 180.0)
@@ -64,8 +73,21 @@ func _orbit_point(phase: float, height: float, radius_scale: float) -> Vector2:
 		cos(phase) * radius_x,
 		sin(phase) * radius_y,
 	).rotated(ORBIT_TILT_RADIANS)
-	# Mirror after applying the tilt. Mirroring before rotation preserves the old
-	# slant and makes the orbit visibly disagree with the flipped Hylas sprite.
-	if _sprite.flip_h:
-		local_point.x = -local_point.x
 	return _player.global_position + Vector2(0.0, height - 6.0) + local_point
+
+
+func _mirror_completed_orbit_lines() -> void:
+	var mirror_axis_x: float = _player.global_position.x
+	for band: Dictionary in _orbit_bands:
+		_mirror_line_points(band.get("back") as Line2D, mirror_axis_x)
+		_mirror_line_points(band.get("front") as Line2D, mirror_axis_x)
+		_mirror_line_points(band.get("highlight") as Line2D, mirror_axis_x)
+
+
+func _mirror_line_points(line: Line2D, mirror_axis_x: float) -> void:
+	if not is_instance_valid(line) or line.points.is_empty():
+		return
+	var mirrored_points: PackedVector2Array = PackedVector2Array()
+	for point: Vector2 in line.points:
+		mirrored_points.append(Vector2(mirror_axis_x * 2.0 - point.x, point.y))
+	line.points = mirrored_points
