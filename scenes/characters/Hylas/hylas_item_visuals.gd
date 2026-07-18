@@ -5,6 +5,8 @@ const CAMOUFLAGE_SHADER: Shader = preload("res://scenes/characters/Hylas/hylas_c
 const SURGE_GLOW_SHADER: Shader = preload("res://scenes/characters/Hylas/hylas_item_glow.gdshader")
 const NORMAL_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_v3_sprite_frames.tres")
 const GREATFIN_FRAMES: SpriteFrames = preload("res://scenes/characters/Hylas/hylas_greatfin_sprite_frames.tres")
+const NORMAL_IDLE_ANIMATION: StringName = &"idle"
+const NORMAL_IDLE_SCALE_MULTIPLIER: float = 1.15
 const GREATFIN_VISUAL_SCALE: float = 1.30
 const HELD_SHELL_VISUAL_SCALE: float = 0.504
 const NORMAL_CONCH_ID: StringName = &"normal_conch"
@@ -36,6 +38,7 @@ var _camouflage_active: bool = false
 var _surge_glow_active: bool = false
 var _transforming_active: bool = false
 var _greatfin_active: bool = false
+var _normal_idle_scale_applied: bool = false
 @export var shell_frame_offsets: Array[Vector2] = [
 	Vector2(-6.0, 4.0),
 	Vector2(-2.0, 1.0),
@@ -78,9 +81,11 @@ func _ready() -> void:
 	_shell_overlay.hide()
 	_refresh_shell_texture()
 	_refresh_sprite_material()
+	_sync_normal_idle_scale()
 	set_process(true)
 
 func _process(_delta: float) -> void:
+	_sync_normal_idle_scale()
 	_sync_shell_overlay()
 
 func set_equipped_item_a(item_id: StringName) -> void:
@@ -106,10 +111,12 @@ func set_transforming_active(is_active: bool) -> void:
 func set_greatfin_active(is_active: bool) -> void:
 	if _animated_sprite == null:
 		return
+	_remove_normal_idle_scale()
 	var state_changed: bool = _greatfin_active != is_active
 	_greatfin_active = is_active
 	_animated_sprite.scale = _base_sprite_scale * (GREATFIN_VISUAL_SCALE if is_active else 1.0)
 	if not state_changed:
+		_sync_normal_idle_scale()
 		return
 
 	var animation_name: StringName = _animated_sprite.animation
@@ -126,6 +133,7 @@ func set_greatfin_active(is_active: bool) -> void:
 			_animated_sprite.play(animation_name)
 	else:
 		_animated_sprite.play(&"idle")
+	_sync_normal_idle_scale()
 
 func clear_item_visuals() -> void:
 	_camouflage_active = false
@@ -158,6 +166,25 @@ func _refresh_sprite_material() -> void:
 		resolved_material = _surge_glow_material
 	_animated_sprite.material = resolved_material
 	_shell_overlay.material = resolved_material
+
+func _sync_normal_idle_scale() -> void:
+	if not is_instance_valid(_animated_sprite):
+		return
+	var should_enlarge: bool = (
+		not _greatfin_active
+		and _animated_sprite.animation == NORMAL_IDLE_ANIMATION
+	)
+	if should_enlarge and not _normal_idle_scale_applied:
+		_animated_sprite.scale *= NORMAL_IDLE_SCALE_MULTIPLIER
+		_normal_idle_scale_applied = true
+	elif not should_enlarge and _normal_idle_scale_applied:
+		_remove_normal_idle_scale()
+
+func _remove_normal_idle_scale() -> void:
+	if not _normal_idle_scale_applied or not is_instance_valid(_animated_sprite):
+		return
+	_animated_sprite.scale /= NORMAL_IDLE_SCALE_MULTIPLIER
+	_normal_idle_scale_applied = false
 
 func _sync_shell_overlay() -> void:
 	if _animated_sprite == null or _shell_overlay.texture == null:
@@ -226,6 +253,7 @@ func get_debug_lines() -> Array[String]:
 		"equipped_item_a=%s" % String(_equipped_item_a),
 		"greatfin_active=%s" % str(_greatfin_active),
 		"greatfin_visual_scale=%.2f" % GREATFIN_VISUAL_SCALE,
+		"normal_idle_scale=%.2f" % NORMAL_IDLE_SCALE_MULTIPLIER,
 		"transforming_active=%s" % str(_transforming_active),
 		"camouflage_active=%s" % str(_camouflage_active),
 		"surge_glow_active=%s" % str(_surge_glow_active),
