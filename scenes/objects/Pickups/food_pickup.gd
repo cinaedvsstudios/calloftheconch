@@ -35,6 +35,15 @@ const PICKUP_DISSOLVE_SHADER: Shader = preload(
 @export_range(0.0, 1.0, 0.01) var dissolve_vignette_strength: float = 0.42
 @export var dissolve_vignette_center: Vector2 = Vector2(0.5, 0.45)
 
+@export_category("Collection Flash")
+@export var flash_color: Color = Color(0.12, 1.0, 1.0, 1.0)
+@export_range(0.01, 0.25, 0.01) var pre_flash_on_seconds: float = 0.06
+@export_range(0.01, 0.25, 0.01) var pre_flash_off_seconds: float = 0.07
+@export_range(0.0, 1.0, 0.01) var dissolve_flash_min_strength: float = 0.08
+@export_range(0.0, 1.0, 0.01) var dissolve_flash_max_strength: float = 0.82
+@export_range(0.01, 0.25, 0.01) var dissolve_flash_on_seconds: float = 0.06
+@export_range(0.01, 0.25, 0.01) var dissolve_flash_off_seconds: float = 0.08
+
 @export_category("Collection Sparkles")
 @export_range(0, 80, 1) var sparkle_count: int = 18
 @export_range(0.05, 2.0, 0.01) var sparkle_lifetime: float = 0.52
@@ -45,6 +54,15 @@ const PICKUP_DISSOLVE_SHADER: Shader = preload(
 @export_range(0.01, 1.0, 0.01) var sparkle_max_scale: float = 0.115
 @export var sparkle_color: Color = Color(0.72, 0.96, 1.0, 0.92)
 
+@export_category("Collection Radial Sparks")
+@export_range(0, 80, 1) var radial_spark_count: int = 24
+@export_range(0.05, 1.0, 0.01) var radial_spark_lifetime: float = 0.34
+@export_range(0.0, 500.0, 1.0) var radial_spark_min_speed: float = 110.0
+@export_range(0.0, 500.0, 1.0) var radial_spark_max_speed: float = 220.0
+@export_range(0.01, 1.5, 0.01) var radial_spark_min_scale: float = 0.28
+@export_range(0.01, 1.5, 0.01) var radial_spark_max_scale: float = 0.62
+@export var radial_spark_color: Color = Color(0.62, 1.0, 1.0, 0.96)
+
 @onready var _sprite: Sprite2D = %PickupSprite
 @onready var _collision_shape: CollisionShape2D = %PickupCollision
 
@@ -53,7 +71,9 @@ var _distance_active: bool = true
 var _dissolving: bool = false
 var _base_sprite_material: Material
 var _dissolve_material: ShaderMaterial
+var _preflash_tween: Tween
 var _dissolve_tween: Tween
+var _flash_tween: Tween
 
 
 func _ready() -> void:
@@ -136,7 +156,36 @@ func _begin_collection_dissolve() -> void:
 	_sprite.material = _dissolve_material
 	_sprite.modulate = Color.WHITE
 	_set_dissolve_strength(0.0)
+	_set_flash_strength(0.0)
 	_spawn_magic_sparkles()
+	_start_preflash_sequence()
+
+
+func _start_preflash_sequence() -> void:
+	_preflash_tween = create_tween()
+	_preflash_tween.set_loops(2)
+	_preflash_tween.tween_method(
+		Callable(self, "_set_flash_strength"),
+		0.0,
+		1.0,
+		maxf(0.01, pre_flash_on_seconds)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_preflash_tween.tween_method(
+		Callable(self, "_set_flash_strength"),
+		1.0,
+		0.0,
+		maxf(0.01, pre_flash_off_seconds)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_preflash_tween.finished.connect(Callable(self, "_start_dissolve_phase"), Object.CONNECT_ONE_SHOT)
+
+
+func _start_dissolve_phase() -> void:
+	_preflash_tween = null
+	if not _dissolving or _dissolve_material == null:
+		return
+	_set_flash_strength(dissolve_flash_min_strength)
+	_spawn_radial_sparks()
+
 	_dissolve_tween = create_tween()
 	_dissolve_tween.tween_method(
 		Callable(self, "_set_dissolve_strength"),
@@ -145,6 +194,21 @@ func _begin_collection_dissolve() -> void:
 		maxf(0.05, dissolve_seconds)
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_dissolve_tween.finished.connect(Callable(self, "_finish_runtime_dissolve"), Object.CONNECT_ONE_SHOT)
+
+	_flash_tween = create_tween()
+	_flash_tween.set_loops()
+	_flash_tween.tween_method(
+		Callable(self, "_set_flash_strength"),
+		dissolve_flash_min_strength,
+		dissolve_flash_max_strength,
+		maxf(0.01, dissolve_flash_on_seconds)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_flash_tween.tween_method(
+		Callable(self, "_set_flash_strength"),
+		dissolve_flash_max_strength,
+		dissolve_flash_min_strength,
+		maxf(0.01, dissolve_flash_off_seconds)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 
 
 func _create_dissolve_material() -> ShaderMaterial:
@@ -156,6 +220,8 @@ func _create_dissolve_material() -> ShaderMaterial:
 	dissolve_material.set_shader_parameter(&"direction", dissolve_direction)
 	dissolve_material.set_shader_parameter(&"mask_vignette_strength", dissolve_vignette_strength)
 	dissolve_material.set_shader_parameter(&"mask_vignette_center", dissolve_vignette_center)
+	dissolve_material.set_shader_parameter(&"flash_color", flash_color)
+	dissolve_material.set_shader_parameter(&"flash_strength", 0.0)
 	return dissolve_material
 
 
@@ -165,16 +231,33 @@ func _set_dissolve_strength(strength: float) -> void:
 	_dissolve_material.set_shader_parameter(&"strength", clampf(strength, 0.0, 1.0))
 
 
+func _set_flash_strength(strength: float) -> void:
+	if _dissolve_material == null:
+		return
+	_dissolve_material.set_shader_parameter(&"flash_strength", clampf(strength, 0.0, 1.0))
+
+
 func _finish_runtime_dissolve() -> void:
-	_dissolving = false
+	if _flash_tween != null and _flash_tween.is_valid():
+		_flash_tween.kill()
+	_flash_tween = null
+	_preflash_tween = null
 	_dissolve_tween = null
+	_set_flash_strength(0.0)
+	_dissolving = false
 	_apply_collection_state()
 
 
 func _kill_dissolve_tween() -> void:
+	if _preflash_tween != null and _preflash_tween.is_valid():
+		_preflash_tween.kill()
 	if _dissolve_tween != null and _dissolve_tween.is_valid():
 		_dissolve_tween.kill()
+	if _flash_tween != null and _flash_tween.is_valid():
+		_flash_tween.kill()
+	_preflash_tween = null
 	_dissolve_tween = null
+	_flash_tween = null
 
 
 func _restore_sprite_material() -> void:
@@ -210,6 +293,34 @@ func _spawn_magic_sparkles() -> void:
 		tween.tween_property(sparkle, ^"position", target_position, lifetime).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		tween.tween_property(sparkle, ^"modulate:a", 0.0, lifetime).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 		tween.finished.connect(Callable(sparkle, "queue_free"), Object.CONNECT_ONE_SHOT)
+
+
+func _spawn_radial_sparks() -> void:
+	if radial_spark_count <= 0 or not is_instance_valid(_sprite):
+		return
+	var sparkle_texture: Texture2D = _create_sparkle_texture()
+	var lifetime: float = maxf(0.05, radial_spark_lifetime)
+	for _index in range(radial_spark_count):
+		var spark: Sprite2D = Sprite2D.new()
+		spark.name = "PickupRadialSpark"
+		spark.texture = sparkle_texture
+		spark.centered = true
+		spark.z_index = _sprite.z_index + 3
+		spark.position = _sprite.position
+		var spark_scale: float = randf_range(radial_spark_min_scale, radial_spark_max_scale)
+		spark.scale = Vector2.ONE * spark_scale
+		spark.modulate = radial_spark_color
+		add_child(spark)
+
+		var angle: float = randf_range(0.0, TAU)
+		var distance: float = randf_range(radial_spark_min_speed, radial_spark_max_speed) * lifetime
+		var target_position: Vector2 = spark.position + Vector2(cos(angle), sin(angle)) * distance
+		var tween: Tween = create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(spark, ^"position", target_position, lifetime).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+		tween.tween_property(spark, ^"modulate:a", 0.0, lifetime).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		tween.tween_property(spark, ^"scale", Vector2.ZERO, lifetime).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		tween.finished.connect(Callable(spark, "queue_free"), Object.CONNECT_ONE_SHOT)
 
 
 func _create_sparkle_texture() -> Texture2D:
