@@ -34,6 +34,10 @@ var _paused_shader_states: Array[Dictionary] = []
 
 
 func _ready() -> void:
+	if not child_entered_tree.is_connected(_on_context_child_entered_tree):
+		child_entered_tree.connect(_on_context_child_entered_tree)
+	_configure_level_pause_mode(_level)
+	_city.process_mode = Node.PROCESS_MODE_PAUSABLE
 	_hint.hide()
 	_pause_overlay.resume_requested.connect(_on_pause_resume_requested)
 	_pause_overlay.settings_requested.connect(_on_pause_settings_requested)
@@ -145,6 +149,21 @@ func complete_death_respawn() -> void:
 func apply_accessibility_settings(_show_control_hints: bool, screen_shake_scale: float) -> void:
 	_hint.hide()
 	_level.set_screen_shake_scale(screen_shake_scale)
+
+
+func _configure_level_pause_mode(level: Node) -> void:
+	if level == null:
+		return
+	level.process_mode = Node.PROCESS_MODE_PAUSABLE
+	var underwater_ambience: Node = level.get_node_or_null("%UnderwaterAmbience")
+	if underwater_ambience != null:
+		underwater_ambience.process_mode = Node.PROCESS_MODE_PAUSABLE
+
+
+func _on_context_child_entered_tree(child: Node) -> void:
+	if child == null or child.name != &"SeaOfPillars":
+		return
+	call_deferred(&"_configure_level_pause_mode", child)
 
 
 func _set_gameplay_paused(is_paused: bool) -> void:
