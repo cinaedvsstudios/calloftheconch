@@ -1,0 +1,91 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scenes/objects/AmbientFish/ambient_fish.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/characters/seahorse01.webp" id="2_frame_01"]
+[ext_resource type="Texture2D" path="res://assets/characters/seahorse02.webp" id="3_frame_02"]
+[ext_resource type="Texture2D" path="res://assets/characters/seahorse03.webp" id="4_frame_03"]
+[ext_resource type="Texture2D" path="res://assets/characters/seahorse04.webp" id="5_frame_04"]
+[ext_resource type="Texture2D" path="res://assets/characters/seahorse05.webp" id="6_frame_05"]
+[ext_resource type="Texture2D" path="res://assets/characters/seahorse06.webp" id="7_frame_06"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="8_distance_activator"]
+
+[sub_resource type="SpriteFrames" id="SeahorseSpriteFrames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_frame_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_frame_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_frame_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_frame_04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_frame_05")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_frame_06")
+}],
+"loop": true,
+"name": &"swim",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="SeahorseBodyShape"]
+resource_local_to_scene = true
+size = Vector2(90, 105)
+
+[sub_resource type="RectangleShape2D" id="SeahorseReceiverShape"]
+resource_local_to_scene = true
+size = Vector2(120, 140)
+
+[node name="Seahorse" type="CharacterBody2D" groups=["ambient_fish", "conch_target", "current_receiver", "scenery"]]
+collision_layer = 0
+collision_mask = 1
+motion_mode = 1
+safe_margin = 0.5
+script = ExtResource("1_controller")
+display_height = 155.0
+patrol_half_extents = Vector2(1400, 600)
+minimum_swim_speed = 45.0
+maximum_swim_speed = 70.0
+swimming_steering_acceleration = 135.0
+coast_steering_acceleration = 30.0
+vertical_wander_strength = 0.30
+vertical_wander_frequency = 0.16
+shark_flee_speed = 170.0
+current_influence = 0.60
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+sprite_frames = SubResource("SeahorseSpriteFrames")
+animation = &"swim"
+autoplay = "swim"
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+unique_name_in_owner = true
+shape = SubResource("SeahorseBodyShape")
+
+[node name="CurrentReceiver" type="Area2D" parent="."]
+collision_layer = 1
+collision_mask = 0
+monitoring = false
+monitorable = true
+
+[node name="CurrentReceiverShape" type="CollisionShape2D" parent="CurrentReceiver"]
+unique_name_in_owner = true
+shape = SubResource("SeahorseReceiverShape")
+
+[node name="WallRay" type="RayCast2D" parent="."]
+unique_name_in_owner = true
+enabled = true
+target_position = Vector2(210, 0)
+collision_mask = 1
+exclude_parent = true
+
+[node name="DistanceActivator" type="Node" parent="."]
+script = ExtResource("8_distance_activator")
