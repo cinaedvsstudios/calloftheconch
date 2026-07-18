@@ -214,7 +214,7 @@ func _play_deferred_autoplay() -> void:
 		if (
 				not String(autoplay_parent_anchor_method).is_empty()
 				and source.has_method(autoplay_parent_anchor_method)
-			):
+		):
 			var anchor_value: Variant = source.call(autoplay_parent_anchor_method)
 			if anchor_value is Vector2:
 				effect_position = anchor_value
