@@ -19,6 +19,7 @@
 [ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_item_visuals.gd" id="17_item_visuals"]
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_action_vfx.gd" id="18_action_vfx"]
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_action_vfx_refinement.gd" id="19_action_vfx_refinement"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_fx_2d.tscn" id="20_tail_flip_emission"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
 shader = ExtResource("10_shadow_shader")
@@ -85,6 +86,14 @@ visible = false
 [node name="ActionVFX" type="Node2D" parent="."]
 unique_name_in_owner = true
 script = ExtResource("18_action_vfx")
+
+[node name="TailFlipImpactEmission" parent="ActionVFX" instance=ExtResource("20_tail_flip_emission")]
+unique_name_in_owner = true
+top_level = true
+z_as_relative = false
+z_index = 120
+scale = Vector2(2.6, 2.6)
+sparks_only = true
 
 [node name="Refinement" type="Node" parent="ActionVFX"]
 script = ExtResource("19_action_vfx_refinement")
@@ -159,3 +168,5 @@ volume_db = -6.0
 unique_name_in_owner = true
 stream = ExtResource("15_powerdown_audio")
 volume_db = -4.0
+
+[connection signal="tail_flip_impact" from="." to="ActionVFX/TailFlipImpactEmission" method="_on_tail_flip_impact"]
