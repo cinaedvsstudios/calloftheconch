@@ -87,6 +87,7 @@ func configure(context: Node, level: CotcSeaOfPillars, hylas: CotcHylas) -> void
 	_context = context
 	_level = level
 	_hylas = hylas
+	_disconnect_level_normal_conch_route()
 	_connect_conch_context()
 	_connect_hylas_normal_conch()
 	_update_video_anchor()
@@ -263,6 +264,14 @@ func _disconnect_hylas_normal_conch() -> void:
 	if _connected_hylas_for_conch.is_connected(&"normal_conch_used", callback):
 		_connected_hylas_for_conch.disconnect(&"normal_conch_used", callback)
 	_connected_hylas_for_conch = null
+
+
+func _disconnect_level_normal_conch_route() -> void:
+	if not is_instance_valid(_level) or not is_instance_valid(_hylas):
+		return
+	var level_callback: Callable = Callable(_level, "_on_hylas_normal_conch_used")
+	if _hylas.is_connected(&"normal_conch_used", level_callback):
+		_hylas.disconnect(&"normal_conch_used", level_callback)
 
 
 func _connect_conch_context() -> void:
