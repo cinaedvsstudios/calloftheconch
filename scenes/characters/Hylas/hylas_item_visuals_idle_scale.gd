@@ -21,9 +21,11 @@ func set_greatfin_active(is_active: bool) -> void:
 func _sync_normal_idle_scale() -> void:
 	if not is_instance_valid(_animated_sprite):
 		return
+	# Hylas duplicates the SpriteFrames resource during startup, so comparing it
+	# with NORMAL_FRAMES by object identity can never identify normal Hylas here.
+	# Greatfin state and the active animation are the authoritative checks.
 	var should_enlarge: bool = (
 		not _greatfin_active
-		and _animated_sprite.sprite_frames == NORMAL_FRAMES
 		and _animated_sprite.animation == NORMAL_IDLE_ANIMATION
 	)
 	if should_enlarge and not _normal_idle_scale_applied:
