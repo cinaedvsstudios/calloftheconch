@@ -8,6 +8,12 @@ signal death_sequence_requested
 signal whale_travel_requested
 
 const CITY_GATE_RUNTIME_RADIUS: float = 560.0
+const PAUSED_SHADER_NODE_PATHS: Array[NodePath] = [
+	^"SeaEnvironment/AtmosphereEffects/WaterMottle",
+	^"SeaOfPillars/ParallaxLayer/waterlines",
+]
+const MANUAL_TIME_PARAMETER: StringName = &"mati_manual_time"
+const USE_MANUAL_TIME_PARAMETER: StringName = &"mati_use_manual_time"
 
 @onready var _level: CotcSeaOfPillars = %SeaOfPillars
 @onready var _city: CotcPillarsCity = %PillarsCity
@@ -24,11 +30,14 @@ var _active: bool = false
 var _in_city: bool = false
 var _inventory_candidate: bool = false
 var _game_state: CotcGameState
+var _paused_shader_states: Array[Dictionary] = []
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
-	_gameplay_music.process_mode = Node.PROCESS_MODE_ALWAYS
+	if not child_entered_tree.is_connected(_on_context_child_entered_tree):
+		child_entered_tree.connect(_on_context_child_entered_tree)
+	_configure_level_pause_mode(_level)
+	_city.process_mode = Node.PROCESS_MODE_PAUSABLE
 	_hint.hide()
 	_pause_overlay.resume_requested.connect(_on_pause_resume_requested)
 	_pause_overlay.settings_requested.connect(_on_pause_settings_requested)
@@ -50,6 +59,10 @@ func _ready() -> void:
 	_sea_environment.hide()
 
 
+func _exit_tree() -> void:
+	_restore_animated_shader_time()
+
+
 func bind_game_state(game_state: CotcGameState) -> void:
 	_game_state = game_state
 	_level.bind_game_state(game_state)
@@ -61,7 +74,7 @@ func activate() -> void:
 	_active = true
 	_in_city = false
 	_inventory_candidate = false
-	get_tree().paused = false
+	_set_gameplay_paused(false)
 	_inventory_overlay.close_inventory()
 	_city.deactivate()
 	_sea_environment.show()
@@ -84,7 +97,7 @@ func deactivate() -> void:
 	_in_city = false
 	_inventory_candidate = false
 	_inventory_overlay.close_inventory()
-	get_tree().paused = false
+	_set_gameplay_paused(false)
 	_pause_overlay.close_overlay()
 	_death_overlay.close_overlay()
 	_gameplay_ui.visible = false
@@ -101,17 +114,17 @@ func return_to_pause_menu() -> void:
 		return
 	_inventory_candidate = false
 	_inventory_overlay.close_inventory()
-	get_tree().paused = true
+	_set_gameplay_paused(true)
 	_pause_overlay.open_overlay()
 
 
 func open_inventory() -> void:
 	if (
-		not _active
-		or get_tree().paused
-		or _death_overlay.is_open()
-		or _pause_overlay.visible
-	):
+			not _active
+			or get_tree().paused
+			or _death_overlay.is_open()
+			or _pause_overlay.visible
+		):
 		return
 	_inventory_overlay.open_inventory()
 
@@ -136,6 +149,80 @@ func complete_death_respawn() -> void:
 func apply_accessibility_settings(_show_control_hints: bool, screen_shake_scale: float) -> void:
 	_hint.hide()
 	_level.set_screen_shake_scale(screen_shake_scale)
+
+
+func _configure_level_pause_mode(level: Node) -> void:
+	if level == null:
+		return
+	level.process_mode = Node.PROCESS_MODE_PAUSABLE
+	var underwater_ambience: Node = level.get_node_or_null("%UnderwaterAmbience")
+	if underwater_ambience != null:
+		underwater_ambience.process_mode = Node.PROCESS_MODE_PAUSABLE
+
+
+func _on_context_child_entered_tree(child: Node) -> void:
+	if child == null or child.name != &"SeaOfPillars":
+		return
+	call_deferred(&"_configure_level_pause_mode", child)
+
+
+func _set_gameplay_paused(is_paused: bool) -> void:
+	var tree: SceneTree = get_tree()
+	if tree == null:
+		return
+	if is_paused:
+		if not tree.paused or _paused_shader_states.is_empty():
+			_freeze_animated_shader_time()
+		tree.paused = true
+		return
+	tree.paused = false
+	_restore_animated_shader_time()
+
+
+func _freeze_animated_shader_time() -> void:
+	_restore_animated_shader_time()
+	var current_time: float = float(Time.get_ticks_msec()) / 1000.0
+	for node_path: NodePath in PAUSED_SHADER_NODE_PATHS:
+		var canvas_item: CanvasItem = get_node_or_null(node_path) as CanvasItem
+		if canvas_item == null or not (canvas_item.material is ShaderMaterial):
+			continue
+		var material: ShaderMaterial = canvas_item.material as ShaderMaterial
+		var previous_use_manual: Variant = material.get_shader_parameter(
+			USE_MANUAL_TIME_PARAMETER
+		)
+		var previous_manual_time: Variant = material.get_shader_parameter(
+			MANUAL_TIME_PARAMETER
+		)
+		if typeof(previous_use_manual) != TYPE_BOOL:
+			continue
+		if typeof(previous_manual_time) != TYPE_FLOAT and typeof(previous_manual_time) != TYPE_INT:
+			continue
+		var use_manual_time: bool = previous_use_manual
+		var manual_time: float = float(previous_manual_time)
+		var frozen_time: float = manual_time if use_manual_time else current_time
+		_paused_shader_states.append({
+			"material": material,
+			"use_manual_time": use_manual_time,
+			"manual_time": manual_time,
+		})
+		material.set_shader_parameter(MANUAL_TIME_PARAMETER, frozen_time)
+		material.set_shader_parameter(USE_MANUAL_TIME_PARAMETER, true)
+
+
+func _restore_animated_shader_time() -> void:
+	for state: Dictionary in _paused_shader_states:
+		var material: ShaderMaterial = state.get("material") as ShaderMaterial
+		if not is_instance_valid(material):
+			continue
+		material.set_shader_parameter(
+			MANUAL_TIME_PARAMETER,
+			state.get("manual_time", 0.0),
+		)
+		material.set_shader_parameter(
+			USE_MANUAL_TIME_PARAMETER,
+			state.get("use_manual_time", false),
+		)
+	_paused_shader_states.clear()
 
 
 func _configure_city_gate_interaction() -> void:
@@ -209,10 +296,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"pause"):
 		_inventory_candidate = false
 		if get_tree().paused:
-			get_tree().paused = false
+			_set_gameplay_paused(false)
 			_pause_overlay.close_overlay()
 		else:
-			get_tree().paused = true
+			_set_gameplay_paused(true)
 			_pause_overlay.open_overlay()
 		get_viewport().set_input_as_handled()
 
@@ -223,33 +310,33 @@ func _on_inventory_opened() -> void:
 		return
 	_inventory_candidate = false
 	_pause_overlay.close_overlay()
-	get_tree().paused = true
+	_set_gameplay_paused(true)
 
 
 func _on_inventory_closed() -> void:
 	_inventory_candidate = false
 	if _active and not _death_overlay.is_open():
-		get_tree().paused = false
+		_set_gameplay_paused(false)
 
 
 func _on_pause_resume_requested() -> void:
 	if not _active:
 		return
 	_inventory_candidate = false
-	get_tree().paused = false
+	_set_gameplay_paused(false)
 
 
 func _on_pause_settings_requested() -> void:
 	if not _active:
 		return
 	_inventory_candidate = false
-	get_tree().paused = true
+	_set_gameplay_paused(true)
 	settings_requested.emit()
 
 
 func _on_pause_menu_requested() -> void:
 	_inventory_candidate = false
-	get_tree().paused = false
+	_set_gameplay_paused(false)
 	menu_requested.emit()
 
 
@@ -263,7 +350,7 @@ func _on_death_menu_requested() -> void:
 	if not _active:
 		return
 	_death_overlay.close_overlay()
-	get_tree().paused = false
+	_set_gameplay_paused(false)
 	menu_requested.emit()
 
 
@@ -310,7 +397,7 @@ func _on_city_menu_requested() -> void:
 	if not _active or not _in_city:
 		return
 	_inventory_candidate = false
-	get_tree().paused = true
+	_set_gameplay_paused(true)
 	_pause_overlay.open_overlay()
 
 
