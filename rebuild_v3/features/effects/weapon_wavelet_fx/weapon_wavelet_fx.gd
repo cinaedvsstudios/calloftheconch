@@ -38,9 +38,10 @@ func play_wavelet(
 		return
 	stop_wavelet()
 	_world_position = world_position
-	_wavelet_rect.size = Vector2.ONE * maxf(32.0, diameter)
+	_wavelet_rect.size = Vector2.ONE * maxf(32.0, diameter * 1.5)
 	_wavelet_material.set_shader_parameter(&"progression", 0.0)
-	_wavelet_material.set_shader_parameter(&"fade", 0.9)
+	_wavelet_material.set_shader_parameter(&"fade", 0.84)
+	_wavelet_material.set_shader_parameter(&"opacity", 0.4)
 	_wavelet_material.set_shader_parameter(
 		&"deformation_length",
 		maxf(16.0, deformation_length),
@@ -58,8 +59,8 @@ func play_wavelet(
 		_set_progression,
 		0.0,
 		1.0,
-		maxf(0.05, duration),
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		maxf(0.05, duration * 2.0),
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_wavelet_tween.finished.connect(stop_wavelet)
 
 

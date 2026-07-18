@@ -3,7 +3,8 @@ render_mode unshaded, blend_mix;
 
 uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;
 uniform float progression : hint_range(0.0, 1.0) = 0.5;
-uniform float fade : hint_range(0.0, 1.0) = 0.9;
+uniform float fade : hint_range(0.0, 1.0) = 0.84;
+uniform float opacity : hint_range(0.0, 1.0) = 0.4;
 uniform float thickness : hint_range(0.01, 1.0) = 0.1;
 uniform float wavelet_factor : hint_range(0.1, 4.0) = 4.0;
 uniform float deformation_length = 16.0;
@@ -24,18 +25,10 @@ void fragment() {
 	vec2 offset_vector = norm * def;
 	vec2 target_uv = screen_pos + ((UV + offset_vector) * screen_size);
 	target_uv.y = 1.0 - target_uv.y;
-	float fade_alpha = mix(
-		1.0,
-		smoothstep(
-			1.0,
-			0.0,
-			(progression - fade) / max(0.0001, 1.0 - fade)
-		),
-		step(fade, progression)
-	);
+	float fade_alpha = 1.0 - smoothstep(fade, 1.0, progression);
 	COLOR = mix(
 		vec4(0.0),
-		vec4(texture(screen_texture, target_uv).rgb, fade_alpha),
+		vec4(texture(screen_texture, target_uv).rgb, opacity * fade_alpha),
 		step(0.01, distortion)
 	);
 }
