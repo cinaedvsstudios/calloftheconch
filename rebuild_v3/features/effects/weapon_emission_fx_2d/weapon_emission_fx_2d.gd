@@ -8,6 +8,7 @@ const PROFILE_CONUS_TEXTILE: StringName = &"conus_textile"
 
 @export_category("Weapon Emission VFX")
 @export_range(0.10, 1.00, 0.01) var effect_duration: float = 0.20
+@export var sparks_only: bool = false
 
 @export_category("Optional Autoplay")
 @export var autoplay_on_ready: bool = false
@@ -32,6 +33,9 @@ func _ready() -> void:
 	_finish_timer.timeout.connect(stop_effect)
 	_duplicate_particle_materials()
 	stop_effect()
+	if sparks_only:
+		_radial_glow.hide()
+		_additive_core.hide()
 	if autoplay_on_ready:
 		call_deferred(&"_play_deferred_autoplay")
 
@@ -163,6 +167,20 @@ func play_profile(
 	_finish_timer.start(play_duration)
 
 
+func _on_tail_flip_impact(
+		contact_position: Vector2,
+		normal: Vector2,
+		_target: Node,
+	) -> void:
+	var impact_direction: Vector2 = normal.normalized()
+	if impact_direction.length_squared() <= 0.0001:
+		impact_direction = Vector2.RIGHT
+	top_level = true
+	global_position = contact_position
+	global_rotation = 0.0
+	play_profile(PROFILE_NORMAL_CONCH, impact_direction)
+
+
 func stop_effect() -> void:
 	if _effect_tween != null and _effect_tween.is_valid():
 		_effect_tween.kill()
@@ -196,7 +214,7 @@ func _play_deferred_autoplay() -> void:
 		if (
 				not String(autoplay_parent_anchor_method).is_empty()
 				and source.has_method(autoplay_parent_anchor_method)
-		):
+			):
 			var anchor_value: Variant = source.call(autoplay_parent_anchor_method)
 			if anchor_value is Vector2:
 				effect_position = anchor_value
