@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://k2serfn5csof"]
 
-[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_hud_greatfin_count.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_hud.gd" id="1_controller"]
 [ext_resource type="Texture2D" uid="uid://cyqc6r47jke0n" path="res://assets/ui/UI1.webp" id="2_lc38v"]
 [ext_resource type="Texture2D" uid="uid://cryc77jmj45iu" path="res://assets/ui/shell_normal_conch.png" id="3_2vbiw"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/status_countdown_overlay.tscn" id="4_countdown"]
