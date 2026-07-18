@@ -8,8 +8,6 @@ uniform float thickness : hint_range(0.01, 1.0) = 0.12;
 uniform float wavelet_factor : hint_range(0.1, 4.0) = 3.0;
 uniform float deformation_length = 6.0;
 
-const float PI = 3.14159265358979323846;
-
 void fragment() {
 	vec2 centered = UV - vec2(0.5);
 	float centered_length = length(centered);
