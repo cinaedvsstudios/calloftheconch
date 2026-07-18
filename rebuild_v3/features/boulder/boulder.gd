@@ -108,15 +108,16 @@ func _request_tail_flip_impact_vfx() -> void:
 	if refinement == null or not refinement.has_method(&"play_impact_sparks"):
 		return
 
-	var contact_direction: Vector2 = global_position - _hylas.global_position
-	if contact_direction.length_squared() <= 0.0001:
-		contact_direction = _active_tail_flip_direction
-	else:
-		contact_direction = contact_direction.normalized()
-	var contact_position: Vector2 = (
-		global_position
-		- contact_direction * _get_effective_collision_radius()
+	var contact_vector: Vector2 = global_position - _hylas.global_position
+	var center_distance: float = contact_vector.length()
+	var contact_direction: Vector2 = _active_tail_flip_direction
+	if center_distance > 0.0001:
+		contact_direction = contact_vector / center_distance
+	var contact_radius: float = minf(
+		_get_effective_collision_radius(),
+		center_distance * 0.75
 	)
+	var contact_position: Vector2 = global_position - contact_direction * contact_radius
 	refinement.call(&"play_impact_sparks", contact_position, -contact_direction)
 
 
