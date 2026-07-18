@@ -1,5 +1,5 @@
 shader_type canvas_item;
-render_mode unshaded;
+render_mode unshaded, blend_mix;
 
 uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;
 uniform float progression : hint_range(0.0, 1.0) = 0.0;
@@ -7,8 +7,6 @@ uniform float fade : hint_range(0.0, 1.0) = 0.72;
 uniform float thickness : hint_range(0.01, 1.0) = 0.12;
 uniform float wavelet_factor : hint_range(0.1, 4.0) = 3.0;
 uniform float deformation_length = 6.0;
-uniform vec2 screen_pos = vec2(0.0);
-uniform vec2 screen_size = vec2(0.0);
 
 const float PI = 3.14159265358979323846;
 
@@ -16,8 +14,7 @@ void fragment() {
 	vec2 centered = UV - vec2(0.5);
 	float centered_length = length(centered);
 	if (centered_length <= 0.0001) {
-		COLOR = vec4(0.0);
-		return;
+		discard;
 	}
 
 	float distance_from_center = centered_length * 2.0;
@@ -32,8 +29,10 @@ void fragment() {
 		0.0,
 		step(0.99, abs(distortion))
 	);
+	if (abs(distortion) <= 0.01) {
+		discard;
+	}
 
-	float ring_mask = step(0.01, abs(distortion));
 	float fade_alpha = mix(
 		1.0,
 		smoothstep(
@@ -50,10 +49,10 @@ void fragment() {
 		* SCREEN_PIXEL_SIZE
 	);
 	vec2 source_uv = clamp(
-		screen_pos + (UV * screen_size) + deformation,
+		SCREEN_UV + deformation,
 		vec2(0.0),
 		vec2(1.0)
 	);
-	vec3 displaced_screen = texture(screen_texture, source_uv).rgb;
-	COLOR = vec4(displaced_screen, ring_mask * fade_alpha);
+	vec4 displaced_screen = texture(screen_texture, source_uv);
+	COLOR = vec4(displaced_screen.rgb, displaced_screen.a * fade_alpha);
 }
