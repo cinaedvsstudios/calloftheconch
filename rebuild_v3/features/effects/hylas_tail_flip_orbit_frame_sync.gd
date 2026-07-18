@@ -6,7 +6,7 @@ const ORBIT_REVOLUTIONS: float = 2.0
 # The orbit geometry is tilted by -18 degrees. These progress offsets place the
 # middle highlight visually at 5 o'clock for each mirrored Hylas orientation.
 const RIGHT_FACING_START_PROGRESS: float = 13.0 / 60.0
-const LEFT_FACING_START_PROGRESS: float = 17.0 / 60.0
+const LEFT_FACING_START_PROGRESS: float = 0.3592
 
 @onready var _refinement: Node = get_parent()
 @onready var _player: CharacterBody2D = get_parent().get_parent().get_parent() as CharacterBody2D
@@ -45,8 +45,8 @@ func _process(_delta: float) -> void:
 		1.0,
 	)
 
-	# The mirrored orbit geometry uses opposite phase signs. Advance two complete
-	# anticlockwise turns over the active frames and return precisely to 5 o'clock
+	# The horizontally mirrored orbit uses the opposite apparent phase direction.
+	# Advance two complete anticlockwise turns and return precisely to 5 o'clock
 	# when the final frame first appears.
 	var orbit_progress: float
 	if _sprite.flip_h:
