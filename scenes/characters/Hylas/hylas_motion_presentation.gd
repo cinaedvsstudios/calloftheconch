@@ -161,11 +161,11 @@ func _physics_process(delta: float) -> void:
 		_tail_flip_remaining > 0.0
 		and _animated_sprite.animation == &"tail_flip"
 	)
+	_apply_collision_profile(_animated_sprite.animation)
 	if tail_flip_was_active or tail_flip_is_active:
 		_report_tail_flip_slide_impacts()
 	_update_stop_pose_hold()
 	_update_burst_presentation()
-	_apply_collision_profile(_animated_sprite.animation)
 
 
 func _start_tail_flip() -> void:
@@ -196,6 +196,27 @@ func _report_tail_flip_slide_impacts() -> void:
 			collision.get_normal(),
 			target,
 		)
+
+	if _collision_shape.shape == null:
+		return
+	var query: PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
+	query.shape = _collision_shape.shape
+	query.transform = _collision_shape.global_transform
+	query.motion = Vector2.ZERO
+	query.margin = 4.0
+	query.collision_mask = collision_mask
+	query.exclude = [get_rid()]
+	query.collide_with_bodies = true
+	query.collide_with_areas = false
+	var rest_info: Dictionary = get_world_2d().direct_space_state.get_rest_info(query)
+	if rest_info.is_empty():
+		return
+	var resting_target: Node = rest_info.get("collider") as Node
+	if resting_target == null:
+		return
+	var contact_position: Vector2 = rest_info.get("point", global_position)
+	var contact_normal: Vector2 = rest_info.get("normal", -_tail_flip_direction)
+	_emit_tail_flip_impact(contact_position, contact_normal, resting_target)
 
 
 func _emit_tail_flip_impact(
