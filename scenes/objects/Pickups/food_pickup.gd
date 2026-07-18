@@ -75,6 +75,10 @@ func assign_persistent_id(level_id: StringName) -> StringName:
 
 
 func set_persistently_collected(is_collected: bool) -> void:
+	if _dissolving and is_collected:
+		_collected = true
+		_apply_collection_state()
+		return
 	_collected = is_collected
 	_dissolving = false
 	_kill_dissolve_tween()
