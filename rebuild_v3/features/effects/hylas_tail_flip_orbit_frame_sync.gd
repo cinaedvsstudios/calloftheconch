@@ -3,10 +3,10 @@ extends Node
 
 const TAIL_FLIP_ANIMATION: StringName = &"tail_flip"
 const ORBIT_REVOLUTIONS: float = 2.0
-# The orbit geometry is tilted by -18 degrees. These progress offsets place the
-# middle highlight visually at 5 o'clock for each mirrored Hylas orientation.
-const RIGHT_FACING_START_PROGRESS: float = 13.0 / 60.0
-const LEFT_FACING_START_PROGRESS: float = 0.3592
+# One canonical animation phase is used for both directions. The completed orbit
+# geometry is mirrored separately for left-facing Hylas, so the moving highlight
+# cannot be phase-corrected back into the same onscreen path.
+const CANONICAL_START_PROGRESS: float = 13.0 / 60.0
 
 @onready var _refinement: Node = get_parent()
 @onready var _player: CharacterBody2D = get_parent().get_parent().get_parent() as CharacterBody2D
@@ -30,11 +30,8 @@ func _process(_delta: float) -> void:
 		return
 
 	var frame_count: int = _sprite.sprite_frames.get_frame_count(TAIL_FLIP_ANIMATION)
-	var start_progress: float = (
-		LEFT_FACING_START_PROGRESS if _sprite.flip_h else RIGHT_FACING_START_PROGRESS
-	)
 	if frame_count <= 1:
-		_refinement.call(&"_update_orbit_geometry", start_progress)
+		_refinement.call(&"_update_orbit_geometry", CANONICAL_START_PROGRESS)
 		return
 
 	var final_frame_index: float = float(frame_count - 1)
@@ -45,18 +42,11 @@ func _process(_delta: float) -> void:
 		1.0,
 	)
 
-	# The horizontally mirrored orbit uses the opposite apparent phase direction.
-	# Advance two complete anticlockwise turns and return precisely to 5 o'clock
-	# when the final frame first appears.
-	var orbit_progress: float
-	if _sprite.flip_h:
-		orbit_progress = fposmod(
-			start_progress + animation_progress * ORBIT_REVOLUTIONS,
-			1.0,
-		)
-	else:
-		orbit_progress = fposmod(
-			start_progress - animation_progress * ORBIT_REVOLUTIONS,
-			1.0,
-		)
+	# Always build the same canonical right-facing animation. The refinement
+	# mirrors the finished Line2D points when Hylas faces left. Using one phase
+	# here is what makes the left-facing result a literal horizontal mirror.
+	var orbit_progress: float = fposmod(
+		CANONICAL_START_PROGRESS - animation_progress * ORBIT_REVOLUTIONS,
+		1.0,
+	)
 	_refinement.call(&"_update_orbit_geometry", orbit_progress)
