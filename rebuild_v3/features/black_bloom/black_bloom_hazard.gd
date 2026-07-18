@@ -40,7 +40,6 @@ func _ready() -> void:
 	_hurt_area.monitoring = true
 	set_process(true)
 	_go_to_sleep()
-	_connect_to_level_conch_signal()
 
 
 func set_distance_active(is_active: bool) -> void:
@@ -83,6 +82,12 @@ func _process(_delta: float) -> void:
 
 	if _awake:
 		_damage_touching_hylas_if_needed()
+
+
+func get_conch_hit_position() -> Vector2:
+	if is_instance_valid(_conch_target):
+		return _conch_target.global_position
+	return global_position
 
 
 func receive_conch_hit(
@@ -217,37 +222,6 @@ func _damage_hylas(hylas_body: Node2D) -> void:
 		return
 	_last_damage_time = now
 	damage_requested.emit(hylas_body, damage_amount)
-
-
-func _connect_to_level_conch_signal() -> void:
-	var ancestor: Node = get_parent()
-	var callback: Callable = Callable(self, "_on_level_conch_target_hit")
-	while ancestor != null:
-		if ancestor.has_signal(&"conch_target_hit"):
-			if not ancestor.is_connected(&"conch_target_hit", callback):
-				ancestor.connect(&"conch_target_hit", callback)
-			return
-		ancestor = ancestor.get_parent()
-
-
-func _on_level_conch_target_hit(
-		target: Node2D,
-		hit_position: Vector2,
-		_pulse_index: int,
-	) -> void:
-	if target != self and target != _conch_target:
-		return
-	var origin: Vector2 = hit_position
-	var pulse_direction: Vector2 = Vector2.RIGHT
-	var hit_distance: float = 0.0
-	_resolve_hylas()
-	if is_instance_valid(_hylas):
-		origin = _hylas.global_position
-		var target_offset: Vector2 = hit_position - origin
-		hit_distance = target_offset.length()
-		if target_offset.length_squared() > 0.001:
-			pulse_direction = target_offset.normalized()
-	receive_conch_hit(origin, pulse_direction, hit_distance, 1.0)
 
 
 func get_debug_lines() -> Array[String]:

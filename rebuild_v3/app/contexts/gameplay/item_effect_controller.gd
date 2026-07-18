@@ -1,6 +1,8 @@
 class_name CotcItemEffectController
 extends Node2D
 
+signal conch_used
+
 const CONUS_TETHER_SCENE: PackedScene = preload(
 	"res://rebuild_v3/game/shared/items/conus_textile/conus_tether_projectile.tscn"
 )
@@ -11,6 +13,7 @@ const INK_CLOUD_SCENE: PackedScene = preload(
 	"res://rebuild_v3/game/shared/items/argonauta/ink_paralysis_cloud.tscn"
 )
 
+const BEHAVIOR_NORMAL_CONCH: StringName = &"normal_conch"
 const BEHAVIOR_SUPER_CONCH: StringName = &"super_conch"
 const BEHAVIOR_SONIC_DRILL: StringName = &"sonic_drill"
 const BEHAVIOR_DART_TETHER: StringName = &"dart_tether"
@@ -21,8 +24,15 @@ const BEHAVIOR_INK_PRISON: StringName = &"ink_prison"
 const BEHAVIOR_CROWN_SEA_GRAPES: StringName = &"crown_sea_grapes"
 const BEHAVIOR_SEAWEED_GRAPES_BOX: StringName = &"seaweed_grapes_box"
 
+const CONCH_PROFILE_NORMAL: StringName = &"normal_conch"
+const CONCH_PROFILE_SUPER: StringName = &"super_conch"
+const CONCH_PROFILE_TEREBRIDAE: StringName = &"terebridae"
+
 @export_category("Consumables")
 @export_range(1, 8, 1) var seaweed_grapes_heal_amount: int = 1
+
+@export_category("Conch Pulse")
+@export_range(0.0, 300.0, 1.0) var conch_origin_forward_offset: float = 105.0
 
 @export_category("Item B Durations")
 @export_range(0.1, 30.0, 0.1) var purple_shield_seconds: float = 30.0
@@ -41,6 +51,7 @@ const BEHAVIOR_SEAWEED_GRAPES_BOX: StringName = &"seaweed_grapes_box"
 @onready var _transform_effect: VideoStreamPlayer = %TransformEffect
 @onready var _purple_shield_effect: VideoStreamPlayer = %PurpleShieldEffect
 @onready var _surge_effect: VideoStreamPlayer = %SurgeEffect
+@onready var _conch_pulse: CotcConchPulse = %ConchPulse
 @onready var _projectiles: Node2D = %Projectiles
 @onready var _clouds: Node2D = %Clouds
 
@@ -53,6 +64,8 @@ var _purple_shield_remaining: float = 0.0
 var _surge_remaining: float = 0.0
 var _camouflage_remaining: float = 0.0
 var _active_conus_tether: CotcConusTetherProjectile
+var _connected_conch_context: Node
+var _connected_hylas_for_conch: CotcHylas
 
 
 func _ready() -> void:
@@ -63,13 +76,20 @@ func _ready() -> void:
 	_stop_video(_transform_effect)
 	_stop_video(_purple_shield_effect)
 	_stop_video(_surge_effect)
+	if is_instance_valid(_conch_pulse):
+		_conch_pulse.stop()
 	set_process(false)
 
 
 func configure(context: Node, level: CotcSeaOfPillars, hylas: CotcHylas) -> void:
+	_disconnect_conch_context()
+	_disconnect_hylas_normal_conch()
 	_context = context
 	_level = level
 	_hylas = hylas
+	_disconnect_level_normal_conch_route()
+	_connect_conch_context()
+	_connect_hylas_normal_conch()
 	_update_video_anchor()
 
 
@@ -148,6 +168,8 @@ func clear_active_effects() -> void:
 	_stop_video(_transform_effect)
 	_stop_video(_purple_shield_effect)
 	_stop_video(_surge_effect)
+	if is_instance_valid(_conch_pulse):
+		_conch_pulse.stop()
 	if is_instance_valid(_hylas):
 		if _hylas.has_method(&"clear_item_effect_state"):
 			_hylas.call(&"clear_item_effect_state")
@@ -167,11 +189,10 @@ func _activate_profiled_conch(
 		return false
 	if not bool(_hylas.call(&"activate_item_a_pose", direction)):
 		return false
-	if not is_instance_valid(_level) or not _level.has_method(&"trigger_special_conch"):
-		return false
 	var profile: Dictionary = {}
 	if behavior_id == BEHAVIOR_SUPER_CONCH:
 		profile = {
+			"emission_profile_id": CONCH_PROFILE_SUPER,
 			"arc_degrees": super_conch_arc_degrees,
 			"close_range_arc_degrees": maxf(120.0, super_conch_arc_degrees),
 			"brightness": super_conch_brightness,
@@ -181,6 +202,7 @@ func _activate_profiled_conch(
 		}
 	else:
 		profile = {
+			"emission_profile_id": CONCH_PROFILE_TEREBRIDAE,
 			"arc_degrees": sonic_drill_arc_degrees,
 			"close_range_arc_degrees": 38.0,
 			"brightness": sonic_drill_brightness,
@@ -190,8 +212,84 @@ func _activate_profiled_conch(
 			"pulse_interval_scale": 0.48,
 			"stream_duration": 5.0,
 		}
-	_level.call(&"trigger_special_conch", origin, direction, profile)
+	_trigger_conch_pulse(origin, direction, profile)
 	return true
+
+
+func _trigger_conch_pulse(origin: Vector2, direction: Vector2, profile: Dictionary) -> bool:
+	if not is_instance_valid(_conch_pulse):
+		return false
+	var pulse_direction: Vector2 = direction
+	if pulse_direction.length_squared() <= 0.0001:
+		pulse_direction = Vector2.RIGHT
+	else:
+		pulse_direction = pulse_direction.normalized()
+	var pulse_origin: Vector2 = origin + pulse_direction * conch_origin_forward_offset
+	if profile.is_empty():
+		_conch_pulse.trigger_from_player(pulse_origin, pulse_direction, origin)
+	elif _conch_pulse.has_method(&"trigger_profile_from_player"):
+		_conch_pulse.call(
+			&"trigger_profile_from_player",
+			pulse_origin,
+			pulse_direction,
+			origin,
+			profile,
+		)
+	else:
+		_conch_pulse.trigger_from_player(pulse_origin, pulse_direction, origin)
+	conch_used.emit()
+	return true
+
+
+func _on_hylas_normal_conch_used(origin: Vector2, direction: Vector2) -> void:
+	if not _active:
+		return
+	_trigger_conch_pulse(origin, direction, {"emission_profile_id": CONCH_PROFILE_NORMAL})
+
+
+func _connect_hylas_normal_conch() -> void:
+	if not is_instance_valid(_hylas) or not _hylas.has_signal(&"normal_conch_used"):
+		return
+	var callback: Callable = Callable(self, "_on_hylas_normal_conch_used")
+	if not _hylas.is_connected(&"normal_conch_used", callback):
+		_hylas.connect(&"normal_conch_used", callback)
+	_connected_hylas_for_conch = _hylas
+
+
+func _disconnect_hylas_normal_conch() -> void:
+	if not is_instance_valid(_connected_hylas_for_conch):
+		_connected_hylas_for_conch = null
+		return
+	var callback: Callable = Callable(self, "_on_hylas_normal_conch_used")
+	if _connected_hylas_for_conch.is_connected(&"normal_conch_used", callback):
+		_connected_hylas_for_conch.disconnect(&"normal_conch_used", callback)
+	_connected_hylas_for_conch = null
+
+
+func _disconnect_level_normal_conch_route() -> void:
+	if not is_instance_valid(_level) or not is_instance_valid(_hylas):
+		return
+	var level_callback: Callable = Callable(_level, "_on_hylas_normal_conch_used")
+	if _hylas.is_connected(&"normal_conch_used", level_callback):
+		_hylas.disconnect(&"normal_conch_used", level_callback)
+
+
+func _connect_conch_context() -> void:
+	if _context == null or not _context.has_method(&"_on_level_conch_used"):
+		return
+	var callback: Callable = Callable(_context, "_on_level_conch_used")
+	if not conch_used.is_connected(callback):
+		conch_used.connect(callback)
+	_connected_conch_context = _context
+
+
+func _disconnect_conch_context() -> void:
+	if _connected_conch_context == null:
+		return
+	var callback: Callable = Callable(_connected_conch_context, "_on_level_conch_used")
+	if conch_used.is_connected(callback):
+		conch_used.disconnect(callback)
+	_connected_conch_context = null
 
 
 func _activate_conus_dart(origin: Vector2, direction: Vector2) -> bool:
@@ -348,7 +446,7 @@ func _on_transform_effect_finished() -> void:
 
 
 func get_debug_lines() -> Array[String]:
-	return [
+	var lines: Array[String] = [
 		"[ItemEffectController]",
 		"active=%s" % str(_active),
 		"purple_shield_remaining=%.2f" % _purple_shield_remaining,
@@ -357,3 +455,6 @@ func get_debug_lines() -> Array[String]:
 		"projectiles=%d" % _projectiles.get_child_count(),
 		"ink_clouds=%d" % _clouds.get_child_count(),
 	]
+	if is_instance_valid(_conch_pulse):
+		lines.append_array(_conch_pulse.get_debug_lines())
+	return lines

@@ -112,6 +112,18 @@ func _resolve_emission_profile(profile: Dictionary) -> StringName:
 		return EMISSION_PROFILE_SUPER
 	return EMISSION_PROFILE_NORMAL
 
+func _get_active_response_profile_id() -> StringName:
+	return _active_emission_profile_id
+
+func _get_active_response_strength_scale() -> float:
+	match _active_emission_profile_id:
+		EMISSION_PROFILE_SUPER:
+			return 0.90
+		EMISSION_PROFILE_TEREBRIDAE:
+			return 1.15
+		_:
+			return 0.55
+
 func _hold_terebridae_pose_for_stream() -> void:
 	if _active_emission_profile_id != EMISSION_PROFILE_TEREBRIDAE:
 		return

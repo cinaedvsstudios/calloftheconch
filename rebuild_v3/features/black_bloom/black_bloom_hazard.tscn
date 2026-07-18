@@ -16,7 +16,7 @@ height = 1250.0
 [sub_resource type="CircleShape2D" id="ConusTargetShape"]
 radius = 210.0
 
-[node name="BlackBloomHazard" type="Node2D" groups=["enemy", "hazard"]]
+[node name="BlackBloomHazard" type="Node2D" groups=["conch_target", "enemy", "hazard"]]
 script = ExtResource("1_controller")
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
@@ -30,7 +30,7 @@ unique_name_in_owner = true
 position = Vector2(0, -210)
 scale = Vector2(1.25, 1.25)
 
-[node name="ConchTarget" type="Area2D" parent="." groups=["conch_target"]]
+[node name="ConchTarget" type="Area2D" parent="."]
 unique_name_in_owner = true
 position = Vector2(0, -610)
 collision_layer = 1

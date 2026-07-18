@@ -46,6 +46,8 @@ signal frozen_finished()
 
 @export_category("Water Forces")
 @export_range(0.0, 2.0, 0.01) var current_influence: float = 0.32
+@export_range(0.0, 400.0, 1.0) var conch_response_speed: float = 82.0
+@export_range(1.0, 1600.0, 1.0) var conch_response_decay: float = 520.0
 
 @onready var _sprite: AnimatedSprite2D = %AnimatedSprite
 @onready var _hurt_area: Area2D = %HurtArea
@@ -58,6 +60,7 @@ var _patrol_target: Vector2
 var _travel_sign: float = 1.0
 var _cruise_speed: float = 40.0
 var _movement_velocity: Vector2 = Vector2.ZERO
+var _conch_response_velocity: Vector2 = Vector2.ZERO
 var _external_currents: Dictionary = {}
 var _hylas: Node2D
 var _alerted: bool = false
@@ -95,7 +98,6 @@ func _ready() -> void:
 	monitoring = false
 	monitorable = true
 	set_physics_process(true)
-	_connect_to_level_conch_signal()
 
 
 func set_distance_active(is_active: bool) -> void:
@@ -111,6 +113,7 @@ func set_distance_active(is_active: bool) -> void:
 	_sprite.pause()
 	_floor_probe.enabled = false
 	_external_currents.clear()
+	_conch_response_velocity = Vector2.ZERO
 
 
 func _physics_process(delta: float) -> void:
@@ -142,11 +145,12 @@ func remove_external_current(source: Node) -> void:
 
 
 func receive_conch_hit(
-		_origin: Vector2,
-		_pulse_direction: Vector2,
+		origin: Vector2,
+		pulse_direction: Vector2,
 		_distance: float,
-		_strength: float,
+		strength: float,
 	) -> void:
+	_add_conch_response_velocity(origin, pulse_direction, strength)
 	var was_already_frozen: bool = is_frozen()
 	_freeze_ends_at_msec = Time.get_ticks_msec() + int(round(freeze_duration * 1000.0))
 	if not was_already_frozen:
@@ -186,7 +190,9 @@ func _begin_frozen_state(play_audio: bool) -> void:
 
 func _update_frozen(delta: float) -> void:
 	_set_opacity(alert_opacity_max)
+	_update_conch_response(delta)
 	if _resting_on_floor:
+		global_position += _conch_response_velocity * delta
 		return
 
 	var sink_step: float = stunned_sink_speed * delta
@@ -196,8 +202,9 @@ func _update_frozen(delta: float) -> void:
 		var collision_point: Vector2 = _floor_probe.get_collision_point()
 		global_position.y = collision_point.y - _floor_probe.position.y
 		_resting_on_floor = true
+		global_position += _conch_response_velocity * delta
 		return
-	global_position.y += sink_step
+	global_position += Vector2(0.0, sink_step) + _conch_response_velocity * delta
 
 
 func _finish_frozen_state() -> void:
@@ -249,11 +256,29 @@ func _update_drift(delta: float) -> void:
 			steering_acceleration * delta,
 		)
 
+	_update_conch_response(delta)
 	var total_velocity: Vector2 = (
 		_movement_velocity
 		+ _get_external_current_velocity() * current_influence
+		+ _conch_response_velocity
 	)
 	global_position += total_velocity * delta
+
+
+func _add_conch_response_velocity(origin: Vector2, pulse_direction: Vector2, strength: float) -> void:
+	var away_direction: Vector2 = global_position - origin
+	if away_direction.length_squared() <= 0.001:
+		away_direction = pulse_direction
+	if away_direction.length_squared() <= 0.001:
+		return
+	_conch_response_velocity += away_direction.normalized() * conch_response_speed * clampf(strength, 0.0, 1.25)
+
+
+func _update_conch_response(delta: float) -> void:
+	_conch_response_velocity = _conch_response_velocity.move_toward(
+		Vector2.ZERO,
+		conch_response_decay * delta,
+	)
 
 
 func _set_alerted(is_alerted: bool, force: bool = false) -> void:
@@ -363,36 +388,6 @@ func _resolve_hylas() -> void:
 	var hylas_collision: CollisionObject2D = _hylas as CollisionObject2D
 	if hylas_collision != null:
 		_floor_probe.add_exception(hylas_collision)
-
-
-func _connect_to_level_conch_signal() -> void:
-	var ancestor: Node = get_parent()
-	var callback := Callable(self, "_on_level_conch_target_hit")
-	while ancestor != null:
-		if ancestor.has_signal(&"conch_target_hit"):
-			if not ancestor.is_connected(&"conch_target_hit", callback):
-				ancestor.connect(&"conch_target_hit", callback)
-			return
-		ancestor = ancestor.get_parent()
-
-
-func _on_level_conch_target_hit(
-		target: Node2D,
-		hit_position: Vector2,
-		_pulse_index: int,
-	) -> void:
-	if target != self:
-		return
-	var origin: Vector2 = hit_position
-	var pulse_direction: Vector2 = Vector2.RIGHT
-	var hit_distance: float = 0.0
-	if is_instance_valid(_hylas):
-		origin = _hylas.global_position
-		var target_offset: Vector2 = hit_position - origin
-		hit_distance = target_offset.length()
-		if target_offset.length_squared() > 0.001:
-			pulse_direction = target_offset.normalized()
-	receive_conch_hit(origin, pulse_direction, hit_distance, 1.0)
 
 
 func _choose_next_patrol_target(initial_target: bool) -> void:

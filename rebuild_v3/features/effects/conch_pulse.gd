@@ -5,6 +5,11 @@ signal pulse_wave_started(pulse_index: int)
 signal pulse_wave_finished(pulse_index: int)
 signal target_hit(target: Node2D, hit_position: Vector2, pulse_index: int)
 
+const RESPONSE_PROFILE_NORMAL: StringName = &"normal_conch"
+const CONCH_IMPACT_SCENE: PackedScene = preload(
+	"res://scenes/effects/ConchImpact/conch_impact_effect.tscn"
+)
+
 @export_category("Directional Pulse Stream")
 @export var start_diameter: float = 20.0
 @export var pulse_range: float = 700.0
@@ -48,6 +53,11 @@ var _last_trigger_origin: Vector2 = Vector2.ZERO
 var _last_player_origin: Vector2 = Vector2.ZERO
 var _player_source: Node2D
 var _player_forward_offset: float = 0.0
+var _response_delivered_count: int = 0
+var _response_rejected_count: int = 0
+var _last_response_target_path: NodePath = NodePath("")
+var _last_response_profile_id: StringName = RESPONSE_PROFILE_NORMAL
+var _last_response_strength: float = 0.0
 
 
 func _ready() -> void:
@@ -85,6 +95,11 @@ func trigger_from_player(origin: Vector2, direction: Vector2, player_origin: Vec
 	_sequence_elapsed = 0.0
 	_sequence_active = true
 	_last_hit_count = 0
+	_response_delivered_count = 0
+	_response_rejected_count = 0
+	_last_response_target_path = NodePath("")
+	_last_response_profile_id = _get_active_response_profile_id()
+	_last_response_strength = 0.0
 	_sequence_hit_targets.clear()
 	_reset_pulse_state()
 	_track_close_range_targets(player_origin)
@@ -106,6 +121,7 @@ func stop() -> void:
 	_origin_flash.hide()
 	for pulse_sprite: Sprite2D in _pulse_sprites:
 		pulse_sprite.hide()
+	_clear_conch_impacts()
 	set_process(false)
 	hide()
 
@@ -257,7 +273,8 @@ func _track_close_range_targets(player_origin: Vector2) -> void:
 		var target: Node2D = node as Node2D
 		if target == null or not is_instance_valid(target):
 			continue
-		var target_offset: Vector2 = target.global_position - player_origin
+		var hit_position: Vector2 = _get_target_hit_position(target)
+		var target_offset: Vector2 = hit_position - player_origin
 		var target_distance: float = target_offset.length()
 		if target_distance > close_range_radius + target_radius_padding:
 			continue
@@ -327,7 +344,8 @@ func _track_pulse_targets(pulse_index: int, previous_radius: float, current_radi
 		if hit_once_per_trigger and _sequence_hit_targets.has(target_id):
 			continue
 
-		var target_offset: Vector2 = target.global_position - global_position
+		var hit_position: Vector2 = _get_target_hit_position(target)
+		var target_offset: Vector2 = hit_position - global_position
 		var target_distance: float = target_offset.length()
 		if target_distance < minimum_distance or target_distance > maximum_distance:
 			continue
@@ -346,7 +364,85 @@ func _register_target_hit(target: Node2D, pulse_index: int) -> void:
 		return
 	_sequence_hit_targets[target_id] = true
 	_last_hit_count += 1
-	target_hit.emit(target, target.global_position, pulse_index)
+
+	var hit_position: Vector2 = _get_target_hit_position(target)
+	_deliver_target_response(target, hit_position)
+	_spawn_conch_impact(target, hit_position)
+	target_hit.emit(target, hit_position, pulse_index)
+
+
+func _get_target_hit_position(target: Node2D) -> Vector2:
+	if target.has_method(&"get_conch_hit_position"):
+		var value: Variant = target.call(&"get_conch_hit_position")
+		if value is Vector2:
+			return value
+	return target.global_position
+
+
+func _deliver_target_response(target: Node2D, hit_position: Vector2) -> void:
+	_last_response_profile_id = _get_active_response_profile_id()
+	var response_target: Node2D = _get_conch_response_target(target)
+	if response_target == null:
+		_response_rejected_count += 1
+		_last_response_target_path = target.get_path()
+		push_warning(
+			"Conch target '%s' has no receive_conch_hit() response method." % str(target.get_path())
+		)
+		return
+	var hit_distance: float = hit_position.distance_to(global_position)
+	var hit_strength: float = _calculate_hit_strength(hit_distance)
+	_last_response_target_path = response_target.get_path()
+	_last_response_strength = hit_strength
+	_response_delivered_count += 1
+	response_target.call(
+		&"receive_conch_hit",
+		global_position,
+		_pulse_direction,
+		hit_distance,
+		hit_strength,
+	)
+
+
+func _get_conch_response_target(target: Node2D) -> Node2D:
+	if target.has_method(&"receive_conch_hit"):
+		return target
+	return null
+
+
+func _calculate_hit_strength(hit_distance: float) -> float:
+	var maximum_hit_distance: float = maxf(1.0, pulse_range * 0.5)
+	var distance_strength: float = clampf(
+		1.0 - hit_distance / maximum_hit_distance,
+		0.18,
+		1.0,
+	)
+	return distance_strength * _get_active_response_strength_scale()
+
+
+func _get_active_response_profile_id() -> StringName:
+	return RESPONSE_PROFILE_NORMAL
+
+
+func _get_active_response_strength_scale() -> float:
+	return 0.55
+
+
+func _spawn_conch_impact(target: Node2D, hit_position: Vector2) -> void:
+	var impact: Node2D = CONCH_IMPACT_SCENE.instantiate() as Node2D
+	if impact == null:
+		return
+	add_child(impact)
+	impact.global_position = hit_position
+	if impact.has_method(&"play_attached"):
+		impact.call(&"play_attached", target, hit_position)
+	elif impact.has_method(&"play_effect"):
+		impact.call(&"play_effect")
+
+
+func _clear_conch_impacts() -> void:
+	for child: Node in get_children():
+		if child.is_in_group(&"conch_impact_effect"):
+			child.queue_free()
 
 
 func _play_origin_flash() -> void:
@@ -383,4 +479,9 @@ func get_debug_lines() -> Array[String]:
 		"player_tracking=%s" % str(is_instance_valid(_player_source)),
 		"last_hit_events=%d" % _last_hit_count,
 		"target_group=%s" % str(target_group),
+		"response_profile=%s" % String(_last_response_profile_id),
+		"response_delivered=%d" % _response_delivered_count,
+		"response_rejected=%d" % _response_rejected_count,
+		"last_response_target=%s" % str(_last_response_target_path),
+		"last_response_strength=%.2f" % _last_response_strength,
 	]
