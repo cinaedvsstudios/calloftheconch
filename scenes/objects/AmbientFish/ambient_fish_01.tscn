@@ -1,8 +1,8 @@
 [gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scenes/objects/AmbientFish/ambient_fish.gd" id="1_controller"]
-[ext_resource type="Texture2D" path="res://assets/objects/fish01.webp" id="2_frame_a"]
-[ext_resource type="Texture2D" path="res://assets/objects/fish02.webp" id="3_frame_b"]
+[ext_resource type="Texture2D" path="res://assets/characters/fish01.webp" id="2_frame_a"]
+[ext_resource type="Texture2D" path="res://assets/characters/fish02.webp" id="3_frame_b"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_fish_01"]
