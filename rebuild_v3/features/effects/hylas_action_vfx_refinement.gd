@@ -25,7 +25,6 @@ var _orbit_alpha: float = 0.0
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
 	process_priority = 110
 	_build_orbit_bands()
 	call_deferred(&"_resolve_parent_layers")
