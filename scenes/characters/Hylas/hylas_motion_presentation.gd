@@ -3,6 +3,8 @@ extends "res://scenes/characters/Hylas/hylas.gd"
 ## Presentation-only control for the timing-sensitive Hylas actions.
 ## Gameplay movement remains in the inherited CotcHylas script.
 
+signal tail_flip_impact(contact_position: Vector2, normal: Vector2, target: Node)
+
 @export_category("Action Gameplay Timing")
 @export_range(0.10, 10.0, 0.01) var speed_run_gameplay_duration: float = 1.50
 @export_range(0.10, 5.0, 0.01) var tail_flip_gameplay_duration: float = 1.00
@@ -31,6 +33,7 @@ extends "res://scenes/characters/Hylas/hylas.gd"
 
 var _stop_pose_held: bool = false
 var _collision_profile_name: StringName = &"default"
+var _tail_flip_impact_target_ids: Dictionary = {}
 
 
 func _ready() -> void:
@@ -149,10 +152,67 @@ func _replace_animation_frames(
 
 
 func _physics_process(delta: float) -> void:
+	var tail_flip_was_active: bool = (
+		_tail_flip_remaining > 0.0
+		and _animated_sprite.animation == &"tail_flip"
+	)
 	super._physics_process(delta)
+	var tail_flip_is_active: bool = (
+		_tail_flip_remaining > 0.0
+		and _animated_sprite.animation == &"tail_flip"
+	)
+	if tail_flip_was_active or tail_flip_is_active:
+		_report_tail_flip_slide_impacts()
 	_update_stop_pose_hold()
 	_update_burst_presentation()
 	_apply_collision_profile(_animated_sprite.animation)
+
+
+func _start_tail_flip() -> void:
+	_tail_flip_impact_target_ids.clear()
+	super._start_tail_flip()
+
+
+func report_tail_flip_impact(
+		contact_position: Vector2,
+		normal: Vector2,
+		target: Node,
+	) -> void:
+	if _tail_flip_remaining <= 0.0 or _animated_sprite.animation != &"tail_flip":
+		return
+	_emit_tail_flip_impact(contact_position, normal, target)
+
+
+func _report_tail_flip_slide_impacts() -> void:
+	for collision_index: int in range(get_slide_collision_count()):
+		var collision: KinematicCollision2D = get_slide_collision(collision_index)
+		if collision == null:
+			continue
+		var target: Node = collision.get_collider() as Node
+		if target == null:
+			continue
+		_emit_tail_flip_impact(
+			collision.get_position(),
+			collision.get_normal(),
+			target,
+		)
+
+
+func _emit_tail_flip_impact(
+		contact_position: Vector2,
+		normal: Vector2,
+		target: Node,
+	) -> void:
+	if not is_instance_valid(target):
+		return
+	var target_id: int = target.get_instance_id()
+	if _tail_flip_impact_target_ids.has(target_id):
+		return
+	_tail_flip_impact_target_ids[target_id] = true
+	var impact_normal: Vector2 = normal.normalized()
+	if impact_normal.length_squared() <= 0.0001:
+		impact_normal = -_tail_flip_direction
+	tail_flip_impact.emit(contact_position, impact_normal, target)
 
 
 func _update_conch(delta: float) -> void:
