@@ -9,6 +9,12 @@ var _selection_dirty: bool = false
 
 
 func open_inventory() -> void:
+	if _is_open or _game_state == null:
+		return
+	# Pause before rebuilding or showing the overlay so no gameplay physics,
+	# animation, enemies, currents or background effects receive another frame.
+	# The gameplay music player is PROCESS_MODE_ALWAYS and continues normally.
+	get_tree().paused = true
 	_selection_dirty = false
 	super.open_inventory()
 
