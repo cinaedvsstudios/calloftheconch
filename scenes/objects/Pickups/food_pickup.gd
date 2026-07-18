@@ -50,14 +50,10 @@ const PICKUP_DISSOLVE_SHADER: Shader = preload(
 
 var _collected: bool = false
 var _distance_active: bool = true
-var _dissolving: bool = false
-var _base_sprite_material: Material
-var _dissolve_tween: Tween
 
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
-	_base_sprite_material = _sprite.material
 	_apply_display_scale()
 	_configure_collision()
 	monitorable = false
@@ -75,14 +71,7 @@ func assign_persistent_id(level_id: StringName) -> StringName:
 
 
 func set_persistently_collected(is_collected: bool) -> void:
-	if _dissolving and is_collected:
-		_collected = true
-		_apply_collection_state()
-		return
 	_collected = is_collected
-	_dissolving = false
-	_kill_dissolve_tween()
-	_restore_sprite_material()
 	_apply_collection_state()
 
 
@@ -96,28 +85,25 @@ func set_distance_active(is_active: bool) -> void:
 
 
 func _apply_collection_state() -> void:
-	visible = _dissolving or not _collected
-	monitoring = _distance_active and not _collected and not _dissolving
+	visible = not _collected
+	monitoring = _distance_active and not _collected
 	if is_instance_valid(_collision_shape):
-		_collision_shape.set_deferred(
-			&"disabled",
-			_collected or _dissolving or not _distance_active,
-		)
-	if not _collected and not _dissolving:
-		_restore_sprite_material()
-		if is_instance_valid(_sprite):
-			_sprite.modulate = Color.WHITE
+		_collision_shape.set_deferred(&"disabled", _collected or not _distance_active)
+	if not _collected and is_instance_valid(_sprite):
+		_sprite.material = null
+		_sprite.modulate = Color.WHITE
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if _collected or _dissolving or not body.is_in_group(&"hylas"):
+	if _collected or not body.is_in_group(&"hylas"):
 		return
 	_collect()
 
 
 func _collect() -> void:
+	_spawn_collection_visual_copy()
 	_collected = true
-	_begin_collection_effect()
+	_apply_collection_state()
 	pickup_collected.emit(
 		pickup_type_id,
 		pickup_instance_id,
@@ -128,26 +114,51 @@ func _collect() -> void:
 	)
 
 
-func _begin_collection_effect() -> void:
-	_dissolving = true
-	visible = true
-	monitoring = false
-	if is_instance_valid(_collision_shape):
-		_collision_shape.set_deferred(&"disabled", true)
-	_prepare_dissolve_material()
-	_spawn_magic_sparkles()
-	_kill_dissolve_tween()
-	_dissolve_tween = create_tween()
-	_dissolve_tween.tween_method(
-		Callable(self, "_set_dissolve_strength"),
-		0.0,
+func _spawn_collection_visual_copy() -> void:
+	if not is_instance_valid(_sprite) or _sprite.texture == null:
+		return
+	var parent_node: Node = get_parent()
+	if parent_node == null:
+		return
+
+	var effect_root: Node2D = Node2D.new()
+	effect_root.name = "%sCollectionEffect" % String(name)
+	effect_root.z_index = z_index + 8
+	parent_node.add_child(effect_root)
+	effect_root.global_position = _sprite.global_position
+
+	var dissolve_material: ShaderMaterial = _create_dissolve_material()
+	var dissolve_sprite: Sprite2D = Sprite2D.new()
+	dissolve_sprite.name = "DissolveSprite"
+	dissolve_sprite.texture = _sprite.texture
+	dissolve_sprite.centered = _sprite.centered
+	dissolve_sprite.offset = _sprite.offset
+	dissolve_sprite.flip_h = _sprite.flip_h
+	dissolve_sprite.flip_v = _sprite.flip_v
+	dissolve_sprite.region_enabled = _sprite.region_enabled
+	dissolve_sprite.region_rect = _sprite.region_rect
+	dissolve_sprite.hframes = _sprite.hframes
+	dissolve_sprite.vframes = _sprite.vframes
+	dissolve_sprite.frame = _sprite.frame
+	dissolve_sprite.frame_coords = _sprite.frame_coords
+	dissolve_sprite.modulate = _sprite.modulate
+	dissolve_sprite.material = dissolve_material
+	effect_root.add_child(dissolve_sprite)
+	dissolve_sprite.global_transform = _sprite.global_transform
+
+	_spawn_magic_sparkles(effect_root)
+
+	var dissolve_tween: Tween = effect_root.create_tween()
+	dissolve_tween.tween_property(
+		dissolve_material,
+		^"shader_parameter/strength",
 		1.0,
 		maxf(0.05, dissolve_seconds),
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_dissolve_tween.finished.connect(_finish_runtime_dissolve, Object.CONNECT_ONE_SHOT)
+	dissolve_tween.finished.connect(effect_root.queue_free, Object.CONNECT_ONE_SHOT)
 
 
-func _prepare_dissolve_material() -> void:
+func _create_dissolve_material() -> ShaderMaterial:
 	var dissolve_material: ShaderMaterial = ShaderMaterial.new()
 	dissolve_material.resource_local_to_scene = true
 	dissolve_material.shader = PICKUP_DISSOLVE_SHADER
@@ -156,31 +167,15 @@ func _prepare_dissolve_material() -> void:
 	dissolve_material.set_shader_parameter(&"direction", dissolve_direction)
 	dissolve_material.set_shader_parameter(&"mask_vignette_strength", dissolve_vignette_strength)
 	dissolve_material.set_shader_parameter(&"mask_vignette_center", dissolve_vignette_center)
-	_sprite.material = dissolve_material
-	_sprite.modulate = Color.WHITE
+	return dissolve_material
 
 
-func _set_dissolve_strength(value: float) -> void:
-	var dissolve_material: ShaderMaterial = _sprite.material as ShaderMaterial
-	if dissolve_material == null:
-		return
-	dissolve_material.set_shader_parameter(&"strength", clampf(value, 0.0, 1.0))
-
-
-func _finish_runtime_dissolve() -> void:
-	_dissolving = false
-	visible = false
-	monitoring = false
-	if is_instance_valid(_collision_shape):
-		_collision_shape.set_deferred(&"disabled", true)
-
-
-func _spawn_magic_sparkles() -> void:
-	if sparkle_count <= 0:
+func _spawn_magic_sparkles(effect_root: Node2D) -> void:
+	if sparkle_count <= 0 or not is_instance_valid(effect_root):
 		return
 	var sparkles: CPUParticles2D = CPUParticles2D.new()
 	sparkles.name = "PickupMagicSparkles"
-	sparkles.z_index = 8
+	sparkles.z_index = 9
 	sparkles.one_shot = true
 	sparkles.amount = sparkle_count
 	sparkles.lifetime = maxf(0.05, sparkle_lifetime)
@@ -196,8 +191,8 @@ func _spawn_magic_sparkles() -> void:
 	sparkles.scale_amount_min = sparkle_min_scale
 	sparkles.scale_amount_max = sparkle_max_scale
 	sparkles.color = sparkle_color
-	add_child(sparkles)
-	sparkles.global_position = _sprite.global_position
+	effect_root.add_child(sparkles)
+	sparkles.global_position = effect_root.global_position
 	sparkles.finished.connect(sparkles.queue_free, Object.CONNECT_ONE_SHOT)
 	sparkles.emitting = true
 
@@ -212,17 +207,6 @@ func _create_sparkle_texture() -> Texture2D:
 				var alpha: float = clampf(1.0 - distance / 2.15, 0.0, 1.0)
 				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
 	return ImageTexture.create_from_image(image)
-
-
-func _kill_dissolve_tween() -> void:
-	if _dissolve_tween != null and _dissolve_tween.is_valid():
-		_dissolve_tween.kill()
-	_dissolve_tween = null
-
-
-func _restore_sprite_material() -> void:
-	if is_instance_valid(_sprite):
-		_sprite.material = _base_sprite_material
 
 
 func _apply_display_scale() -> void:
