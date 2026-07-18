@@ -135,13 +135,21 @@ func _freeze_shader_time() -> void:
 		seen_materials[material_id] = true
 		var previous_use_manual: Variant = material.get_shader_parameter(USE_MANUAL_TIME_PARAMETER)
 		var previous_manual_time: Variant = material.get_shader_parameter(MANUAL_TIME_PARAMETER)
+		# Some CanvasItems use unrelated shaders. Missing uniforms return null, so
+		# skip those materials instead of attempting invalid bool()/float() casts.
+		if typeof(previous_use_manual) != TYPE_BOOL:
+			continue
+		if typeof(previous_manual_time) != TYPE_FLOAT and typeof(previous_manual_time) != TYPE_INT:
+			continue
+		var use_manual_time: bool = previous_use_manual
+		var manual_time: float = float(previous_manual_time)
 		var frozen_time: float = float(Time.get_ticks_msec()) / 1000.0
-		if bool(previous_use_manual):
-			frozen_time = float(previous_manual_time)
+		if use_manual_time:
+			frozen_time = manual_time
 		_shader_snapshot.append({
 			"material": material,
-			"use_manual_time": previous_use_manual,
-			"manual_time": previous_manual_time,
+			"use_manual_time": use_manual_time,
+			"manual_time": manual_time,
 		})
 		material.set_shader_parameter(MANUAL_TIME_PARAMETER, frozen_time)
 		material.set_shader_parameter(USE_MANUAL_TIME_PARAMETER, true)
