@@ -93,9 +93,47 @@ func _apply_tail_flip_hit() -> void:
 	_is_drifting = true
 	velocity += _active_tail_flip_direction * kick_speed
 	velocity = velocity.limit_length(max_drift_speed)
+	_play_tail_flip_flash()
 	_report_tail_flip_impact()
 	if _hylas != null and _hylas.has_method(&"play_land_impact_sound"):
 		_hylas.call(&"play_land_impact_sound")
+
+
+func _play_tail_flip_flash() -> void:
+	if _sprite.texture == null:
+		return
+	var flash: Sprite2D = Sprite2D.new()
+	flash.name = "TailFlipImpactFlash"
+	flash.texture = _sprite.texture
+	flash.centered = _sprite.centered
+	flash.offset = _sprite.offset
+	flash.flip_h = _sprite.flip_h
+	flash.flip_v = _sprite.flip_v
+	flash.position = Vector2.ZERO
+	flash.rotation = 0.0
+	flash.scale = Vector2.ONE
+	flash.z_index = 3
+	var additive_material: CanvasItemMaterial = CanvasItemMaterial.new()
+	additive_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	flash.material = additive_material
+	flash.modulate = Color(0.64, 0.94, 1.0, 0.90)
+	_sprite.add_child(flash)
+
+	var flash_tween: Tween = flash.create_tween()
+	flash_tween.set_parallel(true)
+	flash_tween.tween_property(
+		flash,
+		^"modulate:a",
+		0.0,
+		0.13,
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	flash_tween.tween_property(
+		flash,
+		^"scale",
+		Vector2.ONE * 1.025,
+		0.13,
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	flash_tween.finished.connect(flash.queue_free)
 
 
 func _report_tail_flip_impact() -> void:
