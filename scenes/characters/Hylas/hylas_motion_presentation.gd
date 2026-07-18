@@ -5,6 +5,9 @@ extends "res://scenes/characters/Hylas/hylas.gd"
 
 signal tail_flip_impact(contact_position: Vector2, normal: Vector2, target: Node)
 
+const NORMAL_TAIL_FLIP_STRIKE_TEXTURE: String = "hylas-flip_06.webp"
+const GREATFIN_TAIL_FLIP_STRIKE_TEXTURE: String = "hylas-greatfin-tailflip05.webp"
+
 @export_category("Action Gameplay Timing")
 @export_range(0.10, 10.0, 0.01) var speed_run_gameplay_duration: float = 1.50
 @export_range(0.10, 5.0, 0.01) var tail_flip_gameplay_duration: float = 1.00
@@ -183,7 +186,25 @@ func report_tail_flip_impact(
 	_emit_tail_flip_impact(contact_position, normal, target)
 
 
+func _is_tail_flip_strike_frame() -> bool:
+	if _animated_sprite.sprite_frames == null:
+		return false
+	var frame_texture: Texture2D = _animated_sprite.sprite_frames.get_frame_texture(
+		&"tail_flip",
+		_animated_sprite.frame,
+	)
+	if frame_texture == null:
+		return false
+	var texture_name: String = frame_texture.resource_path.get_file()
+	return (
+		texture_name == NORMAL_TAIL_FLIP_STRIKE_TEXTURE
+		or texture_name == GREATFIN_TAIL_FLIP_STRIKE_TEXTURE
+	)
+
+
 func _report_tail_flip_slide_impacts() -> void:
+	if not _is_tail_flip_strike_frame():
+		return
 	for collision_index: int in range(get_slide_collision_count()):
 		var collision: KinematicCollision2D = get_slide_collision(collision_index)
 		if collision == null:
