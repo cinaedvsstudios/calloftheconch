@@ -29,11 +29,23 @@ const PICKUP_DISSOLVE_SHADER: Shader = preload(
 @export_range(20.0, 400.0, 1.0) var display_height: float = 120.0
 @export_range(20.0, 250.0, 1.0) var pickup_radius: float = 65.0
 
+@export_category("Idle Cyan Shine")
+@export var idle_shine_enabled: bool = true
+@export var idle_shine_color: Color = Color(0.20, 1.0, 1.0, 1.0)
+@export_range(0.0, 2.0, 0.01) var idle_shine_strength: float = 0.86
+@export_range(0.01, 0.50, 0.01) var idle_shine_width: float = 0.15
+@export_range(0.10, 2.0, 0.01) var idle_shine_duration: float = 0.58
+@export_range(0.10, 12.0, 0.05) var idle_shine_min_interval: float = 1.6
+@export_range(0.10, 12.0, 0.05) var idle_shine_max_interval: float = 4.8
+
 @export_category("Collection Dissolve")
 @export_range(0.05, 2.0, 0.01) var dissolve_seconds: float = 0.62
 @export var dissolve_direction: Vector2 = Vector2(0.0, -0.22)
 @export_range(0.0, 1.0, 0.01) var dissolve_vignette_strength: float = 0.42
 @export var dissolve_vignette_center: Vector2 = Vector2(0.5, 0.45)
+
+@export_category("Collection Grow Pulse")
+@export_range(1.0, 1.5, 0.01) var dissolve_pulse_scale: float = 1.12
 
 @export_category("Collection Flash")
 @export var flash_color: Color = Color(0.12, 1.0, 1.0, 1.0)
@@ -69,20 +81,23 @@ const PICKUP_DISSOLVE_SHADER: Shader = preload(
 var _collected: bool = false
 var _distance_active: bool = true
 var _dissolving: bool = false
-var _base_sprite_material: Material
+var _resting_sprite_scale: Vector2 = Vector2.ONE
 var _dissolve_material: ShaderMaterial
+var _idle_shine_tween: Tween
 var _preflash_tween: Tween
 var _dissolve_tween: Tween
 var _flash_tween: Tween
+var _scale_tween: Tween
 
 
 func _ready() -> void:
-	_base_sprite_material = _sprite.material
 	body_entered.connect(_on_body_entered)
 	_apply_display_scale()
+	_ensure_pickup_material()
 	_configure_collision()
 	monitorable = false
 	_apply_collection_state()
+	_schedule_next_idle_shine()
 
 
 func assign_persistent_id(level_id: StringName) -> StringName:
@@ -100,10 +115,12 @@ func set_persistently_collected(is_collected: bool) -> void:
 	if _dissolving:
 		_apply_collection_state()
 		return
-	if not _collected:
-		_kill_dissolve_tween()
-		_dissolve_material = null
+	if _collected:
+		_stop_idle_shine()
+	else:
+		_kill_collection_tweens()
 		_restore_sprite_material()
+		_schedule_next_idle_shine()
 	_apply_collection_state()
 
 
@@ -123,7 +140,8 @@ func _apply_collection_state() -> void:
 	if is_instance_valid(_collision_shape):
 		_collision_shape.set_deferred(&"disabled", _collected or _dissolving or not _distance_active)
 	if not _collected and not _dissolving and is_instance_valid(_sprite):
-		_restore_sprite_material()
+		_ensure_pickup_material()
+		_sprite.material = _dissolve_material
 
 
 func _on_body_entered(body: Node2D) -> void:
@@ -135,6 +153,7 @@ func _on_body_entered(body: Node2D) -> void:
 func _collect() -> void:
 	_collected = true
 	_dissolving = true
+	_stop_idle_shine()
 	_apply_collection_state()
 	_begin_collection_dissolve()
 	pickup_collected.emit(
@@ -151,12 +170,14 @@ func _begin_collection_dissolve() -> void:
 	if not is_instance_valid(_sprite) or _sprite.texture == null:
 		_finish_runtime_dissolve()
 		return
-	_kill_dissolve_tween()
-	_dissolve_material = _create_dissolve_material()
+	_kill_collection_tweens()
+	_ensure_pickup_material()
 	_sprite.material = _dissolve_material
 	_sprite.modulate = Color.WHITE
+	_sprite.scale = _resting_sprite_scale
 	_set_dissolve_strength(0.0)
 	_set_flash_strength(0.0)
+	_set_idle_shine_progress(-1.0)
 	_spawn_magic_sparkles()
 	_start_preflash_sequence()
 
@@ -185,6 +206,7 @@ func _start_dissolve_phase() -> void:
 		return
 	_set_flash_strength(dissolve_flash_min_strength)
 	_spawn_radial_sparks()
+	_start_dissolve_scale_pulse()
 
 	_dissolve_tween = create_tween()
 	_dissolve_tween.tween_method(
@@ -211,6 +233,32 @@ func _start_dissolve_phase() -> void:
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 
 
+func _start_dissolve_scale_pulse() -> void:
+	if not is_instance_valid(_sprite):
+		return
+	var duration: float = maxf(0.05, dissolve_seconds)
+	var pulse_target: Vector2 = _resting_sprite_scale * maxf(1.0, dissolve_pulse_scale)
+	_scale_tween = create_tween()
+	_scale_tween.tween_property(
+		_sprite,
+		^"scale",
+		pulse_target,
+		duration * 0.42
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_scale_tween.tween_property(
+		_sprite,
+		^"scale",
+		_resting_sprite_scale,
+		duration * 0.58
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+func _ensure_pickup_material() -> void:
+	if _dissolve_material != null:
+		return
+	_dissolve_material = _create_dissolve_material()
+
+
 func _create_dissolve_material() -> ShaderMaterial:
 	var dissolve_material: ShaderMaterial = ShaderMaterial.new()
 	dissolve_material.resource_local_to_scene = true
@@ -222,7 +270,55 @@ func _create_dissolve_material() -> ShaderMaterial:
 	dissolve_material.set_shader_parameter(&"mask_vignette_center", dissolve_vignette_center)
 	dissolve_material.set_shader_parameter(&"flash_color", flash_color)
 	dissolve_material.set_shader_parameter(&"flash_strength", 0.0)
+	dissolve_material.set_shader_parameter(&"shine_color", idle_shine_color)
+	dissolve_material.set_shader_parameter(&"shine_strength", idle_shine_strength)
+	dissolve_material.set_shader_parameter(&"shine_width", idle_shine_width)
+	dissolve_material.set_shader_parameter(&"shine_progress", -1.0)
 	return dissolve_material
+
+
+func _schedule_next_idle_shine() -> void:
+	_stop_idle_shine()
+	if (
+		not idle_shine_enabled
+		or _collected
+		or _dissolving
+		or not is_instance_valid(_sprite)
+		or _dissolve_material == null
+	):
+		return
+	var minimum_delay: float = minf(idle_shine_min_interval, idle_shine_max_interval)
+	var maximum_delay: float = maxf(idle_shine_min_interval, idle_shine_max_interval)
+	var random_delay: float = randf_range(minimum_delay, maximum_delay)
+	_idle_shine_tween = create_tween()
+	_idle_shine_tween.tween_interval(maxf(0.1, random_delay))
+	_idle_shine_tween.tween_method(
+		Callable(self, "_set_idle_shine_progress"),
+		-0.25,
+		1.25,
+		maxf(0.1, idle_shine_duration)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_idle_shine_tween.finished.connect(Callable(self, "_on_idle_shine_finished"), Object.CONNECT_ONE_SHOT)
+
+
+func _on_idle_shine_finished() -> void:
+	_idle_shine_tween = null
+	_set_idle_shine_progress(-1.0)
+	if not _collected and not _dissolving:
+		_schedule_next_idle_shine()
+
+
+func _stop_idle_shine() -> void:
+	if _idle_shine_tween != null and _idle_shine_tween.is_valid():
+		_idle_shine_tween.kill()
+	_idle_shine_tween = null
+	_set_idle_shine_progress(-1.0)
+
+
+func _set_idle_shine_progress(progress: float) -> void:
+	if _dissolve_material == null:
+		return
+	_dissolve_material.set_shader_parameter(&"shine_progress", progress)
 
 
 func _set_dissolve_strength(strength: float) -> void:
@@ -240,31 +336,47 @@ func _set_flash_strength(strength: float) -> void:
 func _finish_runtime_dissolve() -> void:
 	if _flash_tween != null and _flash_tween.is_valid():
 		_flash_tween.kill()
+	if _scale_tween != null and _scale_tween.is_valid():
+		_scale_tween.kill()
 	_flash_tween = null
+	_scale_tween = null
 	_preflash_tween = null
 	_dissolve_tween = null
 	_set_flash_strength(0.0)
+	_set_idle_shine_progress(-1.0)
+	if is_instance_valid(_sprite):
+		_sprite.scale = _resting_sprite_scale
 	_dissolving = false
 	_apply_collection_state()
 
 
-func _kill_dissolve_tween() -> void:
+func _kill_collection_tweens() -> void:
 	if _preflash_tween != null and _preflash_tween.is_valid():
 		_preflash_tween.kill()
 	if _dissolve_tween != null and _dissolve_tween.is_valid():
 		_dissolve_tween.kill()
 	if _flash_tween != null and _flash_tween.is_valid():
 		_flash_tween.kill()
+	if _scale_tween != null and _scale_tween.is_valid():
+		_scale_tween.kill()
 	_preflash_tween = null
 	_dissolve_tween = null
 	_flash_tween = null
+	_scale_tween = null
+	if is_instance_valid(_sprite):
+		_sprite.scale = _resting_sprite_scale
 
 
 func _restore_sprite_material() -> void:
 	if not is_instance_valid(_sprite):
 		return
-	_sprite.material = _base_sprite_material
+	_ensure_pickup_material()
+	_sprite.material = _dissolve_material
 	_sprite.modulate = Color.WHITE
+	_sprite.scale = _resting_sprite_scale
+	_set_dissolve_strength(0.0)
+	_set_flash_strength(0.0)
+	_set_idle_shine_progress(-1.0)
 
 
 func _spawn_magic_sparkles() -> void:
@@ -342,7 +454,8 @@ func _apply_display_scale() -> void:
 	if texture_height <= 0.0:
 		return
 	var scale_factor: float = display_height / texture_height
-	_sprite.scale = Vector2.ONE * scale_factor
+	_resting_sprite_scale = Vector2.ONE * scale_factor
+	_sprite.scale = _resting_sprite_scale
 
 
 func _configure_collision() -> void:
