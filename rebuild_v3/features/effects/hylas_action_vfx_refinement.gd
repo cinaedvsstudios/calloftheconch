@@ -14,6 +14,7 @@ const NORMAL_SPEED_TRAIL_FORWARD_OFFSET: float = 15.0
 const GREATFIN_SPEED_TRAIL_VERTICAL_OFFSET: float = -45.0
 const GREATFIN_SPEED_TRAIL_FORWARD_OFFSET: float = 55.0
 const IMPACT_SPARK_POOL_SIZE: int = 3
+const IMPACT_SPARK_Z_INDEX: int = 120
 const IMPACT_SPARK_SCENE: PackedScene = preload(
 	"res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_fx_2d.tscn"
 )
@@ -74,13 +75,25 @@ func _build_impact_spark_pool() -> void:
 			continue
 		effect.name = "TailFlipImpact%02d" % index
 		effect.top_level = true
+		effect.z_as_relative = false
+		effect.z_index = IMPACT_SPARK_Z_INDEX
 		add_child(effect)
 		var radial_glow: CanvasItem = effect.get_node_or_null("RadialGlow") as CanvasItem
 		var additive_core: CanvasItem = effect.get_node_or_null("AdditiveCore") as CanvasItem
+		var primary_sparks: GPUParticles2D = effect.get_node_or_null("PrimarySparks") as GPUParticles2D
+		var accent_sparks: GPUParticles2D = effect.get_node_or_null("AccentSparks") as GPUParticles2D
 		if radial_glow != null:
 			radial_glow.hide()
 		if additive_core != null:
 			additive_core.hide()
+		if primary_sparks != null:
+			primary_sparks.z_as_relative = false
+			primary_sparks.z_index = IMPACT_SPARK_Z_INDEX
+			primary_sparks.show()
+		if accent_sparks != null:
+			accent_sparks.z_as_relative = false
+			accent_sparks.z_index = IMPACT_SPARK_Z_INDEX + 1
+			accent_sparks.show()
 		_impact_spark_pool.append(effect)
 
 
@@ -108,6 +121,12 @@ func _play_impact_sparks(contact_position: Vector2, normal: Vector2) -> void:
 		spark_direction,
 		Color(0.16, 0.78, 1.0, 1.0),
 	)
+	var primary_sparks: GPUParticles2D = effect.get_node_or_null("PrimarySparks") as GPUParticles2D
+	var accent_sparks: GPUParticles2D = effect.get_node_or_null("AccentSparks") as GPUParticles2D
+	if primary_sparks != null:
+		primary_sparks.show()
+	if accent_sparks != null:
+		accent_sparks.show()
 
 
 func _play_boulder_flash(target: Node) -> void:
