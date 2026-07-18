@@ -46,6 +46,7 @@ script = ExtResource("1_controller")
 
 [node name="RadialGlow" type="Sprite2D" parent="."]
 unique_name_in_owner = true
+visible = false
 show_behind_parent = true
 z_index = -1
 material = SubResource("EmissionAdditiveMaterial")
@@ -54,6 +55,7 @@ texture = ExtResource("2_radial")
 
 [node name="AdditiveCore" type="Sprite2D" parent="."]
 unique_name_in_owner = true
+visible = false
 z_index = 2
 material = SubResource("EmissionAdditiveMaterial")
 modulate = Color(0.9, 0.99, 1, 0)
