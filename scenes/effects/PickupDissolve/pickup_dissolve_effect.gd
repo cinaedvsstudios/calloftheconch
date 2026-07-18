@@ -4,7 +4,7 @@ extends CanvasLayer
 const PICKUP_DISSOLVE_SHADER: Shader = preload(
 	"res://scenes/objects/Pickups/pickup_dissolve.gdshader"
 )
-const EFFECT_LAYER: int = 2048
+const EFFECT_LAYER: int = 45
 
 var _dissolve_sprite: Sprite2D
 
@@ -12,6 +12,7 @@ var _dissolve_sprite: Sprite2D
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = EFFECT_LAYER
+	follow_viewport_enabled = true
 
 
 func play_from_sprite(
@@ -34,6 +35,7 @@ func play_from_sprite(
 		return
 
 	layer = EFFECT_LAYER
+	follow_viewport_enabled = true
 	var dissolve_material: ShaderMaterial = _create_dissolve_material(
 		dissolve_direction,
 		vignette_strength,
@@ -41,10 +43,10 @@ func play_from_sprite(
 	)
 	_dissolve_sprite = _create_sprite_copy(source_sprite, dissolve_material)
 	add_child(_dissolve_sprite)
-	_dissolve_sprite.transform = get_viewport().get_canvas_transform() * source_sprite.global_transform
+	_dissolve_sprite.global_transform = source_sprite.global_transform
 
 	_spawn_magic_sparkles(
-		_dissolve_sprite.transform.origin,
+		_dissolve_sprite.global_position,
 		sparkle_count,
 		sparkle_lifetime,
 		sparkle_spread_degrees,
@@ -69,6 +71,7 @@ func play_from_sprite(
 func _create_sprite_copy(source_sprite: Sprite2D, dissolve_material: ShaderMaterial) -> Sprite2D:
 	var sprite: Sprite2D = Sprite2D.new()
 	sprite.name = "PickupDissolveSprite"
+	sprite.z_index = 2
 	sprite.texture = source_sprite.texture
 	sprite.centered = source_sprite.centered
 	sprite.offset = source_sprite.offset
@@ -103,7 +106,7 @@ func _create_dissolve_material(
 
 
 func _spawn_magic_sparkles(
-		screen_position: Vector2,
+		world_position: Vector2,
 		sparkle_count: int,
 		sparkle_lifetime: float,
 		sparkle_spread_degrees: float,
@@ -134,7 +137,7 @@ func _spawn_magic_sparkles(
 	sparkles.scale_amount_max = sparkle_max_scale
 	sparkles.color = sparkle_color
 	add_child(sparkles)
-	sparkles.position = screen_position
+	sparkles.global_position = world_position
 	sparkles.finished.connect(Callable(sparkles, "queue_free"), Object.CONNECT_ONE_SHOT)
 	sparkles.emitting = true
 
