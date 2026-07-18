@@ -190,7 +190,7 @@ func _spawn_magic_sparkles() -> void:
 	var sparkle_texture: Texture2D = _create_sparkle_texture()
 	var lifetime: float = maxf(0.05, sparkle_lifetime)
 	var half_spread: float = deg_to_rad(sparkle_spread_degrees) * 0.5
-	for index: int in range(sparkle_count):
+	for _index in range(sparkle_count):
 		var sparkle: Sprite2D = Sprite2D.new()
 		sparkle.name = "PickupMagicSparkle"
 		sparkle.texture = sparkle_texture
