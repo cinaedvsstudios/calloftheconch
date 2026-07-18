@@ -10,8 +10,8 @@ signal pickup_collected(
 	full_health_onos_value: int,
 )
 
-const PICKUP_DISSOLVE_SHADER: Shader = preload(
-	"res://scenes/objects/Pickups/pickup_dissolve.gdshader"
+const PICKUP_DISSOLVE_EFFECT_SCENE: PackedScene = preload(
+	"res://scenes/effects/PickupDissolve/pickup_dissolve_effect.tscn"
 )
 
 @export_category("Pickup Identity")
@@ -90,7 +90,6 @@ func _apply_collection_state() -> void:
 	if is_instance_valid(_collision_shape):
 		_collision_shape.set_deferred(&"disabled", _collected or not _distance_active)
 	if not _collected and is_instance_valid(_sprite):
-		_sprite.material = null
 		_sprite.modulate = Color.WHITE
 
 
@@ -101,7 +100,7 @@ func _on_body_entered(body: Node2D) -> void:
 
 
 func _collect() -> void:
-	_spawn_collection_visual_copy()
+	_spawn_collection_dissolve_effect()
 	_collected = true
 	_apply_collection_state()
 	pickup_collected.emit(
@@ -114,99 +113,36 @@ func _collect() -> void:
 	)
 
 
-func _spawn_collection_visual_copy() -> void:
+func _spawn_collection_dissolve_effect() -> void:
 	if not is_instance_valid(_sprite) or _sprite.texture == null:
 		return
-	var parent_node: Node = get_parent()
-	if parent_node == null:
+	var dissolve_effect: Node = PICKUP_DISSOLVE_EFFECT_SCENE.instantiate()
+	var effect_parent: Node = get_tree().current_scene
+	if effect_parent == null:
+		effect_parent = get_parent()
+	if effect_parent == null:
+		dissolve_effect.queue_free()
 		return
-
-	var effect_root: Node2D = Node2D.new()
-	effect_root.name = "%sCollectionEffect" % String(name)
-	effect_root.z_index = z_index + 8
-	parent_node.add_child(effect_root)
-	effect_root.global_position = _sprite.global_position
-
-	var dissolve_material: ShaderMaterial = _create_dissolve_material()
-	var dissolve_sprite: Sprite2D = Sprite2D.new()
-	dissolve_sprite.name = "DissolveSprite"
-	dissolve_sprite.texture = _sprite.texture
-	dissolve_sprite.centered = _sprite.centered
-	dissolve_sprite.offset = _sprite.offset
-	dissolve_sprite.flip_h = _sprite.flip_h
-	dissolve_sprite.flip_v = _sprite.flip_v
-	dissolve_sprite.region_enabled = _sprite.region_enabled
-	dissolve_sprite.region_rect = _sprite.region_rect
-	dissolve_sprite.hframes = _sprite.hframes
-	dissolve_sprite.vframes = _sprite.vframes
-	dissolve_sprite.frame = _sprite.frame
-	dissolve_sprite.frame_coords = _sprite.frame_coords
-	dissolve_sprite.modulate = _sprite.modulate
-	dissolve_sprite.material = dissolve_material
-	effect_root.add_child(dissolve_sprite)
-	dissolve_sprite.global_transform = _sprite.global_transform
-
-	_spawn_magic_sparkles(effect_root)
-
-	var dissolve_tween: Tween = effect_root.create_tween()
-	dissolve_tween.tween_property(
-		dissolve_material,
-		^"shader_parameter/strength",
-		1.0,
-		maxf(0.05, dissolve_seconds),
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	dissolve_tween.finished.connect(effect_root.queue_free, Object.CONNECT_ONE_SHOT)
-
-
-func _create_dissolve_material() -> ShaderMaterial:
-	var dissolve_material: ShaderMaterial = ShaderMaterial.new()
-	dissolve_material.resource_local_to_scene = true
-	dissolve_material.shader = PICKUP_DISSOLVE_SHADER
-	dissolve_material.set_shader_parameter(&"strength", 0.0)
-	dissolve_material.set_shader_parameter(&"seed", randf_range(0.05, 1.0))
-	dissolve_material.set_shader_parameter(&"direction", dissolve_direction)
-	dissolve_material.set_shader_parameter(&"mask_vignette_strength", dissolve_vignette_strength)
-	dissolve_material.set_shader_parameter(&"mask_vignette_center", dissolve_vignette_center)
-	return dissolve_material
-
-
-func _spawn_magic_sparkles(effect_root: Node2D) -> void:
-	if sparkle_count <= 0 or not is_instance_valid(effect_root):
-		return
-	var sparkles: CPUParticles2D = CPUParticles2D.new()
-	sparkles.name = "PickupMagicSparkles"
-	sparkles.z_index = 9
-	sparkles.one_shot = true
-	sparkles.amount = sparkle_count
-	sparkles.lifetime = maxf(0.05, sparkle_lifetime)
-	sparkles.explosiveness = 0.88
-	sparkles.randomness = 0.58
-	sparkles.local_coords = false
-	sparkles.texture = _create_sparkle_texture()
-	sparkles.direction = Vector2(0.0, -1.0)
-	sparkles.spread = sparkle_spread_degrees
-	sparkles.initial_velocity_min = sparkle_min_speed
-	sparkles.initial_velocity_max = sparkle_max_speed
-	sparkles.gravity = Vector2(0.0, -18.0)
-	sparkles.scale_amount_min = sparkle_min_scale
-	sparkles.scale_amount_max = sparkle_max_scale
-	sparkles.color = sparkle_color
-	effect_root.add_child(sparkles)
-	sparkles.global_position = effect_root.global_position
-	sparkles.finished.connect(sparkles.queue_free, Object.CONNECT_ONE_SHOT)
-	sparkles.emitting = true
-
-
-func _create_sparkle_texture() -> Texture2D:
-	var image: Image = Image.create(5, 5, false, Image.FORMAT_RGBA8)
-	image.fill(Color(1.0, 1.0, 1.0, 0.0))
-	for x in range(5):
-		for y in range(5):
-			var distance: float = Vector2(x - 2, y - 2).length()
-			if distance <= 2.0:
-				var alpha: float = clampf(1.0 - distance / 2.15, 0.0, 1.0)
-				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
-	return ImageTexture.create_from_image(image)
+	effect_parent.add_child(dissolve_effect)
+	if dissolve_effect.has_method(&"play_from_sprite"):
+		dissolve_effect.call(
+			&"play_from_sprite",
+			_sprite,
+			maxf(0.05, dissolve_seconds),
+			dissolve_direction,
+			dissolve_vignette_strength,
+			dissolve_vignette_center,
+			sparkle_count,
+			sparkle_lifetime,
+			sparkle_spread_degrees,
+			sparkle_min_speed,
+			sparkle_max_speed,
+			sparkle_min_scale,
+			sparkle_max_scale,
+			sparkle_color
+		)
+	else:
+		dissolve_effect.queue_free()
 
 
 func _apply_display_scale() -> void:
