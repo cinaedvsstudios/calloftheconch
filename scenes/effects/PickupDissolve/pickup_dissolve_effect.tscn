@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/effects/PickupDissolve/pickup_dissolve_effect.gd" id="1_controller"]
+
+[node name="PickupDissolveEffect" type="CanvasLayer"]
+layer = 2048
+script = ExtResource("1_controller")
