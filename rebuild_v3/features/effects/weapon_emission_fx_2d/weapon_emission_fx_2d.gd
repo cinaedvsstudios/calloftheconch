@@ -9,6 +9,7 @@ const PROFILE_CONUS_TEXTILE: StringName = &"conus_textile"
 @export_category("Weapon Emission VFX")
 @export_range(0.10, 1.00, 0.01) var effect_duration: float = 0.20
 @export var sparks_only: bool = false
+@export var distortion_enabled: bool = true
 
 @export_category("Optional Autoplay")
 @export var autoplay_on_ready: bool = false
@@ -22,6 +23,7 @@ const PROFILE_CONUS_TEXTILE: StringName = &"conus_textile"
 @onready var _accent_sparks: GPUParticles2D = %AccentSparks
 @onready var _finish_timer: Timer = %FinishTimer
 
+var _wavelet_material: ShaderMaterial
 var _primary_process_material: ParticleProcessMaterial
 var _accent_process_material: ParticleProcessMaterial
 var _effect_tween: Tween
@@ -31,6 +33,7 @@ var _active: bool = false
 
 func _ready() -> void:
 	_finish_timer.timeout.connect(stop_effect)
+	_duplicate_wavelet_material()
 	_duplicate_particle_materials()
 	stop_effect()
 	if sparks_only:
@@ -51,6 +54,11 @@ func play_profile(
 	var primary_color: Color = Color(0.10, 0.88, 1.00, 1.00)
 	var accent_color: Color = Color(0.70, 0.96, 1.00, 1.00)
 	var core_color: Color = Color(0.90, 0.99, 1.00, 1.00)
+	var wavelet_color: Color = primary_color
+	var wavelet_distortion: float = 0.0018
+	var wavelet_opacity: float = 0.52
+	var wavelet_radius: float = 0.58
+	var wavelet_softness: float = 0.16
 	var glow_scale: float = 0.99
 	var core_scale: float = 0.405
 	var primary_amount: int = 16
@@ -70,7 +78,12 @@ func play_profile(
 			primary_color = Color(0.16, 1.00, 0.30, 1.00)
 			accent_color = Color(0.76, 1.00, 0.80, 1.00)
 			core_color = Color(0.96, 1.00, 0.96, 1.00)
-			glow_scale = 0.91125
+			wavelet_color = Color(0.22, 1.00, 0.42, 1.00)
+			wavelet_distortion = 0.0032
+			wavelet_opacity = 0.72
+			wavelet_radius = 0.60
+			wavelet_softness = 0.13
+			glow_scale = 1.12
 			core_scale = 0.37125
 			primary_amount = 23
 			accent_amount = 10
@@ -87,7 +100,12 @@ func play_profile(
 			primary_color = Color(1.00, 0.08, 0.88, 1.00)
 			accent_color = Color(1.00, 0.66, 0.94, 1.00)
 			core_color = Color(1.00, 0.88, 0.98, 1.00)
-			glow_scale = 0.81
+			wavelet_color = Color(1.00, 0.18, 0.92, 1.00)
+			wavelet_distortion = 0.0038
+			wavelet_opacity = 0.78
+			wavelet_radius = 0.54
+			wavelet_softness = 0.10
+			glow_scale = 0.96
 			core_scale = 0.375
 			primary_amount = 18
 			accent_amount = 8
@@ -104,7 +122,12 @@ func play_profile(
 			primary_color = Color(1.00, 0.42, 0.06, 1.00)
 			accent_color = Color(0.62, 0.18, 1.00, 1.00)
 			core_color = Color(1.00, 0.91, 0.78, 1.00)
-			glow_scale = 0.93
+			wavelet_color = Color(0.88, 0.26, 0.66, 1.00)
+			wavelet_distortion = 0.0028
+			wavelet_opacity = 0.70
+			wavelet_radius = 0.58
+			wavelet_softness = 0.12
+			glow_scale = 1.06
 			core_scale = 0.39
 			primary_amount = 16
 			accent_amount = 11
@@ -121,6 +144,7 @@ func play_profile(
 	if primary_override is Color:
 		primary_color = primary_override
 		accent_color = primary_color.lerp(Color.WHITE, 0.72)
+		wavelet_color = primary_color.lerp(accent_color, 0.28)
 
 	var resolved_direction: Vector2 = local_direction
 	if resolved_direction.length_squared() <= 0.0001:
@@ -148,6 +172,13 @@ func play_profile(
 		spark_scale_max * 0.72,
 		-angular_velocity,
 	)
+	_configure_wavelet(
+		wavelet_color,
+		wavelet_distortion,
+		wavelet_opacity,
+		wavelet_radius,
+		wavelet_softness,
+	)
 
 	_primary_sparks.amount = primary_amount
 	_accent_sparks.amount = accent_amount
@@ -156,7 +187,7 @@ func play_profile(
 
 	_radial_glow.scale = Vector2.ONE * glow_scale * 0.34
 	_additive_core.scale = Vector2.ONE * core_scale * 0.55
-	_radial_glow.modulate = Color(primary_color.r, primary_color.g, primary_color.b, 0.88)
+	_radial_glow.modulate = Color(1.0, 1.0, 1.0, 0.88)
 	_additive_core.modulate = Color(core_color.r, core_color.g, core_color.b, 1.00)
 
 	show()
@@ -190,6 +221,8 @@ func stop_effect() -> void:
 	_stop_particles(_accent_sparks)
 	_radial_glow.modulate.a = 0.0
 	_additive_core.modulate.a = 0.0
+	if _wavelet_material != null:
+		_wavelet_material.set_shader_parameter(&"wave_opacity", 0.0)
 	_active = false
 	_active_profile_id = &""
 	hide()
@@ -240,6 +273,14 @@ func _normalize_profile_id(profile_id: StringName) -> StringName:
 			return PROFILE_NORMAL_CONCH
 
 
+func _duplicate_wavelet_material() -> void:
+	var source: ShaderMaterial = _radial_glow.material as ShaderMaterial
+	if source == null:
+		return
+	_wavelet_material = source.duplicate(true) as ShaderMaterial
+	_radial_glow.material = _wavelet_material
+
+
 func _duplicate_particle_materials() -> void:
 	var primary_source: ParticleProcessMaterial = (
 		_primary_sparks.process_material as ParticleProcessMaterial
@@ -254,6 +295,25 @@ func _duplicate_particle_materials() -> void:
 	if accent_source != null:
 		_accent_process_material = accent_source.duplicate(true) as ParticleProcessMaterial
 		_accent_sparks.process_material = _accent_process_material
+
+
+func _configure_wavelet(
+		wavelet_color: Color,
+		distortion_strength: float,
+		opacity: float,
+		ring_radius: float,
+		ring_softness: float,
+	) -> void:
+	if _wavelet_material == null:
+		return
+	_wavelet_material.set_shader_parameter(&"wave_color", wavelet_color)
+	_wavelet_material.set_shader_parameter(
+		&"distortion_strength",
+		distortion_strength if distortion_enabled else 0.0,
+	)
+	_wavelet_material.set_shader_parameter(&"wave_opacity", opacity)
+	_wavelet_material.set_shader_parameter(&"ring_radius", ring_radius)
+	_wavelet_material.set_shader_parameter(&"ring_softness", ring_softness)
 
 
 func _configure_particle_material(
