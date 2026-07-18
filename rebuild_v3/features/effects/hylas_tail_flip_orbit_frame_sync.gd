@@ -36,4 +36,9 @@ func _process(_delta: float) -> void:
 		0.0,
 		1.0,
 	)
+	# The refinement's right-facing geometry advances clockwise in screen space,
+	# while its left-facing geometry already advances anticlockwise. Reverse only
+	# the right-facing progress so both directions always orbit anticlockwise.
+	if not _sprite.flip_h:
+		orbit_progress = 1.0 - orbit_progress
 	_refinement.call(&"_update_orbit_geometry", orbit_progress)
