@@ -133,8 +133,8 @@ func _build_orbit_bands() -> void:
 		var band_name: String = str(definition.get("name", "Band"))
 		var base_width: float = float(definition.get("base_width", 4.0))
 		var highlight_width: float = float(definition.get("highlight_width", 10.0))
-		var base_color: Color = definition.get("base_color", Color(0.1, 0.5, 1.0, 0.15)) as Color
-		var highlight_color: Color = definition.get("highlight_color", Color(0.7, 1.0, 1.0, 0.9)) as Color
+		var base_color: Color = definition.get("base_color", Color(0.1, 0.5, 1.0, 0.15))
+		var highlight_color: Color = definition.get("highlight_color", Color(0.7, 1.0, 1.0, 0.9))
 
 		var back_line: Line2D = _create_orbit_line(
 			"TailFlip%sBack" % band_name,
