@@ -3,5 +3,6 @@
 [ext_resource type="Script" path="res://scenes/effects/PickupDissolve/pickup_dissolve_effect.gd" id="1_controller"]
 
 [node name="PickupDissolveEffect" type="CanvasLayer"]
-layer = 2048
+layer = 45
+follow_viewport_enabled = true
 script = ExtResource("1_controller")
