@@ -93,8 +93,31 @@ func _apply_tail_flip_hit() -> void:
 	_is_drifting = true
 	velocity += _active_tail_flip_direction * kick_speed
 	velocity = velocity.limit_length(max_drift_speed)
+	_request_tail_flip_impact_vfx()
 	if _hylas != null and _hylas.has_method(&"play_land_impact_sound"):
 		_hylas.call(&"play_land_impact_sound")
+
+
+func _request_tail_flip_impact_vfx() -> void:
+	if _hylas == null:
+		return
+	var hylas_sprite: AnimatedSprite2D = _hylas.get_node_or_null("AnimatedSprite") as AnimatedSprite2D
+	if hylas_sprite == null or hylas_sprite.animation != &"tail_flip":
+		return
+	var refinement: Node = _hylas.get_node_or_null("ActionVFX/Refinement")
+	if refinement == null or not refinement.has_method(&"play_impact_sparks"):
+		return
+
+	var contact_direction: Vector2 = global_position - _hylas.global_position
+	if contact_direction.length_squared() <= 0.0001:
+		contact_direction = _active_tail_flip_direction
+	else:
+		contact_direction = contact_direction.normalized()
+	var contact_position: Vector2 = (
+		global_position
+		- contact_direction * _get_effective_collision_radius()
+	)
+	refinement.call(&"play_impact_sparks", contact_position, -contact_direction)
 
 
 func _update_heavy_drift(delta: float) -> void:
