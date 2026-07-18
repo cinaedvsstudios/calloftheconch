@@ -1,6 +1,7 @@
 class_name CotcWeaponWaveletFX
 extends CanvasLayer
 
+@onready var _back_buffer_copy: BackBufferCopy = %BackBufferCopy
 @onready var _wavelet_rect: ColorRect = %WaveletRect
 
 var _wavelet_material: ShaderMaterial
@@ -44,6 +45,7 @@ func play_wavelet(
 	_wavelet_material.set_shader_parameter(&"thickness", clampf(thickness, 0.01, 1.0))
 	_wavelet_material.set_shader_parameter(&"wavelet_factor", clampf(wavelet_factor, 0.1, 4.0))
 	_active = true
+	_back_buffer_copy.show()
 	_wavelet_rect.show()
 	set_process(true)
 	_sync_screen_rect()
@@ -63,6 +65,8 @@ func stop_wavelet() -> void:
 		_wavelet_tween.kill()
 	_wavelet_tween = null
 	_active = false
+	if is_instance_valid(_back_buffer_copy):
+		_back_buffer_copy.hide()
 	if is_instance_valid(_wavelet_rect):
 		_wavelet_rect.hide()
 	set_process(false)
