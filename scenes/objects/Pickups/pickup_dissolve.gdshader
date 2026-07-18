@@ -21,16 +21,16 @@ void fragment() {
 	offset.y = clamp(offset.y, 0.0, 1.35);
 
 	vec2 offset_uv = UV + offset * strength + direction * strength;
-	vec4 source_color = texture(TEXTURE, offset_uv);
+	vec4 sampled_color = texture(TEXTURE, offset_uv);
 	float circle_clip = distance(UV, mask_vignette_center);
 	float dust_cut = clamp(offset.x * strength, 0.0, 3.0);
-	float dissolve_alpha = source_color.a - dust_cut - strength;
+	float dissolve_alpha = sampled_color.a - dust_cut - strength;
 	dissolve_alpha -= circle_clip * strength * mask_vignette_strength * 3.0;
 
 	float flash_mix = clamp(flash_strength * flash_color.a, 0.0, 1.0);
-	vec3 bright_flash = max(source_color.rgb, flash_color.rgb);
-	source_color.rgb = mix(source_color.rgb, bright_flash, flash_mix);
+	vec3 bright_flash = max(sampled_color.rgb, flash_color.rgb);
+	sampled_color.rgb = mix(sampled_color.rgb, bright_flash, flash_mix);
 
-	COLOR = source_color;
-	COLOR.a = clamp(dissolve_alpha, 0.0, source_color.a);
+	COLOR = sampled_color;
+	COLOR.a = clamp(dissolve_alpha, 0.0, sampled_color.a);
 }
