@@ -4,9 +4,12 @@ extends Node2D
 const BURST_ANIMATION: StringName = &"burst"
 const TAIL_FLIP_ANIMATION: StringName = &"tail_flip"
 const AFTERIMAGE_POOL_SIZE: int = 7
-const TAIL_SPARK_POOL_SIZE: int = 14
+const TAIL_SPARK_POOL_SIZE: int = 24
 const SPARK_TEXTURE: Texture2D = preload(
 	"res://rebuild_v3/features/effects/splash_particle.svg"
+)
+const IMPACT_SPARK_TEXTURE: Texture2D = preload(
+	"res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_spark.svg"
 )
 
 @export_category("Speed Run Afterimages")
@@ -73,6 +76,7 @@ func _ready() -> void:
 	_build_trails()
 	_build_afterimage_pool()
 	_build_tail_spark_pool()
+	_connect_tail_flip_impact()
 	_clear_all_effects()
 	set_process(true)
 
@@ -102,6 +106,23 @@ func _process(delta: float) -> void:
 
 func clear_effects() -> void:
 	_clear_all_effects()
+
+
+func _connect_tail_flip_impact() -> void:
+	if not _player.has_signal(&"tail_flip_impact"):
+		return
+	var callback: Callable = Callable(self, "_on_tail_flip_impact")
+	if not _player.is_connected(&"tail_flip_impact", callback):
+		_player.connect(&"tail_flip_impact", callback)
+
+
+func _on_tail_flip_impact(
+		contact_position: Vector2,
+		normal: Vector2,
+		target: Node,
+	) -> void:
+	_spawn_tail_impact_sparks(contact_position, normal)
+	_play_boulder_flash(target)
 
 
 func _build_glow_layers() -> void:
@@ -177,6 +198,7 @@ func _build_tail_spark_pool() -> void:
 		spark.top_level = true
 		spark.texture = SPARK_TEXTURE
 		spark.material = additive_material
+		spark.z_as_relative = false
 		spark.z_index = _sprite.z_index + 2
 		spark.hide()
 		add_child(spark)
@@ -419,6 +441,8 @@ func _spawn_tail_sparks(origin: Vector2) -> void:
 		var speed: float = _rng.randf_range(45.0, 125.0)
 		var lifetime: float = _rng.randf_range(0.18, 0.34)
 		var scale_value: float = _rng.randf_range(0.08, 0.17)
+		spark.texture = SPARK_TEXTURE
+		spark.z_index = _sprite.z_index + 2
 		spark.global_position = origin
 		spark.global_rotation = angle
 		spark.scale = Vector2.ONE * scale_value
@@ -428,6 +452,72 @@ func _spawn_tail_sparks(origin: Vector2) -> void:
 		_tail_spark_remaining[index] = lifetime
 		_tail_spark_lifetime[index] = lifetime
 		_tail_spark_base_scale[index] = spark.scale
+
+
+func _spawn_tail_impact_sparks(origin: Vector2, normal: Vector2) -> void:
+	var impact_direction: Vector2 = normal.normalized()
+	if impact_direction.length_squared() <= 0.0001:
+		impact_direction = Vector2.RIGHT
+	for count_index: int in range(12):
+		var index: int = _tail_spark_cursor
+		_tail_spark_cursor = (_tail_spark_cursor + 1) % _tail_sparks.size()
+		var spark: Sprite2D = _tail_sparks[index]
+		var angle: float = impact_direction.angle() + _rng.randf_range(-0.85, 0.85)
+		var speed: float = _rng.randf_range(190.0, 390.0)
+		var lifetime: float = _rng.randf_range(0.24, 0.42)
+		var scale_value: float = _rng.randf_range(0.16, 0.30)
+		spark.texture = IMPACT_SPARK_TEXTURE
+		spark.z_index = 120
+		spark.global_position = origin + impact_direction * 6.0
+		spark.global_rotation = angle
+		spark.scale = Vector2.ONE * scale_value
+		spark.modulate = Color(0.35, 0.92, 1.0, 1.0)
+		spark.show()
+		_tail_spark_velocity[index] = Vector2.RIGHT.rotated(angle) * speed
+		_tail_spark_remaining[index] = lifetime
+		_tail_spark_lifetime[index] = lifetime
+		_tail_spark_base_scale[index] = spark.scale
+
+
+func _play_boulder_flash(target: Node) -> void:
+	if not is_instance_valid(target) or not (target is CotcBoulder):
+		return
+	var source: Sprite2D = target.get_node_or_null("Sprite2D") as Sprite2D
+	if source == null or source.texture == null:
+		return
+
+	var flash: Sprite2D = Sprite2D.new()
+	flash.name = "TailFlipImpactFlash"
+	flash.texture = source.texture
+	flash.centered = source.centered
+	flash.offset = source.offset
+	flash.flip_h = source.flip_h
+	flash.flip_v = source.flip_v
+	flash.position = Vector2.ZERO
+	flash.rotation = 0.0
+	flash.scale = Vector2.ONE
+	flash.z_index = 3
+	var additive_material: CanvasItemMaterial = CanvasItemMaterial.new()
+	additive_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	flash.material = additive_material
+	flash.modulate = Color(0.64, 0.94, 1.0, 0.90)
+	source.add_child(flash)
+
+	var flash_tween: Tween = flash.create_tween()
+	flash_tween.set_parallel(true)
+	flash_tween.tween_property(
+		flash,
+		^"modulate:a",
+		0.0,
+		0.13,
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	flash_tween.tween_property(
+		flash,
+		^"scale",
+		Vector2.ONE * 1.025,
+		0.13,
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	flash_tween.finished.connect(flash.queue_free)
 
 
 func _update_tail_sparks(delta: float) -> void:

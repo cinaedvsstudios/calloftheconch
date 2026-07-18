@@ -13,11 +13,6 @@ const NORMAL_SPEED_TRAIL_VERTICAL_OFFSET: float = -15.0
 const NORMAL_SPEED_TRAIL_FORWARD_OFFSET: float = 15.0
 const GREATFIN_SPEED_TRAIL_VERTICAL_OFFSET: float = -45.0
 const GREATFIN_SPEED_TRAIL_FORWARD_OFFSET: float = 55.0
-const IMPACT_SPARK_POOL_SIZE: int = 3
-const IMPACT_SPARK_Z_INDEX: int = 120
-const IMPACT_SPARK_SCENE: PackedScene = preload(
-	"res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_fx_2d.tscn"
-)
 
 @onready var _action_vfx: Node2D = get_parent() as Node2D
 @onready var _player: CharacterBody2D = get_parent().get_parent() as CharacterBody2D
@@ -27,15 +22,11 @@ var _speed_trail: Line2D
 var _legacy_tail_trail: Line2D
 var _orbit_bands: Array[Dictionary] = []
 var _orbit_alpha: float = 0.0
-var _impact_spark_pool: Array[CotcWeaponEmissionFX2D] = []
-var _impact_spark_cursor: int = 0
 
 
 func _ready() -> void:
 	process_priority = 110
 	_build_orbit_bands()
-	_build_impact_spark_pool()
-	_connect_tail_flip_impact()
 	call_deferred(&"_resolve_parent_layers")
 	set_process(true)
 
@@ -56,118 +47,6 @@ func _process(delta: float) -> void:
 			_clear_orbit_lines()
 
 	_apply_orbit_alpha()
-
-
-func _connect_tail_flip_impact() -> void:
-	if not is_instance_valid(_player) or not _player.has_signal(&"tail_flip_impact"):
-		return
-	var callback: Callable = Callable(self, "_on_tail_flip_impact")
-	if not _player.is_connected(&"tail_flip_impact", callback):
-		_player.connect(&"tail_flip_impact", callback)
-
-
-func _build_impact_spark_pool() -> void:
-	for index: int in range(IMPACT_SPARK_POOL_SIZE):
-		var effect: CotcWeaponEmissionFX2D = (
-			IMPACT_SPARK_SCENE.instantiate() as CotcWeaponEmissionFX2D
-		)
-		if effect == null:
-			continue
-		effect.name = "TailFlipImpact%02d" % index
-		effect.top_level = true
-		effect.z_as_relative = false
-		effect.z_index = IMPACT_SPARK_Z_INDEX
-		add_child(effect)
-		var radial_glow: CanvasItem = effect.get_node_or_null("RadialGlow") as CanvasItem
-		var additive_core: CanvasItem = effect.get_node_or_null("AdditiveCore") as CanvasItem
-		var primary_sparks: GPUParticles2D = effect.get_node_or_null("PrimarySparks") as GPUParticles2D
-		var accent_sparks: GPUParticles2D = effect.get_node_or_null("AccentSparks") as GPUParticles2D
-		if radial_glow != null:
-			radial_glow.hide()
-		if additive_core != null:
-			additive_core.hide()
-		if primary_sparks != null:
-			primary_sparks.z_as_relative = false
-			primary_sparks.z_index = IMPACT_SPARK_Z_INDEX
-			primary_sparks.show()
-		if accent_sparks != null:
-			accent_sparks.z_as_relative = false
-			accent_sparks.z_index = IMPACT_SPARK_Z_INDEX + 1
-			accent_sparks.show()
-		_impact_spark_pool.append(effect)
-
-
-func _on_tail_flip_impact(
-		contact_position: Vector2,
-		normal: Vector2,
-		target: Node,
-	) -> void:
-	_play_impact_sparks(contact_position, normal)
-	_play_boulder_flash(target)
-
-
-func _play_impact_sparks(contact_position: Vector2, normal: Vector2) -> void:
-	if _impact_spark_pool.is_empty():
-		return
-	var effect: CotcWeaponEmissionFX2D = _impact_spark_pool[_impact_spark_cursor]
-	_impact_spark_cursor = (_impact_spark_cursor + 1) % _impact_spark_pool.size()
-	var spark_direction: Vector2 = normal.normalized()
-	if spark_direction.length_squared() <= 0.0001:
-		spark_direction = Vector2.RIGHT
-	effect.global_position = contact_position
-	effect.global_rotation = 0.0
-	effect.play_profile(
-		&"normal_conch",
-		spark_direction,
-		Color(0.16, 0.78, 1.0, 1.0),
-	)
-	var primary_sparks: GPUParticles2D = effect.get_node_or_null("PrimarySparks") as GPUParticles2D
-	var accent_sparks: GPUParticles2D = effect.get_node_or_null("AccentSparks") as GPUParticles2D
-	if primary_sparks != null:
-		primary_sparks.show()
-	if accent_sparks != null:
-		accent_sparks.show()
-
-
-func _play_boulder_flash(target: Node) -> void:
-	if not is_instance_valid(target) or not (target is CotcBoulder):
-		return
-	var source: Sprite2D = target.get_node_or_null("Sprite2D") as Sprite2D
-	if source == null or source.texture == null:
-		return
-
-	var flash: Sprite2D = Sprite2D.new()
-	flash.name = "TailFlipImpactFlash"
-	flash.texture = source.texture
-	flash.centered = source.centered
-	flash.offset = source.offset
-	flash.flip_h = source.flip_h
-	flash.flip_v = source.flip_v
-	flash.position = Vector2.ZERO
-	flash.rotation = 0.0
-	flash.scale = Vector2.ONE
-	flash.z_index = 3
-	var additive_material: CanvasItemMaterial = CanvasItemMaterial.new()
-	additive_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-	flash.material = additive_material
-	flash.modulate = Color(0.64, 0.94, 1.0, 0.90)
-	source.add_child(flash)
-
-	var flash_tween: Tween = flash.create_tween()
-	flash_tween.set_parallel(true)
-	flash_tween.tween_property(
-		flash,
-		^"modulate:a",
-		0.0,
-		0.13,
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	flash_tween.tween_property(
-		flash,
-		^"scale",
-		Vector2.ONE * 1.025,
-		0.13,
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	flash_tween.finished.connect(flash.queue_free)
 
 
 func _resolve_parent_layers() -> void:
