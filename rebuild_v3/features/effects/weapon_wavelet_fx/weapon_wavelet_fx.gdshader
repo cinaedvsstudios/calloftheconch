@@ -14,8 +14,10 @@ uniform vec2 screen_size = vec2(0.0);
 void fragment() {
 	vec2 norm = normalize(UV - vec2(0.5));
 	float dist = distance(UV, vec2(0.5)) * 2.0;
-	float prog = progression * (1.0 - thickness - 0.01);
-	float distortion = clamp((dist - prog) / thickness, -1.0, 1.0);
+	float thickness_taper = 1.0 - smoothstep(0.0, 1.0, progression);
+	float live_thickness = max(0.001, thickness * thickness_taper);
+	float prog = progression * (1.0 - live_thickness - 0.01);
+	float distortion = clamp((dist - prog) / live_thickness, -1.0, 1.0);
 	distortion = mix(
 		cos(distortion * (PI / wavelet_factor)),
 		0.0,
