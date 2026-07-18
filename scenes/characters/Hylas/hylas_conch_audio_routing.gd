@@ -1,9 +1,9 @@
 extends "res://scenes/characters/Hylas/hylas_phase6_fix.gd"
 
-const NORMAL_CONCH_ID: StringName = &"normal_conch"
-const SUPER_CONCH_ID: StringName = &"charonia_tritonis"
-const NORMAL_CONCH_AUDIO: AudioStream = preload("res://assets/audio/Conch_noise.mp3")
-const SUPER_CONCH_AUDIO: AudioStream = preload("res://assets/audio/Super Conch_noise.mp3")
+const ROUTED_NORMAL_CONCH_ID: StringName = &"normal_conch"
+const ROUTED_SUPER_CONCH_ID: StringName = &"charonia_tritonis"
+const NORMAL_CONCH_AUDIO_STREAM: AudioStream = preload("res://assets/audio/Conch_noise.mp3")
+const SUPER_CONCH_AUDIO_STREAM: AudioStream = preload("res://assets/audio/Super Conch_noise.mp3")
 
 
 func _ready() -> void:
@@ -22,10 +22,10 @@ func _sync_equipped_conch_audio() -> void:
 		return
 	_conch_audio.stop()
 	match get_equipped_item_a():
-		NORMAL_CONCH_ID:
-			_conch_audio.stream = NORMAL_CONCH_AUDIO
-		SUPER_CONCH_ID:
-			_conch_audio.stream = SUPER_CONCH_AUDIO
+		ROUTED_NORMAL_CONCH_ID:
+			_conch_audio.stream = NORMAL_CONCH_AUDIO_STREAM
+		ROUTED_SUPER_CONCH_ID:
+			_conch_audio.stream = SUPER_CONCH_AUDIO_STREAM
 		_:
 			# Terebridae and Conus play their dedicated audio from the item controller.
 			_conch_audio.stream = null
