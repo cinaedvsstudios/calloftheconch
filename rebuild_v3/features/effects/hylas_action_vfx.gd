@@ -4,7 +4,7 @@ extends Node2D
 const BURST_ANIMATION: StringName = &"burst"
 const TAIL_FLIP_ANIMATION: StringName = &"tail_flip"
 const AFTERIMAGE_POOL_SIZE: int = 7
-const TAIL_SPARK_POOL_SIZE: int = 24
+const TAIL_SPARK_POOL_SIZE: int = 14
 const SPARK_TEXTURE: Texture2D = preload(
 	"res://rebuild_v3/features/effects/splash_particle.svg"
 )
@@ -37,6 +37,10 @@ var _burst_glow_wide: Sprite2D
 var _burst_glow_core: Sprite2D
 var _burst_trail: Line2D
 var _tail_flip_trail: Line2D
+var _impact_primary_sparks: GPUParticles2D
+var _impact_accent_sparks: GPUParticles2D
+var _impact_primary_material: ParticleProcessMaterial
+var _impact_accent_material: ParticleProcessMaterial
 
 var _afterimages: Array[Sprite2D] = []
 var _afterimage_remaining: Array[float] = []
@@ -76,6 +80,7 @@ func _ready() -> void:
 	_build_trails()
 	_build_afterimage_pool()
 	_build_tail_spark_pool()
+	_build_tail_impact_particles()
 	_connect_tail_flip_impact()
 	_clear_all_effects()
 	set_process(true)
@@ -121,7 +126,7 @@ func _on_tail_flip_impact(
 		normal: Vector2,
 		target: Node,
 	) -> void:
-	_spawn_tail_impact_sparks(contact_position, normal)
+	_play_tail_impact_sparks(contact_position, normal)
 	_play_boulder_flash(target)
 
 
@@ -198,7 +203,6 @@ func _build_tail_spark_pool() -> void:
 		spark.top_level = true
 		spark.texture = SPARK_TEXTURE
 		spark.material = additive_material
-		spark.z_as_relative = false
 		spark.z_index = _sprite.z_index + 2
 		spark.hide()
 		add_child(spark)
@@ -207,6 +211,83 @@ func _build_tail_spark_pool() -> void:
 		_tail_spark_remaining.append(0.0)
 		_tail_spark_lifetime.append(0.0)
 		_tail_spark_base_scale.append(Vector2.ONE)
+
+
+func _build_tail_impact_particles() -> void:
+	var additive_material: CanvasItemMaterial = CanvasItemMaterial.new()
+	additive_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+
+	_impact_primary_material = ParticleProcessMaterial.new()
+	_impact_primary_material.particle_flag_disable_z = true
+	_impact_primary_material.direction = Vector3(1.0, 0.0, 0.0)
+	_impact_primary_material.spread = 42.0
+	_impact_primary_material.gravity = Vector3.ZERO
+	_impact_primary_material.initial_velocity_min = 230.0
+	_impact_primary_material.initial_velocity_max = 430.0
+	_impact_primary_material.damping_min = 90.0
+	_impact_primary_material.damping_max = 170.0
+	_impact_primary_material.angle_min = -24.0
+	_impact_primary_material.angle_max = 24.0
+	_impact_primary_material.angular_velocity_min = -90.0
+	_impact_primary_material.angular_velocity_max = 90.0
+	_impact_primary_material.scale_min = 0.0675
+	_impact_primary_material.scale_max = 0.165
+
+	_impact_primary_sparks = GPUParticles2D.new()
+	_impact_primary_sparks.name = "TailFlipImpactPrimarySparks"
+	_impact_primary_sparks.top_level = true
+	_impact_primary_sparks.z_as_relative = false
+	_impact_primary_sparks.z_index = 120
+	_impact_primary_sparks.material = additive_material
+	_impact_primary_sparks.emitting = false
+	_impact_primary_sparks.amount = 16
+	_impact_primary_sparks.lifetime = 0.38
+	_impact_primary_sparks.one_shot = true
+	_impact_primary_sparks.explosiveness = 1.0
+	_impact_primary_sparks.randomness = 0.48
+	_impact_primary_sparks.local_coords = true
+	_impact_primary_sparks.visibility_rect = Rect2(-300.0, -220.0, 600.0, 440.0)
+	_impact_primary_sparks.process_material = _impact_primary_material
+	_impact_primary_sparks.texture = IMPACT_SPARK_TEXTURE
+	_impact_primary_sparks.modulate = Color(0.10, 0.88, 1.00, 1.00)
+	_impact_primary_sparks.process_mode = Node.PROCESS_MODE_DISABLED
+	add_child(_impact_primary_sparks)
+
+	_impact_accent_material = ParticleProcessMaterial.new()
+	_impact_accent_material.particle_flag_disable_z = true
+	_impact_accent_material.direction = Vector3(1.0, 0.0, 0.0)
+	_impact_accent_material.spread = 30.24
+	_impact_accent_material.gravity = Vector3.ZERO
+	_impact_accent_material.initial_velocity_min = 150.0
+	_impact_accent_material.initial_velocity_max = 310.0
+	_impact_accent_material.damping_min = 100.0
+	_impact_accent_material.damping_max = 190.0
+	_impact_accent_material.angle_min = -18.0
+	_impact_accent_material.angle_max = 18.0
+	_impact_accent_material.angular_velocity_min = -90.0
+	_impact_accent_material.angular_velocity_max = 90.0
+	_impact_accent_material.scale_min = 0.0486
+	_impact_accent_material.scale_max = 0.1188
+
+	_impact_accent_sparks = GPUParticles2D.new()
+	_impact_accent_sparks.name = "TailFlipImpactAccentSparks"
+	_impact_accent_sparks.top_level = true
+	_impact_accent_sparks.z_as_relative = false
+	_impact_accent_sparks.z_index = 121
+	_impact_accent_sparks.material = additive_material
+	_impact_accent_sparks.emitting = false
+	_impact_accent_sparks.amount = 7
+	_impact_accent_sparks.lifetime = 0.34
+	_impact_accent_sparks.one_shot = true
+	_impact_accent_sparks.explosiveness = 1.0
+	_impact_accent_sparks.randomness = 0.62
+	_impact_accent_sparks.local_coords = true
+	_impact_accent_sparks.visibility_rect = Rect2(-260.0, -200.0, 520.0, 400.0)
+	_impact_accent_sparks.process_material = _impact_accent_material
+	_impact_accent_sparks.texture = IMPACT_SPARK_TEXTURE
+	_impact_accent_sparks.modulate = Color(0.70, 0.96, 1.00, 1.00)
+	_impact_accent_sparks.process_mode = Node.PROCESS_MODE_DISABLED
+	add_child(_impact_accent_sparks)
 
 
 func _make_gradient(start_color: Color, end_color: Color) -> Gradient:
@@ -441,8 +522,6 @@ func _spawn_tail_sparks(origin: Vector2) -> void:
 		var speed: float = _rng.randf_range(45.0, 125.0)
 		var lifetime: float = _rng.randf_range(0.18, 0.34)
 		var scale_value: float = _rng.randf_range(0.08, 0.17)
-		spark.texture = SPARK_TEXTURE
-		spark.z_index = _sprite.z_index + 2
 		spark.global_position = origin
 		spark.global_rotation = angle
 		spark.scale = Vector2.ONE * scale_value
@@ -454,29 +533,28 @@ func _spawn_tail_sparks(origin: Vector2) -> void:
 		_tail_spark_base_scale[index] = spark.scale
 
 
-func _spawn_tail_impact_sparks(origin: Vector2, normal: Vector2) -> void:
+func _play_tail_impact_sparks(origin: Vector2, normal: Vector2) -> void:
+	if not is_instance_valid(_impact_primary_sparks) or not is_instance_valid(_impact_accent_sparks):
+		return
 	var impact_direction: Vector2 = normal.normalized()
 	if impact_direction.length_squared() <= 0.0001:
 		impact_direction = Vector2.RIGHT
-	for count_index: int in range(12):
-		var index: int = _tail_spark_cursor
-		_tail_spark_cursor = (_tail_spark_cursor + 1) % _tail_sparks.size()
-		var spark: Sprite2D = _tail_sparks[index]
-		var angle: float = impact_direction.angle() + _rng.randf_range(-0.85, 0.85)
-		var speed: float = _rng.randf_range(190.0, 390.0)
-		var lifetime: float = _rng.randf_range(0.24, 0.42)
-		var scale_value: float = _rng.randf_range(0.16, 0.30)
-		spark.texture = IMPACT_SPARK_TEXTURE
-		spark.z_index = 120
-		spark.global_position = origin + impact_direction * 6.0
-		spark.global_rotation = angle
-		spark.scale = Vector2.ONE * scale_value
-		spark.modulate = Color(0.35, 0.92, 1.0, 1.0)
-		spark.show()
-		_tail_spark_velocity[index] = Vector2.RIGHT.rotated(angle) * speed
-		_tail_spark_remaining[index] = lifetime
-		_tail_spark_lifetime[index] = lifetime
-		_tail_spark_base_scale[index] = spark.scale
+	var particle_direction: Vector3 = Vector3(impact_direction.x, impact_direction.y, 0.0)
+	_impact_primary_material.direction = particle_direction
+	_impact_accent_material.direction = particle_direction
+
+	_impact_primary_sparks.emitting = false
+	_impact_accent_sparks.emitting = false
+	_impact_primary_sparks.global_position = origin
+	_impact_accent_sparks.global_position = origin
+	_impact_primary_sparks.global_rotation = 0.0
+	_impact_accent_sparks.global_rotation = 0.0
+	_impact_primary_sparks.process_mode = Node.PROCESS_MODE_INHERIT
+	_impact_accent_sparks.process_mode = Node.PROCESS_MODE_INHERIT
+	_impact_primary_sparks.emitting = true
+	_impact_accent_sparks.emitting = true
+	_impact_primary_sparks.restart()
+	_impact_accent_sparks.restart()
 
 
 func _play_boulder_flash(target: Node) -> void:
@@ -555,6 +633,12 @@ func _clear_all_effects() -> void:
 	_afterimage_elapsed = 0.0
 	_burst_sample_elapsed = 0.0
 	_tail_flip_sample_elapsed = 0.0
+	if is_instance_valid(_impact_primary_sparks):
+		_impact_primary_sparks.emitting = false
+		_impact_primary_sparks.process_mode = Node.PROCESS_MODE_DISABLED
+	if is_instance_valid(_impact_accent_sparks):
+		_impact_accent_sparks.emitting = false
+		_impact_accent_sparks.process_mode = Node.PROCESS_MODE_DISABLED
 	for index: int in range(_afterimages.size()):
 		_afterimage_remaining[index] = 0.0
 		_afterimages[index].hide()
