@@ -194,16 +194,15 @@ func _spawn_magic_sparkles() -> void:
 	sparkles.color = sparkle_color
 	add_child(sparkles)
 	sparkles.global_position = _sprite.global_position
-	if not sparkles.finished.is_connected(sparkles.queue_free):
-		sparkles.finished.connect(sparkles.queue_free, Object.CONNECT_ONE_SHOT)
+	sparkles.finished.connect(sparkles.queue_free, Object.CONNECT_ONE_SHOT)
 	sparkles.emitting = true
 
 
 func _create_sparkle_texture() -> Texture2D:
 	var image: Image = Image.create(5, 5, false, Image.FORMAT_RGBA8)
 	image.fill(Color(1.0, 1.0, 1.0, 0.0))
-	for x: int in range(5):
-		for y: int in range(5):
+	for x in range(5):
+		for y in range(5):
 			var distance: float = Vector2(x - 2, y - 2).length()
 			if distance <= 2.0:
 				var alpha: float = clampf(1.0 - distance / 2.15, 0.0, 1.0)
