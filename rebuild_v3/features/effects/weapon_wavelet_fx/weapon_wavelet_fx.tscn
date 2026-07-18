@@ -15,8 +15,13 @@ shader_parameter/screen_pos = Vector2(0, 0)
 shader_parameter/screen_size = Vector2(0, 0)
 
 [node name="WeaponWaveletFX" type="CanvasLayer"]
-layer = 1000
+layer = 1025
 script = ExtResource("1_controller")
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="."]
+unique_name_in_owner = true
+visible = false
+copy_mode = 2
 
 [node name="WaveletRect" type="ColorRect" parent="."]
 unique_name_in_owner = true
