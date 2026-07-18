@@ -19,6 +19,7 @@
 [ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_item_visuals.gd" id="17_item_visuals"]
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_action_vfx.gd" id="18_action_vfx"]
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_action_vfx_refinement.gd" id="19_action_vfx_refinement"]
+[ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_tail_flip_orbit_frame_sync.gd" id="20_orbit_sync"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
 shader = ExtResource("10_shadow_shader")
@@ -88,6 +89,9 @@ script = ExtResource("18_action_vfx")
 
 [node name="Refinement" type="Node" parent="ActionVFX"]
 script = ExtResource("19_action_vfx_refinement")
+
+[node name="FrameSync" type="Node" parent="ActionVFX/Refinement"]
+script = ExtResource("20_orbit_sync")
 
 [node name="CollisionShape" type="CollisionShape2D" parent="." unique_id=2142548371]
 unique_name_in_owner = true
