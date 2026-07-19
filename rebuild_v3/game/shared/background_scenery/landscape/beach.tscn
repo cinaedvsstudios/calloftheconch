@@ -10,10 +10,8 @@ metadata/source_asset = "res://assets/backgrounds/beach.webp"
 metadata/collision_source = "texture_alpha"
 
 [node name="Sprite" parent="." index="0"]
-scale = Vector2(0.5, 0.5)
 texture = ExtResource("2_texture")
 
 [node name="CollisionPolygon2D" parent="." index="1"]
 position = Vector2(-775, -130)
-scale = Vector2(0.5, 0.5)
 polygon = PackedVector2Array(-256, -256, 256, -256, 1264.2925, 158.81604, 1742, 428, 2361.606, 610.25574, 3178, 829, 3360, 1021, -251, 977)
