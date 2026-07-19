@@ -7,6 +7,9 @@ const TEREBRIDAE_REPEAT_INTERVAL: float = 0.75
 const WEAPON_EMISSION_SCENE: PackedScene = preload(
 	"res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_fx_2d.tscn"
 )
+const ENEMY_STUN_VISUAL_CONTROLLER = preload(
+	"res://rebuild_v3/shared/enemy_stun_visual_controller.gd"
+)
 
 @onready var _weapon_emission: CotcWeaponEmissionFX2D = %WeaponEmissionFX
 
@@ -123,6 +126,39 @@ func _get_active_response_strength_scale() -> float:
 			return 1.15
 		_:
 			return 0.55
+
+func _deliver_target_response(target: Node2D, hit_position: Vector2) -> void:
+	_last_response_profile_id = _get_active_response_profile_id()
+	var response_target: Node2D = _get_conch_response_target(target)
+	if response_target == null:
+		_response_rejected_count += 1
+		_last_response_target_path = target.get_path()
+		push_warning(
+			"Conch target '%s' has no receive_conch_hit() response method." % str(target.get_path())
+		)
+		return
+	var hit_distance: float = hit_position.distance_to(global_position)
+	var hit_strength: float = _calculate_hit_strength(hit_distance)
+	_last_response_target_path = response_target.get_path()
+	_last_response_strength = hit_strength
+	_response_delivered_count += 1
+	if response_target.is_in_group(&"enemy"):
+		ENEMY_STUN_VISUAL_CONTROLLER.request_conch_stun(
+			response_target,
+			_last_response_profile_id,
+			global_position,
+			_pulse_direction,
+			hit_distance,
+			hit_strength,
+		)
+		return
+	response_target.call(
+		&"receive_conch_hit",
+		global_position,
+		_pulse_direction,
+		hit_distance,
+		hit_strength,
+	)
 
 func _hold_terebridae_pose_for_stream() -> void:
 	if _active_emission_profile_id != EMISSION_PROFILE_TEREBRIDAE:
