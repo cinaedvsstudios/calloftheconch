@@ -1,10 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_main_clean.tscn" id="1_main"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_darkness_profile.tscn" id="2_darkness_profile"]
 
 [node name="SeaOfPillars" instance=ExtResource("1_main")]
 metadata/level_variant = "main"
-
-[node name="DarknessProfile" parent="." instance=ExtResource("2_darkness_profile")]
-unique_name_in_owner = true
