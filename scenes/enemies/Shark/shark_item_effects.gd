@@ -13,6 +13,13 @@ extends "res://scenes/enemies/Shark/shark_enemy.gd"
 var _conch_response_velocity: Vector2 = Vector2.ZERO
 
 
+func _connect_to_level_conch_signal() -> void:
+	# The active Conch pulse now delivers directly through the shared profile-aware
+	# stun controller. Keeping the legacy level signal would apply the shark stun
+	# once immediately and a second time after the two coloured flashes.
+	pass
+
+
 func receive_conch_hit(
 		origin: Vector2,
 		pulse_direction: Vector2,
