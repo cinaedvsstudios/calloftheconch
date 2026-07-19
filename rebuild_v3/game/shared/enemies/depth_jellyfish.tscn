@@ -1,0 +1,110 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/depth_life/depth_jellyfish.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" path="res://rebuild_v3/features/depth_life/depth_jellyfish_frames.tres" id="2_frames"]
+[ext_resource type="Texture2D" path="res://rebuild_v3/features/depth_life/depth_light.svg" id="3_light"]
+[ext_resource type="Texture2D" path="res://rebuild_v3/features/depth_life/bubble_particle.svg" id="4_bubble"]
+[ext_resource type="AudioStream" path="res://assets/audio/stun.mp3" id="5_stun_audio"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="6_distance_activator"]
+
+[sub_resource type="CanvasItemMaterial" id="AdditiveMaterial"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="BubbleGradient"]
+offsets = PackedFloat32Array(0, 0.62, 1)
+colors = PackedColorArray(0.82, 0.98, 1, 0.92, 0.25, 0.9, 1, 0.6, 0.08, 0.62, 0.95, 0)
+
+[sub_resource type="GradientTexture1D" id="BubbleColorRamp"]
+gradient = SubResource("BubbleGradient")
+
+[sub_resource type="ParticleProcessMaterial" id="BubbleProcessMaterial"]
+particle_flag_disable_z = true
+emission_shape = 1
+emission_sphere_radius = 24.0
+direction = Vector3(0, 1, 0)
+spread = 72.0
+gravity = Vector3(0, -85, 0)
+initial_velocity_min = 70.0
+initial_velocity_max = 165.0
+damping_min = 18.0
+damping_max = 48.0
+scale_min = 0.12
+scale_max = 0.42
+color_ramp = SubResource("BubbleColorRamp")
+
+[sub_resource type="CircleShape2D" id="TargetShape"]
+radius = 76.0
+
+[sub_resource type="CircleShape2D" id="HurtShape"]
+radius = 54.0
+
+[node name="DepthJellyfish" type="Area2D" groups=["conch_target", "current_receiver", "enemy"]]
+z_index = 5
+collision_layer = 1
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("1_controller")
+metadata/source_frames = "assets/enemies/jfish01.webp through jfish05.webp"
+
+[node name="GlowHalo" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+show_behind_parent = true
+z_index = -2
+material = SubResource("AdditiveMaterial")
+texture = ExtResource("3_light")
+modulate = Color(0.1, 0.94, 1, 0.42)
+scale = Vector2(0.82, 0.82)
+
+[node name="Bioluminescence" type="PointLight2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("3_light")
+color = Color(0.08, 0.88, 1, 1)
+energy = 1.15
+texture_scale = 1.15
+
+[node name="BubbleBurst" type="GPUParticles2D" parent="."]
+unique_name_in_owner = true
+show_behind_parent = true
+z_index = -1
+material = SubResource("AdditiveMaterial")
+emitting = false
+amount = 20
+lifetime = 1.15
+one_shot = true
+explosiveness = 0.96
+randomness = 0.75
+local_coords = false
+visibility_rect = Rect2(-260, -260, 520, 520)
+process_material = SubResource("BubbleProcessMaterial")
+texture = ExtResource("4_bubble")
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="TargetShape" type="CollisionShape2D" parent="."]
+shape = SubResource("TargetShape")
+
+[node name="HurtArea" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+
+[node name="HurtShape" type="CollisionShape2D" parent="HurtArea"]
+shape = SubResource("HurtShape")
+
+[node name="StunAudio" type="AudioStreamPlayer2D" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("5_stun_audio")
+volume_db = -3.0
+max_distance = 3000.0
+attenuation = 0.5
+
+[node name="DistanceActivator" type="Node" parent="."]
+script = ExtResource("6_distance_activator")
