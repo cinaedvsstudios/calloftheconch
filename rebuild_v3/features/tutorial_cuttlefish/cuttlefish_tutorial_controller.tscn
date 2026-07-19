@@ -20,7 +20,6 @@ resource_local_to_scene = true
 shader = ExtResource("5_text_shader")
 shader_parameter/reveal = 0.0
 shader_parameter/softness = 0.07
-shader_parameter/background_brightness = 1.0
 
 [node name="CuttlefishTutorial" type="Node"]
 unique_name_in_owner = true
@@ -36,6 +35,9 @@ ink_hide_duration = 0.9
 minimum_read_time = 3.0
 hint_screen_horizontal_offset = 150.0
 hint_screen_vertical_offset = -35.0
+typewriter_characters_per_second = 28.0
+intro_page_pause = 1.1
+page_transition_duration = 0.3
 
 [node name="Cuttlefish" type="Node2D" parent="."]
 unique_name_in_owner = true
@@ -92,19 +94,24 @@ volume_db = -80.0
 unique_name_in_owner = true
 material = SubResource("TextMaterial")
 layout_mode = 0
-offset_left = 125.0
+offset_left = 200.0
 offset_top = 92.0
-offset_right = 775.0
+offset_right = 700.0
 offset_bottom = 288.0
 mouse_filter = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.12, 0.84, 1, 0.5)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.96)
+theme_override_colors/font_shadow_color = Color(0.12, 0.84, 1, 0.55)
 theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 17
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 6
+theme_override_font_sizes/font_size = 16
 text = "Tutorial hint"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
+visible_characters = 0
 
 [node name="LykosOverlayCanvasLayer" type="CanvasLayer" parent="."]
 layer = 20
