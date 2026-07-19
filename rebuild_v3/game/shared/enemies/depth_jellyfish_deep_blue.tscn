@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish.tscn" id="1_base"]
+[ext_resource type="Script" path="res://rebuild_v3/features/depth_life/depth_colourisation.gd" id="2_colourisation"]
+
+[node name="DepthJellyfishDeepBlue" instance=ExtResource("1_base")]
+metadata/colour_variant = "deep_blue"
+metadata/colour_overlay = "assets/effects/coloroverlay08.jpg"
+
+[node name="DepthColourisation" type="Node" parent="."]
+script = ExtResource("2_colourisation")
+colour_mode = 1
+fixed_overlay_number = 8
+colour_strength = 0.94
+saturation_multiplier = 1.35
+brightness_multiplier = 0.72
+glow_saturation = 1.0
+glow_value = 0.82
