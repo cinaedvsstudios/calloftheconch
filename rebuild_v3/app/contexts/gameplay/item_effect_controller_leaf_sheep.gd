@@ -4,6 +4,7 @@ extends "res://rebuild_v3/app/contexts/gameplay/item_effect_controller_world_syn
 
 const BEHAVIOR_LEAF_SHEEP: StringName = &"leaf_sheep"
 const ITEM_LEAF_SHEEP: StringName = &"leaf_sheep"
+const ITEM_SLOT_B: StringName = &"item_b"
 
 @onready var _leaf_sheep: CotcLeafSheep = %LeafSheep
 
@@ -67,7 +68,14 @@ func set_leaf_sheep_darkness_profile(
 func _refresh_leaf_sheep_hud() -> void:
 	if not is_instance_valid(_leaf_sheep):
 		return
-	_set_item_b_timed_active(_leaf_sheep.is_active())
+	var leaf_sheep_equipped: bool = (
+		_game_state != null
+		and _game_state.get_equipped_item(ITEM_SLOT_B) == ITEM_LEAF_SHEEP
+	)
+	if _leaf_sheep.is_active():
+		_set_item_b_timed_active(true)
+	elif is_instance_valid(_status_countdown) and _status_countdown.get_active_item_id() == ITEM_LEAF_SHEEP:
+		_set_item_b_timed_active(false)
 	if not is_instance_valid(_status_countdown):
 		return
 	if _leaf_sheep.get_phase_remaining() > 0.0:
@@ -76,7 +84,11 @@ func _refresh_leaf_sheep_hud() -> void:
 			_leaf_sheep.get_phase_remaining(),
 			_leaf_sheep.get_phase_duration(),
 		)
-	elif _leaf_sheep.is_cooling_down() and _leaf_sheep.get_cooldown_remaining() > 0.0:
+	elif (
+			leaf_sheep_equipped
+			and _leaf_sheep.is_cooling_down()
+			and _leaf_sheep.get_cooldown_remaining() > 0.0
+		):
 		_status_countdown.set_countdown(
 			ITEM_LEAF_SHEEP,
 			_leaf_sheep.get_cooldown_remaining(),
