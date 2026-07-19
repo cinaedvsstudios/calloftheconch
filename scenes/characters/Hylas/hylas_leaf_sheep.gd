@@ -157,12 +157,6 @@ func _set_animation(animation_name: StringName) -> void:
 	super._set_animation(resolved_animation)
 
 
-func _physics_process(delta: float) -> void:
-	super._physics_process(delta)
-	if _leaf_sheep_active and (crawl_active or airborne_active):
-		leaf_sheep_forced_deactivation_requested.emit(&"left_water")
-
-
 func _cancel_blocked_leaf_sheep_actions() -> void:
 	_burst_active = false
 	_burst_remaining = 0.0
