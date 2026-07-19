@@ -136,7 +136,7 @@ func set_distance_active(is_active: bool) -> void:
 func _apply_collection_state() -> void:
 	var should_hide: bool = _collected and not _dissolving
 	visible = not should_hide
-	monitoring = _distance_active and not _collected and not _dissolving
+	set_deferred(&"monitoring", _distance_active and not _collected and not _dissolving)
 	if is_instance_valid(_collision_shape):
 		_collision_shape.set_deferred(&"disabled", _collected or _dissolving or not _distance_active)
 	if not _collected and not _dissolving and is_instance_valid(_sprite):
