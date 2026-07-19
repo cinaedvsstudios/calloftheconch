@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/game/sea_of_pillars/background_scenery/pirate_ship_entry.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/ship1.webp" id="2_ship"]
+
+[sub_resource type="CircleShape2D" id="ShipEntryShape"]
+radius = 220.0
+
+[node name="PirateShip" type="Node2D" groups=["pirate_ship"]]
+script = ExtResource("1_controller")
+metadata/sea_id = "sea_of_pillars"
+metadata/area_id = "pirate_ship_exterior"
+metadata/source_asset = "res://assets/backgrounds/ship1.webp"
+
+[node name="ShipSprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_ship")
+
+[node name="ShipEntryActionPoint" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, 210)
+gizmo_extents = 60.0
+editor_description = "Pirate ship entry point. Move this marker to reposition the Space interaction and Hylas retreat target."
+
+[node name="ShipEntryArea" type="Area2D" parent="ShipEntryActionPoint"]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShipEntryActionPoint/ShipEntryArea"]
+shape = SubResource("ShipEntryShape")
+
+[node name="EntryHylasVisual" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+visible = false
+z_as_relative = false
+z_index = 80
+
+[connection signal="body_entered" from="ShipEntryActionPoint/ShipEntryArea" to="." method="_on_ship_entry_area_body_entered"]
+[connection signal="body_exited" from="ShipEntryActionPoint/ShipEntryArea" to="." method="_on_ship_entry_area_body_exited"]
