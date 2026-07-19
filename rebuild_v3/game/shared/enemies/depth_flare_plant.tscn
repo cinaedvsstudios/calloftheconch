@@ -1,0 +1,111 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/depth_life/depth_flare_plant.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" path="res://rebuild_v3/features/depth_life/depth_flare_plant_frames.tres" id="2_frames"]
+[ext_resource type="Texture2D" path="res://rebuild_v3/features/depth_life/depth_light.svg" id="3_light"]
+[ext_resource type="Texture2D" path="res://rebuild_v3/features/depth_life/spark_particle.svg" id="4_spark"]
+[ext_resource type="AudioStream" path="res://assets/audio/stun.mp3" id="5_stun_audio"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="6_distance_activator"]
+
+[sub_resource type="CanvasItemMaterial" id="AdditiveMaterial"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="SparkGradient"]
+offsets = PackedFloat32Array(0, 0.32, 0.68, 1)
+colors = PackedColorArray(1, 0.94, 0.18, 1, 1, 0.46, 0.04, 0.94, 0.96, 0.08, 0.02, 0.68, 0.7, 0.01, 0.01, 0)
+
+[sub_resource type="GradientTexture1D" id="SparkColorRamp"]
+gradient = SubResource("SparkGradient")
+
+[sub_resource type="ParticleProcessMaterial" id="SparkProcessMaterial"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(64, 8, 1)
+direction = Vector3(0, -1, 0)
+spread = 34.0
+gravity = Vector3(0, 230, 0)
+initial_velocity_min = 145.0
+initial_velocity_max = 320.0
+damping_min = 8.0
+damping_max = 26.0
+angle_min = -35.0
+angle_max = 35.0
+scale_min = 0.18
+scale_max = 0.5
+color_ramp = SubResource("SparkColorRamp")
+
+[sub_resource type="RectangleShape2D" id="TargetShape"]
+size = Vector2(170, 190)
+
+[sub_resource type="RectangleShape2D" id="HurtShape"]
+size = Vector2(128, 150)
+
+[node name="DepthFlarePlant" type="Area2D" groups=["conch_target", "enemy"]]
+z_index = 4
+collision_layer = 1
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("1_controller")
+metadata/source_frames = "assets/enemies/plant01.webp through plant04.webp"
+
+[node name="GlowHalo" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+show_behind_parent = true
+z_index = -2
+material = SubResource("AdditiveMaterial")
+texture = ExtResource("3_light")
+modulate = Color(1, 0.2, 0.04, 0.38)
+scale = Vector2(0.9, 0.9)
+
+[node name="Bioluminescence" type="PointLight2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("3_light")
+color = Color(1, 0.24, 0.04, 1)
+energy = 0.85
+texture_scale = 1.2
+
+[node name="SparkBurst" type="GPUParticles2D" parent="."]
+unique_name_in_owner = true
+z_index = 2
+material = SubResource("AdditiveMaterial")
+emitting = false
+amount = 28
+lifetime = 1.55
+one_shot = true
+explosiveness = 0.94
+randomness = 0.78
+local_coords = false
+visibility_rect = Rect2(-320, -360, 640, 720)
+process_material = SubResource("SparkProcessMaterial")
+texture = ExtResource("4_spark")
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="TargetShape" type="CollisionShape2D" parent="."]
+shape = SubResource("TargetShape")
+
+[node name="HurtArea" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+
+[node name="HurtShape" type="CollisionShape2D" parent="HurtArea"]
+shape = SubResource("HurtShape")
+
+[node name="StunAudio" type="AudioStreamPlayer2D" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("5_stun_audio")
+volume_db = -3.0
+max_distance = 3000.0
+attenuation = 0.5
+
+[node name="DistanceActivator" type="Node" parent="."]
+script = ExtResource("6_distance_activator")
