@@ -4,8 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://ja6ffolmb7fl" path="res://rebuild_v3/app/contexts/menu/menu_context.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/gameplay_context.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/developer_admin/developer_admin_panel.tscn" id="4"]
-[ext_resource type="Script" uid="uid://dvhhyt64hp2bb" path="res://rebuild_v3/app/services/settings_service.gd" id="5_settings_service"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/settings/settings_context.tscn" id="6_settings_context"]
+[ext_resource type="Script" path="res://rebuild_v3/app/services/settings_service_tooltips.gd" id="5_settings_service"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/settings/settings_context_tooltips.tscn" id="6_settings_context"]
 [ext_resource type="Script" uid="uid://bjgj4okp2br21" path="res://rebuild_v3/app/services/game_state.gd" id="7_game_state"]
 [ext_resource type="Script" uid="uid://dswj73f3ww2yf" path="res://rebuild_v3/app/services/save_service.gd" id="8_save_service"]
 [ext_resource type="PackedScene" uid="uid://bjfac6f1c137j" path="res://rebuild_v3/app/contexts/continue/continue_context.tscn" id="9_continue_context"]
@@ -58,7 +58,7 @@ layer = 120
 [node name="IntroContext" parent="IntroLayer" unique_id=972141460 instance=ExtResource("10_intro_context")]
 unique_name_in_owner = true
 
-[node name="LoadingOverlay" parent="." unique_id=1157058181 instance=ExtResource("11_loading_overlay")]
+[node name="LoadingOverlay" parent="." unique_id=1152058181 instance=ExtResource("11_loading_overlay")]
 unique_name_in_owner = true
 
 [node name="DeveloperAdminPanel" parent="." unique_id=1902729462 instance=ExtResource("4")]
