@@ -1,0 +1,31 @@
+[gd_resource type="SpriteFrames" load_steps=5 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/plant01.webp" id="1_plant01"]
+[ext_resource type="Texture2D" path="res://assets/enemies/plant02.webp" id="2_plant02"]
+[ext_resource type="Texture2D" path="res://assets/enemies/plant03.webp" id="3_plant03"]
+[ext_resource type="Texture2D" path="res://assets/enemies/plant04.webp" id="4_plant04"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_plant01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_plant02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_plant03")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 2.4
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_plant04")
+}],
+"loop": false,
+"name": &"discharge",
+"speed": 1.0
+}]

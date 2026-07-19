@@ -1,0 +1,37 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/depth_life/depth_spark_projectile.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://rebuild_v3/features/depth_life/depth_light.svg" id="2_light"]
+
+[sub_resource type="CanvasItemMaterial" id="AdditiveMaterial"]
+blend_mode = 1
+
+[sub_resource type="CircleShape2D" id="SparkShape"]
+radius = 8.0
+
+[node name="DepthSparkProjectile" type="Area2D" groups=["hazard"]]
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+script = ExtResource("1_controller")
+
+[node name="SparkHalo" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+show_behind_parent = true
+z_index = -1
+material = SubResource("AdditiveMaterial")
+scale = Vector2(0.09, 0.09)
+texture = ExtResource("2_light")
+modulate = Color(1, 0.25, 0.1, 0.55)
+
+[node name="SparkCore" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+material = SubResource("AdditiveMaterial")
+scale = Vector2(0.035, 0.07)
+texture = ExtResource("2_light")
+modulate = Color(1, 0.45, 0.12, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+unique_name_in_owner = true
+shape = SubResource("SparkShape")
