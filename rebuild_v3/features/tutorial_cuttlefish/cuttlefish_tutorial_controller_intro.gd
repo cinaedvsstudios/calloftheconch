@@ -13,13 +13,32 @@ const INTRO_PLAYTIME_LIMIT: float = 1.0
 @onready var _ink_sound: AudioStreamPlayer = %InkSound
 @onready var _tooltip_sound: AudioStreamPlayer = %TooltipSound
 @onready var _lykos_overlay: AnimatedSprite2D = %LykosOverlay
+@onready var _advance_dots: Label = %AdvanceDots
 
 var _tooltips_enabled: bool = true
+var _intro_pages: Array[String] = []
+var _intro_page_index: int = 0
+var _awaiting_page_advance: bool = false
+var _advance_dots_elapsed: float = 0.0
 
 
 func _process(delta: float) -> void:
 	super._process(delta)
 	_sync_lykos_overlay()
+	if _awaiting_page_advance and is_instance_valid(_advance_dots):
+		_advance_dots_elapsed += maxf(delta, 0.0)
+		# A gentle, readable pulse: the dots make it explicit that Space advances
+		# the dialogue without competing with the animated ink.
+		_advance_dots.modulate.a = 0.25 + 0.75 * (0.5 + 0.5 * sin(_advance_dots_elapsed * TAU * 1.35))
+
+
+func _input(event: InputEvent) -> void:
+	if not _awaiting_page_advance or not _active or _state != State.REVEALING:
+		return
+	if not event.is_action_pressed(&"ui_accept", false, true):
+		return
+	get_viewport().set_input_as_handled()
+	_advance_to_next_page()
 
 
 func activate() -> void:
@@ -125,14 +144,17 @@ func _reveal_hint() -> void:
 		_begin_exit()
 		return
 
-	var pages: Array[String] = _get_current_hint_pages()
-	if pages.is_empty():
+	_intro_pages = _get_current_hint_pages()
+	_intro_page_index = 0
+	_awaiting_page_advance = false
+	if _intro_pages.is_empty():
 		_begin_exit()
 		return
 
 	_begin_lykos_overlay()
 	_kill_hint_tween()
-	_set_typewriter_page(pages[0])
+	_set_typewriter_page(_intro_pages[0])
+	_hide_advance_dots()
 	_set_text_reveal(1.0)
 	_set_ink_opacity(0.0)
 	_update_hint_anchor_position()
@@ -156,31 +178,7 @@ func _reveal_hint() -> void:
 	_hint_tween.tween_property(_hint_anchor, "scale", final_scale, ink_appear_duration)
 	_hint_tween.parallel().tween_method(_set_ink_opacity, 0.0, 1.0, ink_appear_duration)
 
-	for page_index: int in range(pages.size()):
-		var page_text: String = pages[page_index]
-		if page_index > 0:
-			_hint_tween.tween_method(
-				_set_text_reveal,
-				1.0,
-				0.0,
-				page_transition_duration,
-			)
-			_hint_tween.tween_callback(_set_typewriter_page.bind(page_text))
-		_hint_tween.tween_callback(_play_tooltip_sound)
-		var type_duration: float = maxf(
-			0.05,
-			float(page_text.length()) / maxf(typewriter_characters_per_second, 1.0),
-		)
-		_hint_tween.tween_method(
-			_set_visible_character_count,
-			0.0,
-			float(page_text.length()),
-			type_duration,
-		)
-		if page_index < pages.size() - 1:
-			_hint_tween.tween_interval(intro_page_pause)
-
-	_hint_tween.tween_callback(_on_typewriter_complete)
+	_hint_tween.tween_callback(_begin_current_page_typewriter)
 
 
 func _get_current_hint_pages() -> Array[String]:
@@ -206,12 +204,68 @@ func _set_visible_character_count(value: float) -> void:
 	_hint_label.visible_characters = clampi(roundi(value), 0, maximum_characters)
 
 
-func _on_typewriter_complete() -> void:
+func _begin_current_page_typewriter() -> void:
+	if _state != State.REVEALING or _intro_page_index >= _intro_pages.size():
+		return
+	_set_typewriter_page(_intro_pages[_intro_page_index])
+	_hide_advance_dots()
+	_play_tooltip_sound()
+	var page_text: String = _intro_pages[_intro_page_index]
+	var type_duration: float = maxf(
+		0.05,
+		float(page_text.length()) / maxf(typewriter_characters_per_second, 1.0),
+	)
+	if _hint_tween == null or not _hint_tween.is_valid():
+		_hint_tween = create_tween()
+	_hint_tween.tween_method(
+		_set_visible_character_count,
+		0.0,
+		float(page_text.length()),
+		type_duration,
+	)
+	_hint_tween.tween_callback(_on_page_typewriter_complete)
+
+
+func _on_page_typewriter_complete() -> void:
 	if _state != State.REVEALING:
 		return
 	_hint_label.visible_characters = -1
 	_set_text_reveal(1.0)
+	if _intro_page_index < _intro_pages.size() - 1:
+		_awaiting_page_advance = true
+		_show_advance_dots()
+		return
 	_on_hint_revealed()
+
+
+func _advance_to_next_page() -> void:
+	if not _awaiting_page_advance:
+		return
+	_awaiting_page_advance = false
+	_hide_advance_dots()
+	_intro_page_index += 1
+	if _intro_page_index >= _intro_pages.size():
+		_on_hint_revealed()
+		return
+	_kill_hint_tween()
+	_hint_tween = create_tween()
+	_hint_tween.set_trans(Tween.TRANS_QUAD)
+	_hint_tween.set_ease(Tween.EASE_OUT)
+	_hint_tween.tween_method(_set_text_reveal, 1.0, 0.0, page_transition_duration)
+	_hint_tween.tween_callback(_begin_current_page_typewriter)
+
+
+func _show_advance_dots() -> void:
+	if not is_instance_valid(_advance_dots):
+		return
+	_advance_dots_elapsed = 0.0
+	_advance_dots.modulate.a = 1.0
+	_advance_dots.show()
+
+
+func _hide_advance_dots() -> void:
+	if is_instance_valid(_advance_dots):
+		_advance_dots.hide()
 
 
 func _begin_exit() -> void:
@@ -264,6 +318,10 @@ func _cancel_presentation() -> void:
 	if is_instance_valid(_hint_label):
 		_hint_label.visible_characters = 0
 		_set_text_reveal(0.0)
+	_awaiting_page_advance = false
+	_intro_pages.clear()
+	_intro_page_index = 0
+	_hide_advance_dots()
 	_end_lykos_overlay()
 	super._cancel_presentation()
 
