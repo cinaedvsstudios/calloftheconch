@@ -40,7 +40,15 @@ func set_show_control_hints(enabled: bool) -> void:
 
 
 func reset_defaults() -> void:
-	super.reset_defaults()
+	master_volume = DEFAULT_MASTER_VOLUME
+	music_volume = DEFAULT_MUSIC_VOLUME
+	effects_volume = DEFAULT_EFFECTS_VOLUME
+	mute_all = DEFAULT_MUTE_ALL
+	fullscreen = DEFAULT_FULLSCREEN
+	resolution_index = DEFAULT_RESOLUTION_INDEX
+	vsync_enabled = DEFAULT_VSYNC_ENABLED
+	screen_shake_scale = DEFAULT_SCREEN_SHAKE_SCALE
 	show_control_hints = DEFAULT_TUTORIAL_TOOLTIPS
+	_restore_default_keybindings()
+	apply_all_settings()
 	_save_settings()
-	settings_changed.emit()
