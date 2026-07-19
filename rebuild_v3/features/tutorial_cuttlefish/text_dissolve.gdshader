@@ -17,5 +17,7 @@ void fragment() {
 	float threshold = 1.0 - reveal;
 	float dissolve_mask = smoothstep(threshold - softness, threshold + softness, noise_value);
 	vec3 ocean_colour = textureLod(screen_texture, SCREEN_UV, 0.0).rgb;
-	COLOR = vec4(ocean_colour * background_brightness, glyph.a * dissolve_mask);
+	float outline_pass = step(2.85, COLOR.r + COLOR.g + COLOR.b);
+	vec3 text_colour = mix(ocean_colour * background_brightness, vec3(1.0), outline_pass);
+	COLOR = vec4(text_colour, glyph.a * dissolve_mask);
 }
