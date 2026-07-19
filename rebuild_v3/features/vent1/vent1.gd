@@ -10,6 +10,12 @@ extends Area2D
 @export var play_on_ready: bool = true
 @export var loop_video: bool = true
 
+@export_category("Vent Tier")
+@export_range(1, 3, 1) var strength_tier: int = 1
+@export_range(0.10, 4.00, 0.05) var strength_multiplier: float = 1.0
+@export_range(1.00, 3.00, 0.05) var surface_jump_multiplier: float = 1.0
+@export_range(1.00, 2.00, 0.05) var surface_jump_duration_multiplier: float = 1.0
+
 @export_category("Vent Current")
 @export_range(-2000.0, 0.0, 1.0) var opening_local_y: float = -520.0
 @export_range(50.0, 5000.0, 10.0) var force_length: float = 1100.0
@@ -53,6 +59,18 @@ func set_distance_active(is_active: bool) -> void:
 	if not _distance_active:
 		_clear_affected_receivers()
 	_apply_video_playback()
+
+
+func get_surface_jump_multiplier() -> float:
+	return surface_jump_multiplier
+
+
+func get_surface_jump_duration_multiplier() -> float:
+	return surface_jump_duration_multiplier
+
+
+func get_strength_multiplier() -> float:
+	return strength_multiplier
 
 
 func _apply_video_playback() -> void:
@@ -127,7 +145,7 @@ func _get_current_velocity(receiver_position: Vector2) -> Vector2:
 	var distance_ratio: float = clampf(distance_from_mouth / force_length, 0.0, 1.0)
 	var force_speed: float = lerpf(force_max_speed, force_min_speed, distance_ratio)
 	var emission_direction: Vector2 = global_transform.basis_xform(Vector2.UP).normalized()
-	return emission_direction * force_speed
+	return emission_direction * force_speed * strength_multiplier
 
 
 func _clear_affected_receivers() -> void:
