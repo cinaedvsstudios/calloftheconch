@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/tutorial_cuttlefish/tutorial_hint_trigger.gd" id="1_controller"]
+
+[sub_resource type="CircleShape2D" id="TriggerShape"]
+radius = 260.0
+
+[node name="TutorialHintTrigger" type="Area2D"]
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+script = ExtResource("1_controller")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("TriggerShape")
