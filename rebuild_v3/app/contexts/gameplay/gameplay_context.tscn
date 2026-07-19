@@ -1,6 +1,6 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
-[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_inventory_audio.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_tutorial_context.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_prototype.tscn" id="2_level"]
 [ext_resource type="AudioStream" path="res://assets/audio/Sea of Pillars Calm.mp3" id="3_music"]
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/pause_overlay.gd" id="4_pause"]
@@ -14,6 +14,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/pickup6.mp3" id="12_item_click_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/pickup1.mp3" id="13_item_equip_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/pickup4.mp3" id="14_inventory_open_audio"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller.tscn" id="15_tutorial"]
 
 [node name="GameplayContext" type="Node"]
 process_mode = 3
@@ -24,6 +25,10 @@ unique_name_in_owner = true
 process_mode = 1
 
 [node name="ItemEffectController" parent="." instance=ExtResource("11_item_effects")]
+unique_name_in_owner = true
+process_mode = 1
+
+[node name="CuttlefishTutorial" parent="." instance=ExtResource("15_tutorial")]
 unique_name_in_owner = true
 process_mode = 1
 
