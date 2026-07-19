@@ -8,6 +8,8 @@ const ITEM_SLOT_B: StringName = &"item_b"
 
 @onready var _leaf_sheep: CotcLeafSheep = %LeafSheep
 
+var _leaf_sheep_hud_active: bool = false
+
 
 func configure(context: Node, level: CotcSeaOfPillars, hylas: CotcHylas) -> void:
 	super.configure(context, level, hylas)
@@ -45,6 +47,7 @@ func _process(delta: float) -> void:
 
 func clear_active_effects() -> void:
 	_leaf_sheep.force_deactivate(&"effects_cleared")
+	_clear_leaf_sheep_hud_active()
 	super.clear_active_effects()
 
 
@@ -74,8 +77,9 @@ func _refresh_leaf_sheep_hud() -> void:
 	)
 	if _leaf_sheep.is_active():
 		_set_item_b_timed_active(true)
-	elif is_instance_valid(_status_countdown) and _status_countdown.get_active_item_id() == ITEM_LEAF_SHEEP:
-		_set_item_b_timed_active(false)
+		_leaf_sheep_hud_active = true
+	elif _leaf_sheep_hud_active:
+		_clear_leaf_sheep_hud_active()
 	if not is_instance_valid(_status_countdown):
 		return
 	if _leaf_sheep.get_phase_remaining() > 0.0:
@@ -98,8 +102,16 @@ func _refresh_leaf_sheep_hud() -> void:
 		_status_countdown.clear_countdown()
 
 
+func _clear_leaf_sheep_hud_active() -> void:
+	if not _leaf_sheep_hud_active:
+		return
+	_leaf_sheep_hud_active = false
+	_set_item_b_timed_active(false)
+
+
 func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = super.get_debug_lines()
 	if is_instance_valid(_leaf_sheep):
 		lines.append_array(_leaf_sheep.get_debug_lines())
+	lines.append("leaf_sheep_hud_active=%s" % str(_leaf_sheep_hud_active))
 	return lines
