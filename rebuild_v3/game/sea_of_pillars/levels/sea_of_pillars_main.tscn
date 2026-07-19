@@ -1,10 +1,13 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://y3ojuh5xbsnc"]
 
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_main_clean.tscn" id="1_main"]
+[ext_resource type="PackedScene" uid="uid://bljtipy61cxhr" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_main_clean.tscn" id="1_main"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_darkness_profile.tscn" id="2_darkness_profile"]
 
-[node name="SeaOfPillars" instance=ExtResource("1_main")]
+[node name="SeaOfPillars" unique_id=1438161799 instance=ExtResource("1_main")]
 metadata/level_variant = "main"
 
-[node name="DarknessProfile" parent="." instance=ExtResource("2_darkness_profile")]
+[node name="DarknessStart" parent="TriggersLayer" parent_id_path=PackedInt32Array(1407700063) index="1"]
+position = Vector2(104, 5376)
+
+[node name="DarknessProfile" parent="." index="18" unique_id=941102158 instance=ExtResource("2_darkness_profile")]
 unique_name_in_owner = true
