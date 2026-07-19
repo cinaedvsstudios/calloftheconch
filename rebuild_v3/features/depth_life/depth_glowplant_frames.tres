@@ -1,0 +1,12 @@
+[gd_resource type="SpriteFrames" load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/objects/glowplant1.webp" id="1_glow_01"]
+[ext_resource type="Texture2D" path="res://assets/objects/glowplant2.webp" id="2_glow_02"]
+
+[resource]
+animations = [{
+"frames": [{"duration": 1.0, "texture": ExtResource("1_glow_01")}, {"duration": 1.0, "texture": ExtResource("2_glow_02")}],
+"loop": true,
+"name": &"idle",
+"speed": 1.4
+}]
