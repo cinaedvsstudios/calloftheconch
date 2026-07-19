@@ -1,8 +1,7 @@
 extends "res://scenes/characters/Hylas/hylas_phase6_fix.gd"
 
-## Carries an active vent tier into the existing Speed Run surface jump.
-## The vent must still be applying an external current when the jump begins;
-## merely drifting through a vent does not trigger a special launch.
+## Carries active vent tiers into Speed Run surface jumps and applies local
+## seaweed movement modifiers without weakening environmental currents.
 
 const SUPER_JUMP_AUDIO: AudioStream = preload("res://assets/audio/superjump.mp3")
 const PRESSURE_JUMP_THRESHOLD: float = 1.99
@@ -15,6 +14,7 @@ var _active_jump_duration: float = 0.0
 var _active_vent_jump_multiplier: float = 1.0
 var _pressure_jump_active: bool = false
 var _super_jump_audio: AudioStreamPlayer
+var _seaweed_slow_sources: Dictionary[Node, float] = {}
 
 
 func _ready() -> void:
@@ -24,6 +24,45 @@ func _ready() -> void:
 	_super_jump_audio.stream = SUPER_JUMP_AUDIO
 	_super_jump_audio.volume_db = super_jump_volume_db
 	add_child(_super_jump_audio)
+
+
+func set_seaweed_slow_source(
+		source: Node,
+		movement_multiplier: float = 0.5,
+	) -> void:
+	if not is_instance_valid(source):
+		return
+	_seaweed_slow_sources[source] = clampf(movement_multiplier, 0.05, 1.0)
+
+
+func remove_seaweed_slow_source(source: Node) -> void:
+	_seaweed_slow_sources.erase(source)
+
+
+func is_seaweed_slowed() -> bool:
+	return get_seaweed_movement_multiplier() < 0.999
+
+
+func get_seaweed_movement_multiplier() -> float:
+	_remove_invalid_seaweed_sources()
+	if is_item_surge_active() or is_conus_wall_climbing():
+		return 1.0
+
+	var strongest_slow: float = 1.0
+	for source: Node in _seaweed_slow_sources.keys():
+		strongest_slow = minf(strongest_slow, _seaweed_slow_sources[source])
+	return strongest_slow
+
+
+func _apply_motion(motion_velocity: Vector2, idle: bool) -> void:
+	var movement_multiplier: float = get_seaweed_movement_multiplier()
+	super._apply_motion(motion_velocity * movement_multiplier, idle)
+
+
+func _remove_invalid_seaweed_sources() -> void:
+	for source: Node in _seaweed_slow_sources.keys():
+		if not is_instance_valid(source):
+			_seaweed_slow_sources.erase(source)
 
 
 func _begin_surface_jump() -> void:
@@ -137,3 +176,12 @@ func _update_pressure_jump_frame(progress: float) -> void:
 
 	_animated_sprite.frame = mini(frame_index, frame_count - 1)
 	_animated_sprite.pause()
+
+
+func get_debug_lines() -> Array[String]:
+	var lines: Array[String] = super.get_debug_lines()
+	lines.append("seaweed_sources=%d" % _seaweed_slow_sources.size())
+	lines.append("seaweed_multiplier=%.2f" % get_seaweed_movement_multiplier())
+	lines.append("seaweed_bypassed_by_surge=%s" % str(is_item_surge_active()))
+	lines.append("seaweed_bypassed_by_conus=%s" % str(is_conus_wall_climbing()))
+	return lines
