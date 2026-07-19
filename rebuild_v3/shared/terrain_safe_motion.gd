@@ -94,7 +94,7 @@ static func move_circle(
 		contact_query.exclude = excluded_rids
 
 		var rest_info: Dictionary = space_state.get_rest_info(contact_query)
-		var contact_normal: Vector2 = rest_info.get(&"normal", Vector2.ZERO)
+		var contact_normal: Vector2 = rest_info.get("normal", Vector2.ZERO)
 		if contact_normal.length_squared() <= MIN_MOTION_SQUARED:
 			contact_normal = -remaining_motion.normalized()
 		else:
