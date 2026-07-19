@@ -363,14 +363,14 @@ func _disable_damage_during_flash() -> void:
 func _remember_and_disable_area(area: Area2D) -> void:
 	_disabled_damage_areas.append(area)
 	_disabled_damage_states.append(area.monitoring)
-	area.set_deferred(&"monitoring", false)
+	area.monitoring = false
 
 
 func _restore_damage_after_flash() -> void:
 	for index: int in range(_disabled_damage_areas.size()):
 		var area: Area2D = _disabled_damage_areas[index]
 		if is_instance_valid(area):
-			area.set_deferred(&"monitoring", _disabled_damage_states[index])
+			area.monitoring = _disabled_damage_states[index]
 	_disabled_damage_areas.clear()
 	_disabled_damage_states.clear()
 
