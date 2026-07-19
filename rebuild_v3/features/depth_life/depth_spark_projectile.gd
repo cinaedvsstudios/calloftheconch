@@ -8,7 +8,7 @@ signal hylas_touched(hylas: Node2D)
 @export_range(0.1, 4.0, 0.1) var fade_seconds: float = 1.25
 
 @export_category("Motion")
-@export_range(0.0, 300.0, 1.0) var gravity: float = 72.0
+@export_range(0.0, 300.0, 1.0) var fall_acceleration: float = 72.0
 @export_range(0.0, 200.0, 1.0) var horizontal_drag: float = 30.0
 @export_range(0.0, 240.0, 1.0) var maximum_fall_speed: float = 112.0
 @export_range(0.0, 80.0, 1.0) var drift_amplitude: float = 18.0
@@ -59,7 +59,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	_velocity.x = move_toward(_velocity.x, 0.0, horizontal_drag * delta)
-	_velocity.y = minf(maximum_fall_speed, _velocity.y + gravity * delta)
+	_velocity.y = minf(maximum_fall_speed, _velocity.y + fall_acceleration * delta)
 	var drift: float = sin((_elapsed * drift_cycles_per_second + _phase) * TAU) * drift_amplitude
 	global_position += (_velocity + Vector2(drift, 0.0)) * delta
 	rotation += deg_to_rad(spin_degrees_per_second) * delta
