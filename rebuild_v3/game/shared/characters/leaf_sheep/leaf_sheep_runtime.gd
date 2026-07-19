@@ -26,6 +26,15 @@ func bind_game_state(game_state: CotcGameState) -> void:
 		_replacement_state_source.state_replaced.connect(_on_state_replaced)
 
 
+func set_gameplay_active(is_active: bool) -> void:
+	super.set_gameplay_active(is_active)
+	if not is_active:
+		_set_overlay_enabled(false)
+		return
+	_update_depth_darkness()
+	_set_overlay_enabled(_environment_darkness > 0.001)
+
+
 func set_darkness_profile(
 		profile_id: StringName,
 		darkness_strength: float,
@@ -33,6 +42,8 @@ func set_darkness_profile(
 	) -> void:
 	_depth_profile_enabled = false
 	super.set_darkness_profile(profile_id, darkness_strength, darkness_tint)
+	if not _gameplay_active:
+		_set_overlay_enabled(false)
 
 
 func clear_darkness_profile() -> void:
@@ -66,7 +77,7 @@ func _read_level_darkness_profile() -> void:
 		1.0,
 	)
 	var tint_value: Variant = profile.get("tint", default_darkness_tint)
-	_depth_tint = tint_value as Color
+	_depth_tint = tint_value if tint_value is Color else default_darkness_tint
 	_active_darkness_profile = StringName(str(profile.get("id", "depths")))
 	_apply_darkness_tint(_depth_tint)
 	_update_depth_darkness()
@@ -82,7 +93,7 @@ func _update_depth_darkness() -> void:
 	var eased_ratio: float = depth_ratio * depth_ratio * (3.0 - 2.0 * depth_ratio)
 	_environment_darkness = _depth_maximum_darkness * eased_ratio
 	_apply_darkness_tint(_depth_tint)
-	_set_overlay_enabled(_environment_darkness > 0.001)
+	_set_overlay_enabled(_gameplay_active and _environment_darkness > 0.001)
 
 
 func _on_state_replaced(_reason: StringName) -> void:
