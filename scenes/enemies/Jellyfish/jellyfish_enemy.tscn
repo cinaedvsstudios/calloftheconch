@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scenes/enemies/Jellyfish/jellyfish_enemy.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://scenes/enemies/Jellyfish/jellyfish_enemy_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Shader" path="res://scenes/enemies/Jellyfish/jellyfish_stun_opacity.gdshader" id="3_shader"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
 [ext_resource type="AudioStream" path="res://assets/audio/stun.mp3" id="5_stun_audio"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/terrain_motion_guard.gd" id="6_terrain_guard"]
 
 [sub_resource type="ShaderMaterial" id="JellyfishMaterial"]
 resource_local_to_scene = true
@@ -66,6 +67,12 @@ stream = ExtResource("5_stun_audio")
 volume_db = -3.0
 max_distance = 3000.0
 attenuation = 0.5
+
+[node name="TerrainMotionGuard" type="Node" parent="."]
+script = ExtResource("6_terrain_guard")
+terrain_collision_radius = 78.0
+velocity_properties = PackedStringArray("_movement_velocity", "_conch_response_velocity")
+retarget_method = &"_choose_next_patrol_target"
 
 [node name="DistanceActivator" type="Node" parent="."]
 script = ExtResource("4_distance_activator")
