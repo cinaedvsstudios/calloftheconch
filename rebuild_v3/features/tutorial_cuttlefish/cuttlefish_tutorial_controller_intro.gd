@@ -5,12 +5,16 @@ extends "res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_contr
 const INTRO_HINT_ID: StringName = &"intro_welcome"
 const INTRO_PLAYTIME_LIMIT: float = 1.0
 
+@export_group("Typewriter Text")
+@export_range(8.0, 80.0, 1.0) var typewriter_characters_per_second: float = 28.0
+@export_range(0.1, 3.0, 0.1) var intro_page_pause: float = 1.1
+@export_range(0.05, 1.0, 0.05) var page_transition_duration: float = 0.3
+
 @onready var _ink_sound: AudioStreamPlayer = %InkSound
 @onready var _tooltip_sound: AudioStreamPlayer = %TooltipSound
 @onready var _lykos_overlay: AnimatedSprite2D = %LykosOverlay
 
 var _tooltips_enabled: bool = true
-var _tooltip_sound_tween: Tween
 
 
 func _process(delta: float) -> void:
@@ -118,19 +122,96 @@ func _update_hint_anchor_position() -> void:
 
 func _reveal_hint() -> void:
 	if _current_definition == null:
-		super._reveal_hint()
+		_begin_exit()
 		return
+
+	var pages: Array[String] = _get_current_hint_pages()
+	if pages.is_empty():
+		_begin_exit()
+		return
+
 	_begin_lykos_overlay()
-	_stop_tooltip_sound_tween()
+	_kill_hint_tween()
+	_set_typewriter_page(pages[0])
+	_set_text_reveal(1.0)
+	_set_ink_opacity(0.0)
+	_update_hint_anchor_position()
+
+	var final_scale: Vector2 = Vector2.ONE * _current_definition.ink_scale
+	_hint_anchor.scale = final_scale * 0.05
+	_hint_anchor.show()
+	if _ink_video_available and _ink_video.stream != null:
+		_ink_video.show()
+		_ink_video.play()
+	else:
+		_ink_video.hide()
+
+	_state = State.REVEALING
 	_ink_sound.stop()
 	_ink_sound.play()
-	super._reveal_hint()
+
+	_hint_tween = create_tween()
+	_hint_tween.set_trans(Tween.TRANS_QUAD)
+	_hint_tween.set_ease(Tween.EASE_OUT)
+	_hint_tween.tween_property(_hint_anchor, "scale", final_scale, ink_appear_duration)
+	_hint_tween.parallel().tween_method(_set_ink_opacity, 0.0, 1.0, ink_appear_duration)
+
+	for page_index: int in range(pages.size()):
+		var page_text: String = pages[page_index]
+		if page_index > 0:
+			_hint_tween.tween_method(
+				_set_text_reveal,
+				1.0,
+				0.0,
+				page_transition_duration,
+			)
+			_hint_tween.tween_callback(_set_typewriter_page.bind(page_text))
+		_hint_tween.tween_callback(_play_tooltip_sound)
+		var type_duration: float = maxf(
+			0.05,
+			float(page_text.length()) / maxf(typewriter_characters_per_second, 1.0),
+		)
+		_hint_tween.tween_method(
+			_set_visible_character_count,
+			0.0,
+			float(page_text.length()),
+			type_duration,
+		)
+		if page_index < pages.size() - 1:
+			_hint_tween.tween_interval(intro_page_pause)
+
+	_hint_tween.tween_callback(_on_typewriter_complete)
+
+
+func _get_current_hint_pages() -> Array[String]:
+	var pages: Array[String] = []
+	if _current_definition == null:
+		return pages
+	var split_pages: PackedStringArray = _current_definition.text.split("\n\n", false)
+	for page: String in split_pages:
+		var cleaned_page: String = page.strip_edges()
+		if not cleaned_page.is_empty():
+			pages.append(cleaned_page)
+	return pages
+
+
+func _set_typewriter_page(page_text: String) -> void:
+	_hint_label.text = page_text
+	_hint_label.visible_characters = 0
+	_set_text_reveal(1.0)
+
+
+func _set_visible_character_count(value: float) -> void:
+	var maximum_characters: int = _hint_label.text.length()
+	_hint_label.visible_characters = clampi(roundi(value), 0, maximum_characters)
+
+
+func _on_typewriter_complete() -> void:
 	if _state != State.REVEALING:
-		_end_lykos_overlay()
 		return
-	_tooltip_sound_tween = create_tween()
-	_tooltip_sound_tween.tween_interval(ink_appear_duration)
-	_tooltip_sound_tween.tween_callback(_play_tooltip_sound)
+	_hint_label.visible_characters = -1
+	_set_text_reveal(1.0)
+	_on_hint_revealed()
 
 
 func _begin_exit() -> void:
@@ -175,18 +256,14 @@ func _end_lykos_overlay() -> void:
 		_sprite.play(&"swim")
 
 
-func _stop_tooltip_sound_tween() -> void:
-	if _tooltip_sound_tween != null and _tooltip_sound_tween.is_valid():
-		_tooltip_sound_tween.kill()
-	_tooltip_sound_tween = null
-
-
 func _cancel_presentation() -> void:
-	_stop_tooltip_sound_tween()
 	if is_instance_valid(_ink_sound):
 		_ink_sound.stop()
 	if is_instance_valid(_tooltip_sound):
 		_tooltip_sound.stop()
+	if is_instance_valid(_hint_label):
+		_hint_label.visible_characters = 0
+		_set_text_reveal(0.0)
 	_end_lykos_overlay()
 	super._cancel_presentation()
 
