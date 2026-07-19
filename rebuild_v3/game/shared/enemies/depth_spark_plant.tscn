@@ -1,0 +1,100 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/depth_life/depth_spark_plant.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" path="res://rebuild_v3/features/depth_life/depth_spark_plant_frames.tres" id="2_frames"]
+[ext_resource type="Texture2D" path="res://rebuild_v3/features/depth_life/depth_light.svg" id="3_light"]
+[ext_resource type="AudioStream" path="res://assets/audio/stun.mp3" id="4_stun_audio"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="5_distance_activator"]
+
+[sub_resource type="CanvasItemMaterial" id="AdditiveMaterial"]
+blend_mode = 1
+
+[sub_resource type="CircleShape2D" id="TargetShape"]
+radius = 105.0
+
+[sub_resource type="CircleShape2D" id="HurtShape"]
+radius = 82.0
+
+[node name="DepthSparkPlant" type="Area2D" groups=["conch_target", "enemy", "hazard"]]
+z_index = 4
+collision_layer = 1
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("1_controller")
+damage_amount = 1
+metadata/source_frames = "assets/enemies/plant01.webp through plant04.webp"
+metadata/attack_cycle = "Frames 01-03 idle; frame 04 discharges damaging sparks every 18 seconds"
+
+[node name="DeepBlueHalo" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+show_behind_parent = true
+z_index = -3
+material = SubResource("AdditiveMaterial")
+scale = Vector2(1.18, 1.18)
+texture = ExtResource("3_light")
+modulate = Color(0.015, 0.08, 0.85, 0.38)
+
+[node name="DeepBlueLight" type="PointLight2D" parent="."]
+unique_name_in_owner = true
+color = Color(0.02, 0.12, 0.95, 1)
+energy = 1.25
+texture = ExtResource("3_light")
+texture_scale = 1.6
+
+[node name="PinkHalo" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -78)
+show_behind_parent = true
+z_index = -2
+material = SubResource("AdditiveMaterial")
+scale = Vector2(0.48, 0.48)
+texture = ExtResource("3_light")
+modulate = Color(1, 0.05, 0.46, 0.46)
+
+[node name="PinkLight" type="PointLight2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -78)
+color = Color(1, 0.04, 0.4, 1)
+energy = 0.9
+texture = ExtResource("3_light")
+texture_scale = 0.62
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="SparkEmitter" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -78)
+gizmo_extents = 45.0
+editor_description = "Spark origin across the upper third of the plant image."
+
+[node name="SparkContainer" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="TargetShape" type="CollisionShape2D" parent="."]
+shape = SubResource("TargetShape")
+
+[node name="HurtArea" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+
+[node name="HurtShape" type="CollisionShape2D" parent="HurtArea"]
+shape = SubResource("HurtShape")
+
+[node name="StunAudio" type="AudioStreamPlayer2D" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("4_stun_audio")
+volume_db = -3.0
+max_distance = 3000.0
+attenuation = 0.5
+
+[node name="DistanceActivator" type="Node" parent="."]
+script = ExtResource("5_distance_activator")
