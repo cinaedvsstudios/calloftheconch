@@ -52,10 +52,6 @@
 [ext_resource type="PackedScene" uid="uid://cwd3ikm7tnbp4" path="res://rebuild_v3/features/vent1/vent1.tscn" id="50_0prhx"]
 [ext_resource type="PackedScene" uid="uid://bkhlb31k0q74o" path="res://rebuild_v3/features/boulder/boulder.tscn" id="51_qxate"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish.tscn" id="52_34nxo"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_spark_plant.tscn" id="53_34nxo"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_flare_plant.tscn" id="54_ijwbq"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish_deep_blue.tscn" id="55_nuqah"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish_yellow_green.tscn" id="56_p6rur"]
 
 [sub_resource type="ShaderMaterial" id="LowerWaterMaterial"]
 shader = ExtResource("6_ueib1")
@@ -139,17 +135,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture7" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="8" unique_id=2034295052]
-z_index = 2
-offset_left = 6717.0
-offset_top = 3239.0
-offset_right = 10908.0
-offset_bottom = 3803.0
-texture = ExtResource("2_hph4o")
-expand_mode = 1
-stretch_mode = 1
-
-[node name="rocktexture8" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="9" unique_id=1141926442]
+[node name="rocktexture8" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="8" unique_id=1141926442]
 z_index = 2
 offset_left = 12054.0
 offset_top = 3206.0
@@ -159,7 +145,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture12" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="10" unique_id=1771526779]
+[node name="rocktexture12" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="9" unique_id=1771526779]
 z_index = 2
 offset_left = 17204.0
 offset_top = 3938.0
@@ -169,7 +155,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture13" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="11" unique_id=728203504]
+[node name="rocktexture13" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="10" unique_id=728203504]
 z_index = 2
 offset_left = 36646.0
 offset_top = 3683.0
@@ -179,7 +165,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture14" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="12" unique_id=1617904951]
+[node name="rocktexture14" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="11" unique_id=1617904951]
 z_index = 2
 offset_left = 30933.0
 offset_top = 5376.0
@@ -189,7 +175,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture15" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="13" unique_id=761231708]
+[node name="rocktexture15" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="12" unique_id=761231708]
 z_index = 2
 offset_left = 25384.0
 offset_top = 6046.0
@@ -199,7 +185,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture9" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="14" unique_id=55025557]
+[node name="rocktexture9" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="13" unique_id=55025557]
 z_index = 2
 offset_left = 16509.0
 offset_top = 2760.0
@@ -209,7 +195,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture10" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="15" unique_id=620617481]
+[node name="rocktexture10" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="14" unique_id=620617481]
 z_index = 2
 offset_left = 29816.0
 offset_top = 2889.0
@@ -219,7 +205,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture11" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="16" unique_id=1489111841]
+[node name="rocktexture11" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="15" unique_id=1489111841]
 z_index = 2
 offset_left = 25384.0
 offset_top = 3349.0
@@ -229,7 +215,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture6" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="17" unique_id=1056655739]
+[node name="rocktexture6" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="16" unique_id=1056655739]
 z_index = 2
 offset_left = 594.0
 offset_top = 8009.0
@@ -239,7 +225,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture5" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="18" unique_id=247637555]
+[node name="rocktexture5" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="17" unique_id=247637555]
 z_index = 2
 offset_left = 132.0
 offset_top = 4963.0
@@ -282,7 +268,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture26" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="19" unique_id=423745824]
+[node name="rocktexture26" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="18" unique_id=423745824]
 z_index = 2
 offset_left = -1172.0
 offset_top = 1967.0
@@ -325,17 +311,17 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture17" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="20" unique_id=1124522776]
+[node name="rocktexture17" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="19" unique_id=1124522776]
 z_index = 2
-offset_left = 6717.0
-offset_top = 5256.0
-offset_right = 7179.0
-offset_bottom = 6826.0
+offset_left = 6527.0
+offset_top = 5289.0
+offset_right = 6989.0
+offset_bottom = 6859.0
 texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture20" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="21" unique_id=1795500656]
+[node name="rocktexture20" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="20" unique_id=1795500656]
 z_index = 2
 offset_left = 7668.0
 offset_top = 6578.0
@@ -345,7 +331,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture25" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="22" unique_id=1087958171]
+[node name="rocktexture25" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="21" unique_id=1087958171]
 z_index = 2
 offset_left = 1811.0
 offset_top = 4963.0
@@ -355,7 +341,7 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture21" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="23" unique_id=1851678191]
+[node name="rocktexture21" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="22" unique_id=1851678191]
 z_index = 2
 offset_left = 12054.0
 offset_top = 4374.0
@@ -365,17 +351,17 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture22" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="24" unique_id=1263597543]
+[node name="rocktexture22" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="23" unique_id=1263597543]
 z_index = 2
-offset_left = 6717.0
-offset_top = 3683.0
-offset_right = 8473.0
-offset_bottom = 5557.0
+offset_left = 6527.0
+offset_top = 3716.0
+offset_right = 8283.0
+offset_bottom = 5590.0
 texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="rocktexture18" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="25" unique_id=187281730]
+[node name="rocktexture18" type="TextureRect" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="24" unique_id=187281730]
 z_index = 2
 offset_left = 6717.0
 offset_top = 7377.0
@@ -385,19 +371,25 @@ texture = ExtResource("2_hph4o")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="Lighthouse2" type="Sprite2D" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="26" unique_id=726603515]
+[node name="Lighthouse2" type="Sprite2D" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="25" unique_id=726603515]
 z_index = 29
 position = Vector2(8035.0005, 1935.0001)
 scale = Vector2(0.825, 0.825)
 texture = ExtResource("3_px8tc")
 flip_h = true
 
-[node name="Marker1" type="Sprite2D" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="27" unique_id=451101784]
+[node name="Marker1" type="Sprite2D" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="26" unique_id=451101784]
 z_index = 31
 position = Vector2(1657, 2436)
 rotation = 0.10970947
 scale = Vector2(0.21624473, 0.21642214)
 texture = ExtResource("4_7cp6f")
+
+[node name="Polygon2D" type="Polygon2D" parent="BackgroundLayer/rocks" parent_id_path=PackedInt32Array(1369564028) index="27" unique_id=857727733]
+z_index = 2
+texture_repeat = 2
+texture = ExtResource("2_hph4o")
+polygon = PackedVector2Array(6422, 3187, 6346, 3392, 6446, 3973, 7949, 3926, 8554, 3850, 10726, 3862, 10691, 3263, 6581, 3251)
 
 [node name="sea gradient" parent="BackgroundLayer/Environment" parent_id_path=PackedInt32Array(1442594839) index="0" unique_id=1540383784]
 offset_right = 39307.0
@@ -479,7 +471,7 @@ rotation = 1.5707964
 position = Vector2(3830, -1373)
 
 [node name="Rock03" parent="Rock03" index="2" unique_id=2040759104 instance=ExtResource("4_7mdn1")]
-position = Vector2(2782, 5245.0005)
+position = Vector2(2592, 5278.0005)
 rotation = -1.7572864
 
 [node name="Rock04" parent="." index="22" unique_id=953621485 instance=ExtResource("5_qkcyf")]
@@ -494,7 +486,7 @@ position = Vector2(4987, 4836)
 rotation = 3.5810513
 
 [node name="Rock17" parent="." index="25" unique_id=631388645 instance=ExtResource("5_qkcyf")]
-position = Vector2(6627.0005, 3061)
+position = Vector2(6437.0005, 3094)
 rotation = -1.0030937
 
 [node name="Rock18" parent="." index="26" unique_id=886774507 instance=ExtResource("5_qkcyf")]
@@ -509,7 +501,7 @@ position = Vector2(6955, 7337)
 
 [node name="Rock24" parent="." index="29" unique_id=128991394 instance=ExtResource("6_2hrwh")]
 z_index = 1
-position = Vector2(6955, 6792)
+position = Vector2(6765, 6825)
 rotation = -3.0584407
 
 [node name="Rock06" parent="." index="30" unique_id=538101305 instance=ExtResource("7_s8n2w")]
@@ -546,11 +538,11 @@ position = Vector2(8915, -580)
 position = Vector2(7883, -555)
 
 [node name="Rock21" parent="." index="40" unique_id=579213519 instance=ExtResource("14_armp7")]
-position = Vector2(6716.9995, 5376.0005)
+position = Vector2(6526.9995, 5409.0005)
 rotation = 1.6190007
 
 [node name="Rock22" parent="." index="41" unique_id=40334638 instance=ExtResource("14_armp7")]
-position = Vector2(6717, 6298.0005)
+position = Vector2(6527, 6331.0005)
 rotation = 1.6190007
 
 [node name="Rock14" parent="." index="42" unique_id=1135056787 instance=ExtResource("15_f14t5")]
@@ -649,20 +641,20 @@ position = Vector2(4560, 2683)
 position = Vector2(4511, 2532)
 
 [node name="SpikeRock2" parent="." index="67" unique_id=1147558650 instance=ExtResource("27_4id1n")]
-position = Vector2(7177, 3198)
+position = Vector2(6987, 3231)
 
 [node name="SpikeRock3" parent="." index="68" unique_id=986852029 instance=ExtResource("27_4id1n")]
-position = Vector2(7996, 3198)
+position = Vector2(7806, 3231)
 
 [node name="SpikeRock4" parent="." index="69" unique_id=1868116592 instance=ExtResource("27_4id1n")]
-position = Vector2(8834, 3206)
+position = Vector2(8644, 3239)
 
 [node name="SpikeRock11" parent="." index="70" unique_id=1187982454 instance=ExtResource("27_4id1n")]
-position = Vector2(9689, 3214)
+position = Vector2(9499, 3247)
 
 [node name="SpikeRock12" parent="." index="71" unique_id=1199702826 instance=ExtResource("27_4id1n")]
 z_index = 2
-position = Vector2(10513, 3206)
+position = Vector2(10323, 3239)
 
 [node name="SpikeRock5" parent="." index="72" unique_id=1030467369 instance=ExtResource("27_4id1n")]
 position = Vector2(8561, 8009)
@@ -812,7 +804,7 @@ position = Vector2(8299, 6756)
 rotation = -4.680933
 
 [node name="RockCorner5" parent="." index="111" unique_id=864449395 instance=ExtResource("44_0prhx")]
-position = Vector2(7362.999, 5742)
+position = Vector2(7172.999, 5775)
 rotation = -4.680933
 
 [node name="RockCorner10" parent="." index="112" unique_id=194360156 instance=ExtResource("44_0prhx")]
@@ -820,7 +812,7 @@ position = Vector2(12633.999, 5256)
 rotation = -6.204355
 
 [node name="RockCorner6" parent="." index="113" unique_id=1143505391 instance=ExtResource("44_0prhx")]
-position = Vector2(8680.999, 3997.9995)
+position = Vector2(8490.999, 4030.9995)
 rotation = -4.680933
 
 [node name="RockCorner9" parent="." index="114" unique_id=1865366812 instance=ExtResource("44_0prhx")]
@@ -853,18 +845,18 @@ position = Vector2(4305, 7051)
 position = Vector2(5051, 7051)
 
 [node name="Rock48" parent="." index="122" unique_id=928655826 instance=ExtResource("10_wdj36")]
-position = Vector2(9152, 3814)
+position = Vector2(8962, 3847)
 
 [node name="Rock49" parent="." index="123" unique_id=1850967461 instance=ExtResource("15_f14t5")]
-position = Vector2(9961, 3799)
+position = Vector2(9771, 3832)
 
 [node name="Rock50" parent="." index="124" unique_id=2016144423 instance=ExtResource("16_40c1o")]
 z_index = 1
-position = Vector2(10875.001, 3563)
+position = Vector2(10685.001, 3596)
 rotation = -1.669823
 
 [node name="Rock51" parent="." index="125" unique_id=522043385 instance=ExtResource("12_px8tc")]
-position = Vector2(10654, 3825)
+position = Vector2(10464, 3858)
 
 [node name="Seaweed56" parent="." index="126" unique_id=2068196578 instance=ExtResource("47_ijwbq")]
 position = Vector2(5466, 5965)
@@ -1096,48 +1088,10 @@ position = Vector2(1244.9998, 5964.9995)
 rotation = -0.24512303
 scale = Vector2(0.355, 0.355)
 
-[node name="DepthJellyfish" parent="." index="174" unique_id=2123624033 instance=ExtResource("52_34nxo")]
-position = Vector2(1508.0001, 6749.0005)
-scale = Vector2(0.17768854, 0.17768854)
-
-[node name="DepthJellyfish4" parent="." index="175" unique_id=1659113455 instance=ExtResource("52_34nxo")]
-position = Vector2(712, 7317)
-scale = Vector2(0.17768854, 0.17768854)
-
-[node name="DepthJellyfish5" parent="." index="176" unique_id=1679351353 instance=ExtResource("52_34nxo")]
-position = Vector2(1397, 7575)
-scale = Vector2(0.17768854, 0.17768854)
-
-[node name="DepthJellyfish6" parent="." index="177" unique_id=295465690 instance=ExtResource("52_34nxo")]
+[node name="DepthJellyfish6" parent="." index="174" unique_id=295465690 instance=ExtResource("52_34nxo")]
 position = Vector2(860.0002, 5596.0005)
 scale = Vector2(0.17768854, 0.17768854)
 
-[node name="DepthGlowPlant5" parent="." index="178" unique_id=689516536 instance=ExtResource("41_5wr0l")]
+[node name="DepthGlowPlant5" parent="." index="175" unique_id=689516536 instance=ExtResource("41_5wr0l")]
 position = Vector2(712.0005, 6088.001)
 rotation = 1.0188124
-
-[node name="DepthSparkPlant" parent="." index="179" unique_id=1270280320 instance=ExtResource("53_34nxo")]
-position = Vector2(897, 7836)
-scale = Vector2(0.3321471, 0.3321471)
-
-[node name="DepthSparkPlant2" parent="." index="180" unique_id=1486112210 instance=ExtResource("53_34nxo")]
-position = Vector2(699, 7666)
-rotation = 0.2617994
-scale = Vector2(0.3321471, 0.3321471)
-
-[node name="DepthFlarePlant" parent="." index="181" unique_id=2079876255 instance=ExtResource("54_ijwbq")]
-position = Vector2(796.9999, 7756.9995)
-rotation = 0.2617994
-scale = Vector2(0.35997632, 0.35997632)
-
-[node name="DepthGlowPlant4" parent="." index="182" unique_id=1318422596 instance=ExtResource("41_5wr0l")]
-position = Vector2(1665.9999, 6379.9995)
-rotation = -1.2654916
-
-[node name="DepthJellyfishDeepBlue" parent="." index="183" unique_id=1380726455 instance=ExtResource("55_nuqah")]
-position = Vector2(1192, 7104)
-scale = Vector2(0.4537938, 0.45932996)
-
-[node name="DepthJellyfishYellowGreen" parent="." index="184" unique_id=1522933156 instance=ExtResource("56_p6rur")]
-position = Vector2(844, 6712)
-scale = Vector2(0.3591258, 0.3591258)
