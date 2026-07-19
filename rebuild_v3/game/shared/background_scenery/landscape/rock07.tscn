@@ -1,17 +1,20 @@
-[gd_scene format=3 uid="uid://cqpc3tg3agevy"]
+[gd_scene load_steps=2 format=3 uid="uid://cqpc3tg3agevy"]
 
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape_base.tscn" id="1_base"]
-[ext_resource type="Texture2D" uid="uid://cjdn106d8jr4t" path="res://assets/backgrounds/rock7.webp" id="2_texture"]
+[ext_resource type="Texture2D" uid="uid://cjdn106d8jr4t" path="res://assets/backgrounds/rock7.webp" id="1_texture"]
 
-[node name="Rock07" unique_id=1511191975 instance=ExtResource("1_base")]
-source_texture = ExtResource("2_texture")
-landscape_id = &"rock07"
+[node name="Rock07" type="StaticBody2D" unique_id=1511191975]
+collision_layer = 1
+collision_mask = 0
+metadata/landscape_id = "rock07"
 metadata/source_asset = "res://assets/backgrounds/rock7.webp"
-metadata/collision_source = "texture_alpha"
+metadata/collision_source = "editable_polygon"
 
-[node name="Sprite" parent="." index="0"]
-texture = ExtResource("2_texture")
+[node name="Sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_texture")
 
-[node name="CollisionPolygon2D" parent="." index="1"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
 position = Vector2(159, 42)
+scale = Vector2(0.5, 0.5)
 polygon = PackedVector2Array(-277, -252, -236, -261, -218, -245, -161, -146, -112, -135, -82, -67, -33, -57, -18, -13, 25, 0, 40, 50, 122, 94, 130, 139, 10, 163, -211, 163, -317, 162, -429, 138, -423, 84, -392, 57, -345, -34, -346, -110, -311, -146, -310, -203)
