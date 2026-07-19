@@ -20,6 +20,11 @@ enum MotionState {
 @export_range(1.0, 200.0, 1.0) var drift_speed: float = 22.0
 @export_range(0.0, 1.0, 0.01) var current_influence: float = 0.22
 
+@export_category("Terrain Avoidance")
+@export_flags_2d_physics var terrain_collision_mask: int = 1
+@export_range(8.0, 180.0, 1.0) var terrain_collision_radius: float = 52.0
+@export_range(0.0, 12.0, 0.5) var terrain_margin: float = 2.0
+
 @export_category("Upward Boost")
 @export_range(0.2, 30.0, 0.1) var boost_interval_min: float = 3.2
 @export_range(0.2, 30.0, 0.1) var boost_interval_max: float = 6.0
@@ -45,6 +50,7 @@ var _elapsed: float = 0.0
 var _base_sprite_scale: Vector2 = Vector2.ONE
 var _motion_state: MotionState = MotionState.DRIFT
 var _external_currents: Dictionary = {}
+var _inside_terrain_warning_sent: bool = false
 var _rng := RandomNumberGenerator.new()
 
 
@@ -69,14 +75,24 @@ func _physics_process(delta: float) -> void:
 	if _consume_stun_frame(delta):
 		return
 
-	_update_horizontal_drift(delta)
+	var intended_motion: Vector2 = _get_horizontal_drift_motion(delta)
 	match _motion_state:
 		MotionState.DRIFT:
 			_update_drift_state(delta)
 		MotionState.BOOST:
-			_update_boost_state(delta)
+			intended_motion += _get_boost_motion(delta)
 		MotionState.RECOVER:
-			_update_recover_state(delta)
+			intended_motion += _get_recovery_motion(delta)
+
+	var motion_result: Dictionary = CotcTerrainSafeMotion.move_circle(
+		self,
+		intended_motion,
+		terrain_collision_radius,
+		terrain_collision_mask,
+		terrain_margin,
+		2,
+	)
+	_handle_terrain_result(motion_result, intended_motion)
 	_damage_touching_hylas_if_needed()
 
 
@@ -107,13 +123,14 @@ func _start_boost() -> void:
 	_light.energy = boost_light_energy
 
 
-func _update_boost_state(delta: float) -> void:
-	global_position.y += _vertical_velocity * delta
+func _get_boost_motion(delta: float) -> Vector2:
+	var motion := Vector2(0.0, _vertical_velocity * delta)
 	_vertical_velocity = move_toward(
 		_vertical_velocity,
 		0.0,
 		boost_deceleration * delta,
 	)
+	return motion
 
 
 func _begin_recovery() -> void:
@@ -121,28 +138,57 @@ func _begin_recovery() -> void:
 		return
 	_motion_state = MotionState.RECOVER
 	_vertical_velocity = 0.0
+	_bubble_burst.emitting = false
 	_sprite.play(&"idle")
 
 
-func _update_recover_state(delta: float) -> void:
-	global_position.y = move_toward(global_position.y, _boost_origin_y, return_speed * delta)
+func _get_recovery_motion(delta: float) -> Vector2:
+	var target_y: float = move_toward(global_position.y, _boost_origin_y, return_speed * delta)
+	var motion := Vector2(0.0, target_y - global_position.y)
 	_light.energy = move_toward(_light.energy, idle_light_energy, 1.4 * delta)
-	if is_equal_approx(global_position.y, _boost_origin_y):
+	if is_equal_approx(target_y, _boost_origin_y):
 		_motion_state = MotionState.DRIFT
 		_schedule_next_boost()
+	return motion
 
 
-func _update_horizontal_drift(delta: float) -> void:
-	global_position.x += _drift_direction * drift_speed * delta
+func _get_horizontal_drift_motion(delta: float) -> Vector2:
+	var motion := Vector2(_drift_direction * drift_speed * delta, 0.0)
+	motion += _get_external_current_velocity() * current_influence * delta
+
 	var left_limit: float = _home_position.x - patrol_half_width
 	var right_limit: float = _home_position.x + patrol_half_width
-	if global_position.x <= left_limit:
-		global_position.x = left_limit
+	var predicted_x: float = global_position.x + motion.x
+	if predicted_x <= left_limit:
+		motion.x = left_limit - global_position.x
 		_drift_direction = 1.0
-	elif global_position.x >= right_limit:
-		global_position.x = right_limit
+	elif predicted_x >= right_limit:
+		motion.x = right_limit - global_position.x
 		_drift_direction = -1.0
-	global_position += _get_external_current_velocity() * current_influence * delta
+	return motion
+
+
+func _handle_terrain_result(result: Dictionary, attempted_motion: Vector2) -> void:
+	if not bool(result.get(&"blocked", false)):
+		return
+	var normal: Vector2 = result.get(&"normal", Vector2.ZERO)
+	if bool(result.get(&"started_overlapping", false)):
+		_vertical_velocity = 0.0
+		if not _inside_terrain_warning_sent:
+			_inside_terrain_warning_sent = true
+			push_warning("DepthJellyfish started inside terrain; move the placed instance into open water.")
+		return
+
+	if absf(normal.x) > 0.25:
+		_drift_direction = 1.0 if normal.x > 0.0 else -1.0
+	if normal.length_squared() <= 0.001 or attempted_motion.dot(normal) >= 0.0:
+		return
+	if _motion_state == MotionState.BOOST and attempted_motion.y < 0.0:
+		_begin_recovery()
+	elif _motion_state == MotionState.RECOVER:
+		_motion_state = MotionState.DRIFT
+		_vertical_velocity = 0.0
+		_schedule_next_boost()
 
 
 func _update_visual_pulse() -> void:
@@ -172,8 +218,18 @@ func _on_conch_hit_impulse(origin: Vector2, pulse_direction: Vector2, strength: 
 	var away: Vector2 = global_position - origin
 	if away.length_squared() <= 0.001:
 		away = pulse_direction
-	if away.length_squared() > 0.001:
-		global_position += away.normalized() * clampf(strength, 0.55, 1.35) * 18.0
+	if away.length_squared() <= 0.001:
+		return
+	var push_motion: Vector2 = away.normalized() * clampf(strength, 0.55, 1.35) * 18.0
+	var motion_result: Dictionary = CotcTerrainSafeMotion.move_circle(
+		self,
+		push_motion,
+		terrain_collision_radius,
+		terrain_collision_mask,
+		terrain_margin,
+		2,
+	)
+	_handle_terrain_result(motion_result, push_motion)
 
 
 func _on_stun_started() -> void:
@@ -206,12 +262,15 @@ func _on_distance_wake() -> void:
 
 func _get_external_current_velocity() -> Vector2:
 	var total := Vector2.ZERO
+	var invalid_sources: Array[Node] = []
 	for source: Node in _external_currents.keys():
 		if not is_instance_valid(source):
-			_external_currents.erase(source)
+			invalid_sources.append(source)
 			continue
 		var source_velocity: Vector2 = _external_currents[source]
 		total += source_velocity
+	for invalid_source: Node in invalid_sources:
+		_external_currents.erase(invalid_source)
 	return total
 
 
