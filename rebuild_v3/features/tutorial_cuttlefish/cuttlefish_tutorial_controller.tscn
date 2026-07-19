@@ -1,0 +1,82 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_sprite_frames.tres" id="2_frames"]
+[ext_resource type="Resource" path="res://rebuild_v3/features/tutorial_cuttlefish/tutorial_hint_library.tres" id="3_library"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/tutorial_cuttlefish/ink_multiply.gdshader" id="4_ink_shader"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/tutorial_cuttlefish/text_dissolve.gdshader" id="5_text_shader"]
+
+[sub_resource type="ShaderMaterial" id="InkMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("4_ink_shader")
+shader_parameter/opacity = 0.0
+shader_parameter/black_point = 0.08
+shader_parameter/white_point = 0.94
+
+[sub_resource type="ShaderMaterial" id="TextMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("5_text_shader")
+shader_parameter/reveal = 0.0
+shader_parameter/softness = 0.07
+
+[node name="CuttlefishTutorial" type="Node"]
+unique_name_in_owner = true
+process_mode = 1
+script = ExtResource("1_controller")
+hint_library = ExtResource("3_library")
+
+[node name="Cuttlefish" type="Node2D" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 70
+scale = Vector2(0.36, 0.36)
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="Cuttlefish"]
+unique_name_in_owner = true
+sprite_frames = ExtResource("2_frames")
+animation = &"swim"
+autoplay = "swim"
+
+[node name="HintCanvasLayer" type="CanvasLayer" parent="."]
+layer = 19
+
+[node name="HintAnchor" type="Control" parent="HintCanvasLayer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_right = 760.0
+offset_bottom = 300.0
+pivot_offset = Vector2(380, 150)
+mouse_filter = 2
+
+[node name="InkVideo" type="VideoStreamPlayer" parent="HintCanvasLayer/HintAnchor"]
+unique_name_in_owner = true
+material = SubResource("InkMaterial")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand = true
+loop = true
+volume_db = -80.0
+
+[node name="HintText" type="Label" parent="HintCanvasLayer/HintAnchor"]
+unique_name_in_owner = true
+material = SubResource("TextMaterial")
+layout_mode = 0
+offset_left = 92.0
+offset_top = 62.0
+offset_right = 668.0
+offset_bottom = 238.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.17, 0.67, 0.82, 1)
+theme_override_colors/font_outline_color = Color(0, 0.025, 0.06, 0.6)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 30
+text = "Tutorial hint"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
