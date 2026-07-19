@@ -194,6 +194,19 @@ texture = ExtResource("18_lower_water")
 unique_name_in_owner = true
 position = Vector2(1191, 2291)
 
+[node name="DarknessStart" type="Marker2D" parent="TriggersLayer"]
+unique_name_in_owner = true
+position = Vector2(1191, 3214)
+gizmo_extents = 60.0
+editor_description = "Drag vertically. Darkness is 0% at and above this marker."
+
+[node name="DarknessMaximum" type="Marker2D" parent="TriggersLayer"]
+unique_name_in_owner = true
+position = Vector2(1191, 8447)
+gizmo_extents = 60.0
+editor_description = "Drag vertically. Darkness reaches 80% at and below this marker."
+metadata/max_darkness_strength = 0.8
+
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=412767337]
 
 [node name="HylasStart" type="Marker2D" parent="SpawnPoints" unique_id=1467391657]
