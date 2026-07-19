@@ -7,9 +7,15 @@ const INTRO_PLAYTIME_LIMIT: float = 1.0
 
 @onready var _ink_sound: AudioStreamPlayer = %InkSound
 @onready var _tooltip_sound: AudioStreamPlayer = %TooltipSound
+@onready var _lykos_overlay: AnimatedSprite2D = %LykosOverlay
 
 var _tooltips_enabled: bool = true
 var _tooltip_sound_tween: Tween
+
+
+func _process(delta: float) -> void:
+	super._process(delta)
+	_sync_lykos_overlay()
 
 
 func activate() -> void:
@@ -92,7 +98,7 @@ func _update_hint_anchor_position() -> void:
 	var cuttlefish_screen_position: Vector2 = (
 		get_viewport().get_canvas_transform() * _cuttlefish.global_position
 	)
-	# The ink opens between Lykos and Hylas while the text remains centred in it.
+	# The enlarged ink opens behind Lykos, with the centred text kept to his left.
 	var desired_center: Vector2 = cuttlefish_screen_position + Vector2(
 		-hint_screen_horizontal_offset,
 		hint_screen_vertical_offset,
@@ -114,15 +120,22 @@ func _reveal_hint() -> void:
 	if _current_definition == null:
 		super._reveal_hint()
 		return
+	_begin_lykos_overlay()
 	_stop_tooltip_sound_tween()
 	_ink_sound.stop()
 	_ink_sound.play()
 	super._reveal_hint()
 	if _state != State.REVEALING:
+		_end_lykos_overlay()
 		return
 	_tooltip_sound_tween = create_tween()
 	_tooltip_sound_tween.tween_interval(ink_appear_duration)
 	_tooltip_sound_tween.tween_callback(_play_tooltip_sound)
+
+
+func _begin_exit() -> void:
+	_end_lykos_overlay()
+	super._begin_exit()
 
 
 func _play_tooltip_sound() -> void:
@@ -130,6 +143,36 @@ func _play_tooltip_sound() -> void:
 		return
 	_tooltip_sound.stop()
 	_tooltip_sound.play()
+
+
+func _begin_lykos_overlay() -> void:
+	if not is_instance_valid(_lykos_overlay) or not is_instance_valid(_sprite):
+		return
+	_sprite.hide()
+	_lykos_overlay.flip_h = true
+	_lykos_overlay.play(&"swim")
+	_sync_lykos_overlay()
+	_lykos_overlay.show()
+
+
+func _sync_lykos_overlay() -> void:
+	if not is_instance_valid(_lykos_overlay) or not _lykos_overlay.visible:
+		return
+	if not is_instance_valid(_cuttlefish):
+		return
+	_lykos_overlay.position = (
+		get_viewport().get_canvas_transform() * _cuttlefish.global_position
+	)
+	_lykos_overlay.flip_h = true
+
+
+func _end_lykos_overlay() -> void:
+	if is_instance_valid(_lykos_overlay):
+		_lykos_overlay.hide()
+	if is_instance_valid(_sprite):
+		_sprite.show()
+		_sprite.flip_h = true
+		_sprite.play(&"swim")
 
 
 func _stop_tooltip_sound_tween() -> void:
@@ -144,6 +187,7 @@ func _cancel_presentation() -> void:
 		_ink_sound.stop()
 	if is_instance_valid(_tooltip_sound):
 		_tooltip_sound.stop()
+	_end_lykos_overlay()
 	super._cancel_presentation()
 
 
@@ -180,6 +224,7 @@ func _start_intro_if_possible() -> void:
 	# The opening greeting begins with Lykos beside Hylas, facing back toward him.
 	_cuttlefish.global_position = _get_hover_target()
 	_cuttlefish.show()
+	_sprite.show()
 	_sprite.flip_h = true
 	_sprite.play(&"pre_hint")
 	_state = State.PRE_HINT
