@@ -1,0 +1,20 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/jfish01.webp" id="1_jfish_01"]
+[ext_resource type="Texture2D" path="res://assets/enemies/jfish02.webp" id="2_jfish_02"]
+[ext_resource type="Texture2D" path="res://assets/enemies/jfish03.webp" id="3_jfish_03"]
+[ext_resource type="Texture2D" path="res://assets/enemies/jfish04.webp" id="4_jfish_04"]
+[ext_resource type="Texture2D" path="res://assets/enemies/jfish05.webp" id="5_jfish_05"]
+
+[resource]
+animations = [{
+"frames": [{"duration": 1.0, "texture": ExtResource("1_jfish_01")}, {"duration": 1.0, "texture": ExtResource("2_jfish_02")}],
+"loop": true,
+"name": &"idle",
+"speed": 2.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("3_jfish_03")}, {"duration": 1.0, "texture": ExtResource("4_jfish_04")}, {"duration": 1.0, "texture": ExtResource("5_jfish_05")}, {"duration": 1.0, "texture": ExtResource("4_jfish_04")}, {"duration": 1.0, "texture": ExtResource("3_jfish_03")}],
+"loop": false,
+"name": &"boost",
+"speed": 12.0
+}]
