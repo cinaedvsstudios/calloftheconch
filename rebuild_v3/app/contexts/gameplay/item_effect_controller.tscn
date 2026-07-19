@@ -1,6 +1,6 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
-[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/item_effect_controller_world_sync.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/item_effect_controller_leaf_sheep.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/crown_sea_grapes/greatfin_transform_effect.tscn" id="2_transform"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/murex_pecten/purple_shield_effect.tscn" id="3_shield"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/items/tridacna_gigas/surge_effect.tscn" id="4_surge"]
@@ -13,6 +13,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/Mati01.mp3" id="11_mati_initial_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/Mati02.mp3" id="12_mati_duration_audio"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/conch_pulse.tscn" id="13_conch_pulse"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep.tscn" id="14_leaf_sheep"]
 
 [node name="ItemEffectController" type="Node2D"]
 process_mode = 3
@@ -26,6 +27,9 @@ sonic_drill_tint = Color(1, 0.08, 0.88, 1)
 sonic_drill_brightness = 3.6
 
 [node name="ConchPulse" parent="." instance=ExtResource("13_conch_pulse")]
+unique_name_in_owner = true
+
+[node name="LeafSheep" parent="." instance=ExtResource("14_leaf_sheep")]
 unique_name_in_owner = true
 
 [node name="HylasVideoAnchor" type="Node2D" parent="."]
