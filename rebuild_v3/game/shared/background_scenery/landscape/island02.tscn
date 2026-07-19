@@ -1,10 +1,19 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://8sfggfxs2abt"]
 
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/background_scenery/landscape/alpha_collision_landscape_base.tscn" id="1_base"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/lsland02.webp" id="2_texture"]
+[ext_resource type="Texture2D" uid="uid://ceybjlkibtgyl" path="res://assets/backgrounds/lsland02.webp" id="2_texture"]
 
-[node name="Island02" instance=ExtResource("1_base")]
+[node name="Island02" unique_id=1157930278 instance=ExtResource("1_base")]
 source_texture = ExtResource("2_texture")
 landscape_id = &"island02"
 metadata/source_asset = "res://assets/backgrounds/lsland02.webp"
 metadata/collision_source = "texture_alpha"
+
+[node name="Sprite" parent="." index="0"]
+position = Vector2(-1, -4)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_texture")
+
+[node name="CollisionPolygon2D" parent="." index="1"]
+position = Vector2(-70, 206)
+polygon = PackedVector2Array(-256, -256, 397, -252, 267, -203, 71, -76)

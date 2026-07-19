@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bljtipy61cxhr"]
 
 [ext_resource type="Script" uid="uid://bccuatcsmp77h" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_main_clean.gd" id="1_controller"]
+[ext_resource type="Texture2D" uid="uid://by77bggk5arok" path="res://assets/effects/rocktexture.jpg" id="2_34e7h"]
 [ext_resource type="Shader" uid="uid://bxpu675qf5ipy" path="res://cloudeffect.gdshader" id="2_cloud_shader"]
 [ext_resource type="Texture2D" uid="uid://ewnflcxecqfi" path="res://assets/backgrounds/horizon.png" id="3_horizon"]
 [ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="4_looping_audio"]
@@ -12,13 +13,14 @@
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/surface_splash.tscn" id="10_surface_splash"]
 [ext_resource type="VideoStream" uid="uid://buw0jv63vxw0i" path="res://assets/effects/bubble_riser_field.ogv" id="11_bubble_overlay"]
 [ext_resource type="AudioStream" uid="uid://b1ok5tlb5fqkw" path="res://assets/audio/underwater_ambience.mp3" id="12_ambience"]
-[ext_resource type="Texture2D" uid="uid://dqwy1t775hdjm" path="res://assets/backgrounds/beach.webp" id="13_beach"]
-[ext_resource type="Texture2D" uid="uid://c504ry0n5hx8j" path="res://assets/backgrounds/rock4.webp" id="14_rock"]
 [ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="15_bubble_shader"]
-[ext_resource type="Texture2D" uid="uid://chh2q5kygx7q1" path="res://assets/backgrounds/island00.webp" id="16_island"]
 [ext_resource type="Shader" uid="uid://djrkn605v8rov" path="res://rebuild_v3/features/sea_of_pillars/lower_water_fade_left.gdshader" id="17_lower_water_shader"]
+[ext_resource type="PackedScene" uid="uid://bwonfmlxn2qfp" path="res://rebuild_v3/game/shared/background_scenery/landscape/beach.tscn" id="18_7tylj"]
 [ext_resource type="Texture2D" uid="uid://ssy6jprhl7ol" path="res://assets/backgrounds/waterbgparalax2.webp" id="18_lower_water"]
+[ext_resource type="PackedScene" uid="uid://btxlnyp5dpxah" path="res://rebuild_v3/game/shared/background_scenery/landscape/island00.tscn" id="19_1nhvx"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/whale_travel/whale_travel.tscn" id="19_whale_travel"]
+[ext_resource type="PackedScene" uid="uid://h6njs6x1ocik" path="res://rebuild_v3/game/shared/background_scenery/landscape/island01.tscn" id="20_i8pmi"]
+[ext_resource type="PackedScene" uid="uid://8sfggfxs2abt" path="res://rebuild_v3/game/shared/background_scenery/landscape/island02.tscn" id="21_i78k7"]
 
 [sub_resource type="Gradient" id="SeaGradient"]
 offsets = PackedFloat32Array(0, 0.17130715, 0.645625, 0.950625)
@@ -90,7 +92,21 @@ conch_origin_forward_offset = 111.0
 z_index = -30
 metadata/_edit_lock_ = true
 
-[node name="sea gradient" type="TextureRect" parent="BackgroundLayer" unique_id=1540383784]
+[node name="rocks" type="Node2D" parent="BackgroundLayer" unique_id=1369564028]
+
+[node name="rocktexture" type="TextureRect" parent="BackgroundLayer/rocks" unique_id=270874271]
+z_index = 2
+offset_left = -125.0
+offset_top = 2591.0
+offset_right = 1643.0
+offset_bottom = 3491.0
+texture = ExtResource("2_34e7h")
+stretch_mode = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Environment" type="Node2D" parent="BackgroundLayer" unique_id=1442594839]
+
+[node name="sea gradient" type="TextureRect" parent="BackgroundLayer/Environment" unique_id=1540383784]
 offset_left = 160.0
 offset_top = 2271.0
 offset_right = 56303.0
@@ -98,7 +114,7 @@ offset_bottom = 8404.0
 texture = SubResource("SeaGradientTexture")
 metadata/_edit_lock_ = true
 
-[node name="sky gradient" type="TextureRect" parent="BackgroundLayer" unique_id=196332827]
+[node name="sky gradient" type="TextureRect" parent="BackgroundLayer/Environment" unique_id=196332827]
 offset_left = -115.0
 offset_top = 940.0
 offset_right = 56134.0
@@ -106,7 +122,7 @@ offset_bottom = 2271.0
 texture = SubResource("SkyGradientTexture")
 metadata/_edit_lock_ = true
 
-[node name="horizon2" type="TextureRect" parent="BackgroundLayer" unique_id=102178049]
+[node name="horizon2" type="TextureRect" parent="BackgroundLayer/Environment" unique_id=102178049]
 self_modulate = Color(0.94509804, 0.94509804, 0.94509804, 0.7019608)
 z_index = 2
 material = SubResource("HorizonMaterial")
@@ -118,11 +134,11 @@ texture = ExtResource("3_horizon")
 stretch_mode = 1
 metadata/_edit_lock_ = true
 
-[node name="clouds" type="Node2D" parent="BackgroundLayer" unique_id=969400193]
+[node name="clouds" type="Node2D" parent="BackgroundLayer/Environment" unique_id=969400193]
 position = Vector2(-63, 148)
 metadata/_edit_lock_ = true
 
-[node name="cloud effect" type="TextureRect" parent="BackgroundLayer/clouds" unique_id=931369885]
+[node name="cloud effect" type="TextureRect" parent="BackgroundLayer/Environment/clouds" unique_id=931369885]
 texture_repeat = 3
 material = SubResource("CloudMaterial")
 offset_left = -758.0
@@ -135,7 +151,9 @@ texture = ExtResource("5_clouds")
 stretch_mode = 1
 metadata/_edit_lock_ = true
 
-[node name="water" type="Node2D" parent="BackgroundLayer" unique_id=273298917]
+[node name="water" type="Node2D" parent="BackgroundLayer/Environment" unique_id=273298917]
+
+[node name="islands" type="Node2D" parent="BackgroundLayer" unique_id=1147994735]
 
 [node name="ParallaxLayer" type="Node2D" parent="." unique_id=1697267014]
 z_index = -20
@@ -165,22 +183,6 @@ texture = ExtResource("18_lower_water")
 [node name="TerrainArtLayer" type="Node2D" parent="." unique_id=78915771]
 
 [node name="StarterTerrain" type="Node2D" parent="TerrainArtLayer" unique_id=1536907402]
-
-[node name="Beach" type="Sprite2D" parent="TerrainArtLayer/StarterTerrain" unique_id=1651021145]
-position = Vector2(1900, 2705)
-scale = Vector2(0.75, 1)
-texture = ExtResource("13_beach")
-
-[node name="Rock" type="Sprite2D" parent="TerrainArtLayer/StarterTerrain" unique_id=2027667684]
-position = Vector2(3892.0002, 3248.0002)
-rotation = 0.18
-scale = Vector2(0.72, 0.72)
-texture = ExtResource("14_rock")
-
-[node name="Island" type="Sprite2D" parent="TerrainArtLayer/StarterTerrain" unique_id=732719306]
-position = Vector2(4550, 2290)
-scale = Vector2(0.72, 0.72)
-texture = ExtResource("16_island")
 
 [node name="Enemies" type="Node2D" parent="." unique_id=337870512]
 
@@ -260,7 +262,7 @@ metadata/_edit_lock_ = true
 [node name="Hylas" parent="." unique_id=610069161 instance=ExtResource("8_hylas")]
 unique_name_in_owner = true
 z_index = 10
-position = Vector2(2399, 2907)
+position = Vector2(1671, 2395)
 
 [node name="Citymain" type="Sprite2D" parent="." unique_id=180052364]
 visible = false
@@ -272,3 +274,18 @@ process_mode = 4
 visible = false
 position = Vector2(-10000, -10000)
 metadata/_edit_lock_ = true
+
+[node name="Beach" parent="." unique_id=728239375 instance=ExtResource("18_7tylj")]
+position = Vector2(798, 2269)
+
+[node name="Beach2" parent="." unique_id=873134149 instance=ExtResource("18_7tylj")]
+position = Vector2(2493, 2814)
+
+[node name="Island00" parent="." unique_id=156461599 instance=ExtResource("19_1nhvx")]
+position = Vector2(2436, 2326)
+
+[node name="Island01" parent="." unique_id=1296469355 instance=ExtResource("20_i8pmi")]
+position = Vector2(3050, 2316)
+
+[node name="Island02" parent="." unique_id=1441391701 instance=ExtResource("21_i78k7")]
+position = Vector2(3668, 2337)
