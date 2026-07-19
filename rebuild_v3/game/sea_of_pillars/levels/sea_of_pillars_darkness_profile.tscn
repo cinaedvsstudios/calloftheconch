@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[node name="SeaOfPillarsDarknessProfile" type="Node2D"]
+editor_description = "L1 depth-darkness tuning markers. Move the two Marker2D children vertically; only their world Y positions are used."
+metadata/profile_id = "sea_of_pillars_l1"
+metadata/max_darkness_strength = 0.8
+
+[node name="DarknessStart" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(2988, 3214)
+editor_description = "Move this marker vertically to choose where darkness begins at 0%. Initial placement is 75% down the first 1280x720 gameplay view."
+
+[node name="DarknessMaximum" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(2988, 8447)
+editor_description = "Move this marker vertically to choose where the gradient reaches the configured 80% maximum darkness."

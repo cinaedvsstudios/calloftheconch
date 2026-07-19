@@ -34,6 +34,8 @@ text_reveal_duration = 0.8
 text_hide_duration = 0.55
 ink_hide_duration = 0.9
 minimum_read_time = 3.0
+hint_screen_horizontal_offset = 150.0
+hint_screen_vertical_offset = -35.0
 
 [node name="Cuttlefish" type="Node2D" parent="."]
 unique_name_in_owner = true
@@ -64,9 +66,9 @@ layer = 19
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
-offset_right = 760.0
-offset_bottom = 300.0
-pivot_offset = Vector2(380, 150)
+offset_right = 900.0
+offset_bottom = 380.0
+pivot_offset = Vector2(450, 190)
 mouse_filter = 2
 
 [node name="OceanBackBuffer" type="BackBufferCopy" parent="HintCanvasLayer/HintAnchor"]
@@ -90,16 +92,27 @@ volume_db = -80.0
 unique_name_in_owner = true
 material = SubResource("TextMaterial")
 layout_mode = 0
-offset_left = 92.0
-offset_top = 62.0
-offset_right = 668.0
-offset_bottom = 238.0
+offset_left = 125.0
+offset_top = 92.0
+offset_right = 775.0
+offset_bottom = 288.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 1
-theme_override_font_sizes/font_size = 20
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 17
 text = "Tutorial hint"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="LykosOverlayCanvasLayer" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="LykosOverlay" type="AnimatedSprite2D" parent="LykosOverlayCanvasLayer"]
+unique_name_in_owner = true
+visible = false
+scale = Vector2(0.075, 0.075)
+sprite_frames = ExtResource("2_frames")
+animation = &"swim"
+autoplay = "swim"
