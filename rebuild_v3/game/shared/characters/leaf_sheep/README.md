@@ -1,5 +1,19 @@
 # Leaf Sheep Companion
 
-Reserved for the completed reusable Leaf Sheep companion scene.
+Canonical runtime scene:
 
-No finished runtime `.tscn` has been identified in the current project, so this folder intentionally contains no fake placeholder character. Add the canonical scene here once its movement, glow phases and player-following behaviour are implemented and tested.
+`rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep.tscn`
+
+The scene owns the temporary READY, BRIGHT, MID, LOW and COOLDOWN states. Bright lasts 60 seconds, Mid lasts 30 seconds, Low remains active until deactivation, and cooldown lasts 30 seconds. Temporary phase and cooldown state are deliberately not saved.
+
+Sprite mapping:
+
+- `companion_leaf_sheep2.png` — Bright
+- `companion_leaf_sheep1.png` — Mid
+- `companion_leaf_sheep0.png` — Low
+
+The scene follows Hylas's hand, crossfades between brightness sprites, drives the local `PointLight2D`, and exposes a camera-fixed procedural darkness overlay. A level can provide metadata named `leaf_sheep_darkness_profile` containing `id`, `darkness_strength` and `tint`; otherwise the overlay remains disabled so illuminated levels are unaffected.
+
+The Item B catalogue entry is permanent and quantity-free. The shared item-effect controller instances this scene and toggles it when `leaf_sheep` is used. Hylas uses the four normal or Greatfin carry frames while active, blocks Speed Run, Surge, Tail Flip and Conus climbing, and requests forced deactivation on death or land entry.
+
+The gameplay wrapper forces deactivation for city entry, whale travel and context exit. Pause and inventory stop the timers through normal pausable processing. Ordinary underwater level replacement rebinds the same controller without resetting its active phase.
