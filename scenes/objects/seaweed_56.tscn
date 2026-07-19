@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/backgrounds/seaweed5.webp" id="1_frame_5"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/seaweed6.webp" id="2_frame_6"]
+
+[sub_resource type="SpriteFrames" id="Seaweed56Frames"]
+animations = [{
+"frames": [{"duration": 1.0, "texture": ExtResource("1_frame_5")}, {"duration": 1.0, "texture": ExtResource("2_frame_6")}],
+"loop": true,
+"name": &"idle",
+"speed": 3.0
+}]
+
+[node name="Seaweed56" type="AnimatedSprite2D"]
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("Seaweed56Frames")
+animation = &"idle"
+autoplay = "idle"
+metadata/source_frames = "assets/backgrounds/seaweed5.webp and seaweed6.webp"
