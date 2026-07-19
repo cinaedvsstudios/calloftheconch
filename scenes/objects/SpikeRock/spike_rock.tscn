@@ -1,36 +1,33 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://b65whlf7x5nqd"]
 
-[ext_resource type="Script" path="res://scenes/objects/SpikeRock/spike_rock.gd" id="1_controller"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/spikerock1.webp" id="2_spike_rock"]
+[ext_resource type="Script" uid="uid://bkmswic8jgxlk" path="res://scenes/objects/SpikeRock/spike_rock.gd" id="1_controller"]
+[ext_resource type="Texture2D" uid="uid://lqokrdp287dr" path="res://assets/backgrounds/spikerock1.webp" id="2_spike_rock"]
 
 [sub_resource type="RectangleShape2D" id="SolidCollisionShape"]
-size = Vector2(850, 120)
+size = Vector2(850, 46)
 
 [sub_resource type="RectangleShape2D" id="HurtCollisionShape"]
 size = Vector2(890, 210)
 
-[node name="SpikeRock" type="Node2D" groups=["hazard", "scenery"]]
+[node name="SpikeRock" type="Node2D" unique_id=1147558650 groups=["hazard", "scenery"]]
 script = ExtResource("1_controller")
 
-[node name="SpikeRockSprite" type="Sprite2D" parent="."]
-texture = ExtResource("2_spike_rock")
+[node name="SpikeRockSprite" type="Sprite2D" parent="." unique_id=640426843]
 scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_spike_rock")
 
-[node name="SolidBody" type="StaticBody2D" parent="."]
-collision_layer = 1
+[node name="SolidBody" type="StaticBody2D" parent="." unique_id=2118010740]
 collision_mask = 0
 
-[node name="SolidCollision" type="CollisionShape2D" parent="SolidBody"]
-position = Vector2(0, 78)
+[node name="SolidCollision" type="CollisionShape2D" parent="SolidBody" unique_id=2123983604]
+position = Vector2(0, 41)
 shape = SubResource("SolidCollisionShape")
 
-[node name="HurtArea" type="Area2D" parent="."]
+[node name="HurtArea" type="Area2D" parent="." unique_id=216838818]
 unique_name_in_owner = true
 collision_layer = 0
-collision_mask = 1
-monitoring = true
 monitorable = false
 
-[node name="HurtCollision" type="CollisionShape2D" parent="HurtArea"]
+[node name="HurtCollision" type="CollisionShape2D" parent="HurtArea" unique_id=2015888217]
 position = Vector2(0, -12)
 shape = SubResource("HurtCollisionShape")
