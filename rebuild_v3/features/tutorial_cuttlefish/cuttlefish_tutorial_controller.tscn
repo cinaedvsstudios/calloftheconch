@@ -41,9 +41,6 @@ autoplay = "swim"
 [node name="HintCanvasLayer" type="CanvasLayer" parent="."]
 layer = 19
 
-[node name="OceanBackBuffer" type="BackBufferCopy" parent="HintCanvasLayer"]
-copy_mode = 2
-
 [node name="HintAnchor" type="Control" parent="HintCanvasLayer"]
 unique_name_in_owner = true
 visible = false
@@ -52,6 +49,9 @@ offset_right = 760.0
 offset_bottom = 300.0
 pivot_offset = Vector2(380, 150)
 mouse_filter = 2
+
+[node name="OceanBackBuffer" type="BackBufferCopy" parent="HintCanvasLayer/HintAnchor"]
+copy_mode = 2
 
 [node name="InkVideo" type="VideoStreamPlayer" parent="HintCanvasLayer/HintAnchor"]
 unique_name_in_owner = true
