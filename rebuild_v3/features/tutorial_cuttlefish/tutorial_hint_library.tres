@@ -1,7 +1,7 @@
-[gd_resource type="Resource" load_steps=14 format=3]
+[gd_resource type="Resource" script_class="CotcTutorialHintLibrary" format=3 uid="uid://cq8hl4m2wiff0"]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/tutorial_cuttlefish/tutorial_hint_library.gd" id="1_library"]
-[ext_resource type="Script" path="res://rebuild_v3/features/tutorial_cuttlefish/tutorial_hint_definition.gd" id="2_definition"]
+[ext_resource type="Script" uid="uid://c63er55t4xqcp" path="res://rebuild_v3/features/tutorial_cuttlefish/tutorial_hint_library.gd" id="1_library"]
+[ext_resource type="Script" uid="uid://clfl10mj13dsp" path="res://rebuild_v3/features/tutorial_cuttlefish/tutorial_hint_definition.gd" id="2_definition"]
 
 [sub_resource type="Resource" id="HintIntroWelcome"]
 script = ExtResource("2_definition")
@@ -9,10 +9,6 @@ hint_id = &"intro_welcome"
 text = "Hi! I’m Lykos the cuttlefish. Ostraka sent me to look out for you. I know lots of things, and I’ll appear to guide you if you get stuck."
 display_duration = 11.0
 dismiss_mode = 0
-required_action = &""
-show_only_once = true
-ink_scale = 1.0
-text_color = Color(0.17, 0.67, 0.82, 1)
 
 [sub_resource type="Resource" id="HintMovementBasics"]
 script = ExtResource("2_definition")
@@ -20,43 +16,27 @@ hint_id = &"movement_basics"
 text = "Are we going? Let’s go! Use WASD or the arrow keys to swim. Come on—the whole sea is waiting!"
 display_duration = 9.0
 dismiss_mode = 0
-required_action = &""
-show_only_once = true
-ink_scale = 1.0
-text_color = Color(0.17, 0.67, 0.82, 1)
 
 [sub_resource type="Resource" id="HintTailFlipRock"]
 script = ExtResource("2_definition")
 hint_id = &"tail_flip_rock"
 text = "That rock is in the way! Get close and press Shift + Space. Whack it with your tail—really hard!"
 display_duration = 10.0
-dismiss_mode = 2
 required_action = &"tail_flip"
-show_only_once = true
-ink_scale = 1.0
-text_color = Color(0.17, 0.67, 0.82, 1)
 
 [sub_resource type="Resource" id="HintSpeedRunFirst"]
 script = ExtResource("2_definition")
 hint_id = &"speed_run_first"
 text = "Let’s get through that narrow tunnel! Hold an arrow key and press Shift to Speed Run. Go fast—really, really fast! If you need to stop suddenly, press Shift once on its own."
 display_duration = 12.0
-dismiss_mode = 2
 required_action = &"speed_run"
-show_only_once = true
-ink_scale = 1.0
-text_color = Color(0.17, 0.67, 0.82, 1)
 
 [sub_resource type="Resource" id="HintSpeedRunCurrent"]
 script = ExtResource("2_definition")
 hint_id = &"speed_run_current"
 text = "Whoa! That current is showing off. Start a Speed Run and push straight through it. We’re stronger than some bossy water!"
 display_duration = 10.0
-dismiss_mode = 2
 required_action = &"speed_run"
-show_only_once = true
-ink_scale = 1.0
-text_color = Color(0.17, 0.67, 0.82, 1)
 
 [sub_resource type="Resource" id="HintSurfaceJumpFirst"]
 script = ExtResource("2_definition")
@@ -64,10 +44,6 @@ hint_id = &"surface_jump_first"
 text = "The rocks go straight up there! Swim toward the surface with enough speed and—splash!—you’ll leap right out and over the rocks!"
 display_duration = 10.0
 dismiss_mode = 0
-required_action = &""
-show_only_once = true
-ink_scale = 1.0
-text_color = Color(0.17, 0.67, 0.82, 1)
 
 [sub_resource type="Resource" id="HintItemBFirstPickup"]
 script = ExtResource("2_definition")
@@ -75,10 +51,6 @@ hint_id = &"item_b_first_pickup"
 text = "You found something new! Double-tap Ctrl to open your inventory. Action items go in your second slot, and you can press Ctrl + Space to use them!"
 display_duration = 12.0
 dismiss_mode = 0
-required_action = &""
-show_only_once = true
-ink_scale = 1.0
-text_color = Color(0.17, 0.67, 0.82, 1)
 
 [sub_resource type="Resource" id="HintBoulderFailed"]
 script = ExtResource("2_definition")
@@ -86,10 +58,6 @@ hint_id = &"boulder_failed"
 text = "Closer! Closer! Your tail is strong, but it can’t hit rocks from all the way over there."
 display_duration = 8.0
 dismiss_mode = 0
-required_action = &""
-show_only_once = true
-ink_scale = 1.0
-text_color = Color(0.17, 0.67, 0.82, 1)
 
 [sub_resource type="Resource" id="HintCurrentFailed"]
 script = ExtResource("2_definition")
@@ -97,10 +65,6 @@ hint_id = &"current_failed"
 text = "The current keeps pushing you back! Start your Speed Run before you enter it, then charge straight through!"
 display_duration = 9.0
 dismiss_mode = 0
-required_action = &""
-show_only_once = true
-ink_scale = 1.0
-text_color = Color(0.17, 0.67, 0.82, 1)
 
 [sub_resource type="Resource" id="HintSonarTargetNotFound"]
 script = ExtResource("2_definition")
@@ -108,10 +72,6 @@ hint_id = &"sonar_target_not_found"
 text = "Try facing the thing you want to reach before sounding the conch. Point, blow, discover!"
 display_duration = 8.0
 dismiss_mode = 0
-required_action = &""
-show_only_once = true
-ink_scale = 1.0
-text_color = Color(0.17, 0.67, 0.82, 1)
 
 [sub_resource type="Resource" id="HintSpeedRunCrashes"]
 script = ExtResource("2_definition")
@@ -119,10 +79,6 @@ hint_id = &"speed_run_crashes"
 text = "Too fast! Too fast! Stop moving and hold Shift to brake before your face meets another wall."
 display_duration = 8.0
 dismiss_mode = 0
-required_action = &""
-show_only_once = true
-ink_scale = 1.0
-text_color = Color(0.17, 0.67, 0.82, 1)
 
 [resource]
 script = ExtResource("1_library")
