@@ -192,6 +192,21 @@ texture = ExtResource("16_island")
 unique_name_in_owner = true
 position = Vector2(1191, 2291)
 
+[node name="DarknessProfile" type="Node2D" parent="TriggersLayer"]
+editor_description = "L1 depth-darkness tuning markers. Expand this node and drag either Marker2D vertically in the 2D editor."
+metadata/profile_id = "sea_of_pillars_l1"
+metadata/max_darkness_strength = 0.8
+
+[node name="DarknessStart" type="Marker2D" parent="TriggersLayer/DarknessProfile"]
+unique_name_in_owner = true
+position = Vector2(2988, 3214)
+editor_description = "Darkness is 0% at and above this world Y. Drag vertically to tune where the fade begins."
+
+[node name="DarknessMaximum" type="Marker2D" parent="TriggersLayer/DarknessProfile"]
+unique_name_in_owner = true
+position = Vector2(2988, 8447)
+editor_description = "Darkness reaches 80% at and below this world Y. Drag vertically to tune the bottom of the fade."
+
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=412767337]
 
 [node name="HylasStart" type="Marker2D" parent="SpawnPoints" unique_id=1467391657]
