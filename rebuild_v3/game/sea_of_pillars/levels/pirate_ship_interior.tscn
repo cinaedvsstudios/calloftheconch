@@ -1,6 +1,12 @@
 [gd_scene format=3]
 
 [node name="PirateShipInterior" type="Node2D"]
-metadata/development_status = "placeholder"
+metadata/development_status = "blank_ready"
 metadata/sea_id = "sea_of_pillars"
 metadata/area_id = "pirate_ship_interior"
+editor_description = "Blank pirate ship interior destination. Build the interior under this root."
+
+[node name="InteriorOrigin" type="Marker2D" parent="."]
+unique_name_in_owner = true
+gizmo_extents = 60.0
+editor_description = "Reference origin for the future pirate ship interior layout."
