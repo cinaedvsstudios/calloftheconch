@@ -1,39 +1,40 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dg8glfdscvdam"]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/depth_life/depth_glowplant.gd" id="1_controller"]
+[ext_resource type="Script" uid="uid://3pk8b7fii1ew" path="res://rebuild_v3/features/depth_life/depth_glowplant.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://rebuild_v3/features/depth_life/depth_glowplant_frames.tres" id="2_frames"]
-[ext_resource type="Texture2D" path="res://rebuild_v3/features/depth_life/depth_light.svg" id="3_light"]
-[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
+[ext_resource type="Texture2D" uid="uid://imegabin4qnx" path="res://rebuild_v3/features/depth_life/depth_light.svg" id="3_light"]
+[ext_resource type="Script" uid="uid://dtiiykv8psaq5" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
 
 [sub_resource type="CanvasItemMaterial" id="AdditiveMaterial"]
 blend_mode = 1
 
-[node name="DepthGlowPlant" type="Node2D" groups=["depth_light_source"]]
+[node name="DepthGlowPlant" type="Node2D" unique_id=1701683715 groups=["depth_light_source"]]
 z_index = 2
 script = ExtResource("1_controller")
 metadata/source_frames = "assets/objects/glowplant1.webp and glowplant2.webp"
 
-[node name="GlowHalo" type="Sprite2D" parent="."]
+[node name="GlowHalo" type="Sprite2D" parent="." unique_id=72224998]
 unique_name_in_owner = true
+modulate = Color(0.05, 0.72, 1, 0.44)
 show_behind_parent = true
 z_index = -2
 material = SubResource("AdditiveMaterial")
-texture = ExtResource("3_light")
-modulate = Color(0.05, 0.72, 1, 0.44)
 scale = Vector2(0.95, 0.95)
-
-[node name="Bioluminescence" type="PointLight2D" parent="."]
-unique_name_in_owner = true
 texture = ExtResource("3_light")
+
+[node name="Bioluminescence" type="PointLight2D" parent="." unique_id=1757899542]
+unique_name_in_owner = true
 color = Color(0.04, 0.66, 1, 1)
 energy = 1.25
+texture = ExtResource("3_light")
 texture_scale = 1.35
 
-[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=347415016]
 unique_name_in_owner = true
+scale = Vector2(0.515, 0.515)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
 autoplay = "idle"
 
-[node name="DistanceActivator" type="Node" parent="."]
+[node name="DistanceActivator" type="Node" parent="." unique_id=323212357]
 script = ExtResource("4_distance_activator")
