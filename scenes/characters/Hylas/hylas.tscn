@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_vent_surface_jump.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_leaf_sheep.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" uid="uid://bm6ve0lpyouwa" path="res://scenes/characters/Hylas/hylas_v3_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Texture2D" uid="uid://bj6kjlhmbunt7" path="res://assets/characters/hylas-swim_01.webp" id="3_swim_idle"]
 [ext_resource type="PackedScene" uid="uid://ood4cgs0bkqk" path="res://rebuild_v3/features/effects/bubble_burst.tscn" id="4_bubble_burst"]
