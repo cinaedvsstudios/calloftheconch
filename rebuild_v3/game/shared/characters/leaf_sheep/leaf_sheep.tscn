@@ -1,0 +1,59 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/characters/companion_leaf_sheep2.png" id="2_bright"]
+[ext_resource type="Texture2D" path="res://rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep_light.svg" id="3_light"]
+[ext_resource type="Shader" path="res://rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep_darkness.gdshader" id="4_darkness"]
+
+[sub_resource type="ShaderMaterial" id="DarknessMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("4_darkness")
+shader_parameter/darkness_tint = Color(0.004, 0.012, 0.055, 1)
+shader_parameter/darkness_strength = 0.0
+shader_parameter/reveal_center = Vector2(0.5, 0.5)
+shader_parameter/reveal_radius = Vector2(0.001, 0.001)
+shader_parameter/reveal_strength = 0.0
+shader_parameter/feather = 0.28
+shader_parameter/core_ratio = 0.24
+
+[node name="LeafSheep" type="Node2D"]
+unique_name_in_owner = true
+process_mode = 1
+z_index = 14
+script = ExtResource("1_controller")
+
+[node name="PreviousSprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+visible = false
+texture = ExtResource("2_bright")
+
+[node name="CurrentSprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+visible = false
+texture = ExtResource("2_bright")
+
+[node name="RevealLight" type="PointLight2D" parent="."]
+unique_name_in_owner = true
+visible = false
+show_behind_parent = true
+z_index = -1
+texture = ExtResource("3_light")
+color = Color(0.91, 0.84, 1, 1)
+energy = 0.0
+texture_scale = 1.0
+shadow_enabled = false
+
+[node name="DarknessCanvas" type="CanvasLayer" parent="."]
+layer = 15
+
+[node name="DarknessOverlay" type="ColorRect" parent="DarknessCanvas"]
+unique_name_in_owner = true
+visible = false
+material = SubResource("DarknessMaterial")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
