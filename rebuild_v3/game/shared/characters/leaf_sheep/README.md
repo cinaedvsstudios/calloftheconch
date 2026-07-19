@@ -12,8 +12,10 @@ Sprite mapping:
 - `companion_leaf_sheep1.png` — Mid
 - `companion_leaf_sheep0.png` — Low
 
-The scene follows Hylas's hand, crossfades between brightness sprites, drives the local `PointLight2D`, and exposes a camera-fixed procedural darkness overlay. A level can provide metadata named `leaf_sheep_darkness_profile` containing `id`, `darkness_strength` and `tint`; otherwise the overlay remains disabled so illuminated levels are unaffected.
+The scene follows Hylas's hand, crossfades between brightness sprites, drives the local `PointLight2D`, and exposes a camera-fixed procedural darkness overlay.
+
+A level may provide metadata named `leaf_sheep_darkness_profile`. For a depth gradient, use a Dictionary containing `id`, `start_y`, `full_y`, `maximum_darkness` and `tint`. Darkness smoothly increases as Hylas moves from `start_y` to `full_y`. A static profile may instead contain `id`, `darkness_strength` and `tint`. Without metadata, the overlay remains disabled so illuminated levels are unaffected.
 
 The Item B catalogue entry is permanent and quantity-free. The shared item-effect controller instances this scene and toggles it when `leaf_sheep` is used. Hylas uses the four normal or Greatfin carry frames while active, blocks Speed Run, Surge, Tail Flip and Conus climbing, and requests forced deactivation on death or land entry.
 
-The gameplay wrapper forces deactivation for city entry, whale travel and context exit. Pause and inventory stop the timers through normal pausable processing. Ordinary underwater level replacement rebinds the same controller without resetting its active phase.
+The gameplay wrapper forces deactivation for city entry, whale travel and context exit. Pause and inventory stop the timers through normal pausable processing. Ordinary underwater level replacement rebinds the same controller without resetting its active phase. Loading or replacing game state resets temporary Leaf Sheep state to inactive and READY.
