@@ -1,8 +1,16 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://bf3c0jmcuqdob"]
 
-[ext_resource type="PackedScene" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars.tscn" id="1_base"]
-[ext_resource type="Script" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_runtime.gd" id="2_runtime"]
+[ext_resource type="PackedScene" uid="uid://d2sk0wsbeygtc" path="res://rebuild_v3/features/sea_of_pillars/sea_of_pillars.tscn" id="1_base"]
+[ext_resource type="Script" uid="uid://chx7fuktt7lw6" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_runtime.gd" id="2_runtime"]
+[ext_resource type="Texture2D" uid="uid://bw1uqtyxca6v8" path="res://assets/backgrounds/rocktexture.jpeg" id="3_ug4m1"]
 
-[node name="SeaOfPillars" instance=ExtResource("1_base")]
+[node name="SeaOfPillars" unique_id=828818024 instance=ExtResource("1_base")]
 script = ExtResource("2_runtime")
 metadata/level_variant = "prototype"
+
+[node name="ground block3" type="Polygon2D" parent="TerrainArtLayer/ground" parent_id_path=PackedInt32Array(1372488021) index="2" unique_id=1692876518]
+texture_repeat = 2
+position = Vector2(1932, 12825)
+texture = ExtResource("3_ug4m1")
+texture_scale = Vector2(0.25, 0.25)
+polygon = PackedVector2Array(8489, 6605, 8492, 8784, -784, 8860, -872, 1809)
