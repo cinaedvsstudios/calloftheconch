@@ -1,9 +1,9 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3 uid="uid://bqvk20uvhfpvu"]
 
-[ext_resource type="Script" path="res://scenes/objects/AmbientFish/ambient_fish.gd" id="1_controller"]
-[ext_resource type="Texture2D" path="res://assets/characters/fish01.webp" id="2_frame_a"]
-[ext_resource type="Texture2D" path="res://assets/characters/fish02.webp" id="3_frame_b"]
-[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
+[ext_resource type="Script" uid="uid://bn1du8cpei6h6" path="res://scenes/objects/AmbientFish/ambient_fish.gd" id="1_controller"]
+[ext_resource type="Texture2D" uid="uid://b6n3gf75v3fm6" path="res://assets/characters/fish01.webp" id="2_frame_a"]
+[ext_resource type="Texture2D" uid="uid://dcxl15xfhcn58" path="res://assets/characters/fish02.webp" id="3_frame_b"]
+[ext_resource type="Script" uid="uid://dtiiykv8psaq5" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_fish_01"]
 animations = [{
@@ -14,7 +14,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("3_frame_b")
 }],
-"loop": true,
+"loop": 1,
 "name": &"swim",
 "speed": 4.0
 }]
@@ -27,39 +27,34 @@ size = Vector2(100, 55)
 resource_local_to_scene = true
 size = Vector2(130, 78)
 
-[node name="AmbientFish01" type="CharacterBody2D" groups=["ambient_fish", "conch_target", "current_receiver", "scenery"]]
+[node name="AmbientFish01" type="CharacterBody2D" unique_id=678246744 groups=["ambient_fish", "conch_target", "current_receiver", "scenery"]]
 collision_layer = 0
-collision_mask = 1
 motion_mode = 1
 safe_margin = 0.5
 script = ExtResource("1_controller")
 
-[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=1010980968]
 unique_name_in_owner = true
+scale = Vector2(0.3, 0.3)
 sprite_frames = SubResource("SpriteFrames_fish_01")
 animation = &"swim"
 autoplay = "swim"
 
-[node name="BodyShape" type="CollisionShape2D" parent="."]
+[node name="BodyShape" type="CollisionShape2D" parent="." unique_id=1067186133]
 unique_name_in_owner = true
 shape = SubResource("BodyShape_fish_01")
 
-[node name="CurrentReceiver" type="Area2D" parent="."]
-collision_layer = 1
+[node name="CurrentReceiver" type="Area2D" parent="." unique_id=1729925213]
 collision_mask = 0
 monitoring = false
-monitorable = true
 
-[node name="CurrentReceiverShape" type="CollisionShape2D" parent="CurrentReceiver"]
+[node name="CurrentReceiverShape" type="CollisionShape2D" parent="CurrentReceiver" unique_id=847346160]
 unique_name_in_owner = true
 shape = SubResource("ReceiverShape_fish_01")
 
-[node name="WallRay" type="RayCast2D" parent="."]
+[node name="WallRay" type="RayCast2D" parent="." unique_id=519245770]
 unique_name_in_owner = true
-enabled = true
 target_position = Vector2(210, 0)
-collision_mask = 1
-exclude_parent = true
 
-[node name="DistanceActivator" type="Node" parent="."]
+[node name="DistanceActivator" type="Node" parent="." unique_id=218989444]
 script = ExtResource("4_distance_activator")

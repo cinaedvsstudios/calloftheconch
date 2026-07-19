@@ -1,20 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://btxlnyp5dpxah"]
+[gd_scene format=3 uid="uid://btxlnyp5dpxah"]
 
 [ext_resource type="Texture2D" uid="uid://chh2q5kygx7q1" path="res://assets/backgrounds/island00.webp" id="1_texture"]
 
 [node name="Island00" type="StaticBody2D" unique_id=1652848392]
-collision_layer = 1
 collision_mask = 0
 metadata/landscape_id = "island00"
 metadata/source_asset = "res://assets/backgrounds/island00.webp"
 metadata/collision_source = "editable_polygon"
 
-[node name="Sprite" type="Sprite2D" parent="."]
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1216055889]
 unique_name_in_owner = true
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("1_texture")
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
-position = Vector2(-383, 148)
-scale = Vector2(0.5, 0.5)
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=1562689783]
+position = Vector2(-335.6958, 126.129684)
+scale = Vector2(0.8666992, 0.8259359)
 polygon = PackedVector2Array(63, -202, 276, -196, 703, -194, 635, -150, 592, -124, 570.51294, -115.22839, 513, -136, 417, -35, 330, -109, 276, 5)
