@@ -84,4 +84,5 @@ func _slide_velocity_properties(normal: Vector2) -> void:
 	for property_name: String in velocity_properties:
 		var current_value: Variant = _target.get(property_name)
 		if current_value is Vector2:
-			_target.set(property_name, (current_value as Vector2).slide(normal))
+			var velocity: Vector2 = current_value
+			_target.set(property_name, velocity.slide(normal))
