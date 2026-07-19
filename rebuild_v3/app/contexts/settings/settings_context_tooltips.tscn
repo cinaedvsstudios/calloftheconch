@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/settings/settings_context.tscn" id="1_base"]
+[ext_resource type="Script" path="res://rebuild_v3/app/contexts/settings/settings_context_tooltips.gd" id="2_tooltips"]
+
+[node name="SettingsContext" instance=ExtResource("1_base")]
+script = ExtResource("2_tooltips")

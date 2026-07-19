@@ -15,6 +15,11 @@ func bind_game_state(game_state: CotcGameState) -> void:
 	_cuttlefish_tutorial.bind_game_state(game_state)
 
 
+func apply_accessibility_settings(show_control_hints: bool, screen_shake_scale: float) -> void:
+	super.apply_accessibility_settings(show_control_hints, screen_shake_scale)
+	_cuttlefish_tutorial.call(&"set_tooltips_enabled", show_control_hints)
+
+
 func activate() -> void:
 	super.activate()
 	_cuttlefish_tutorial.activate()
