@@ -6,6 +6,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/stun.mp3" id="4_stun_audio"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="5_distance_activator"]
 [ext_resource type="Script" path="res://rebuild_v3/features/plant_foreground/plant_foreground_overlap.gd" id="6_foreground"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/editor_display_height_preview.gd" id="7_display_preview"]
 
 [sub_resource type="CanvasItemMaterial" id="AdditiveMaterial"]
 blend_mode = 1
@@ -67,6 +68,9 @@ unique_name_in_owner = true
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
 autoplay = "idle"
+
+[node name="DisplayHeightPreview" type="Node" parent="."]
+script = ExtResource("7_display_preview")
 
 [node name="SparkEmitter" type="Marker2D" parent="."]
 unique_name_in_owner = true
