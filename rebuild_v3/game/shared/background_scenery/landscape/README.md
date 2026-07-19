@@ -1,14 +1,14 @@
 # Landscape scenes
 
-This folder contains drag-ready reusable landscape scenes. Every listed image already has its own `.tscn` wrapper with a `Sprite2D` and an ordinary editable `CollisionPolygon2D`.
+This folder contains 23 drag-ready standalone landscape scenes. Each `.tscn` owns its own `StaticBody2D`, `Sprite2D`, texture reference and ordinary editable `CollisionPolygon2D`.
 
-## Collision behaviour
+## Transform and collision behaviour
 
-- Collision is stored directly in the scene structure; it is not generated from image alpha.
-- The starting collision is a simple generic four-point box.
-- Open an individual landscape `.tscn`, select `CollisionPolygon2D`, and drag its points to fit that image.
-- The shared script only assigns the chosen source texture to the Sprite2D. It never creates, removes, traces, or rebuilds collision nodes.
-- Placing, rotating, scaling, or duplicating the landscape scene keeps its sprite and collision together.
+- Every landscape `Sprite2D` explicitly uses `Vector2(0.5, 0.5)` inside its own scene file.
+- Every `CollisionPolygon2D` explicitly uses the matching `Vector2(0.5, 0.5)` scale so sprite and collision remain aligned.
+- Collision is stored directly in each scene and is never generated from texture alpha.
+- Select `CollisionPolygon2D` in an individual scene to edit its points manually.
+- Placing, rotating, scaling or duplicating the scene root keeps its sprite and collision together.
 
 ## Included scenes
 
@@ -20,5 +20,3 @@ This folder contains drag-ready reusable landscape scenes. Every listed image al
 - `beach.tscn`
 
 `island02.tscn` points to the existing source file `assets/backgrounds/lsland02.webp`; the source filename contains an old lowercase-L typo and was not renamed to avoid breaking existing references.
-
-The old Sea of Pillars layout does not need to be preserved. These individual scenes are intended to be dragged into the rebuilt L1 and adjusted visually in the Godot editor.
