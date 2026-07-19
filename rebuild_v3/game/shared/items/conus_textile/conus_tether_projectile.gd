@@ -3,6 +3,10 @@ extends Node2D
 
 signal tether_finished
 
+const ENEMY_STUN_VISUAL_CONTROLLER = preload(
+	"res://rebuild_v3/shared/enemy_stun_visual_controller.gd"
+)
+
 @export_category("Dart Travel")
 @export_range(100.0, 4000.0, 10.0) var travel_speed: float = 1450.0
 @export_range(100.0, 4000.0, 10.0) var maximum_distance: float = 1500.0
@@ -138,6 +142,14 @@ func _resolve_dart_target(collider: Object) -> Node:
 	return null
 
 func _apply_conus_stun(target: Node) -> void:
+	if target.is_in_group(&"enemy"):
+		ENEMY_STUN_VISUAL_CONTROLLER.request_conus_stun(
+			target,
+			_source,
+			_direction,
+			_dart_world_position,
+		)
+		return
 	if target.has_method(&"receive_conus_dart"):
 		target.call(&"receive_conus_dart", _source)
 		return
