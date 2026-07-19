@@ -1,8 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/backgrounds/seaweed5.webp" id="1_frame_5"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/seaweed6.webp" id="2_frame_6"]
 [ext_resource type="Script" path="res://rebuild_v3/features/seaweed_slow/seaweed_slow_area.gd" id="3_slow_area"]
+[ext_resource type="Script" path="res://rebuild_v3/features/plant_foreground/seaweed_drift.gd" id="4_drift"]
+[ext_resource type="Script" path="res://rebuild_v3/features/plant_foreground/plant_foreground_overlap.gd" id="5_foreground"]
 
 [sub_resource type="SpriteFrames" id="Seaweed56Frames"]
 animations = [{
@@ -15,13 +17,17 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="SeaweedSlowShape"]
 size = Vector2(32, 32)
 
-[node name="Seaweed56" type="AnimatedSprite2D"]
+[node name="Seaweed56" type="AnimatedSprite2D" groups=["plant_foreground"]]
+z_as_relative = false
+z_index = 8
 scale = Vector2(0.5, 0.5)
 sprite_frames = SubResource("Seaweed56Frames")
 animation = &"idle"
 autoplay = "idle"
+script = ExtResource("4_drift")
 metadata/source_frames = "assets/backgrounds/seaweed5.webp and seaweed6.webp"
 metadata/movement_multiplier = 0.5
+metadata/drift_behavior = "Slow looping local drift; existing animation and slowdown area move with the root"
 
 [node name="SlowArea" type="Area2D" parent="."]
 collision_layer = 0
@@ -34,3 +40,6 @@ movement_multiplier = 0.5
 [node name="SlowCollision" type="CollisionShape2D" parent="SlowArea"]
 unique_name_in_owner = true
 shape = SubResource("SeaweedSlowShape")
+
+[node name="PlantForegroundOverlap" type="Node" parent="."]
+script = ExtResource("5_foreground")
