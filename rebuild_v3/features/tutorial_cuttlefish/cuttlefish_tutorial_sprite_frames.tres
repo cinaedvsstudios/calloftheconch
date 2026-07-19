@@ -1,0 +1,55 @@
+[gd_resource type="SpriteFrames" load_steps=11 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/cuttlefish01.webp" id="1_swim_1"]
+[ext_resource type="Texture2D" path="res://assets/characters/cuttlefish02.webp" id="2_swim_2"]
+[ext_resource type="Texture2D" path="res://assets/characters/cuttlefish03.webp" id="3_swim_3"]
+[ext_resource type="Texture2D" path="res://assets/characters/cuttlefish04.webp" id="4_swim_4"]
+[ext_resource type="Texture2D" path="res://assets/characters/cuttlefish01a.webp" id="5_hint_1"]
+[ext_resource type="Texture2D" path="res://assets/characters/cuttlefish02a.webp" id="6_hint_2"]
+[ext_resource type="Texture2D" path="res://assets/characters/cuttlefish03a.webp" id="7_hint_3"]
+[ext_resource type="Texture2D" path="res://assets/characters/cuttlefish04a.webp" id="8_hint_4"]
+[ext_resource type="Texture2D" path="res://assets/characters/cuttlefish01b.webp" id="9_hint_5"]
+[ext_resource type="Texture2D" path="res://assets/characters/cuttlefish02b.webp" id="10_hint_6"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_swim_1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_swim_2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_swim_3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_swim_4")
+}],
+"loop": true,
+"name": &"swim",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_hint_1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_hint_2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_hint_3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_hint_4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_hint_5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_hint_6")
+}],
+"loop": false,
+"name": &"pre_hint",
+"speed": 7.0
+}]
