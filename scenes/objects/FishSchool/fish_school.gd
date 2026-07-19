@@ -20,6 +20,12 @@ extends Area2D
 @export_range(0.01, 3.0, 0.01) var vertical_wander_frequency: float = 0.24
 @export var random_seed: int = 0
 
+@export_category("Terrain Avoidance")
+@export_flags_2d_physics var terrain_collision_mask: int = 1
+@export_range(10.0, 300.0, 1.0) var terrain_collision_radius: float = 110.0
+@export_range(0.0, 12.0, 0.5) var terrain_margin: float = 2.0
+@export_range(0.0, 2.0, 0.05) var terrain_retarget_cooldown: float = 0.35
+
 @export_category("Water Forces")
 @export_range(0.0, 2.0, 0.01) var current_influence: float = 0.32
 @export_range(0.0, 1000.0, 1.0) var conch_push_speed: float = 180.0
@@ -37,6 +43,8 @@ var _external_currents: Dictionary = {}
 var _elapsed: float = 0.0
 var _wander_phase: float = 0.0
 var _distance_active: bool = true
+var _terrain_retarget_remaining: float = 0.0
+var _inside_terrain_warning_sent: bool = false
 var _rng := RandomNumberGenerator.new()
 
 
@@ -71,6 +79,7 @@ func set_distance_active(is_active: bool) -> void:
 
 func _physics_process(delta: float) -> void:
 	_elapsed += delta
+	_terrain_retarget_remaining = maxf(0.0, _terrain_retarget_remaining - delta)
 	var to_target: Vector2 = _patrol_target - global_position
 	if to_target.length() <= waypoint_reached_distance or _has_passed_patrol_target():
 		_choose_next_patrol_target(false)
@@ -96,7 +105,15 @@ func _physics_process(delta: float) -> void:
 		+ _get_external_current_velocity() * current_influence
 		+ _conch_impulse
 	)
-	global_position += total_velocity * delta
+	var motion_result: Dictionary = CotcTerrainSafeMotion.move_circle(
+		self,
+		total_velocity * delta,
+		terrain_collision_radius,
+		terrain_collision_mask,
+		terrain_margin,
+		2,
+	)
+	_handle_terrain_result(motion_result)
 	_update_facing(total_velocity)
 
 
@@ -125,6 +142,42 @@ func receive_conch_hit(
 	_conch_impulse += away_direction.normalized() * conch_push_speed * applied_strength
 
 
+func _handle_terrain_result(result: Dictionary) -> void:
+	if not bool(result.get(&"blocked", false)):
+		return
+	var normal: Vector2 = result.get(&"normal", Vector2.ZERO)
+	if normal.length_squared() > 0.001:
+		_movement_velocity = _movement_velocity.slide(normal)
+		_conch_impulse = _conch_impulse.slide(normal)
+	if bool(result.get(&"started_overlapping", false)):
+		_movement_velocity = Vector2.ZERO
+		_conch_impulse = Vector2.ZERO
+		if not _inside_terrain_warning_sent:
+			_inside_terrain_warning_sent = true
+			push_warning("FishSchool started inside terrain; move the placed instance into open water.")
+		return
+	if _terrain_retarget_remaining <= 0.0:
+		_choose_target_away_from_terrain(normal)
+		_terrain_retarget_remaining = terrain_retarget_cooldown
+
+
+func _choose_target_away_from_terrain(normal: Vector2) -> void:
+	if normal.length_squared() <= 0.001:
+		_choose_next_patrol_target(false)
+		return
+	var tangent: Vector2 = normal.orthogonal()
+	if tangent.dot(_patrol_target - global_position) < 0.0:
+		tangent = -tangent
+	var escape_direction: Vector2 = (normal * 0.8 + tangent * 0.6).normalized()
+	var escape_distance: float = minf(
+		patrol_half_extents.x * 0.65,
+		_rng.randf_range(300.0, 620.0),
+	)
+	_patrol_target = _clamp_to_patrol_area(global_position + escape_direction * escape_distance)
+	_travel_sign = -1.0 if _patrol_target.x < global_position.x else 1.0
+	_wander_phase = _rng.randf_range(0.0, TAU)
+
+
 func _choose_next_patrol_target(initial_target: bool) -> void:
 	if not initial_target:
 		_travel_sign *= -1.0
@@ -146,14 +199,32 @@ func _has_passed_patrol_target() -> bool:
 	return global_position.x <= _patrol_target.x
 
 
+func _clamp_to_patrol_area(candidate: Vector2) -> Vector2:
+	return Vector2(
+		clampf(
+			candidate.x,
+			_home_position.x - patrol_half_extents.x,
+			_home_position.x + patrol_half_extents.x,
+		),
+		clampf(
+			candidate.y,
+			_home_position.y - patrol_half_extents.y,
+			_home_position.y + patrol_half_extents.y,
+		),
+	)
+
+
 func _get_external_current_velocity() -> Vector2:
 	var total_velocity: Vector2 = Vector2.ZERO
+	var invalid_sources: Array[Node] = []
 	for source: Node in _external_currents.keys():
 		if not is_instance_valid(source):
-			_external_currents.erase(source)
+			invalid_sources.append(source)
 			continue
 		var source_velocity: Vector2 = _external_currents[source]
 		total_velocity += source_velocity
+	for invalid_source: Node in invalid_sources:
+		_external_currents.erase(invalid_source)
 	return total_velocity
 
 
