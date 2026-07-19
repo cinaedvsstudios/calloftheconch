@@ -52,6 +52,10 @@
 [ext_resource type="PackedScene" uid="uid://cwd3ikm7tnbp4" path="res://rebuild_v3/features/vent1/vent1.tscn" id="50_0prhx"]
 [ext_resource type="PackedScene" uid="uid://bkhlb31k0q74o" path="res://rebuild_v3/features/boulder/boulder.tscn" id="51_qxate"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish.tscn" id="52_34nxo"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_spark_plant.tscn" id="53_34nxo"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_flare_plant.tscn" id="54_ijwbq"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish_deep_blue.tscn" id="55_nuqah"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish_yellow_green.tscn" id="56_p6rur"]
 
 [sub_resource type="ShaderMaterial" id="LowerWaterMaterial"]
 shader = ExtResource("6_ueib1")
@@ -1097,7 +1101,7 @@ position = Vector2(1508.0001, 6749.0005)
 scale = Vector2(0.17768854, 0.17768854)
 
 [node name="DepthJellyfish4" parent="." index="175" unique_id=1659113455 instance=ExtResource("52_34nxo")]
-position = Vector2(860.0002, 7354)
+position = Vector2(712, 7317)
 scale = Vector2(0.17768854, 0.17768854)
 
 [node name="DepthJellyfish5" parent="." index="176" unique_id=1679351353 instance=ExtResource("52_34nxo")]
@@ -1108,22 +1112,32 @@ scale = Vector2(0.17768854, 0.17768854)
 position = Vector2(860.0002, 5596.0005)
 scale = Vector2(0.17768854, 0.17768854)
 
-[node name="DepthJellyfish2" parent="." index="178" unique_id=7337025 instance=ExtResource("52_34nxo")]
-position = Vector2(915.0002, 6826.0005)
-scale = Vector2(0.26094478, 0.26094478)
-
-[node name="DepthJellyfish3" parent="." index="179" unique_id=754093070 instance=ExtResource("52_34nxo")]
-position = Vector2(1215, 7120)
-scale = Vector2(0.2901407, 0.2901407)
-
-[node name="DepthGlowPlant4" parent="." index="180" unique_id=1138902815 instance=ExtResource("41_5wr0l")]
-position = Vector2(797.99976, 7707.9995)
-rotation = 0.29982173
-
-[node name="DepthGlowPlant6" parent="." index="181" unique_id=1553184291 instance=ExtResource("41_5wr0l")]
-position = Vector2(1397, 7908.0005)
-rotation = 0.33081
-
-[node name="DepthGlowPlant5" parent="." index="182" unique_id=689516536 instance=ExtResource("41_5wr0l")]
+[node name="DepthGlowPlant5" parent="." index="178" unique_id=689516536 instance=ExtResource("41_5wr0l")]
 position = Vector2(712.0005, 6088.001)
 rotation = 1.0188124
+
+[node name="DepthSparkPlant" parent="." index="179" unique_id=1270280320 instance=ExtResource("53_34nxo")]
+position = Vector2(897, 7836)
+scale = Vector2(0.3321471, 0.3321471)
+
+[node name="DepthSparkPlant2" parent="." index="180" unique_id=1486112210 instance=ExtResource("53_34nxo")]
+position = Vector2(699, 7666)
+rotation = 0.2617994
+scale = Vector2(0.3321471, 0.3321471)
+
+[node name="DepthFlarePlant" parent="." index="181" unique_id=2079876255 instance=ExtResource("54_ijwbq")]
+position = Vector2(796.9999, 7756.9995)
+rotation = 0.2617994
+scale = Vector2(0.35997632, 0.35997632)
+
+[node name="DepthGlowPlant4" parent="." index="182" unique_id=1318422596 instance=ExtResource("41_5wr0l")]
+position = Vector2(1665.9999, 6379.9995)
+rotation = -1.2654916
+
+[node name="DepthJellyfishDeepBlue" parent="." index="183" unique_id=1380726455 instance=ExtResource("55_nuqah")]
+position = Vector2(1192, 7104)
+scale = Vector2(0.4537938, 0.45932996)
+
+[node name="DepthJellyfishYellowGreen" parent="." index="184" unique_id=1522933156 instance=ExtResource("56_p6rur")]
+position = Vector2(844, 6712)
+scale = Vector2(0.3591258, 0.3591258)
