@@ -1,19 +1,19 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://dupqyuimq72d6"]
 
-[ext_resource type="Texture2D" path="res://assets/backgrounds/rock6.webp" id="1_texture"]
+[ext_resource type="Texture2D" uid="uid://co6g70av2i5sp" path="res://assets/backgrounds/rock6.webp" id="1_texture"]
 
-[node name="Rock06" type="StaticBody2D"]
-collision_layer = 1
+[node name="Rock06" type="StaticBody2D" unique_id=538101305]
 collision_mask = 0
 metadata/landscape_id = "rock06"
 metadata/source_asset = "res://assets/backgrounds/rock6.webp"
 metadata/collision_source = "editable_polygon"
 
-[node name="Sprite" type="Sprite2D" parent="."]
+[node name="Sprite" type="Sprite2D" parent="." unique_id=298923232]
 unique_name_in_owner = true
+position = Vector2(13, 6)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("1_texture")
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=1363860553]
 scale = Vector2(0.5, 0.5)
-polygon = PackedVector2Array(-256, -256, 256, -256, 256, 256, -256, 256)
+polygon = PackedVector2Array(-256, -256, -64, -346, 256, -256, 566, -124, 674, 44, 594, 220, 248, 328, -158, 328, -456, 236, -654, 60, -548, -134)

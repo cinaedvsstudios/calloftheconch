@@ -1,19 +1,19 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://bxtpwjy18fbu5"]
 
-[ext_resource type="Texture2D" path="res://assets/backgrounds/rock15.webp" id="1_texture"]
+[ext_resource type="Texture2D" uid="uid://bxi5qogfixlyr" path="res://assets/backgrounds/rock15.webp" id="1_texture"]
 
-[node name="Rock15" type="StaticBody2D"]
-collision_layer = 1
+[node name="Rock15" type="StaticBody2D" unique_id=834712254]
 collision_mask = 0
 metadata/landscape_id = "rock15"
 metadata/source_asset = "res://assets/backgrounds/rock15.webp"
 metadata/collision_source = "editable_polygon"
 
-[node name="Sprite" type="Sprite2D" parent="."]
+[node name="Sprite" type="Sprite2D" parent="." unique_id=641746058]
 unique_name_in_owner = true
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("1_texture")
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
-scale = Vector2(0.5, 0.5)
-polygon = PackedVector2Array(-256, -256, 256, -256, 256, 256, -256, 256)
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="." unique_id=786101574]
+position = Vector2(-193.99998, 61)
+scale = Vector2(0.33501965, 0.24472857)
+polygon = PackedVector2Array(-289.53534, -621.0963, 2.9848022, -502.59766, 277.59558, -277.85886, 1101.7198, -257.3363, 1776, -258, 1772, -92, 764.1342, 8.172333, 364.15765, -93.981674, -361.1729, 93.98169, -480.56885, -102.15399, -519.37256, -351.40973)
