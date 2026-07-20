@@ -201,7 +201,10 @@ func _set_interior_visuals_visible(is_visible: bool) -> void:
 	if is_instance_valid(_interior_world):
 		_interior_world.visible = is_visible
 	if is_instance_valid(_bubble_canvas):
-		_bubble_canvas.visible = is_visible
+		if is_visible:
+			_bubble_canvas.show()
+		else:
+			_bubble_canvas.hide()
 
 
 func _set_exit_prompt_visible(is_visible: bool) -> void:
