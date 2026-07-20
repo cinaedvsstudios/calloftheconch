@@ -2,10 +2,10 @@
   "version": 2,
   "frameFormat": "webp",
   "timingMode": "per-frame",
-  "averageFrameDurationMs": 180,
-  "averageFps": 5.5556,
-  "totalFrames": 25,
-  "totalDurationMs": 4499.998,
+  "averageFrameDurationMs": 188,
+  "averageFps": 5.3191,
+  "totalFrames": 24,
+  "totalDurationMs": 4512,
   "frames": [
     {
       "file": "frame_01.webp",
@@ -13,199 +13,191 @@
       "sourceFrameIndex": 1,
       "sourceTimeMs": 0,
       "startTimeMs": 0,
-      "durationMs": 181.382
+      "durationMs": 189.504
     },
     {
       "file": "frame_02.webp",
       "sequenceIndex": 2,
       "sourceFrameIndex": 2,
       "sourceTimeMs": 167,
-      "startTimeMs": 181,
-      "durationMs": 177.063
+      "startTimeMs": 190,
+      "durationMs": 184.992
     },
     {
       "file": "frame_03.webp",
       "sequenceIndex": 3,
       "sourceFrameIndex": 3,
       "sourceTimeMs": 333,
-      "startTimeMs": 358,
-      "durationMs": 181.382
+      "startTimeMs": 374,
+      "durationMs": 189.504
     },
     {
       "file": "frame_04.webp",
       "sequenceIndex": 4,
       "sourceFrameIndex": 4,
       "sourceTimeMs": 500,
-      "startTimeMs": 540,
-      "durationMs": 181.382
+      "startTimeMs": 564,
+      "durationMs": 189.504
     },
     {
       "file": "frame_05.webp",
       "sequenceIndex": 5,
       "sourceFrameIndex": 5,
       "sourceTimeMs": 667,
-      "startTimeMs": 721,
-      "durationMs": 177.063
+      "startTimeMs": 754,
+      "durationMs": 184.992
     },
     {
       "file": "frame_06.webp",
       "sequenceIndex": 6,
       "sourceFrameIndex": 6,
       "sourceTimeMs": 833,
-      "startTimeMs": 898,
-      "durationMs": 181.382
+      "startTimeMs": 938,
+      "durationMs": 189.504
     },
     {
       "file": "frame_07.webp",
       "sequenceIndex": 7,
       "sourceFrameIndex": 7,
       "sourceTimeMs": 1000,
-      "startTimeMs": 1080,
-      "durationMs": 181.382
+      "startTimeMs": 1128,
+      "durationMs": 189.504
     },
     {
       "file": "frame_08.webp",
       "sequenceIndex": 8,
       "sourceFrameIndex": 8,
       "sourceTimeMs": 1167,
-      "startTimeMs": 1261,
-      "durationMs": 177.063
+      "startTimeMs": 1318,
+      "durationMs": 184.992
     },
     {
       "file": "frame_09.webp",
       "sequenceIndex": 9,
       "sourceFrameIndex": 9,
       "sourceTimeMs": 1333,
-      "startTimeMs": 1438,
-      "durationMs": 181.382
+      "startTimeMs": 1502,
+      "durationMs": 189.504
     },
     {
       "file": "frame_10.webp",
       "sequenceIndex": 10,
       "sourceFrameIndex": 10,
       "sourceTimeMs": 1500,
-      "startTimeMs": 1619,
-      "durationMs": 181.382
+      "startTimeMs": 1692,
+      "durationMs": 189.504
     },
     {
       "file": "frame_11.webp",
       "sequenceIndex": 11,
       "sourceFrameIndex": 11,
       "sourceTimeMs": 1667,
-      "startTimeMs": 1801,
-      "durationMs": 177.063
+      "startTimeMs": 1882,
+      "durationMs": 184.992
     },
     {
       "file": "frame_12.webp",
       "sequenceIndex": 12,
       "sourceFrameIndex": 12,
       "sourceTimeMs": 1833,
-      "startTimeMs": 1978,
-      "durationMs": 181.382
+      "startTimeMs": 2066,
+      "durationMs": 189.504
     },
     {
       "file": "frame_13.webp",
       "sequenceIndex": 13,
       "sourceFrameIndex": 13,
       "sourceTimeMs": 2000,
-      "startTimeMs": 2159,
-      "durationMs": 181.382
+      "startTimeMs": 2256,
+      "durationMs": 189.504
     },
     {
       "file": "frame_14.webp",
       "sequenceIndex": 14,
       "sourceFrameIndex": 14,
       "sourceTimeMs": 2167,
-      "startTimeMs": 2341,
-      "durationMs": 177.063
+      "startTimeMs": 2446,
+      "durationMs": 184.992
     },
     {
       "file": "frame_15.webp",
       "sequenceIndex": 15,
       "sourceFrameIndex": 15,
       "sourceTimeMs": 2333,
-      "startTimeMs": 2518,
-      "durationMs": 181.382
+      "startTimeMs": 2630,
+      "durationMs": 189.504
     },
     {
       "file": "frame_16.webp",
       "sequenceIndex": 16,
       "sourceFrameIndex": 16,
       "sourceTimeMs": 2500,
-      "startTimeMs": 2699,
-      "durationMs": 181.382
+      "startTimeMs": 2820,
+      "durationMs": 189.504
     },
     {
       "file": "frame_17.webp",
       "sequenceIndex": 17,
       "sourceFrameIndex": 17,
       "sourceTimeMs": 2667,
-      "startTimeMs": 2881,
-      "durationMs": 177.063
+      "startTimeMs": 3010,
+      "durationMs": 184.992
     },
     {
       "file": "frame_18.webp",
       "sequenceIndex": 18,
       "sourceFrameIndex": 18,
       "sourceTimeMs": 2833,
-      "startTimeMs": 3058,
-      "durationMs": 181.382
+      "startTimeMs": 3194,
+      "durationMs": 189.504
     },
     {
       "file": "frame_19.webp",
       "sequenceIndex": 19,
       "sourceFrameIndex": 19,
       "sourceTimeMs": 3000,
-      "startTimeMs": 3239,
-      "durationMs": 181.382
+      "startTimeMs": 3384,
+      "durationMs": 189.504
     },
     {
       "file": "frame_20.webp",
       "sequenceIndex": 20,
       "sourceFrameIndex": 20,
       "sourceTimeMs": 3167,
-      "startTimeMs": 3420,
-      "durationMs": 177.063
+      "startTimeMs": 3574,
+      "durationMs": 184.992
     },
     {
       "file": "frame_21.webp",
       "sequenceIndex": 21,
       "sourceFrameIndex": 21,
       "sourceTimeMs": 3333,
-      "startTimeMs": 3597,
-      "durationMs": 181.382
+      "startTimeMs": 3758,
+      "durationMs": 189.504
     },
     {
       "file": "frame_22.webp",
       "sequenceIndex": 22,
       "sourceFrameIndex": 22,
       "sourceTimeMs": 3500,
-      "startTimeMs": 3779,
-      "durationMs": 181.382
+      "startTimeMs": 3948,
+      "durationMs": 189.504
     },
     {
       "file": "frame_23.webp",
       "sequenceIndex": 23,
       "sourceFrameIndex": 23,
       "sourceTimeMs": 3667,
-      "startTimeMs": 3960,
-      "durationMs": 177.063
+      "startTimeMs": 4138,
+      "durationMs": 184.992
     },
     {
       "file": "frame_24.webp",
       "sequenceIndex": 24,
       "sourceFrameIndex": 24,
       "sourceTimeMs": 3833,
-      "startTimeMs": 4137,
-      "durationMs": 181.382
-    },
-    {
-      "file": "frame_25.webp",
-      "sequenceIndex": 25,
-      "sourceFrameIndex": 25,
-      "sourceTimeMs": 4000,
-      "startTimeMs": 4319,
-      "durationMs": 181.382
+      "startTimeMs": 4322,
+      "durationMs": 189.504
     }
   ]
 }
