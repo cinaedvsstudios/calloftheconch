@@ -36,19 +36,43 @@ const DRILL_SPARK_PALETTE: Array[Color] = [
 	Color(1.0, 0.42, 0.16, 1.0),
 ]
 
+
+class ChunkParticle:
+	var sprite: Sprite2D
+	var velocity: Vector2 = Vector2.ZERO
+	var spin: float = 0.0
+	var remaining: float = 0.0
+	var lifetime: float = 0.0
+	var base_scale: Vector2 = Vector2.ONE
+
+
+class DotParticle:
+	var position: Vector2 = Vector2.ZERO
+	var velocity: Vector2 = Vector2.ZERO
+	var remaining: float = 0.0
+	var lifetime: float = 0.0
+	var radius: float = 2.0
+	var color: Color = Color.WHITE
+
+
+class DustPuff:
+	var position: Vector2 = Vector2.ZERO
+	var velocity: Vector2 = Vector2.ZERO
+	var remaining: float = 0.0
+	var lifetime: float = 0.0
+	var radius: float = 12.0
+	var growth: float = 24.0
+	var color: Color = Color.WHITE
+
+
 @export_category("Lifecycle")
 @export var auto_free_when_finished: bool = true
 @export_range(0.10, 5.0, 0.05) var maximum_lifetime_seconds: float = 3.0
 
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
-var _chunk_sprites: Array[Sprite2D] = []
-var _chunk_velocity: Array[Vector2] = []
-var _chunk_spin: Array[float] = []
-var _chunk_remaining: Array[float] = []
-var _chunk_lifetime: Array[float] = []
-var _chunk_base_scale: Array[Vector2] = []
-var _dot_particles: Array[Dictionary] = []
-var _dust_puffs: Array[Dictionary] = []
+var _chunks: Array[ChunkParticle] = []
+var _dots: Array[DotParticle] = []
+var _dust: Array[DustPuff] = []
 var _active_chunk_count: int = 0
 var _active_drag: float = 2.0
 var _active_gravity: float = 120.0
@@ -120,55 +144,38 @@ func _process(delta: float) -> void:
 	_update_dots(safe_delta)
 	_update_dust(safe_delta)
 	queue_redraw()
-
 	if _elapsed >= maximum_lifetime_seconds or not _has_live_particles():
 		_finish_effect()
 
 
 func _draw() -> void:
-	for puff: Dictionary in _dust_puffs:
-		var remaining: float = float(puff.get("remaining", 0.0))
-		if remaining <= 0.0:
+	for puff: DustPuff in _dust:
+		if puff.remaining <= 0.0:
 			continue
-		var lifetime: float = maxf(0.01, float(puff.get("lifetime", 1.0)))
-		var ratio: float = clampf(remaining / lifetime, 0.0, 1.0)
-		var color_value: Color = puff.get("color", ROCK_PALETTE[1])
-		color_value.a *= ratio * ratio
-		draw_circle(
-			puff.get("position", Vector2.ZERO),
-			float(puff.get("radius", 12.0)),
-			color_value,
-		)
+		var ratio: float = clampf(puff.remaining / maxf(0.01, puff.lifetime), 0.0, 1.0)
+		var puff_color: Color = puff.color
+		puff_color.a *= ratio * ratio
+		draw_circle(puff.position, puff.radius, puff_color)
 
-	for particle: Dictionary in _dot_particles:
-		var remaining: float = float(particle.get("remaining", 0.0))
-		if remaining <= 0.0:
+	for dot: DotParticle in _dots:
+		if dot.remaining <= 0.0:
 			continue
-		var lifetime: float = maxf(0.01, float(particle.get("lifetime", 1.0)))
-		var ratio: float = clampf(remaining / lifetime, 0.0, 1.0)
-		var color_value: Color = particle.get("color", ROCK_PALETTE[2])
-		color_value.a *= minf(1.0, ratio * 1.8)
-		draw_circle(
-			particle.get("position", Vector2.ZERO),
-			float(particle.get("radius", 2.0)) * lerpf(0.45, 1.0, ratio),
-			color_value,
-		)
+		var ratio: float = clampf(dot.remaining / maxf(0.01, dot.lifetime), 0.0, 1.0)
+		var dot_color: Color = dot.color
+		dot_color.a *= minf(1.0, ratio * 1.8)
+		draw_circle(dot.position, dot.radius * lerpf(0.45, 1.0, ratio), dot_color)
 
 
 func _build_chunk_pool() -> void:
 	for index: int in range(MAX_CHUNKS):
-		var chunk: Sprite2D = Sprite2D.new()
-		chunk.name = "DebrisChunk%02d" % index
-		chunk.z_index = 1
-		chunk.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		chunk.hide()
-		add_child(chunk)
-		_chunk_sprites.append(chunk)
-		_chunk_velocity.append(Vector2.ZERO)
-		_chunk_spin.append(0.0)
-		_chunk_remaining.append(0.0)
-		_chunk_lifetime.append(0.0)
-		_chunk_base_scale.append(Vector2.ONE)
+		var state: ChunkParticle = ChunkParticle.new()
+		state.sprite = Sprite2D.new()
+		state.sprite.name = "DebrisChunk%02d" % index
+		state.sprite.z_index = 1
+		state.sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		state.sprite.hide()
+		add_child(state.sprite)
+		_chunks.append(state)
 
 
 func _spawn_chunks(
@@ -187,20 +194,25 @@ func _spawn_chunks(
 	var downward_fraction: float = float(profile.get("falling_chunk_fraction", 0.0))
 
 	for index: int in range(_active_chunk_count):
-		var chunk: Sprite2D = _chunk_sprites[index]
-		var texture: Texture2D = DEBRIS_TEXTURES[_rng.randi_range(0, DEBRIS_TEXTURES.size() - 1)]
-		chunk.texture = texture
-		chunk.position = Vector2.ZERO
-		chunk.rotation = _rng.randf_range(-PI, PI)
+		var state: ChunkParticle = _chunks[index]
+		var texture: Texture2D = DEBRIS_TEXTURES[
+			_rng.randi_range(0, DEBRIS_TEXTURES.size() - 1)
+		]
+		state.sprite.texture = texture
+		state.sprite.position = Vector2.ZERO
+		state.sprite.rotation = _rng.randf_range(-PI, PI)
 		var desired_size: float = _rng.randf_range(size_min, size_max)
-		var texture_extent: float = maxf(1.0, maxf(float(texture.get_width()), float(texture.get_height())))
-		var scale_value: float = desired_size / texture_extent
+		var texture_extent: float = maxf(
+			1.0,
+			maxf(float(texture.get_width()), float(texture.get_height())),
+		)
+		var horizontal_scale: float = desired_size / texture_extent
 		if _rng.randf() < 0.45:
-			scale_value *= -1.0
-		chunk.scale = Vector2(scale_value, absf(scale_value))
-		_chunk_base_scale[index] = chunk.scale
-		chunk.modulate = _tinted_rock_color(_choose_rock_color(false), rock_tint)
-		chunk.show()
+			horizontal_scale *= -1.0
+		state.base_scale = Vector2(horizontal_scale, absf(horizontal_scale))
+		state.sprite.scale = state.base_scale
+		state.sprite.modulate = _tinted_rock_color(_choose_rock_color(false), rock_tint)
+		state.sprite.show()
 
 		var launch_direction: Vector2 = emit_direction.rotated(
 			_rng.randf_range(-spread_radians, spread_radians)
@@ -210,14 +222,13 @@ func _spawn_chunks(
 				launch_direction.x * _rng.randf_range(0.35, 0.85),
 				absf(launch_direction.y) + _rng.randf_range(0.25, 0.75),
 			).normalized()
-		_chunk_velocity[index] = launch_direction * _rng.randf_range(speed_min, speed_max)
-		_chunk_spin[index] = _rng.randf_range(-8.0, 8.0)
-		_chunk_lifetime[index] = _rng.randf_range(life_min, life_max)
-		_chunk_remaining[index] = _chunk_lifetime[index]
+		state.velocity = launch_direction * _rng.randf_range(speed_min, speed_max)
+		state.spin = _rng.randf_range(-8.0, 8.0)
+		state.lifetime = _rng.randf_range(life_min, life_max)
+		state.remaining = state.lifetime
 
 	for index: int in range(_active_chunk_count, MAX_CHUNKS):
-		_chunk_sprites[index].hide()
-		_chunk_remaining[index] = 0.0
+		_reset_chunk(_chunks[index])
 
 
 func _spawn_dots(
@@ -227,7 +238,9 @@ func _spawn_dots(
 		intensity: float,
 	) -> void:
 	var dot_count: int = maxi(0, roundi(float(profile.get("dots", 0)) * intensity))
-	var spread_radians: float = deg_to_rad(float(profile.get("dot_spread_degrees", profile.get("spread_degrees", 45.0))))
+	var spread_radians: float = deg_to_rad(
+		float(profile.get("dot_spread_degrees", profile.get("spread_degrees", 45.0)))
+	)
 	var speed_min: float = float(profile.get("dot_speed_min", 120.0)) * sqrt(intensity)
 	var speed_max: float = float(profile.get("dot_speed_max", 340.0)) * sqrt(intensity)
 	var life_min: float = float(profile.get("dot_life_min", 0.35))
@@ -235,24 +248,22 @@ func _spawn_dots(
 	var drill_spark_fraction: float = float(profile.get("drill_spark_fraction", 0.0))
 
 	for _index: int in range(dot_count):
+		var dot: DotParticle = DotParticle.new()
 		var is_drill_spark: bool = _rng.randf() < drill_spark_fraction
-		var color_value: Color
 		if is_drill_spark:
-			color_value = DRILL_SPARK_PALETTE[_rng.randi_range(0, DRILL_SPARK_PALETTE.size() - 1)]
+			dot.color = DRILL_SPARK_PALETTE[
+				_rng.randi_range(0, DRILL_SPARK_PALETTE.size() - 1)
+			]
 		else:
-			color_value = _tinted_rock_color(_choose_rock_color(true), rock_tint)
+			dot.color = _tinted_rock_color(_choose_rock_color(true), rock_tint)
 		var direction: Vector2 = emit_direction.rotated(
 			_rng.randf_range(-spread_radians, spread_radians)
 		)
-		var lifetime: float = _rng.randf_range(life_min, life_max)
-		_dot_particles.append({
-			"position": Vector2.ZERO,
-			"velocity": direction * _rng.randf_range(speed_min, speed_max),
-			"remaining": lifetime,
-			"lifetime": lifetime,
-			"radius": _rng.randf_range(1.2, 3.8 if not is_drill_spark else 2.6),
-			"color": color_value,
-		})
+		dot.velocity = direction * _rng.randf_range(speed_min, speed_max)
+		dot.lifetime = _rng.randf_range(life_min, life_max)
+		dot.remaining = dot.lifetime
+		dot.radius = _rng.randf_range(1.2, 2.6 if is_drill_spark else 3.8)
+		_dots.append(dot)
 
 
 func _spawn_dust(
@@ -261,87 +272,77 @@ func _spawn_dust(
 		rock_tint: Color,
 		intensity: float,
 	) -> void:
-	var dust_count: int = maxi(0, roundi(float(profile.get("dust", 0)) * minf(intensity, 1.6)))
+	var dust_count: int = maxi(
+		0,
+		roundi(float(profile.get("dust", 0)) * minf(intensity, 1.6)),
+	)
 	for _index: int in range(dust_count):
-		var lifetime: float = _rng.randf_range(0.55, 1.25)
-		var dust_color: Color = _tinted_rock_color(
+		var puff: DustPuff = DustPuff.new()
+		puff.position = emit_direction * _rng.randf_range(0.0, 22.0)
+		puff.velocity = (
+			emit_direction.rotated(_rng.randf_range(-0.75, 0.75))
+			* _rng.randf_range(12.0, 48.0)
+		)
+		puff.lifetime = _rng.randf_range(0.55, 1.25)
+		puff.remaining = puff.lifetime
+		puff.radius = _rng.randf_range(12.0, 30.0) * sqrt(intensity)
+		puff.growth = _rng.randf_range(20.0, 52.0)
+		puff.color = _tinted_rock_color(
 			ROCK_PALETTE[_rng.randi_range(0, 2)],
 			rock_tint,
 		)
-		dust_color.a = _rng.randf_range(0.10, 0.24)
-		_dust_puffs.append({
-			"position": emit_direction * _rng.randf_range(0.0, 22.0),
-			"velocity": emit_direction.rotated(_rng.randf_range(-0.75, 0.75)) * _rng.randf_range(12.0, 48.0),
-			"remaining": lifetime,
-			"lifetime": lifetime,
-			"radius": _rng.randf_range(12.0, 30.0) * sqrt(intensity),
-			"growth": _rng.randf_range(20.0, 52.0),
-			"color": dust_color,
-		})
+		puff.color.a = _rng.randf_range(0.10, 0.24)
+		_dust.append(puff)
 
 
 func _update_chunks(delta: float) -> void:
 	var drag_factor: float = exp(-maxf(0.0, _active_drag) * delta)
 	for index: int in range(_active_chunk_count):
-		if _chunk_remaining[index] <= 0.0:
+		var state: ChunkParticle = _chunks[index]
+		if state.remaining <= 0.0:
 			continue
-		_chunk_remaining[index] = maxf(0.0, _chunk_remaining[index] - delta)
-		_chunk_velocity[index] *= drag_factor
-		_chunk_velocity[index].y += _active_gravity * delta
-		var chunk: Sprite2D = _chunk_sprites[index]
-		chunk.position += _chunk_velocity[index] * delta
-		chunk.rotation += _chunk_spin[index] * delta
-		var ratio: float = _chunk_remaining[index] / maxf(0.01, _chunk_lifetime[index])
-		chunk.modulate.a = minf(1.0, ratio * 1.7)
-		chunk.scale = _chunk_base_scale[index] * lerpf(0.72, 1.0, ratio)
-		if _chunk_remaining[index] <= 0.0:
-			chunk.hide()
+		state.remaining = maxf(0.0, state.remaining - delta)
+		state.velocity *= drag_factor
+		state.velocity.y += _active_gravity * delta
+		state.sprite.position += state.velocity * delta
+		state.sprite.rotation += state.spin * delta
+		var ratio: float = state.remaining / maxf(0.01, state.lifetime)
+		state.sprite.modulate.a = minf(1.0, ratio * 1.7)
+		state.sprite.scale = state.base_scale * lerpf(0.72, 1.0, ratio)
+		if state.remaining <= 0.0:
+			state.sprite.hide()
 
 
 func _update_dots(delta: float) -> void:
 	var drag_factor: float = exp(-maxf(0.0, _active_drag * 1.35) * delta)
-	for index: int in range(_dot_particles.size()):
-		var particle: Dictionary = _dot_particles[index]
-		var remaining: float = maxf(0.0, float(particle.get("remaining", 0.0)) - delta)
-		if remaining <= 0.0:
-			particle["remaining"] = 0.0
-			_dot_particles[index] = particle
+	for dot: DotParticle in _dots:
+		if dot.remaining <= 0.0:
 			continue
-		var velocity: Vector2 = particle.get("velocity", Vector2.ZERO)
-		velocity *= drag_factor
-		velocity.y += _active_gravity * 0.45 * delta
-		particle["velocity"] = velocity
-		particle["position"] = particle.get("position", Vector2.ZERO) + velocity * delta
-		particle["remaining"] = remaining
-		_dot_particles[index] = particle
+		dot.remaining = maxf(0.0, dot.remaining - delta)
+		dot.velocity *= drag_factor
+		dot.velocity.y += _active_gravity * 0.45 * delta
+		dot.position += dot.velocity * delta
 
 
 func _update_dust(delta: float) -> void:
-	for index: int in range(_dust_puffs.size()):
-		var puff: Dictionary = _dust_puffs[index]
-		var remaining: float = maxf(0.0, float(puff.get("remaining", 0.0)) - delta)
-		if remaining <= 0.0:
-			puff["remaining"] = 0.0
-			_dust_puffs[index] = puff
+	for puff: DustPuff in _dust:
+		if puff.remaining <= 0.0:
 			continue
-		var velocity: Vector2 = puff.get("velocity", Vector2.ZERO)
-		velocity *= exp(-1.9 * delta)
-		puff["velocity"] = velocity
-		puff["position"] = puff.get("position", Vector2.ZERO) + velocity * delta
-		puff["radius"] = float(puff.get("radius", 12.0)) + float(puff.get("growth", 24.0)) * delta
-		puff["remaining"] = remaining
-		_dust_puffs[index] = puff
+		puff.remaining = maxf(0.0, puff.remaining - delta)
+		puff.velocity *= exp(-1.9 * delta)
+		puff.position += puff.velocity * delta
+		puff.radius += puff.growth * delta
 
 
 func _has_live_particles() -> bool:
-	for remaining: float in _chunk_remaining:
-		if remaining > 0.0:
+	for state: ChunkParticle in _chunks:
+		if state.remaining > 0.0:
 			return true
-	for particle: Dictionary in _dot_particles:
-		if float(particle.get("remaining", 0.0)) > 0.0:
+	for dot: DotParticle in _dots:
+		if dot.remaining > 0.0:
 			return true
-	for puff: Dictionary in _dust_puffs:
-		if float(puff.get("remaining", 0.0)) > 0.0:
+	for puff: DustPuff in _dust:
+		if puff.remaining > 0.0:
 			return true
 	return false
 
@@ -356,17 +357,22 @@ func _finish_effect() -> void:
 
 
 func _reset_particles() -> void:
-	_dot_particles.clear()
-	_dust_puffs.clear()
+	_dots.clear()
+	_dust.clear()
 	_active_chunk_count = 0
 	_elapsed = 0.0
-	for index: int in range(_chunk_sprites.size()):
-		_chunk_sprites[index].hide()
-		_chunk_sprites[index].modulate = Color.WHITE
-		_chunk_remaining[index] = 0.0
-		_chunk_lifetime[index] = 0.0
-		_chunk_velocity[index] = Vector2.ZERO
-		_chunk_spin[index] = 0.0
+	for state: ChunkParticle in _chunks:
+		_reset_chunk(state)
+
+
+func _reset_chunk(state: ChunkParticle) -> void:
+	state.velocity = Vector2.ZERO
+	state.spin = 0.0
+	state.remaining = 0.0
+	state.lifetime = 0.0
+	state.base_scale = Vector2.ONE
+	state.sprite.modulate = Color.WHITE
+	state.sprite.hide()
 
 
 func _resolve_emit_direction(surface_normal: Vector2, incoming_direction: Vector2) -> Vector2:
@@ -526,6 +532,6 @@ func get_debug_lines() -> Array[String]:
 		"active=%s" % str(_active),
 		"mode=%s" % String(_active_mode),
 		"chunks=%d" % _active_chunk_count,
-		"dots=%d" % _dot_particles.size(),
-		"dust=%d" % _dust_puffs.size(),
+		"dots=%d" % _dots.size(),
+		"dust=%d" % _dust.size(),
 	]
