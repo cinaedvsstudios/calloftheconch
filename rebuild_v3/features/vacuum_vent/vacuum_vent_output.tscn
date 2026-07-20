@@ -1,0 +1,61 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/vacuum_vent/vacuum_vent_output.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/vent2.webp" id="2_vent_sprite"]
+[ext_resource type="VideoStream" path="res://assets/effects/vent2.ogv" id="3_vent_video"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/vent1/vent1.gdshader" id="4_vent_shader"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="5_distance_activator"]
+
+[sub_resource type="ShaderMaterial" id="VentVideoMaterial"]
+shader = ExtResource("4_vent_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 5.0
+
+[node name="VacuumVentOutput" type="Area2D" groups=["vacuum_vent_output"]]
+z_index = 1
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_controller")
+strength_tier = 2
+strength_multiplier = 1.5
+surface_jump_multiplier = 1.5
+force_length = 1500.0
+force_max_speed = 450.0
+force_min_speed = 180.0
+transport_launch_speed = 980.0
+emergence_distance = 185.0
+metadata/feature_id = "vacuum_vent"
+metadata/vent_role = "output"
+metadata/source_asset = "res://assets/backgrounds/vent2.webp"
+
+[node name="VentSprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("2_vent_sprite")
+
+[node name="VentVideo" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
+z_index = 1
+material = SubResource("VentVideoMaterial")
+offset_left = -636.0
+offset_top = -1119.0
+offset_right = 644.0
+offset_bottom = -399.0
+scale = Vector2(1.5, 1.5)
+pivot_offset = Vector2(640, 360)
+mouse_filter = 2
+stream = ExtResource("3_vent_video")
+expand = true
+loop = true
+
+[node name="ExitMarker" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -650)
+gizmo_extents = 55.0
+editor_description = "Hylas appears here and is pushed along this vent's local upward direction. Rotate the output root to change launch direction."
+
+[node name="ForceCollision" type="CollisionPolygon2D" parent="."]
+unique_name_in_owner = true
+
+[node name="DistanceActivator" type="Node" parent="."]
+script = ExtResource("5_distance_activator")
