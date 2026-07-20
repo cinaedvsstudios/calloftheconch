@@ -1,9 +1,10 @@
 extends "res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller_intro.gd"
 
 ## The positions visible in cuttlefish_tutorial_controller.tscn are the actual
-## runtime layout. Drag Cuttlefish relative to HylasEditorAnchor, and drag or
-## resize HintAnchor directly. These authored values are cached before runtime
-## movement begins and are not replaced when tutorial text changes page.
+## runtime layout. Drag Cuttlefish or its AnimatedSprite relative to
+## HylasEditorAnchor, and drag or resize HintAnchor directly. These authored
+## values are cached before runtime movement begins and are not replaced when
+## tutorial text changes page.
 
 @onready var _hylas_editor_anchor: Marker2D = %HylasEditorAnchor
 
@@ -58,16 +59,27 @@ func _update_hint_anchor_position() -> void:
 
 
 func _capture_authored_editor_layout() -> void:
-	if is_instance_valid(_hylas_editor_anchor) and is_instance_valid(_cuttlefish):
-		_authored_hover_offset = _cuttlefish.position - _hylas_editor_anchor.position
+	var authored_lykos_position: Vector2 = _cuttlefish.global_position
+	if is_instance_valid(_sprite):
+		authored_lykos_position = _sprite.global_position
+
+	if is_instance_valid(_hylas_editor_anchor):
+		_authored_hover_offset = (
+			authored_lykos_position - _hylas_editor_anchor.global_position
+		)
 		hover_horizontal_offset = absf(_authored_hover_offset.x)
 		hover_vertical_offset = -_authored_hover_offset.y
 
-	if is_instance_valid(_hint_anchor) and is_instance_valid(_cuttlefish):
+	if is_instance_valid(_hint_anchor):
 		var hint_center: Vector2 = _hint_anchor.position + _hint_anchor.size * 0.5
-		_authored_hint_screen_offset = hint_center - _cuttlefish.position
+		_authored_hint_screen_offset = hint_center - authored_lykos_position
 		hint_screen_horizontal_offset = -_authored_hint_screen_offset.x
 		hint_screen_vertical_offset = _authored_hint_screen_offset.y
+
+	# A direct child-sprite drag is converted into the authored hover offset, so
+	# the runtime sprite can remain centred on the moving Cuttlefish parent.
+	if is_instance_valid(_sprite):
+		_sprite.position = Vector2.ZERO
 
 
 func get_debug_lines() -> Array[String]:
