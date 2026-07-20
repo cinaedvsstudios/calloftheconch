@@ -63,6 +63,7 @@ func _on_ship_entry_area_body_exited(body: Node2D) -> void:
 	if body != _hylas or _entry_active:
 		return
 	_release_hylas_interaction()
+	set_physics_process(false)
 
 
 func _enable_hylas_interaction() -> void:
@@ -205,13 +206,15 @@ func _play_retreat_motion() -> void:
 
 
 func prepare_return_from_interior(cooldown_seconds: float = 0.85) -> void:
+	var returning_hylas: Node2D = _hylas
 	_restore_entry_visuals()
 	_release_hylas_interaction()
+	_hylas = returning_hylas
 	_entry_active = false
 	_interaction_blocked_until_msec = Time.get_ticks_msec() + int(
 		round(maxf(0.0, cooldown_seconds) * 1000.0)
 	)
-	set_physics_process(true)
+	set_physics_process(is_instance_valid(_hylas))
 
 
 func cancel_entry_transition() -> void:
