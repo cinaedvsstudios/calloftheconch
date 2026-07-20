@@ -27,7 +27,7 @@ process_mode = 1
 process_priority = -100
 script = ExtResource("1_controller")
 hint_library = ExtResource("3_library")
-hover_horizontal_offset = 105.0
+hover_horizontal_offset = 135.0
 hover_vertical_offset = 35.0
 hover_bob_amplitude = 0.0
 ink_appear_duration = 0.6
@@ -35,8 +35,8 @@ text_reveal_duration = 0.8
 text_hide_duration = 0.55
 ink_hide_duration = 0.9
 minimum_read_time = 3.0
-hint_screen_horizontal_offset = 150.0
-hint_screen_vertical_offset = -35.0
+hint_screen_horizontal_offset = 75.0
+hint_screen_vertical_offset = -85.0
 typewriter_characters_per_second = 28.0
 intro_page_pause = 1.1
 page_transition_duration = 0.3
@@ -45,7 +45,7 @@ page_transition_duration = 0.3
 unique_name_in_owner = true
 visible = false
 z_index = 70
-scale = Vector2(0.075, 0.075)
+scale = Vector2(0.08625, 0.08625)
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="Cuttlefish"]
 unique_name_in_owner = true
@@ -96,6 +96,7 @@ volume_db = -80.0
 
 [node name="HintText" type="Label" parent="HintCanvasLayer/HintAnchor"]
 unique_name_in_owner = true
+z_index = 2
 material = SubResource("TextMaterial")
 layout_mode = 0
 offset_left = 320.0
@@ -121,6 +122,7 @@ visible_characters = 0
 [node name="AdvanceDots" type="Label" parent="HintCanvasLayer/HintAnchor"]
 unique_name_in_owner = true
 visible = false
+z_index = 3
 layout_mode = 0
 offset_left = 520.0
 offset_top = 270.0
@@ -141,7 +143,7 @@ layer = 20
 [node name="LykosOverlay" type="AnimatedSprite2D" parent="LykosOverlayCanvasLayer"]
 unique_name_in_owner = true
 visible = false
-scale = Vector2(0.075, 0.075)
+scale = Vector2(0.08625, 0.08625)
 sprite_frames = ExtResource("2_frames")
 animation = &"swim"
 autoplay = "swim"
