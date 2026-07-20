@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scenes/enemies/Jellyfish/jellyfish_enemy.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://scenes/enemies/Jellyfish/jellyfish_enemy_sprite_frames.tres" id="2_frames"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
 [ext_resource type="AudioStream" path="res://assets/audio/stun.mp3" id="5_stun_audio"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/terrain_motion_guard.gd" id="6_terrain_guard"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/editor_display_height_preview.gd" id="7_display_preview"]
 
 [sub_resource type="ShaderMaterial" id="JellyfishMaterial"]
 resource_local_to_scene = true
@@ -37,6 +38,9 @@ material = SubResource("JellyfishMaterial")
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
 autoplay = "idle"
+
+[node name="DisplayHeightPreview" type="Node" parent="."]
+script = ExtResource("7_display_preview")
 
 [node name="CurrentReceiverShape" type="CollisionShape2D" parent="."]
 shape = SubResource("CurrentReceiverShape")
