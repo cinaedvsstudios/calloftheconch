@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dq3tl1qqtcedv"]
 
-[ext_resource type="Script" uid="uid://cv362xdvbihk2" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller_editor_layout.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Resource" uid="uid://cq8hl4m2wiff0" path="res://rebuild_v3/features/tutorial_cuttlefish/tutorial_hint_library.tres" id="3_library"]
 [ext_resource type="Shader" uid="uid://buy7v8mmpoluy" path="res://rebuild_v3/features/tutorial_cuttlefish/ink_multiply.gdshader" id="4_ink_shader"]
@@ -26,7 +26,7 @@ shader_parameter/softness = 0.07
 unique_name_in_owner = true
 process_mode = 1
 process_priority = -100
-editor_description = "The visible scene layout is authoritative. Drag Cuttlefish relative to HylasEditorAnchor, and drag or resize HintAnchor. Runtime uses those saved positions."
+editor_description = "ONE controller only. The visible scene layout is authoritative. Drag Cuttlefish relative to HylasEditorAnchor. Drag/resize HintAnchor for ink/video. Change InkVideo.stream for the actual runtime video. Drag/resize HintText for text."
 script = ExtResource("1_controller")
 max_lines_per_page = 3
 hint_library = ExtResource("3_library")
@@ -76,7 +76,7 @@ layer = 19
 
 [node name="HintAnchor" type="Control" parent="HintCanvasLayer" unique_id=2089765172]
 unique_name_in_owner = true
-editor_description = "DRAG OR RESIZE THIS RECTANGLE to set the actual runtime ink/text placement. It remains fixed across all pages of the current hint."
+editor_description = "DRAG OR RESIZE THIS RECTANGLE to set the actual runtime ink/video placement and size. The controller no longer recentres this at runtime."
 layout_mode = 3
 anchors_preset = 0
 offset_left = 513.0
@@ -91,6 +91,7 @@ copy_mode = 2
 
 [node name="InkVideo" type="VideoStreamPlayer" parent="HintCanvasLayer/HintAnchor" unique_id=1426386877]
 unique_name_in_owner = true
+editor_description = "Change this stream to change the runtime video. The controller does not replace this stream anymore."
 material = SubResource("InkMaterial")
 layout_mode = 1
 anchors_preset = 15
@@ -128,6 +129,7 @@ color = Color(0.12, 0.84, 1, 0.1)
 
 [node name="HintText" type="Label" parent="HintCanvasLayer/HintAnchor" unique_id=103908284]
 unique_name_in_owner = true
+editor_description = "Drag/resize this label to set the actual runtime text area."
 z_index = 3
 material = SubResource("TextMaterial")
 layout_mode = 0
