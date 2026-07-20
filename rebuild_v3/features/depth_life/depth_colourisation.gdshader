@@ -1,8 +1,6 @@
 shader_type canvas_item;
 
-uniform sampler2D colour_map_a : filter_linear_mipmap, repeat_disable;
-uniform sampler2D colour_map_b : filter_linear_mipmap, repeat_disable;
-uniform float map_blend : hint_range(0.0, 1.0) = 0.0;
+uniform vec4 tint_colour : source_color = vec4(0.05, 0.72, 1.0, 1.0);
 uniform float colour_strength : hint_range(0.0, 1.0) = 0.88;
 uniform float saturation_multiplier : hint_range(0.0, 2.5) = 1.0;
 uniform float brightness_multiplier : hint_range(0.0, 2.5) = 1.0;
@@ -66,16 +64,13 @@ float get_hylas_overlap(vec2 world_position) {
 
 void fragment() {
 	vec4 source = texture(TEXTURE, UV);
-	vec3 map_a = texture(colour_map_a, UV).rgb;
-	vec3 map_b = texture(colour_map_b, UV).rgb;
-	vec3 colour_map = mix(map_a, map_b, clamp(map_blend, 0.0, 1.0));
-
 	vec3 source_hsv = rgb_to_hsv(source.rgb);
-	vec3 map_hsv = rgb_to_hsv(colour_map);
-	float mapped_value = source_hsv.z * mix(0.82, 1.18, map_hsv.z);
-	mapped_value = clamp(mapped_value * brightness_multiplier, 0.0, 1.0);
-	float mapped_saturation = clamp(map_hsv.y * saturation_multiplier, 0.0, 1.0);
-	vec3 colourised = hsv_to_rgb(vec3(map_hsv.x, mapped_saturation, mapped_value));
+	vec3 tint_hsv = rgb_to_hsv(tint_colour.rgb);
+
+	float mapped_saturation = mix(source_hsv.y, tint_hsv.y, colour_strength);
+	mapped_saturation = clamp(mapped_saturation * saturation_multiplier, 0.0, 1.0);
+	float mapped_value = clamp(source_hsv.z * brightness_multiplier, 0.0, 1.0);
+	vec3 colourised = hsv_to_rgb(vec3(tint_hsv.x, mapped_saturation, mapped_value));
 
 	float overlap = get_hylas_overlap(fragment_world_position);
 	float final_alpha = source.a * mix(1.0, overlap_opacity, overlap);
