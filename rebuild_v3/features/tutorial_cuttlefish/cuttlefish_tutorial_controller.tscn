@@ -40,6 +40,16 @@ ink_hide_duration = 0.9
 minimum_read_time = 3.0
 hint_screen_horizontal_offset = 75.0
 hint_screen_vertical_offset = -85.0
+typewriter_characters_per_second = 28.0
+intro_page_pause = 1.1
+page_transition_duration = 0.3
+ink_max_opacity = 0.65
+max_characters_per_line = 22
+max_lines_per_page = 4
+text_padding = Vector2(60, 40)
+startup_intro_delay = 2.0
+entry_exit_curve_amplitude = 28.0
+entry_exit_curve_frequency = 0.7
 
 [node name="Cuttlefish" type="Node2D" parent="." unique_id=2111394705]
 unique_name_in_owner = true
@@ -49,8 +59,6 @@ scale = Vector2(0.114066, 0.114066)
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="Cuttlefish" unique_id=1441206539]
 unique_name_in_owner = true
-position = Vector2(-4611.3657, 613.6799)
-scale = Vector2(1.43, 1.43)
 sprite_frames = ExtResource("2_frames")
 animation = &"swim"
 autoplay = "swim"
@@ -58,10 +66,12 @@ autoplay = "swim"
 [node name="InkSound" type="AudioStreamPlayer" parent="." unique_id=856940213]
 unique_name_in_owner = true
 stream = ExtResource("6_ink_sound")
+bus = &"SFX"
 
 [node name="TooltipSound" type="AudioStreamPlayer" parent="." unique_id=1186860492]
 unique_name_in_owner = true
 stream = ExtResource("7_tooltip_sound")
+bus = &"SFX"
 
 [node name="HintCanvasLayer" type="CanvasLayer" parent="." unique_id=666972875]
 layer = 19
@@ -91,7 +101,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 stream = ExtResource("8_ink_video")
-volume_db = -70.549995
+volume_db = -80.0
 expand = true
 loop = true
 
@@ -126,6 +136,7 @@ offset_left = 60.0
 offset_top = 40.0
 offset_right = 840.0
 offset_bottom = 340.0
+mouse_filter = 2
 theme_override_colors/font_color = Color(0.12, 0.84, 1, 1)
 theme_override_colors/font_shadow_color = Color(0.12, 0.84, 1, 0.22)
 theme_override_colors/font_outline_color = Color(0, 0.14117648, 0.27058825, 1)
@@ -134,12 +145,12 @@ theme_override_constants/shadow_offset_y = 0
 theme_override_constants/outline_size = 4
 theme_override_constants/shadow_outline_size = 2
 theme_override_font_sizes/font_size = 22
-text = "Tutorial hint preview
-This is where Lykos text appears."
+text = "Tutorial hint preview\nThis is where Lykos text appears."
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 clip_text = true
+visible_characters = -1
 
 [node name="AdvanceDots" type="Label" parent="HintCanvasLayer/HintAnchor" unique_id=1168355869]
 unique_name_in_owner = true
@@ -150,6 +161,7 @@ offset_left = 760.0
 offset_top = 305.0
 offset_right = 840.0
 offset_bottom = 345.0
+mouse_filter = 2
 theme_override_colors/font_color = Color(0.12, 0.84, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0.14117648, 0.27058825, 1)
 theme_override_constants/outline_size = 2
@@ -158,11 +170,12 @@ text = "..."
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="LykosOverlayCanvasLayer" type="CanvasLayer" parent="." unique_id=1721529467]
+[node name="LykosOverlayCanvasLayer" type="CanvasLayer" parent="."]
 layer = 20
 
 [node name="LykosOverlay" type="AnimatedSprite2D" parent="LykosOverlayCanvasLayer" unique_id=1327189135]
 unique_name_in_owner = true
+visible = false
 scale = Vector2(0.114066, 0.114066)
 sprite_frames = ExtResource("2_frames")
 animation = &"swim"
