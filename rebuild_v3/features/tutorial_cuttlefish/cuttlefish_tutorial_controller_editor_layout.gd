@@ -1,15 +1,15 @@
 extends "res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller_intro.gd"
 
-## The positions visible in cuttlefish_tutorial_controller.tscn are the actual
-## runtime layout. Drag Cuttlefish or its AnimatedSprite relative to
-## HylasEditorAnchor, and drag or resize HintAnchor directly. These authored
-## values are cached before runtime movement begins and are not replaced when
-## tutorial text changes page.
+## The visible layout in cuttlefish_tutorial_controller.tscn is the runtime layout.
+## HylasEditorAnchor represents Hylas in the editor preview. Drag Cuttlefish and
+## HintAnchor relative to that marker; runtime preserves those authored offsets.
+## Resize HintAnchor to change the ink/video size. The text area is derived from
+## the InkVideo rect plus text_padding, so the text follows the edited video area.
 
 @onready var _hylas_editor_anchor: Marker2D = %HylasEditorAnchor
 
 var _authored_hover_offset: Vector2 = Vector2(135.0, -35.0)
-var _authored_hint_screen_offset: Vector2 = Vector2(-75.0, -85.0)
+var _authored_hint_screen_offset: Vector2 = Vector2(350.0, -115.0)
 
 
 func _ready() -> void:
@@ -37,14 +37,14 @@ func _get_hover_target() -> Vector2:
 func _update_hint_anchor_position() -> void:
 	if _ink_position_locked:
 		return
-	if not _cuttlefish.visible:
+	if not _cuttlefish.visible or not is_instance_valid(_hylas):
 		return
 	_update_hint_anchor_pivot()
 	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
-	var cuttlefish_screen_position: Vector2 = (
-		get_viewport().get_canvas_transform() * _cuttlefish.global_position
+	var hylas_screen_position: Vector2 = (
+		get_viewport().get_canvas_transform() * _hylas.global_position
 	)
-	var desired_center: Vector2 = cuttlefish_screen_position + _authored_hint_screen_offset
+	var desired_center: Vector2 = hylas_screen_position + _authored_hint_screen_offset
 	var scaled_half_size: Vector2 = _hint_anchor.size * _hint_anchor.scale * 0.5
 	var minimum_center: Vector2 = Vector2.ONE * hint_screen_margin + scaled_half_size
 	var maximum_center: Vector2 = (
@@ -59,22 +59,21 @@ func _update_hint_anchor_position() -> void:
 
 
 func _capture_authored_editor_layout() -> void:
+	var authored_hylas_position: Vector2 = Vector2.ZERO
+	if is_instance_valid(_hylas_editor_anchor):
+		authored_hylas_position = _hylas_editor_anchor.global_position
+
 	var authored_lykos_position: Vector2 = _cuttlefish.global_position
 	if is_instance_valid(_sprite):
 		authored_lykos_position = _sprite.global_position
 
-	if is_instance_valid(_hylas_editor_anchor):
-		_authored_hover_offset = (
-			authored_lykos_position - _hylas_editor_anchor.global_position
-		)
-		hover_horizontal_offset = absf(_authored_hover_offset.x)
-		hover_vertical_offset = -_authored_hover_offset.y
+	_authored_hover_offset = authored_lykos_position - authored_hylas_position
+	hover_horizontal_offset = absf(_authored_hover_offset.x)
+	hover_vertical_offset = -_authored_hover_offset.y
 
 	if is_instance_valid(_hint_anchor):
 		var hint_center: Vector2 = _hint_anchor.position + _hint_anchor.size * 0.5
-		_authored_hint_screen_offset = hint_center - authored_lykos_position
-		hint_screen_horizontal_offset = -_authored_hint_screen_offset.x
-		hint_screen_vertical_offset = _authored_hint_screen_offset.y
+		_authored_hint_screen_offset = hint_center - authored_hylas_position
 
 	# A direct child-sprite drag is converted into the authored hover offset, so
 	# the runtime sprite can remain centred on the moving Cuttlefish parent.
@@ -85,5 +84,5 @@ func _capture_authored_editor_layout() -> void:
 func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = super.get_debug_lines()
 	lines.append("authored_hover_offset=%s" % str(_authored_hover_offset))
-	lines.append("authored_hint_offset=%s" % str(_authored_hint_screen_offset))
+	lines.append("authored_hint_offset_from_hylas=%s" % str(_authored_hint_screen_offset))
 	return lines
