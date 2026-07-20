@@ -20,6 +20,7 @@
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_action_vfx.gd" id="18_action_vfx"]
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_action_vfx_refinement.gd" id="19_action_vfx_refinement"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_fx_2d.tscn" id="20_tail_flip_emission"]
+[ext_resource type="Script" path="res://rebuild_v3/features/breakable_rocks/rock_hit_router.gd" id="21_rock_hit_router"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
 shader = ExtResource("10_shadow_shader")
@@ -98,6 +99,10 @@ sparks_only = true
 [node name="Refinement" type="Node" parent="ActionVFX"]
 script = ExtResource("19_action_vfx_refinement")
 
+[node name="RockHitRouter" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("21_rock_hit_router")
+
 [node name="CollisionShape" type="CollisionShape2D" parent="." unique_id=2142548371]
 unique_name_in_owner = true
 scale = Vector2(1.3, 1.3)
@@ -170,3 +175,4 @@ stream = ExtResource("15_powerdown_audio")
 volume_db = -4.0
 
 [connection signal="tail_flip_impact" from="." to="ActionVFX/TailFlipImpactEmission" method="_on_tail_flip_impact"]
+[connection signal="tail_flip_impact" from="." to="RockHitRouter" method="_on_tail_flip_impact"]
