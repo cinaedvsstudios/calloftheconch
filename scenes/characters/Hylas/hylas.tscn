@@ -50,6 +50,7 @@ script = ExtResource("1_controller")
 tail_flip_speed = 0.0
 tail_flip_duration = 1.0
 conch_duration = 0.72
+idle_animation_fps = 4.75
 normal_conus_climb_sprite_perpendicular_offset = -16.0
 default_collision_shape = SubResource("HylasCollisionShape")
 tail_flip_collision_shape = SubResource("HylasTailFlipCollisionShape")
