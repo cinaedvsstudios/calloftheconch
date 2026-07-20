@@ -3,6 +3,7 @@ extends "res://rebuild_v3/features/effects/conch_pulse_screen_range.gd"
 const EMISSION_PROFILE_NORMAL: StringName = &"normal_conch"
 const EMISSION_PROFILE_SUPER: StringName = &"super_conch"
 const EMISSION_PROFILE_TEREBRIDAE: StringName = &"terebridae"
+const DRILL_TARGET_GROUP: StringName = &"drill_target"
 const TEREBRIDAE_REPEAT_INTERVAL: float = 0.75
 const WEAPON_EMISSION_SCENE: PackedScene = preload(
 	"res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_fx_2d.tscn"
@@ -30,6 +31,9 @@ var _active_emission_profile_id: StringName = EMISSION_PROFILE_NORMAL
 var _profile_trigger_pending: bool = false
 var _terebridae_next_flash_time: float = TEREBRIDAE_REPEAT_INTERVAL
 var _terebridae_impact_emission: CotcWeaponEmissionFX2D
+var _drill_response_delivered_count: int = 0
+var _last_drill_response_target: NodePath = NodePath("")
+
 
 func _ready() -> void:
 	_default_arc_degrees = arc_degrees
@@ -50,6 +54,7 @@ func _ready() -> void:
 	if not target_hit.is_connected(_on_target_hit):
 		target_hit.connect(_on_target_hit)
 
+
 func _process(delta: float) -> void:
 	super._process(delta)
 	if (
@@ -64,17 +69,25 @@ func _process(delta: float) -> void:
 		_play_terebridae_repeat_flash()
 		_terebridae_next_flash_time += TEREBRIDAE_REPEAT_INTERVAL
 
+
 func trigger_from_player(origin: Vector2, direction: Vector2, player_origin: Vector2) -> void:
 	if not _profile_trigger_pending:
 		_apply_profile({})
 	super.trigger_from_player(origin, direction, player_origin)
 	_profile_trigger_pending = false
 
-func trigger_profile_from_player(origin: Vector2, direction: Vector2, player_origin: Vector2, profile: Dictionary) -> void:
+
+func trigger_profile_from_player(
+		origin: Vector2,
+		direction: Vector2,
+		player_origin: Vector2,
+		profile: Dictionary,
+	) -> void:
 	_profile_trigger_pending = true
 	_apply_profile(profile)
 	trigger_from_player(origin, direction, player_origin)
 	_hold_terebridae_pose_for_stream()
+
 
 func stop() -> void:
 	_weapon_emission.stop_effect()
@@ -82,9 +95,12 @@ func stop() -> void:
 		_terebridae_impact_emission.stop_effect()
 	super.stop()
 
+
 func _apply_profile(profile: Dictionary) -> void:
 	arc_degrees = float(profile.get("arc_degrees", _default_arc_degrees))
-	close_range_arc_degrees = float(profile.get("close_range_arc_degrees", _default_close_arc_degrees))
+	close_range_arc_degrees = float(
+		profile.get("close_range_arc_degrees", _default_close_arc_degrees)
+	)
 	sonar_brightness = float(profile.get("brightness", _default_sonar_brightness))
 	pulse_duration = float(profile.get("duration", _default_pulse_duration))
 	echo_alpha_decay = float(profile.get("echo_alpha_decay", _default_echo_alpha_decay))
@@ -95,7 +111,9 @@ func _apply_profile(profile: Dictionary) -> void:
 	var tint_value: Variant = profile.get("tint", _default_pulse_tint)
 	_active_pulse_tint = tint_value if tint_value is Color else _default_pulse_tint
 	var flash_tint_value: Variant = profile.get("flash_tint", _default_flash_modulate)
-	_active_flash_tint = flash_tint_value if flash_tint_value is Color else _default_flash_modulate
+	_active_flash_tint = (
+		flash_tint_value if flash_tint_value is Color else _default_flash_modulate
+	)
 	_active_flash_scale_multiplier = float(profile.get("flash_scale_multiplier", 1.0))
 	if not profile.is_empty() and arc_degrees >= 60.0:
 		_active_flash_scale_multiplier = maxf(_active_flash_scale_multiplier, 1.5)
@@ -104,6 +122,7 @@ func _apply_profile(profile: Dictionary) -> void:
 		_pulse_material.set_shader_parameter(&"tint_color", _active_pulse_tint)
 		_pulse_material.set_shader_parameter(&"arc_degrees", arc_degrees)
 		_pulse_material.set_shader_parameter(&"brightness", sonar_brightness)
+
 
 func _resolve_emission_profile(profile: Dictionary) -> StringName:
 	var explicit_profile: StringName = StringName(str(profile.get("emission_profile_id", "")))
@@ -115,8 +134,10 @@ func _resolve_emission_profile(profile: Dictionary) -> StringName:
 		return EMISSION_PROFILE_SUPER
 	return EMISSION_PROFILE_NORMAL
 
+
 func _get_active_response_profile_id() -> StringName:
 	return _active_emission_profile_id
+
 
 func _get_active_response_strength_scale() -> float:
 	match _active_emission_profile_id:
@@ -126,6 +147,74 @@ func _get_active_response_strength_scale() -> float:
 			return 1.15
 		_:
 			return 0.55
+
+
+func _register_target_hit(target: Node2D, pulse_index: int) -> void:
+	var drill_receiver: Node2D = _get_drill_response_target(target)
+	var repeatable_drill_target: bool = (
+		_active_emission_profile_id == EMISSION_PROFILE_TEREBRIDAE
+		and drill_receiver != null
+	)
+	var target_id: int = target.get_instance_id()
+	if (
+			hit_once_per_trigger
+			and not repeatable_drill_target
+			and _sequence_hit_targets.has(target_id)
+		):
+		return
+	if not repeatable_drill_target:
+		_sequence_hit_targets[target_id] = true
+	_last_hit_count += 1
+
+	var hit_position: Vector2 = _get_target_hit_position(target)
+	if repeatable_drill_target:
+		_deliver_drill_target_response(drill_receiver, hit_position, pulse_index)
+	else:
+		_deliver_target_response(target, hit_position)
+	_spawn_conch_impact(target, hit_position)
+	target_hit.emit(target, hit_position, pulse_index)
+
+
+func _get_drill_response_target(target: Node2D) -> Node2D:
+	if _active_emission_profile_id != EMISSION_PROFILE_TEREBRIDAE:
+		return null
+	var candidate: Node = target
+	var remaining_parent_checks: int = 4
+	while candidate != null and remaining_parent_checks >= 0:
+		if (
+				candidate is Node2D
+				and candidate.is_in_group(DRILL_TARGET_GROUP)
+				and candidate.has_method(&"receive_drill_pulse")
+			):
+			return candidate as Node2D
+		candidate = candidate.get_parent()
+		remaining_parent_checks -= 1
+	return null
+
+
+func _deliver_drill_target_response(
+		drill_receiver: Node2D,
+		hit_position: Vector2,
+		pulse_index: int,
+	) -> void:
+	if not is_instance_valid(drill_receiver):
+		return
+	var hit_distance: float = hit_position.distance_to(global_position)
+	var hit_strength: float = _calculate_hit_strength(hit_distance)
+	_last_response_profile_id = EMISSION_PROFILE_TEREBRIDAE
+	_last_response_target_path = drill_receiver.get_path()
+	_last_response_strength = hit_strength
+	_response_delivered_count += 1
+	_drill_response_delivered_count += 1
+	_last_drill_response_target = drill_receiver.get_path()
+	drill_receiver.call(
+		&"receive_drill_pulse",
+		hit_position,
+		-_pulse_direction,
+		pulse_index,
+		_player_source,
+	)
+
 
 func _deliver_target_response(target: Node2D, hit_position: Vector2) -> void:
 	_last_response_profile_id = _get_active_response_profile_id()
@@ -160,6 +249,7 @@ func _deliver_target_response(target: Node2D, hit_position: Vector2) -> void:
 		hit_strength,
 	)
 
+
 func _hold_terebridae_pose_for_stream() -> void:
 	if _active_emission_profile_id != EMISSION_PROFILE_TEREBRIDAE:
 		return
@@ -172,11 +262,13 @@ func _hold_terebridae_pose_for_stream() -> void:
 		continuous_emission_duration,
 	)
 
+
 func _reset_pulse_state() -> void:
 	super._reset_pulse_state()
 	_terebridae_next_flash_time = TEREBRIDAE_REPEAT_INTERVAL
 	for pulse_sprite: Sprite2D in _pulse_sprites:
 		pulse_sprite.modulate = Color(1.0, 1.0, 1.0, 0.0)
+
 
 func _play_origin_flash() -> void:
 	_origin_flash.self_modulate = Color(
@@ -196,12 +288,14 @@ func _play_origin_flash() -> void:
 	)
 	super._play_origin_flash()
 
+
 func _play_terebridae_repeat_flash() -> void:
 	_weapon_emission.play_profile(
 		EMISSION_PROFILE_TEREBRIDAE,
 		Vector2.RIGHT,
 		_active_flash_tint,
 	)
+
 
 func _create_terebridae_impact_emission() -> void:
 	var instance: Node = WEAPON_EMISSION_SCENE.instantiate()
@@ -216,6 +310,7 @@ func _create_terebridae_impact_emission() -> void:
 	add_child(_terebridae_impact_emission)
 	_terebridae_impact_emission.stop_effect()
 
+
 func _on_target_hit(_target: Node2D, hit_position: Vector2, _pulse_index: int) -> void:
 	if _active_emission_profile_id != EMISSION_PROFILE_TEREBRIDAE:
 		return
@@ -229,6 +324,7 @@ func _on_target_hit(_target: Node2D, hit_position: Vector2, _pulse_index: int) -
 		_active_flash_tint,
 	)
 
+
 func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = super.get_debug_lines()
 	lines.append("profile_arc_degrees=%.1f" % arc_degrees)
@@ -239,4 +335,6 @@ func get_debug_lines() -> Array[String]:
 	lines.append("profile_repeat_interval=%.2f" % TEREBRIDAE_REPEAT_INTERVAL)
 	lines.append("weapon_emission_active=%s" % str(_weapon_emission.is_active()))
 	lines.append("weapon_emission_profile=%s" % String(_active_emission_profile_id))
+	lines.append("drill_response_delivered=%d" % _drill_response_delivered_count)
+	lines.append("last_drill_response_target=%s" % str(_last_drill_response_target))
 	return lines
