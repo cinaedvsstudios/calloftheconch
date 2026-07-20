@@ -1,0 +1,243 @@
+{
+  "version": 2,
+  "frameFormat": "webp",
+  "timingMode": "per-frame",
+  "averageFrameDurationMs": 166,
+  "averageFps": 6.0241,
+  "totalFrames": 29,
+  "totalDurationMs": 4814.006,
+  "frames": [
+    {
+      "file": "frame_01.webp",
+      "sequenceIndex": 1,
+      "sourceFrameIndex": 1,
+      "sourceTimeMs": 0,
+      "startTimeMs": 0,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_02.webp",
+      "sequenceIndex": 2,
+      "sourceFrameIndex": 2,
+      "sourceTimeMs": 208,
+      "startTimeMs": 167,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_03.webp",
+      "sequenceIndex": 3,
+      "sourceFrameIndex": 3,
+      "sourceTimeMs": 417,
+      "startTimeMs": 334,
+      "durationMs": 163.254
+    },
+    {
+      "file": "frame_04.webp",
+      "sequenceIndex": 4,
+      "sourceFrameIndex": 4,
+      "sourceTimeMs": 625,
+      "startTimeMs": 498,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_05.webp",
+      "sequenceIndex": 5,
+      "sourceFrameIndex": 5,
+      "sourceTimeMs": 833,
+      "startTimeMs": 665,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_06.webp",
+      "sequenceIndex": 6,
+      "sourceFrameIndex": 6,
+      "sourceTimeMs": 1042,
+      "startTimeMs": 832,
+      "durationMs": 163.254
+    },
+    {
+      "file": "frame_07.webp",
+      "sequenceIndex": 7,
+      "sourceFrameIndex": 7,
+      "sourceTimeMs": 1250,
+      "startTimeMs": 995,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_08.webp",
+      "sequenceIndex": 8,
+      "sourceFrameIndex": 8,
+      "sourceTimeMs": 1458,
+      "startTimeMs": 1163,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_09.webp",
+      "sequenceIndex": 9,
+      "sourceFrameIndex": 9,
+      "sourceTimeMs": 1667,
+      "startTimeMs": 1330,
+      "durationMs": 163.254
+    },
+    {
+      "file": "frame_10.webp",
+      "sequenceIndex": 10,
+      "sourceFrameIndex": 10,
+      "sourceTimeMs": 1875,
+      "startTimeMs": 1493,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_11.webp",
+      "sequenceIndex": 11,
+      "sourceFrameIndex": 11,
+      "sourceTimeMs": 2083,
+      "startTimeMs": 1660,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_12.webp",
+      "sequenceIndex": 12,
+      "sourceFrameIndex": 12,
+      "sourceTimeMs": 2292,
+      "startTimeMs": 1828,
+      "durationMs": 163.254
+    },
+    {
+      "file": "frame_13.webp",
+      "sequenceIndex": 13,
+      "sourceFrameIndex": 13,
+      "sourceTimeMs": 2500,
+      "startTimeMs": 1991,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_14.webp",
+      "sequenceIndex": 14,
+      "sourceFrameIndex": 14,
+      "sourceTimeMs": 2708,
+      "startTimeMs": 2158,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_15.webp",
+      "sequenceIndex": 15,
+      "sourceFrameIndex": 15,
+      "sourceTimeMs": 2917,
+      "startTimeMs": 2325,
+      "durationMs": 163.254
+    },
+    {
+      "file": "frame_16.webp",
+      "sequenceIndex": 16,
+      "sourceFrameIndex": 16,
+      "sourceTimeMs": 3125,
+      "startTimeMs": 2489,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_17.webp",
+      "sequenceIndex": 17,
+      "sourceFrameIndex": 17,
+      "sourceTimeMs": 3333,
+      "startTimeMs": 2656,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_18.webp",
+      "sequenceIndex": 18,
+      "sourceFrameIndex": 18,
+      "sourceTimeMs": 3542,
+      "startTimeMs": 2823,
+      "durationMs": 163.254
+    },
+    {
+      "file": "frame_19.webp",
+      "sequenceIndex": 19,
+      "sourceFrameIndex": 19,
+      "sourceTimeMs": 3750,
+      "startTimeMs": 2986,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_20.webp",
+      "sequenceIndex": 20,
+      "sourceFrameIndex": 20,
+      "sourceTimeMs": 3958,
+      "startTimeMs": 3154,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_21.webp",
+      "sequenceIndex": 21,
+      "sourceFrameIndex": 21,
+      "sourceTimeMs": 4167,
+      "startTimeMs": 3321,
+      "durationMs": 163.254
+    },
+    {
+      "file": "frame_22.webp",
+      "sequenceIndex": 22,
+      "sourceFrameIndex": 22,
+      "sourceTimeMs": 4375,
+      "startTimeMs": 3484,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_23.webp",
+      "sequenceIndex": 23,
+      "sourceFrameIndex": 23,
+      "sourceTimeMs": 4583,
+      "startTimeMs": 3651,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_24.webp",
+      "sequenceIndex": 24,
+      "sourceFrameIndex": 24,
+      "sourceTimeMs": 4792,
+      "startTimeMs": 3819,
+      "durationMs": 163.254
+    },
+    {
+      "file": "frame_25.webp",
+      "sequenceIndex": 25,
+      "sourceFrameIndex": 25,
+      "sourceTimeMs": 5000,
+      "startTimeMs": 3982,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_26.webp",
+      "sequenceIndex": 26,
+      "sourceFrameIndex": 26,
+      "sourceTimeMs": 5208,
+      "startTimeMs": 4149,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_27.webp",
+      "sequenceIndex": 27,
+      "sourceFrameIndex": 27,
+      "sourceTimeMs": 5417,
+      "startTimeMs": 4316,
+      "durationMs": 163.254
+    },
+    {
+      "file": "frame_28.webp",
+      "sequenceIndex": 28,
+      "sourceFrameIndex": 28,
+      "sourceTimeMs": 5625,
+      "startTimeMs": 4480,
+      "durationMs": 167.236
+    },
+    {
+      "file": "frame_29.webp",
+      "sequenceIndex": 29,
+      "sourceFrameIndex": 29,
+      "sourceTimeMs": 5833,
+      "startTimeMs": 4647,
+      "durationMs": 167.236
+    }
+  ]
+}

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://y2h8njk8m3rh"
-path="res://.godot/imported/Untitled(5).png-0d878730e9a216dff16bb80775730cd5.ctex"
+uid="uid://spmbtlvuplgq"
+path="res://.godot/imported/3.png-9a2cf193f322a662d77df681d7910d39.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/Hylas/speedrun/Untitled(5).png"
-dest_files=["res://.godot/imported/Untitled(5).png-0d878730e9a216dff16bb80775730cd5.ctex"]
+source_file="res://assets/characters/Hylas/tailflip/3.png"
+dest_files=["res://.godot/imported/3.png-9a2cf193f322a662d77df681d7910d39.ctex"]
 
 [params]
 
