@@ -21,6 +21,8 @@ var _advance_dots_elapsed: float = 0.0
 var _current_page_plain_text: String = ""
 var _inline_ellipsis_visible: bool = false
 var _ink_position_locked: bool = false
+var _conch_input_suppressed: bool = false
+var _saved_conch_input_events: Array[InputEvent] = []
 
 @onready var _ink_sound: AudioStreamPlayer = %InkSound
 @onready var _tooltip_sound: AudioStreamPlayer = %TooltipSound
@@ -161,7 +163,7 @@ func _reveal_hint() -> void:
 		_begin_exit()
 		return
 
-	_set_hylas_conch_input_suppressed(true)
+	_set_conch_input_suppressed(true)
 	_ink_position_locked = false
 	_intro_pages = _get_current_hint_pages()
 	_intro_page_index = 0
@@ -463,15 +465,31 @@ func _begin_hide_hint() -> void:
 
 func _begin_exit() -> void:
 	_ink_position_locked = false
-	_set_hylas_conch_input_suppressed(false)
+	_set_conch_input_suppressed(false)
 	_end_lykos_overlay()
 	super._begin_exit()
 
 
-func _set_hylas_conch_input_suppressed(suppressed: bool) -> void:
-	if not is_instance_valid(_hylas):
+func _set_conch_input_suppressed(suppressed: bool) -> void:
+	if _conch_input_suppressed == suppressed:
 		return
-	_hylas._set_conch_input_suppressed(suppressed)
+	_conch_input_suppressed = suppressed
+	if not InputMap.has_action(&"conch"):
+		return
+
+	if suppressed:
+		_saved_conch_input_events.clear()
+		for input_event: InputEvent in InputMap.action_get_events(&"conch"):
+			_saved_conch_input_events.append(input_event)
+		InputMap.action_erase_events(&"conch")
+		Input.action_release(&"conch")
+		return
+
+	InputMap.action_erase_events(&"conch")
+	for input_event: InputEvent in _saved_conch_input_events:
+		InputMap.action_add_event(&"conch", input_event)
+	_saved_conch_input_events.clear()
+	Input.action_release(&"conch")
 
 
 func _play_tooltip_sound() -> void:
@@ -521,7 +539,7 @@ func _cancel_presentation() -> void:
 		_set_text_reveal(0.0)
 	_awaiting_page_advance = false
 	_ink_position_locked = false
-	_set_hylas_conch_input_suppressed(false)
+	_set_conch_input_suppressed(false)
 	_current_page_plain_text = ""
 	_inline_ellipsis_visible = false
 	_intro_pages.clear()
