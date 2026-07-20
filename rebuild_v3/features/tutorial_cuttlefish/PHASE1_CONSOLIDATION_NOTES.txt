@@ -1,0 +1,35 @@
+CALL OF THE CONCH — PHASE 1 CUTTLEFISH CONSOLIDATION
+
+Completed:
+- Merged the startup text/typewriter correction directly into cuttlefish_tutorial_controller_intro.gd.
+- Kept the reusable cuttlefish_tutorial_controller.gd base controller unchanged.
+- Restored cuttlefish_tutorial_controller.tscn to use cuttlefish_tutorial_controller_intro.gd directly.
+- Removed cuttlefish_tutorial_controller_startup_fix.gd and its .uid sidecar.
+- Preserved the scene values already requested:
+  - Lykos scale: 0.08625 (15% larger than 0.075).
+  - Lykos horizontal offset: 135 (30 px farther right than 105).
+  - Ink horizontal offset: 75 (moves the ink 75 px right under the current left-side formula).
+  - Ink vertical offset: -85 (50 px upward from -35).
+- Preserved text and advance-dot z-index values above the ink presentation.
+
+Startup behaviour now present directly in the intro controller:
+1. Each paragraph is treated as one page.
+2. A page types onto the ink using a fresh Tween.
+3. The page waits for Space after typing finishes.
+4. Space advances to the next page.
+5. The final startup page also waits for Space, then closes the greeting.
+6. Later tutorial hints retain their existing timed/action dismissal behaviour.
+
+Manual checks to run in Godot:
+1. Start a genuinely new game or clear story flag tutorial_hint_intro_welcome.
+2. Confirm Lykos appears at the intended size and position.
+3. Confirm the ink is 75 px farther right and 50 px higher than before.
+4. Confirm the first line types visibly inside the ink.
+5. Confirm it does not advance automatically after the first line.
+6. Press Space once and confirm the second line types.
+7. Confirm the final line waits for Space.
+8. Press Space again and confirm the ink closes and Lykos exits.
+9. Check the Godot debugger for parser errors, missing resources, or warnings.
+
+Scope:
+Only the tutorial_cuttlefish startup wrapper was consolidated. No other feature scripts were changed.
