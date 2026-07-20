@@ -5,14 +5,14 @@
 
 [node name="DepthJellyfishYellowGreen" instance=ExtResource("1_base")]
 metadata/colour_variant = "yellow_green"
-metadata/colour_overlay = "assets/effects/coloroverlay04.jpg"
+metadata/colour_control = "Inspector fixed colour with matched glow"
 
 [node name="DepthColourisation" type="Node" parent="."]
 script = ExtResource("2_colourisation")
 colour_mode = 1
-fixed_overlay_number = 4
+colour_1 = Color(0.62, 0.96, 0.08, 1)
+colour_2 = Color(0, 0, 0, 0)
+colour_3 = Color(0, 0, 0, 0)
 colour_strength = 0.9
 saturation_multiplier = 1.18
 brightness_multiplier = 1.08
-glow_saturation = 0.88
-glow_value = 1.08
