@@ -13,6 +13,10 @@ const INTRO_PLAYTIME_LIMIT: float = 1.0
 @export_range(8, 40, 1) var max_characters_per_line: int = 22
 @export_range(1, 8, 1) var max_lines_per_page: int = 4
 
+@export_group("Lykos Swimming Polish")
+@export_range(0.0, 80.0, 1.0) var entry_exit_curve_amplitude: float = 28.0
+@export_range(0.1, 3.0, 0.1) var entry_exit_curve_frequency: float = 0.7
+
 var _tooltips_enabled: bool = true
 var _intro_pages: Array[String] = []
 var _intro_page_index: int = 0
@@ -100,10 +104,35 @@ func _apply_trigger_monitoring() -> void:
 
 
 func _process_entry(delta: float) -> void:
-	super._process_entry(delta)
-	if _state == State.PRE_HINT:
+	if not is_instance_valid(_hylas):
+		_begin_exit()
+		return
+	var hover_target: Vector2 = _get_hover_target()
+	var curved_target: Vector2 = _get_curved_entry_exit_target(hover_target)
+	_move_cuttlefish_toward(curved_target, entry_speed, delta)
+	if _cuttlefish.global_position.distance_to(hover_target) <= arrival_radius:
+		_state = State.PRE_HINT
+		_sprite.play(&"pre_hint")
 		# Lykos hovers to Hylas's right and turns back toward him.
 		_sprite.flip_h = true
+
+
+func _process_exit(delta: float) -> void:
+	var world_rect: Rect2 = _get_visible_world_rect()
+	var target_x: float = world_rect.position.x - offscreen_margin
+	if _current_side == CotcTutorialHintTrigger.EntrySide.RIGHT:
+		target_x = world_rect.end.x + offscreen_margin
+	var exit_target: Vector2 = Vector2(target_x, _cuttlefish.global_position.y)
+	_move_cuttlefish_toward(_get_curved_entry_exit_target(exit_target), entry_speed, delta)
+	if _is_cuttlefish_offscreen():
+		_finish_current_hint()
+
+
+func _get_curved_entry_exit_target(target: Vector2) -> Vector2:
+	if entry_exit_curve_amplitude <= 0.0:
+		return target
+	var curve_offset: float = sin(_bob_time * TAU * entry_exit_curve_frequency) * entry_exit_curve_amplitude
+	return target + Vector2(0.0, curve_offset)
 
 
 func _follow_hylas(delta: float) -> void:
