@@ -1,0 +1,45 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/objects/FishSchool/procedural_fish_school.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="2_distance_activator"]
+
+[sub_resource type="RectangleShape2D" id="SchoolShape"]
+size = Vector2(760, 370)
+
+[node name="ProceduralFishSchool20" type="Area2D" groups=["conch_target", "current_receiver", "scenery"]]
+collision_layer = 1
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("1_controller")
+fish_count = 20
+formation_mode = 2
+school_half_extents = Vector2(330, 150)
+minimum_fish_height = 30.0
+maximum_fish_height = 78.0
+size_variation = 0.38
+random_seed = 2020
+initial_direction = Vector2(1, 0)
+patrol_half_extents = Vector2(1150, 300)
+minimum_cruise_speed = 46.0
+maximum_cruise_speed = 74.0
+vertical_wander_strength = 0.28
+formation_sway = 24.0
+individual_dart_interval_minimum = 1.8
+individual_dart_interval_maximum = 4.8
+individual_dart_distance = 88.0
+synchronized_dart_interval_minimum = 3.8
+synchronized_dart_interval_maximum = 6.5
+synchronized_speed_multiplier = 1.85
+synchronized_formation_compression = 0.70
+separation_distance = 46.0
+terrain_collision_radius = 165.0
+
+[node name="FishContainer" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="CurrentReceiverShape" type="CollisionShape2D" parent="."]
+shape = SubResource("SchoolShape")
+
+[node name="DistanceActivator" type="Node" parent="."]
+script = ExtResource("2_distance_activator")

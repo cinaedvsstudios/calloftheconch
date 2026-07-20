@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_context.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_prototype.tscn" id="2_level"]
@@ -15,6 +15,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/pickup1.mp3" id="13_item_equip_audio"]
 [ext_resource type="AudioStream" path="res://assets/audio/pickup4.mp3" id="14_inventory_open_audio"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller.tscn" id="15_tutorial"]
+[ext_resource type="Script" path="res://rebuild_v3/features/pirate_ship/pirate_ship_coordinator.gd" id="16_pirate_ship"]
 
 [node name="GameplayContext" type="Node"]
 process_mode = 3
@@ -23,6 +24,11 @@ script = ExtResource("1_controller")
 [node name="SeaOfPillars" parent="." instance=ExtResource("2_level")]
 unique_name_in_owner = true
 process_mode = 1
+
+[node name="PirateShipCoordinator" type="Node" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+script = ExtResource("16_pirate_ship")
 
 [node name="ItemEffectController" parent="." instance=ExtResource("11_item_effects")]
 unique_name_in_owner = true
