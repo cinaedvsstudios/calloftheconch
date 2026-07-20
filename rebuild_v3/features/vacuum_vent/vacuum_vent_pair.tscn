@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/vacuum_vent/vacuum_vent_pair.gd" id="1_controller"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/vacuum_vent/vacuum_vent_intake.tscn" id="2_intake"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/vacuum_vent/vacuum_vent_output.tscn" id="3_output"]
+
+[node name="VacuumVentPair" type="Node2D" groups=["vacuum_vent_pair"]]
+script = ExtResource("1_controller")
+metadata/feature_id = "vacuum_vent"
+metadata/route_type = "paired_intake_output"
+editor_description = "Drag this pair into a level, then move Intake and Output independently. Rotate either root to redirect its field."
+
+[node name="Intake" parent="." instance=ExtResource("2_intake")]
+unique_name_in_owner = true
+position = Vector2(-700, 0)
+editor_description = "Suction end. Move and rotate this child independently from Output."
+
+[node name="Output" parent="." instance=ExtResource("3_output")]
+unique_name_in_owner = true
+position = Vector2(700, 0)
+editor_description = "Ejection end. Move independently and rotate to set the launch direction."
+
+[connection signal="capture_requested" from="Intake" to="." method="_on_intake_capture_requested"]
