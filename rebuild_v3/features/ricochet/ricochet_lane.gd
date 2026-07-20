@@ -34,6 +34,7 @@ func _ready() -> void:
 		body_entered.connect(_on_body_entered)
 	if not body_exited.is_connected(_on_body_exited):
 		body_exited.connect(_on_body_exited)
+	call_deferred(&"_refresh_overlapping_bodies")
 
 
 func allows_ricochet_surface(surface: Node) -> bool:
@@ -46,6 +47,13 @@ func allows_ricochet_surface(surface: Node) -> bool:
 	if require_surface_group and not surface.is_in_group(surface_group):
 		return false
 	return true
+
+
+func _refresh_overlapping_bodies() -> void:
+	if not is_inside_tree():
+		return
+	for body: Node2D in get_overlapping_bodies():
+		_on_body_entered(body)
 
 
 func _on_body_entered(body: Node2D) -> void:
