@@ -9,6 +9,9 @@ const INTRO_PLAYTIME_LIMIT: float = 1.0
 @export_range(8.0, 80.0, 1.0) var typewriter_characters_per_second: float = 28.0
 @export_range(0.1, 3.0, 0.1) var intro_page_pause: float = 1.1
 @export_range(0.05, 1.0, 0.05) var page_transition_duration: float = 0.3
+@export_range(0.5, 1.0, 0.01) var ink_max_opacity: float = 0.95
+@export_range(8, 40, 1) var max_characters_per_line: int = 22
+@export_range(1, 8, 1) var max_lines_per_page: int = 4
 
 @onready var _ink_sound: AudioStreamPlayer = %InkSound
 @onready var _tooltip_sound: AudioStreamPlayer = %TooltipSound
@@ -20,16 +23,19 @@ var _intro_pages: Array[String] = []
 var _intro_page_index: int = 0
 var _awaiting_page_advance: bool = false
 var _advance_dots_elapsed: float = 0.0
+var _current_page_plain_text: String = ""
+var _inline_ellipsis_visible: bool = false
 
 
 func _process(delta: float) -> void:
 	super._process(delta)
 	_sync_lykos_overlay()
-	if _awaiting_page_advance and is_instance_valid(_advance_dots):
+	if _awaiting_page_advance:
 		_advance_dots_elapsed += maxf(delta, 0.0)
-		# A gentle, readable pulse: the dots make it explicit that Space advances
-		# the dialogue without competing with the animated ink.
-		_advance_dots.modulate.a = 0.25 + 0.75 * (0.5 + 0.5 * sin(_advance_dots_elapsed * TAU * 1.35))
+		var show_inline_ellipsis: bool = fmod(_advance_dots_elapsed, 0.8) < 0.4
+		if show_inline_ellipsis != _inline_ellipsis_visible:
+			_inline_ellipsis_visible = show_inline_ellipsis
+			_refresh_waiting_page_text()
 
 
 func _input(event: InputEvent) -> void:
@@ -128,7 +134,7 @@ func _update_hint_anchor_position() -> void:
 	var cuttlefish_screen_position: Vector2 = (
 		get_viewport().get_canvas_transform() * _cuttlefish.global_position
 	)
-	# The enlarged ink opens behind Lykos, with the centred text kept to his left.
+	# The enlarged ink opens behind Lykos, with the dialogue centred inside it.
 	var desired_center: Vector2 = cuttlefish_screen_position + Vector2(
 		-hint_screen_horizontal_offset,
 		hint_screen_vertical_offset,
@@ -144,6 +150,7 @@ func _update_hint_anchor_position() -> void:
 	desired_center.x = clampf(desired_center.x, minimum_center.x, maximum_center.x)
 	desired_center.y = clampf(desired_center.y, minimum_center.y, maximum_center.y)
 	_hint_anchor.position = desired_center - _hint_anchor.size * 0.5
+	_sync_hint_text_layout()
 
 
 func _reveal_hint() -> void:
@@ -183,7 +190,7 @@ func _reveal_hint() -> void:
 	_hint_tween.set_trans(Tween.TRANS_QUAD)
 	_hint_tween.set_ease(Tween.EASE_OUT)
 	_hint_tween.tween_property(_hint_anchor, "scale", final_scale, ink_appear_duration)
-	_hint_tween.parallel().tween_method(_set_ink_opacity, 0.0, 1.0, ink_appear_duration)
+	_hint_tween.parallel().tween_method(_set_ink_opacity, 0.0, ink_max_opacity, ink_appear_duration)
 
 	_hint_tween.tween_callback(_begin_current_page_typewriter)
 
@@ -192,18 +199,69 @@ func _get_current_hint_pages() -> Array[String]:
 	var pages: Array[String] = []
 	if _current_definition == null:
 		return pages
-	var split_pages: PackedStringArray = _current_definition.text.split("\n\n", false)
-	for page: String in split_pages:
-		var cleaned_page: String = page.strip_edges()
-		if not cleaned_page.is_empty():
-			pages.append(cleaned_page)
+
+	var source_text: String = _current_definition.text.replace("\r", "")
+	var paragraph_blocks: PackedStringArray = source_text.split("\n\n", false)
+	var current_page_lines: Array[String] = []
+
+	for paragraph_block: String in paragraph_blocks:
+		var cleaned_block: String = paragraph_block.strip_edges()
+		if cleaned_block.is_empty():
+			continue
+		var wrapped_lines: Array[String] = _wrap_text_lines(cleaned_block)
+		for wrapped_line: String in wrapped_lines:
+			if current_page_lines.size() >= max_lines_per_page:
+				pages.append("\n".join(current_page_lines))
+				current_page_lines.clear()
+			current_page_lines.append(wrapped_line)
+
+	if not current_page_lines.is_empty():
+		pages.append("\n".join(current_page_lines))
+
 	return pages
 
 
+func _wrap_text_lines(source_text: String) -> Array[String]:
+	var lines: Array[String] = []
+	var words: PackedStringArray = source_text.replace("\n", " ").split(" ", false)
+	var current_line: String = ""
+
+	for raw_word: String in words:
+		var word: String = raw_word.strip_edges()
+		if word.is_empty():
+			continue
+
+		if current_line.is_empty():
+			while word.length() > max_characters_per_line:
+				lines.append(word.substr(0, max_characters_per_line))
+				word = word.substr(max_characters_per_line)
+			current_line = word
+			continue
+
+		var candidate_line: String = current_line + " " + word
+		if candidate_line.length() <= max_characters_per_line:
+			current_line = candidate_line
+			continue
+
+		lines.append(current_line)
+		current_line = ""
+		while word.length() > max_characters_per_line:
+			lines.append(word.substr(0, max_characters_per_line))
+			word = word.substr(max_characters_per_line)
+		current_line = word
+
+	if not current_line.is_empty():
+		lines.append(current_line)
+
+	return lines
+
+
 func _set_typewriter_page(page_text: String) -> void:
+	_current_page_plain_text = page_text
 	_hint_label.text = page_text
 	_hint_label.visible_characters = 0
 	_set_text_reveal(1.0)
+	_sync_hint_text_layout()
 
 
 func _set_visible_character_count(value: float) -> void:
@@ -276,16 +334,60 @@ func _is_startup_greeting() -> bool:
 
 
 func _show_advance_dots() -> void:
-	if not is_instance_valid(_advance_dots):
-		return
 	_advance_dots_elapsed = 0.0
-	_advance_dots.modulate.a = 1.0
-	_advance_dots.show()
+	_inline_ellipsis_visible = true
+	if is_instance_valid(_advance_dots):
+		_advance_dots.hide()
+	_refresh_waiting_page_text()
 
 
 func _hide_advance_dots() -> void:
+	_inline_ellipsis_visible = false
 	if is_instance_valid(_advance_dots):
 		_advance_dots.hide()
+	_refresh_waiting_page_text()
+
+
+func _refresh_waiting_page_text() -> void:
+	if not is_instance_valid(_hint_label):
+		return
+	if _current_page_plain_text.is_empty():
+		return
+	if _awaiting_page_advance and _inline_ellipsis_visible:
+		_hint_label.text = _current_page_plain_text + "..."
+	else:
+		_hint_label.text = _current_page_plain_text
+	_hint_label.visible_characters = -1
+
+
+func _sync_hint_text_layout() -> void:
+	if not is_instance_valid(_hint_label) or not is_instance_valid(_ink_video):
+		return
+	var padding: Vector2 = Vector2(60.0, 40.0)
+	var target_position: Vector2 = _ink_video.position + padding
+	var target_size: Vector2 = _ink_video.size - padding * 2.0
+	target_size.x = maxf(target_size.x, 160.0)
+	target_size.y = maxf(target_size.y, 96.0)
+	_hint_label.position = target_position
+	_hint_label.size = target_size
+
+
+func _begin_hide_hint() -> void:
+	if _state == State.HIDING or _state == State.EXITING:
+		return
+	_state = State.HIDING
+	_awaiting_page_advance = false
+	_inline_ellipsis_visible = false
+	_refresh_waiting_page_text()
+	_kill_hint_tween()
+	var hidden_scale: Vector2 = _hint_anchor.scale * 0.05
+	_hint_tween = create_tween()
+	_hint_tween.set_trans(Tween.TRANS_QUAD)
+	_hint_tween.set_ease(Tween.EASE_IN)
+	_hint_tween.tween_method(_set_text_reveal, 1.0, 0.0, text_hide_duration)
+	_hint_tween.tween_property(_hint_anchor, "scale", hidden_scale, ink_hide_duration)
+	_hint_tween.parallel().tween_method(_set_ink_opacity, ink_max_opacity, 0.0, ink_hide_duration)
+	_hint_tween.tween_callback(_on_hint_hidden)
 
 
 func _begin_exit() -> void:
@@ -339,6 +441,8 @@ func _cancel_presentation() -> void:
 		_hint_label.visible_characters = 0
 		_set_text_reveal(0.0)
 	_awaiting_page_advance = false
+	_current_page_plain_text = ""
+	_inline_ellipsis_visible = false
 	_intro_pages.clear()
 	_intro_page_index = 0
 	_hide_advance_dots()
