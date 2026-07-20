@@ -20,6 +20,9 @@ var _awaiting_page_advance: bool = false
 var _advance_dots_elapsed: float = 0.0
 var _current_page_plain_text: String = ""
 var _inline_ellipsis_visible: bool = false
+var _ink_position_locked: bool = false
+var _conch_input_suppressed: bool = false
+var _saved_conch_input_events: Array[InputEvent] = []
 
 @onready var _ink_sound: AudioStreamPlayer = %InkSound
 @onready var _tooltip_sound: AudioStreamPlayer = %TooltipSound
@@ -128,6 +131,8 @@ func _get_hover_target() -> Vector2:
 
 
 func _update_hint_anchor_position() -> void:
+	if _ink_position_locked:
+		return
 	if not _cuttlefish.visible:
 		return
 	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
@@ -158,6 +163,8 @@ func _reveal_hint() -> void:
 		_begin_exit()
 		return
 
+	_set_conch_input_suppressed(true)
+	_ink_position_locked = false
 	_intro_pages = _get_current_hint_pages()
 	_intro_page_index = 0
 	_awaiting_page_advance = false
@@ -172,6 +179,7 @@ func _reveal_hint() -> void:
 	_set_text_reveal(1.0)
 	_set_ink_opacity(0.0)
 	_update_hint_anchor_position()
+	_ink_position_locked = true
 
 	var final_scale: Vector2 = Vector2.ONE * _current_definition.ink_scale
 	_hint_anchor.scale = final_scale * 0.05
@@ -456,8 +464,32 @@ func _begin_hide_hint() -> void:
 
 
 func _begin_exit() -> void:
+	_ink_position_locked = false
+	_set_conch_input_suppressed(false)
 	_end_lykos_overlay()
 	super._begin_exit()
+
+
+func _set_conch_input_suppressed(suppressed: bool) -> void:
+	if _conch_input_suppressed == suppressed:
+		return
+	_conch_input_suppressed = suppressed
+	if not InputMap.has_action(&"conch"):
+		return
+
+	if suppressed:
+		_saved_conch_input_events.clear()
+		for input_event: InputEvent in InputMap.action_get_events(&"conch"):
+			_saved_conch_input_events.append(input_event)
+		InputMap.action_erase_events(&"conch")
+		Input.action_release(&"conch")
+		return
+
+	InputMap.action_erase_events(&"conch")
+	for input_event: InputEvent in _saved_conch_input_events:
+		InputMap.action_add_event(&"conch", input_event)
+	_saved_conch_input_events.clear()
+	Input.action_release(&"conch")
 
 
 func _play_tooltip_sound() -> void:
@@ -506,6 +538,8 @@ func _cancel_presentation() -> void:
 		_hint_label.visible_characters = 0
 		_set_text_reveal(0.0)
 	_awaiting_page_advance = false
+	_ink_position_locked = false
+	_set_conch_input_suppressed(false)
 	_current_page_plain_text = ""
 	_inline_ellipsis_visible = false
 	_intro_pages.clear()
