@@ -9,6 +9,18 @@ var _stop_was_active: bool = false
 var _release_remaining: float = 0.0
 
 
+func _ready() -> void:
+	# Hylas replaces this node's SpriteFrames during the parent's ready sequence.
+	# Waiting until that setup is complete prevents the initial idle loop from
+	# being reset to frame 0 before gameplay begins.
+	call_deferred(&"_start_initial_idle")
+
+
+func _start_initial_idle() -> void:
+	if animation == &"idle":
+		play(&"idle")
+
+
 func _process(delta: float) -> void:
 	var shift_is_held: bool = Input.is_action_pressed(&"action_a")
 
