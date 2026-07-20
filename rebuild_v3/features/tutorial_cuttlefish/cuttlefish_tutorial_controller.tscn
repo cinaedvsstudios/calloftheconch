@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller_intro.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller_startup_fix.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Resource" path="res://rebuild_v3/features/tutorial_cuttlefish/tutorial_hint_library.tres" id="3_library"]
 [ext_resource type="Shader" path="res://rebuild_v3/features/tutorial_cuttlefish/ink_multiply.gdshader" id="4_ink_shader"]
