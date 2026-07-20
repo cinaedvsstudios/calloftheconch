@@ -1,12 +1,97 @@
-[gd_scene format=3]
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/game/sea_of_pillars/levels/pirate_ship_interior.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/shipwreck.jpg" id="2_background"]
+[ext_resource type="PackedScene" path="res://scenes/characters/Hylas/hylas.tscn" id="3_hylas"]
+[ext_resource type="VideoStream" path="res://assets/effects/bubble_riser_field.ogv" id="4_bubbles"]
+[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="5_bubble_shader"]
+[ext_resource type="AudioStream" path="res://assets/audio/underwater_ambience.mp3" id="6_ambience"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/looping_audio_player.gd" id="7_looping_audio"]
+
+[sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("5_bubble_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 4.0
+shader_parameter/waterline_screen_y = -1.0
+shader_parameter/waterline_fade = 0.012
 
 [node name="PirateShipInterior" type="Node2D"]
-metadata/development_status = "blank_ready"
+script = ExtResource("1_controller")
+metadata/development_status = "playable_background_room"
 metadata/sea_id = "sea_of_pillars"
 metadata/area_id = "pirate_ship_interior"
-editor_description = "Blank pirate ship interior destination. Build the interior under this root."
+metadata/source_asset = "res://assets/backgrounds/shipwreck.jpg"
+editor_description = "Single-screen pirate ship interior using shipwreck.jpg and the shared screen-blended bubble overlay."
 
 [node name="InteriorOrigin" type="Marker2D" parent="."]
 unique_name_in_owner = true
+position = Vector2(640, 360)
 gizmo_extents = 60.0
-editor_description = "Reference origin for the future pirate ship interior layout."
+editor_description = "Visual centre of the pirate ship interior."
+
+[node name="HylasStart" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(640, 560)
+gizmo_extents = 48.0
+editor_description = "Hylas spawn point after entering the wreck."
+
+[node name="ShipExitAnchor" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(640, 650)
+gizmo_extents = 48.0
+editor_description = "Reserved exit point aligned to the lower central hull opening."
+
+[node name="BackgroundCanvas" type="CanvasLayer" parent="."]
+layer = -20
+
+[node name="Backdrop" type="ColorRect" parent="BackgroundCanvas"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.002, 0.006, 0.018, 1)
+
+[node name="ShipwreckBackground" type="TextureRect" parent="BackgroundCanvas"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="BubbleCanvas" type="CanvasLayer" parent="."]
+layer = -5
+
+[node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleCanvas"]
+unique_name_in_owner = true
+material = SubResource("BubbleVideoMaterial")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stream = ExtResource("4_bubbles")
+autoplay = true
+expand = true
+loop = true
+volume_db = -80.0
+
+[node name="Hylas" parent="." instance=ExtResource("3_hylas")]
+unique_name_in_owner = true
+position = Vector2(640, 560)
+z_index = 5
+
+[node name="UnderwaterAmbience" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+stream = ExtResource("6_ambience")
+volume_db = -8.0
+script = ExtResource("7_looping_audio")
