@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bnu8hvjupvwpb" path="res://assets/characters/fish05.webp" id="2_frame_a"]
 [ext_resource type="Texture2D" uid="uid://drqvo5sp14dag" path="res://assets/characters/fish06.webp" id="3_frame_b"]
 [ext_resource type="Script" uid="uid://dtiiykv8psaq5" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/ambient_animal_reaction/ambient_animal_reaction.tscn" id="5_reaction"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_fish_03"]
 animations = [{
@@ -55,6 +56,9 @@ shape = SubResource("ReceiverShape_fish_03")
 [node name="WallRay" type="RayCast2D" parent="." unique_id=1831023951]
 unique_name_in_owner = true
 target_position = Vector2(210, 0)
+
+[node name="PlayfulReaction" parent="." instance=ExtResource("5_reaction")]
+unique_name_in_owner = true
 
 [node name="DistanceActivator" type="Node" parent="." unique_id=753856629]
 script = ExtResource("4_distance_activator")
