@@ -10,6 +10,7 @@ extends Node
 ## - Change InkVideo material opacity to set maximum runtime opacity.
 ## - Change HintText position/size to move/resize the text area.
 ## - Change Cuttlefish relative to HylasEditorAnchor to set Lykos hover position.
+## - Cuttlefish is the only Lykos visual used at runtime; there is no separate overlay sprite.
 
 signal hint_started(hint_id: StringName)
 signal hint_finished(hint_id: StringName)
@@ -77,7 +78,6 @@ const INTRO_PLAYTIME_LIMIT: float = 1.0
 @onready var _hylas_editor_anchor: Marker2D = %HylasEditorAnchor
 @onready var _ink_sound: AudioStreamPlayer = %InkSound
 @onready var _tooltip_sound: AudioStreamPlayer = %TooltipSound
-@onready var _lykos_overlay: AnimatedSprite2D = %LykosOverlay
 @onready var _advance_dots: Label = %AdvanceDots
 
 var _game_state: CotcGameState
@@ -130,6 +130,7 @@ func _ready() -> void:
 	if is_instance_valid(_advance_dots):
 		_advance_dots.hide()
 	_hint_label.text = ""
+	_sprite.show()
 	_sprite.play(&"swim")
 	if not _sprite.animation_finished.is_connected(_on_sprite_animation_finished):
 		_sprite.animation_finished.connect(_on_sprite_animation_finished)
@@ -159,7 +160,6 @@ func _process(delta: float) -> void:
 		State.EXITING:
 			_process_exit(delta)
 
-	_sync_lykos_overlay()
 	if _awaiting_page_advance:
 		_advance_dots_elapsed += maxf(delta, 0.0)
 		var show_fixed_dots: bool = fmod(_advance_dots_elapsed, 0.8) < 0.4
@@ -406,7 +406,6 @@ func _start_intro_if_possible() -> bool:
 	_cuttlefish.hide()
 	_hint_anchor.hide()
 	_ink_video.hide()
-	_end_lykos_overlay()
 
 	if startup_intro_delay <= 0.0:
 		call_deferred(&"_begin_delayed_startup_intro")
@@ -528,6 +527,8 @@ func _resolve_entry_side(requested_side: int) -> int:
 		return CotcTutorialHintTrigger.EntrySide.LEFT
 	if requested_side == CotcTutorialHintTrigger.EntrySide.RIGHT:
 		return CotcTutorialHintTrigger.EntrySide.RIGHT
+	if not is_instance_valid(_hylas):
+		return CotcTutorialHintTrigger.EntrySide.RIGHT
 	var hylas_screen_position: Vector2 = (
 		get_viewport().get_canvas_transform() * _hylas.global_position
 	)
@@ -560,7 +561,7 @@ func _reveal_hint() -> void:
 
 	if _current_definition.text_color != Color.TRANSPARENT:
 		_hint_label.add_theme_color_override(&"font_color", _current_definition.text_color)
-	_begin_lykos_overlay()
+	_sprite.show()
 	_kill_hint_tween()
 	_update_hint_anchor_pivot()
 	_set_typewriter_page(_intro_pages[0])
@@ -648,10 +649,10 @@ func _begin_exit() -> void:
 	_ink_position_locked = false
 	_startup_intro_pending = false
 	_set_conch_input_suppressed(false)
-	_end_lykos_overlay()
 	_hint_anchor.hide()
 	_ink_video.stop()
 	_ink_video.hide()
+	_sprite.show()
 	_sprite.play(&"swim")
 	_state = State.EXITING
 
@@ -710,7 +711,6 @@ func _cancel_presentation() -> void:
 	_intro_pages.clear()
 	_intro_page_index = 0
 	_hide_advance_dots()
-	_end_lykos_overlay()
 	if is_instance_valid(_current_trigger):
 		_current_trigger.rearm()
 	for trigger: CotcTutorialHintTrigger in _queued_triggers:
@@ -1139,36 +1139,6 @@ func _play_tooltip_sound() -> void:
 	if is_instance_valid(_tooltip_sound):
 		_tooltip_sound.stop()
 		_tooltip_sound.play()
-
-
-func _begin_lykos_overlay() -> void:
-	if not is_instance_valid(_lykos_overlay) or not is_instance_valid(_sprite):
-		return
-	_sprite.hide()
-	_lykos_overlay.flip_h = true
-	_lykos_overlay.play(&"swim")
-	_sync_lykos_overlay()
-	_lykos_overlay.show()
-
-
-func _sync_lykos_overlay() -> void:
-	if not is_instance_valid(_lykos_overlay) or not _lykos_overlay.visible:
-		return
-	if not is_instance_valid(_cuttlefish):
-		return
-	_lykos_overlay.position = (
-		get_viewport().get_canvas_transform() * _cuttlefish.global_position
-	)
-	_lykos_overlay.flip_h = true
-
-
-func _end_lykos_overlay() -> void:
-	if is_instance_valid(_lykos_overlay):
-		_lykos_overlay.hide()
-	if is_instance_valid(_sprite):
-		_sprite.show()
-		_sprite.flip_h = true
-		_sprite.play(&"swim")
 
 
 func _kill_hint_tween() -> void:
