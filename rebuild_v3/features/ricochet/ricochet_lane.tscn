@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/ricochet/ricochet_lane.gd" id="1_controller"]
+
+[sub_resource type="RectangleShape2D" id="RicochetLaneShape"]
+size = Vector2(960, 360)
+
+[node name="RicochetLane" type="Area2D" groups=["ricochet_lane"]]
+collision_layer = 0
+collision_mask = 1
+monitorable = false
+script = ExtResource("1_controller")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RicochetLaneShape")
