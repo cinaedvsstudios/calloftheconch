@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dq3tl1qqtcedv"]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller_editor_layout.gd" id="1_controller"]
+[ext_resource type="Script" uid="uid://cv362xdvbihk2" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller_editor_layout.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Resource" uid="uid://cq8hl4m2wiff0" path="res://rebuild_v3/features/tutorial_cuttlefish/tutorial_hint_library.tres" id="3_library"]
 [ext_resource type="Shader" uid="uid://buy7v8mmpoluy" path="res://rebuild_v3/features/tutorial_cuttlefish/ink_multiply.gdshader" id="4_ink_shader"]
@@ -26,6 +26,7 @@ shader_parameter/softness = 0.07
 unique_name_in_owner = true
 process_mode = 1
 process_priority = -100
+editor_description = "The visible scene layout is authoritative. Drag Cuttlefish relative to HylasEditorAnchor, and drag or resize HintAnchor. Runtime uses those saved positions."
 script = ExtResource("1_controller")
 hint_library = ExtResource("3_library")
 entry_speed = 360.0
@@ -40,30 +41,19 @@ ink_hide_duration = 0.9
 minimum_read_time = 3.0
 hint_screen_horizontal_offset = 75.0
 hint_screen_vertical_offset = -85.0
-typewriter_characters_per_second = 28.0
-intro_page_pause = 1.1
-page_transition_duration = 0.3
-ink_max_opacity = 0.65
-max_characters_per_line = 22
-max_lines_per_page = 4
-text_padding = Vector2(60, 40)
-startup_intro_delay = 2.0
-entry_exit_curve_amplitude = 28.0
-entry_exit_curve_frequency = 0.7
-editor_description = "The visible scene layout is authoritative. Drag Cuttlefish relative to HylasEditorAnchor, and drag or resize HintAnchor. Runtime uses those saved positions."
 
-[node name="HylasEditorAnchor" type="Marker2D" parent="."]
+[node name="HylasEditorAnchor" type="Marker2D" parent="." unique_id=983349793]
 unique_name_in_owner = true
-position = Vector2(576, 380)
-gizmo_extents = 55.0
 editor_description = "Editor reference for Hylas. Cuttlefish runtime offset is the distance between this marker and the Cuttlefish node."
+position = Vector2(635, 375)
+gizmo_extents = 55.0
 
 [node name="Cuttlefish" type="Node2D" parent="." unique_id=2111394705]
 unique_name_in_owner = true
-z_index = 70
-position = Vector2(711, 345)
-scale = Vector2(0.114066, 0.114066)
 editor_description = "DRAG THIS NODE to set Lykos's actual runtime position relative to HylasEditorAnchor."
+z_index = 70
+position = Vector2(1061, 345)
+scale = Vector2(0.114066, 0.114066)
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="Cuttlefish" unique_id=1441206539]
 unique_name_in_owner = true
@@ -74,27 +64,25 @@ autoplay = "swim"
 [node name="InkSound" type="AudioStreamPlayer" parent="." unique_id=856940213]
 unique_name_in_owner = true
 stream = ExtResource("6_ink_sound")
-bus = &"SFX"
 
 [node name="TooltipSound" type="AudioStreamPlayer" parent="." unique_id=1186860492]
 unique_name_in_owner = true
 stream = ExtResource("7_tooltip_sound")
-bus = &"SFX"
 
 [node name="HintCanvasLayer" type="CanvasLayer" parent="." unique_id=666972875]
 layer = 19
 
 [node name="HintAnchor" type="Control" parent="HintCanvasLayer" unique_id=2089765172]
 unique_name_in_owner = true
+editor_description = "DRAG OR RESIZE THIS RECTANGLE to set the actual runtime ink/text placement. It remains fixed across all pages of the current hint."
 layout_mode = 3
 anchors_preset = 0
-offset_left = 185.0
+offset_left = 535.0
 offset_top = 70.0
-offset_right = 1085.0
+offset_right = 1435.0
 offset_bottom = 450.0
 pivot_offset = Vector2(450, 190)
 mouse_filter = 2
-editor_description = "DRAG OR RESIZE THIS RECTANGLE to set the actual runtime ink/text placement. It remains fixed across all pages of the current hint."
 
 [node name="OceanBackBuffer" type="BackBufferCopy" parent="HintCanvasLayer/HintAnchor" unique_id=1382318724]
 copy_mode = 2
@@ -145,7 +133,6 @@ offset_left = 60.0
 offset_top = 40.0
 offset_right = 840.0
 offset_bottom = 340.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.12, 0.84, 1, 1)
 theme_override_colors/font_shadow_color = Color(0.12, 0.84, 1, 0.22)
 theme_override_colors/font_outline_color = Color(0, 0.14117648, 0.27058825, 1)
@@ -154,12 +141,12 @@ theme_override_constants/shadow_offset_y = 0
 theme_override_constants/outline_size = 4
 theme_override_constants/shadow_outline_size = 2
 theme_override_font_sizes/font_size = 22
-text = "Tutorial hint preview\nThis is where Lykos text appears."
+text = "Tutorial hint preview
+This is where Lykos text appears."
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 clip_text = true
-visible_characters = -1
 
 [node name="AdvanceDots" type="Label" parent="HintCanvasLayer/HintAnchor" unique_id=1168355869]
 unique_name_in_owner = true
@@ -170,7 +157,6 @@ offset_left = 760.0
 offset_top = 305.0
 offset_right = 840.0
 offset_bottom = 345.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.12, 0.84, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0.14117648, 0.27058825, 1)
 theme_override_constants/outline_size = 2
@@ -179,7 +165,7 @@ text = "..."
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="LykosOverlayCanvasLayer" type="CanvasLayer" parent="."]
+[node name="LykosOverlayCanvasLayer" type="CanvasLayer" parent="." unique_id=84077594]
 layer = 20
 
 [node name="LykosOverlay" type="AnimatedSprite2D" parent="LykosOverlayCanvasLayer" unique_id=1327189135]
