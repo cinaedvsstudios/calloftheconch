@@ -11,14 +11,14 @@
 [sub_resource type="ShaderMaterial" id="InkMaterial"]
 resource_local_to_scene = true
 shader = ExtResource("4_ink_shader")
-shader_parameter/opacity = 0.0
+shader_parameter/opacity = 0.65
 shader_parameter/black_point = 0.08
 shader_parameter/white_point = 0.94
 
 [sub_resource type="ShaderMaterial" id="TextMaterial"]
 resource_local_to_scene = true
 shader = ExtResource("5_text_shader")
-shader_parameter/reveal = 0.0
+shader_parameter/reveal = 1.0
 shader_parameter/softness = 0.07
 
 [node name="CuttlefishTutorial" type="Node"]
@@ -46,7 +46,6 @@ max_lines_per_page = 4
 
 [node name="Cuttlefish" type="Node2D" parent="."]
 unique_name_in_owner = true
-visible = false
 z_index = 70
 scale = Vector2(0.0991875, 0.0991875)
 
@@ -71,7 +70,6 @@ layer = 19
 
 [node name="HintAnchor" type="Control" parent="HintCanvasLayer"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 0
 offset_right = 900.0
 offset_bottom = 380.0
@@ -80,6 +78,20 @@ mouse_filter = 2
 
 [node name="OceanBackBuffer" type="BackBufferCopy" parent="HintCanvasLayer/HintAnchor"]
 copy_mode = 2
+
+[node name="InkEditorPreview" type="ColorRect" parent="HintCanvasLayer/HintAnchor"]
+unique_name_in_owner = true
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 180.0
+offset_right = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.03529412, 0.21176471, 0.28627452, 0.62)
 
 [node name="InkVideo" type="VideoStreamPlayer" parent="HintCanvasLayer/HintAnchor"]
 unique_name_in_owner = true
@@ -115,12 +127,12 @@ theme_override_constants/shadow_offset_x = 0
 theme_override_constants/shadow_offset_y = 0
 theme_override_constants/shadow_outline_size = 2
 theme_override_font_sizes/font_size = 14
-text = "Tutorial hint"
+text = "Tutorial hint preview"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 0
 clip_text = true
-visible_characters = 0
+visible_characters = -1
 
 [node name="AdvanceDots" type="Label" parent="HintCanvasLayer/HintAnchor"]
 unique_name_in_owner = true
