@@ -6,7 +6,7 @@
 [sub_resource type="Resource" id="HintIntroWelcome"]
 script = ExtResource("2_definition")
 hint_id = &"intro_welcome"
-text = "Hi! I’m Lykos the cuttlefish.\n\nOstraka sent me to look out for you. If you get stuck, I’ll pop up and guide you."
+text = "Hi! I’m Lykos the cuttlefish.[[page]]Ostraka sent me to look out for you. If you get stuck, I’ll pop up and guide you."
 display_duration = 5.0
 dismiss_mode = 0
 
