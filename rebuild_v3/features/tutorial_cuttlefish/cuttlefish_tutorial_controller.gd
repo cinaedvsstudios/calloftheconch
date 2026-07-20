@@ -50,6 +50,7 @@ const ACTION_CONCH: StringName = &"conch"
 @onready var _hint_anchor: Control = %HintAnchor
 @onready var _ink_video: VideoStreamPlayer = %InkVideo
 @onready var _hint_label: Label = %HintText
+@onready var _ink_editor_preview: ColorRect = get_node_or_null("%InkEditorPreview") as ColorRect
 
 var _game_state: CotcGameState
 var _level: Node
@@ -73,6 +74,8 @@ func _ready() -> void:
 	_cuttlefish.hide()
 	_hint_anchor.hide()
 	_ink_video.hide()
+	if _ink_editor_preview != null:
+		_ink_editor_preview.hide()
 	_hint_label.text = ""
 	_sprite.play(&"swim")
 	if not _sprite.animation_finished.is_connected(_on_sprite_animation_finished):
