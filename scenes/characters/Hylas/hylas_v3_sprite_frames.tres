@@ -37,29 +37,29 @@
 [ext_resource type="Texture2D" uid="uid://ccf6a3tsats66" path="res://assets/characters/hylas-jump_04.webp" id="35_jump_04"]
 [ext_resource type="Texture2D" uid="uid://bo7fnqqi645ib" path="res://assets/characters/hylas-jump_01a.webp" id="36_jump_01a"]
 [ext_resource type="Texture2D" uid="uid://bqhmsbc8c6ff4" path="res://assets/characters/hylas-jump_03a.webp" id="37_jump_03a"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_01.webp" id="idle_frame_01"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_02.webp" id="idle_frame_02"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_03.webp" id="idle_frame_03"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_04.webp" id="idle_frame_04"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_05.webp" id="idle_frame_05"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_06.webp" id="idle_frame_06"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_07.webp" id="idle_frame_07"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_08.webp" id="idle_frame_08"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_09.webp" id="idle_frame_09"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_10.webp" id="idle_frame_10"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_11.webp" id="idle_frame_11"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_12.webp" id="idle_frame_12"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_13.webp" id="idle_frame_13"]
-[ext_resource type="Texture2D" path="res://assets/characters/Hylas/idle/frame_14.webp" id="idle_frame_14"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-stop_07.webp" id="42_stop_release"]
+[ext_resource type="Texture2D" uid="uid://dj02ya3y5vrmd" path="res://assets/characters/hylas-stop_07.webp" id="42_stop_release"]
 [ext_resource type="Texture2D" uid="uid://c85xb0wm44x8" path="res://assets/characters/hylas-crawl_01.webp" id="43_crawl_01"]
 [ext_resource type="Texture2D" uid="uid://d078olauu8nfb" path="res://assets/characters/hylas-crawl_02.webp" id="44_crawl_02"]
 [ext_resource type="Texture2D" uid="uid://bqo5401phuado" path="res://assets/characters/hylas-crawl_03.webp" id="45_crawl_03"]
 [ext_resource type="Texture2D" uid="uid://bdfl7epsph2wo" path="res://assets/characters/hylas-crawl_04.webp" id="46_crawl_04"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-climb01.webp" id="47_climb_01"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-climb02.webp" id="48_climb_02"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-climb03.webp" id="49_climb_03"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-climb04.webp" id="50_climb_04"]
+[ext_resource type="Texture2D" uid="uid://djsdj6fmgers6" path="res://assets/characters/hylas-climb01.webp" id="47_climb_01"]
+[ext_resource type="Texture2D" uid="uid://ww0mnuhmueli" path="res://assets/characters/hylas-climb02.webp" id="48_climb_02"]
+[ext_resource type="Texture2D" uid="uid://ce3eamyih08jy" path="res://assets/characters/hylas-climb03.webp" id="49_climb_03"]
+[ext_resource type="Texture2D" uid="uid://w78lo8w86e2q" path="res://assets/characters/hylas-climb04.webp" id="50_climb_04"]
+[ext_resource type="Texture2D" uid="uid://dxfbw4iwl5qid" path="res://assets/characters/Hylas/idle/frame_01.webp" id="idle_frame_01"]
+[ext_resource type="Texture2D" uid="uid://bx2lpvmoty3cw" path="res://assets/characters/Hylas/idle/frame_02.webp" id="idle_frame_02"]
+[ext_resource type="Texture2D" uid="uid://blxyw6136tpxl" path="res://assets/characters/Hylas/idle/frame_03.webp" id="idle_frame_03"]
+[ext_resource type="Texture2D" uid="uid://bnnc0rqknh0gc" path="res://assets/characters/Hylas/idle/frame_04.webp" id="idle_frame_04"]
+[ext_resource type="Texture2D" uid="uid://kxho218vcsek" path="res://assets/characters/Hylas/idle/frame_05.webp" id="idle_frame_05"]
+[ext_resource type="Texture2D" uid="uid://dk7imlljcq8b6" path="res://assets/characters/Hylas/idle/frame_06.webp" id="idle_frame_06"]
+[ext_resource type="Texture2D" uid="uid://6t53qes1hx11" path="res://assets/characters/Hylas/idle/frame_07.webp" id="idle_frame_07"]
+[ext_resource type="Texture2D" uid="uid://cwcxhu2fpsjwf" path="res://assets/characters/Hylas/idle/frame_08.webp" id="idle_frame_08"]
+[ext_resource type="Texture2D" uid="uid://d2y5ibrjr8nqs" path="res://assets/characters/Hylas/idle/frame_09.webp" id="idle_frame_09"]
+[ext_resource type="Texture2D" uid="uid://br0rfjdh6kp8u" path="res://assets/characters/Hylas/idle/frame_10.webp" id="idle_frame_10"]
+[ext_resource type="Texture2D" uid="uid://burthnqocyxtk" path="res://assets/characters/Hylas/idle/frame_11.webp" id="idle_frame_11"]
+[ext_resource type="Texture2D" uid="uid://cjdcbjdrfxxhi" path="res://assets/characters/Hylas/idle/frame_12.webp" id="idle_frame_12"]
+[ext_resource type="Texture2D" uid="uid://cn53vus4npnji" path="res://assets/characters/Hylas/idle/frame_13.webp" id="idle_frame_13"]
+[ext_resource type="Texture2D" uid="uid://bs2acpsokip0k" path="res://assets/characters/Hylas/idle/frame_14.webp" id="idle_frame_14"]
 
 [resource]
 animations = [{
@@ -85,6 +85,23 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": ExtResource("47_climb_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_climb_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_climb_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("50_climb_04")
+}],
+"loop": 1,
+"name": &"climb",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": ExtResource("13_conch_01")
 }, {
 "duration": 1.0,
@@ -105,23 +122,6 @@ animations = [{
 "loop": 0,
 "name": &"conch",
 "speed": 9.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("47_climb_01")
-}, {
-"duration": 1.0,
-"texture": ExtResource("48_climb_02")
-}, {
-"duration": 1.0,
-"texture": ExtResource("49_climb_03")
-}, {
-"duration": 1.0,
-"texture": ExtResource("50_climb_04")
-}],
-"loop": 1,
-"name": &"climb",
-"speed": 7.0
 }, {
 "frames": [{
 "duration": 1.0,

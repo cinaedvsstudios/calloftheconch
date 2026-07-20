@@ -1,5 +1,11 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://dw1idx8jvwao2"]
 
-[ext_resource type="PackedScene" path="res://rebuild_v3/features/boulder/boulder.tscn" id="1_scene"]
+[ext_resource type="PackedScene" uid="uid://bkhlb31k0q74o" path="res://rebuild_v3/features/boulder/boulder.tscn" id="1_scene"]
 
-[node name="MovableBoulder" instance=ExtResource("1_scene")]
+[node name="MovableBoulder" unique_id=142546629 instance=ExtResource("1_scene")]
+
+[node name="Sprite2D" parent="." index="0" unique_id=616051447]
+scale = Vector2(0.2, 0.2)
+
+[node name="SolidCollision" parent="." index="1" unique_id=9686674]
+scale = Vector2(1, 1)

@@ -27,7 +27,7 @@
 [ext_resource type="PackedScene" uid="uid://h6njs6x1ocik" path="res://rebuild_v3/game/shared/background_scenery/landscape/island01.tscn" id="19_gri33"]
 [ext_resource type="PackedScene" uid="uid://btxlnyp5dpxah" path="res://rebuild_v3/game/shared/background_scenery/landscape/island00.tscn" id="20_x7us7"]
 [ext_resource type="PackedScene" uid="uid://bwonfmlxn2qfp" path="res://rebuild_v3/game/shared/background_scenery/landscape/beach.tscn" id="21_uluox"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/objects/movable_boulder.tscn" id="22_5wr0l"]
+[ext_resource type="PackedScene" uid="uid://dw1idx8jvwao2" path="res://rebuild_v3/game/shared/objects/movable_boulder.tscn" id="22_5wr0l"]
 [ext_resource type="PackedScene" uid="uid://cktbanpnlhv8g" path="res://rebuild_v3/game/shared/background_scenery/landscape/sand02.tscn" id="23_7mdn1"]
 [ext_resource type="Texture2D" uid="uid://f3uxxin385i2" path="res://assets/backgrounds/volcano.webp" id="26_wdj36"]
 [ext_resource type="PackedScene" uid="uid://b65whlf7x5nqd" path="res://scenes/objects/SpikeRock/spike_rock.tscn" id="27_4id1n"]
@@ -50,6 +50,7 @@
 [ext_resource type="PackedScene" path="res://scenes/objects/seaweed_12.tscn" id="49_p6rur"]
 [ext_resource type="PackedScene" uid="uid://cwd3ikm7tnbp4" path="res://rebuild_v3/features/vent1/vent1.tscn" id="50_0prhx"]
 [ext_resource type="PackedScene" uid="uid://bkhlb31k0q74o" path="res://rebuild_v3/features/boulder/boulder.tscn" id="51_qxate"]
+[ext_resource type="PackedScene" uid="uid://cr1x0cg7aik0i" path="res://rebuild_v3/game/shared/objects/food_crown_sea_grapes.tscn" id="52_0prhx"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish.tscn" id="52_34nxo"]
 
 [sub_resource type="ShaderMaterial" id="LowerWaterMaterial"]
@@ -569,8 +570,7 @@ position = Vector2(9053, -1297)
 position = Vector2(10463, -1385)
 
 [node name="MovableBoulder" parent="." index="49" unique_id=280572658 instance=ExtResource("22_5wr0l")]
-position = Vector2(5048, 2228)
-scale = Vector2(0.25, 0.25)
+position = Vector2(5061, 2265)
 
 [node name="Sand02" parent="." index="50" unique_id=1228752909 instance=ExtResource("23_7mdn1")]
 position = Vector2(5673, 2896)
@@ -605,13 +605,16 @@ scale = Vector2(0.41706538, 0.41706538)
 texture = ExtResource("32_x7us7")
 
 [node name="FishSchool" parent="." index="57" unique_id=1567945022 instance=ExtResource("33_uluox")]
-position = Vector2(3278, 2491)
+position = Vector2(3375, 2607)
 
 [node name="FoodScavengedFishPickup" parent="." index="58" unique_id=1852098582 instance=ExtResource("35_0s4mb")]
-position = Vector2(3432, 2990)
+z_index = 6
+position = Vector2(3424.9998, 3018)
+scale = Vector2(0.85, 0.85)
 
 [node name="FoodScavengedFish2Pickup" parent="." index="59" unique_id=496472773 instance=ExtResource("36_85xaf")]
-position = Vector2(2775, 2859)
+position = Vector2(2803, 2905.0002)
+scale = Vector2(0.495, 0.495)
 
 [node name="AmbientFish01" parent="." index="60" unique_id=817934162 instance=ExtResource("37_rmo3g")]
 position = Vector2(4305, 2578)
@@ -1077,3 +1080,8 @@ scale = Vector2(0.17768854, 0.17768854)
 [node name="DepthGlowPlant5" parent="." index="171" unique_id=689516536 instance=ExtResource("41_5wr0l")]
 position = Vector2(712.0005, 6088.001)
 rotation = 1.0188124
+
+[node name="FoodCrownSeaGrapes" parent="." index="172" unique_id=1447396690 instance=ExtResource("52_0prhx")]
+position = Vector2(2185, 2591)
+rotation = 0.41313547
+scale = Vector2(0.415, 0.415)
