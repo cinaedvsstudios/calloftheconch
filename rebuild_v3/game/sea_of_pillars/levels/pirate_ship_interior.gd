@@ -42,6 +42,9 @@ var _fade_tween: Tween
 
 func _ready() -> void:
 	_camera = _hylas.get_node_or_null(^"Camera2D") as Camera2D
+	if _camera != null:
+		_camera.enabled = false
+	_hylas.set_play_enabled(false)
 	_configure_room_from_background()
 	_set_exit_prompt_visible(false)
 	_set_interior_visuals_visible(false)
