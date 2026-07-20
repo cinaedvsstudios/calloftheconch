@@ -198,7 +198,7 @@ func _snap_hylas_to_output(hylas: Node2D, dark_colour: Color) -> void:
 	emergence_tween.tween_property(
 		hylas,
 		^"global_position",
-		_output.get_emergence_target_global_position(),
+		_output.get_emergence_target_global_position(emergence_duration),
 		emergence_duration,
 	)
 	emergence_tween.tween_property(
@@ -234,6 +234,8 @@ func _restore_hylas_after_failure() -> void:
 	_restore_hylas_presentation()
 	if _hylas.has_method(&"set_play_enabled"):
 		_hylas.call(&"set_play_enabled", true)
+	if _hylas.has_meta(TRANSPORT_LOCK_META):
+		_hylas.remove_meta(TRANSPORT_LOCK_META)
 	_intake.cancel_capture(_hylas)
 	_intake.release_receiver(_hylas)
 	_clear_transport_state()
