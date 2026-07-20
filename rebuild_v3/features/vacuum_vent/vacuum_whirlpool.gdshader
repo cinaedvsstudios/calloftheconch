@@ -1,6 +1,8 @@
 shader_type canvas_item;
 render_mode unshaded, blend_add;
 
+const float TWO_PI = 6.28318530718;
+
 uniform vec4 outer_color : source_color = vec4(0.20, 0.48, 0.78, 1.0);
 uniform vec4 inner_color : source_color = vec4(0.58, 0.82, 1.0, 1.0);
 uniform float opacity : hint_range(0.0, 2.0) = 0.72;
@@ -20,10 +22,10 @@ void fragment() {
 	float strand_alpha = 0.0;
 
 	for (int strand_index = 0; strand_index < 7; strand_index++) {
-		float phase = float(strand_index) / 7.0 * TAU;
+		float phase = float(strand_index) / 7.0 * TWO_PI;
 		float center_x = sin(
-			depth * turns * TAU
-			- TIME * rotation_speed * TAU
+			depth * turns * TWO_PI
+			- TIME * rotation_speed * TWO_PI
 			+ phase
 		) * funnel_width * 0.79 + wobble;
 		float strand_distance = abs(p.x - center_x);
@@ -38,7 +40,7 @@ void fragment() {
 	float cross_rings = 1.0 - smoothstep(
 		0.025,
 		0.085,
-		abs(sin((depth * turns * 0.72 - TIME * rotation_speed) * TAU))
+		abs(sin((depth * turns * 0.72 - TIME * rotation_speed) * TWO_PI))
 	);
 	cross_rings *= 0.28 * edge;
 
