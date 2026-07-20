@@ -9,14 +9,9 @@ const INTRO_PLAYTIME_LIMIT: float = 1.0
 @export_range(8.0, 80.0, 1.0) var typewriter_characters_per_second: float = 28.0
 @export_range(0.1, 3.0, 0.1) var intro_page_pause: float = 1.1
 @export_range(0.05, 1.0, 0.05) var page_transition_duration: float = 0.3
-@export_range(0.5, 1.0, 0.01) var ink_max_opacity: float = 0.95
+@export_range(0.5, 1.0, 0.01) var ink_max_opacity: float = 0.90
 @export_range(8, 40, 1) var max_characters_per_line: int = 22
 @export_range(1, 8, 1) var max_lines_per_page: int = 4
-
-@onready var _ink_sound: AudioStreamPlayer = %InkSound
-@onready var _tooltip_sound: AudioStreamPlayer = %TooltipSound
-@onready var _lykos_overlay: AnimatedSprite2D = %LykosOverlay
-@onready var _advance_dots: Label = %AdvanceDots
 
 var _tooltips_enabled: bool = true
 var _intro_pages: Array[String] = []
@@ -25,6 +20,11 @@ var _awaiting_page_advance: bool = false
 var _advance_dots_elapsed: float = 0.0
 var _current_page_plain_text: String = ""
 var _inline_ellipsis_visible: bool = false
+
+@onready var _ink_sound: AudioStreamPlayer = %InkSound
+@onready var _tooltip_sound: AudioStreamPlayer = %TooltipSound
+@onready var _lykos_overlay: AnimatedSprite2D = %LykosOverlay
+@onready var _advance_dots: Label = %AdvanceDots
 
 
 func _process(delta: float) -> void:
@@ -201,24 +201,89 @@ func _get_current_hint_pages() -> Array[String]:
 		return pages
 
 	var source_text: String = _current_definition.text.replace("\r", "")
-	var paragraph_blocks: PackedStringArray = source_text.split("\n\n", false)
-	var current_page_lines: Array[String] = []
-
-	for paragraph_block: String in paragraph_blocks:
-		var cleaned_block: String = paragraph_block.strip_edges()
-		if cleaned_block.is_empty():
+	var forced_sections: PackedStringArray = source_text.split("[[page]]", true)
+	for forced_section: String in forced_sections:
+		var cleaned_section: String = forced_section.strip_edges()
+		if cleaned_section.is_empty():
 			continue
-		var wrapped_lines: Array[String] = _wrap_text_lines(cleaned_block)
-		for wrapped_line: String in wrapped_lines:
-			if current_page_lines.size() >= max_lines_per_page:
+		pages.append_array(_paginate_text_section(cleaned_section))
+
+	return pages
+
+
+func _paginate_text_section(source_text: String) -> Array[String]:
+	var pages: Array[String] = []
+	var current_page_lines: Array[String] = []
+	var sentences: Array[String] = _split_sentences(source_text)
+
+	for sentence: String in sentences:
+		var sentence_lines: Array[String] = _wrap_text_lines(sentence)
+		if sentence_lines.is_empty():
+			continue
+
+		# A sentence that cannot fit on one page is the only case where a page
+		# may end before the sentence itself ends.
+		if sentence_lines.size() > max_lines_per_page:
+			if not current_page_lines.is_empty():
 				pages.append("\n".join(current_page_lines))
 				current_page_lines.clear()
-			current_page_lines.append(wrapped_line)
+			var line_index: int = 0
+			while line_index < sentence_lines.size():
+				var page_chunk: Array[String] = []
+				var chunk_end: int = mini(
+					line_index + max_lines_per_page,
+					sentence_lines.size(),
+				)
+				for chunk_index: int in range(line_index, chunk_end):
+					page_chunk.append(sentence_lines[chunk_index])
+				pages.append("\n".join(page_chunk))
+				line_index = chunk_end
+			continue
+
+		# Keep complete sentences together. When the next sentence would exceed
+		# four lines, finish the current page at the previous sentence.
+		if (
+				not current_page_lines.is_empty()
+				and current_page_lines.size() + sentence_lines.size() > max_lines_per_page
+			):
+			pages.append("\n".join(current_page_lines))
+			current_page_lines.clear()
+
+		current_page_lines.append_array(sentence_lines)
 
 	if not current_page_lines.is_empty():
 		pages.append("\n".join(current_page_lines))
 
 	return pages
+
+
+func _split_sentences(source_text: String) -> Array[String]:
+	var sentences: Array[String] = []
+	var normalized_words: PackedStringArray = source_text.replace("\n", " ").split(" ", false)
+	var normalized_text: String = " ".join(normalized_words)
+	var current_sentence: String = ""
+
+	for character_index: int in range(normalized_text.length()):
+		var character: String = normalized_text.substr(character_index, 1)
+		current_sentence += character
+		if character != "." and character != "!" and character != "?":
+			continue
+		var is_text_end: bool = character_index >= normalized_text.length() - 1
+		var next_is_space: bool = (
+			not is_text_end
+			and normalized_text.substr(character_index + 1, 1) == " "
+		)
+		if is_text_end or next_is_space:
+			var completed_sentence: String = current_sentence.strip_edges()
+			if not completed_sentence.is_empty():
+				sentences.append(completed_sentence)
+			current_sentence = ""
+
+	var remaining_text: String = current_sentence.strip_edges()
+	if not remaining_text.is_empty():
+		sentences.append(remaining_text)
+
+	return sentences
 
 
 func _wrap_text_lines(source_text: String) -> Array[String]:
