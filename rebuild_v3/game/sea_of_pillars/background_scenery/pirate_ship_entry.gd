@@ -1,13 +1,14 @@
 class_name CotcPirateShipEntry
 extends Node2D
 
+signal interior_requested(return_position: Vector2, facing_left: bool)
+
 const HYLAS_FLIP_01: Texture2D = preload("res://assets/characters/hylas-flip_01.webp")
 const HYLAS_FLIP_02: Texture2D = preload("res://assets/characters/hylas-flip_02.webp")
 const HYLAS_FLIP_04: Texture2D = preload("res://assets/characters/hylas-flip_04.webp")
 
-@export_file("*.tscn") var interior_scene_path: String = (
-	"res://rebuild_v3/game/sea_of_pillars/levels/pirate_ship_interior.tscn"
-)
+# Retained only so older placed scenes keep loading without an invalid-property warning.
+@export_storage var interior_scene_path: String = ""
 @export_range(0.05, 0.50, 0.01) var entry_frame_seconds: float = 0.14
 @export_range(0.25, 4.00, 0.05) var retreat_duration: float = 1.40
 @export_range(0.10, 1.00, 0.01) var retreat_scale_multiplier: float = 0.75
@@ -28,20 +29,34 @@ var _entry_active: bool = false
 var _sprite_was_visible: bool = true
 var _shadow_was_visible: bool = true
 var _item_visuals_were_visible: bool = true
+var _return_position: Vector2 = Vector2.ZERO
+var _return_facing_left: bool = false
+var _interaction_blocked_until_msec: int = 0
+
+
+func _ready() -> void:
+	set_physics_process(false)
+
+
+func _physics_process(_delta: float) -> void:
+	if _entry_active or not is_instance_valid(_hylas):
+		set_physics_process(false)
+		return
+	if Time.get_ticks_msec() < _interaction_blocked_until_msec:
+		return
+	set_physics_process(false)
+	if _interaction_area.overlaps_body(_hylas):
+		_enable_hylas_interaction()
 
 
 func _on_ship_entry_area_body_entered(body: Node2D) -> void:
 	if _entry_active or not _is_hylas(body):
 		return
 	_hylas = body
-	var callback := Callable(self, "_on_hylas_interaction_requested")
-	if body.has_signal(&"interaction_requested") and not body.is_connected(
-			&"interaction_requested",
-			callback,
-		):
-		body.connect(&"interaction_requested", callback)
-	if body.has_method(&"set_interaction_available"):
-		body.call(&"set_interaction_available", true)
+	if Time.get_ticks_msec() < _interaction_blocked_until_msec:
+		set_physics_process(true)
+		return
+	_enable_hylas_interaction()
 
 
 func _on_ship_entry_area_body_exited(body: Node2D) -> void:
@@ -50,8 +65,23 @@ func _on_ship_entry_area_body_exited(body: Node2D) -> void:
 	_release_hylas_interaction()
 
 
+func _enable_hylas_interaction() -> void:
+	if not is_instance_valid(_hylas) or _entry_active:
+		return
+	var callback := Callable(self, "_on_hylas_interaction_requested")
+	if _hylas.has_signal(&"interaction_requested") and not _hylas.is_connected(
+			&"interaction_requested",
+			callback,
+		):
+		_hylas.connect(&"interaction_requested", callback)
+	if _hylas.has_method(&"set_interaction_available"):
+		_hylas.call(&"set_interaction_available", true)
+
+
 func _on_hylas_interaction_requested() -> void:
 	if _entry_active or not is_instance_valid(_hylas):
+		return
+	if Time.get_ticks_msec() < _interaction_blocked_until_msec:
 		return
 	if not _interaction_area.overlaps_body(_hylas):
 		return
@@ -81,6 +111,8 @@ func _begin_entry_sequence() -> void:
 		_restore_after_failed_transition()
 		return
 
+	_return_position = _hylas.global_position
+	_return_facing_left = _hylas_sprite.flip_h
 	_sprite_was_visible = _hylas_sprite.visible
 	_shadow_was_visible = _hylas_shadow.visible if _hylas_shadow != null else false
 	_item_visuals_were_visible = (
@@ -106,13 +138,7 @@ func _begin_entry_sequence() -> void:
 		await get_tree().create_timer(entry_frame_seconds, false).timeout
 
 	await _play_retreat_motion()
-	var transition_error: Error = get_tree().change_scene_to_file(interior_scene_path)
-	if transition_error != OK:
-		push_error(
-			"Could not enter pirate ship interior '%s' (error %d)."
-			% [interior_scene_path, transition_error]
-		)
-		_restore_after_failed_transition()
+	interior_requested.emit(_return_position, _return_facing_left)
 
 
 func _play_retreat_motion() -> void:
@@ -178,7 +204,33 @@ func _play_retreat_motion() -> void:
 		rock_tween.kill()
 
 
+func prepare_return_from_interior(cooldown_seconds: float = 0.85) -> void:
+	_restore_entry_visuals()
+	_release_hylas_interaction()
+	_entry_active = false
+	_interaction_blocked_until_msec = Time.get_ticks_msec() + int(
+		round(maxf(0.0, cooldown_seconds) * 1000.0)
+	)
+	set_physics_process(true)
+
+
+func cancel_entry_transition() -> void:
+	_restore_after_failed_transition()
+
+
 func _restore_after_failed_transition() -> void:
+	_restore_entry_visuals()
+	if is_instance_valid(_hylas):
+		if _hylas.has_method(&"set_play_enabled"):
+			_hylas.call(&"set_play_enabled", true)
+		if _interaction_area.overlaps_body(_hylas) and _hylas.has_method(
+				&"set_interaction_available"
+			):
+			_hylas.call(&"set_interaction_available", true)
+	_entry_active = false
+
+
+func _restore_entry_visuals() -> void:
 	_entry_visual.hide()
 	if is_instance_valid(_hylas_sprite):
 		_hylas_sprite.visible = _sprite_was_visible
@@ -188,14 +240,6 @@ func _restore_after_failed_transition() -> void:
 		_hylas_item_visuals.visible = _item_visuals_were_visible
 	if is_instance_valid(_hylas_collision):
 		_hylas_collision.set_deferred(&"disabled", false)
-	if is_instance_valid(_hylas):
-		if _hylas.has_method(&"set_play_enabled"):
-			_hylas.call(&"set_play_enabled", true)
-		if _interaction_area.overlaps_body(_hylas) and _hylas.has_method(
-				&"set_interaction_available"
-			):
-			_hylas.call(&"set_interaction_available", true)
-	_entry_active = false
 
 
 func _release_hylas_interaction() -> void:
