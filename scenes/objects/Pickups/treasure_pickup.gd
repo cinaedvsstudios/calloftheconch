@@ -1,3 +1,4 @@
+@tool
 class_name CotcTreasurePickup
 extends Area2D
 
@@ -13,11 +14,20 @@ signal pickup_collected(
 const TREASURE_CATALOG = preload("res://rebuild_v3/app/inventory/treasure_catalog.gd")
 
 @export_category("Pickup Identity")
-@export var treasure_id: StringName = &"ancient_greek_coins"
+@export var treasure_id: StringName = &"ancient_greek_coins":
+	set(value):
+		treasure_id = value
+		if Engine.is_editor_hint() and is_node_ready():
+			_load_catalogue_texture()
+			_apply_display_scale()
 @export var pickup_instance_id: StringName = &""
 
 @export_category("Presentation")
-@export_range(20.0, 400.0, 1.0) var display_height: float = 120.0
+@export_range(20.0, 400.0, 1.0) var display_height: float = 120.0:
+	set(value):
+		display_height = value
+		if Engine.is_editor_hint() and is_node_ready():
+			_apply_display_scale()
 @export_range(20.0, 250.0, 1.0) var pickup_radius: float = 65.0
 
 @onready var _sprite: Sprite2D = %PickupSprite
@@ -28,9 +38,11 @@ var _distance_active: bool = true
 
 
 func _ready() -> void:
-	body_entered.connect(_on_body_entered)
 	_load_catalogue_texture()
 	_apply_display_scale()
+	if Engine.is_editor_hint():
+		return
+	body_entered.connect(_on_body_entered)
 	_configure_collision()
 	monitorable = false
 	_apply_collection_state()
