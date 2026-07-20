@@ -141,7 +141,6 @@ func _process_entry(delta: float) -> void:
 		):
 		_state = State.PRE_HINT
 		_sprite.play(&"pre_hint")
-		# Lykos hovers to Hylas's right and turns back toward him.
 		_sprite.flip_h = true
 
 
@@ -197,7 +196,6 @@ func _update_hint_anchor_position() -> void:
 	var cuttlefish_screen_position: Vector2 = (
 		get_viewport().get_canvas_transform() * _cuttlefish.global_position
 	)
-	# The ink opens behind Lykos, with the dialogue centred inside it.
 	var desired_center: Vector2 = cuttlefish_screen_position + Vector2(
 		-hint_screen_horizontal_offset,
 		hint_screen_vertical_offset,
@@ -255,7 +253,6 @@ func _reveal_hint() -> void:
 	_hint_tween.set_ease(Tween.EASE_OUT)
 	_hint_tween.tween_property(_hint_anchor, "scale", final_scale, ink_appear_duration)
 	_hint_tween.parallel().tween_method(_set_ink_opacity, 0.0, _get_ink_target_opacity(), ink_appear_duration)
-
 	_hint_tween.tween_callback(_begin_current_page_typewriter)
 
 
@@ -285,8 +282,6 @@ func _paginate_text_section(source_text: String) -> Array[String]:
 		if sentence_lines.is_empty():
 			continue
 
-		# A sentence that cannot fit on one page is the only case where a page
-		# may end before the sentence itself ends.
 		if sentence_lines.size() > max_lines_per_page:
 			if not current_page_lines.is_empty():
 				pages.append("\n".join(current_page_lines))
@@ -304,8 +299,6 @@ func _paginate_text_section(source_text: String) -> Array[String]:
 				line_index = chunk_end
 			continue
 
-		# Keep complete sentences together. When the next sentence would exceed
-		# four lines, finish the current page at the previous sentence.
 		if (
 				not current_page_lines.is_empty()
 				and current_page_lines.size() + sentence_lines.size() > max_lines_per_page
@@ -410,9 +403,6 @@ func _begin_current_page_typewriter() -> void:
 		float(page_text.length()) / maxf(typewriter_characters_per_second, 1.0),
 	)
 
-	# The ink tween invokes this method from its final callback. Reusing that
-	# already-running tween leaves visible_characters at zero, so the text never
-	# appears. The typewriter must always own a fresh tween.
 	_hint_tween = create_tween()
 	_hint_tween.tween_method(
 		_set_visible_character_count,
@@ -689,4 +679,5 @@ func _begin_delayed_startup_intro() -> void:
 	_state = State.ENTERING
 	_sprite.show()
 	_sprite.flip_h = true
-	_sprite.play(&"swim")	hint_started.emit(_current_definition.hint_id)
+	_sprite.play(&"swim")
+	hint_started.emit(_current_definition.hint_id)
