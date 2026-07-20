@@ -20,6 +20,7 @@ var _awaiting_page_advance: bool = false
 var _advance_dots_elapsed: float = 0.0
 var _current_page_plain_text: String = ""
 var _inline_ellipsis_visible: bool = false
+var _ink_position_locked: bool = false
 
 @onready var _ink_sound: AudioStreamPlayer = %InkSound
 @onready var _tooltip_sound: AudioStreamPlayer = %TooltipSound
@@ -128,6 +129,8 @@ func _get_hover_target() -> Vector2:
 
 
 func _update_hint_anchor_position() -> void:
+	if _ink_position_locked:
+		return
 	if not _cuttlefish.visible:
 		return
 	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
@@ -158,6 +161,8 @@ func _reveal_hint() -> void:
 		_begin_exit()
 		return
 
+	_set_hylas_conch_input_suppressed(true)
+	_ink_position_locked = false
 	_intro_pages = _get_current_hint_pages()
 	_intro_page_index = 0
 	_awaiting_page_advance = false
@@ -172,6 +177,7 @@ func _reveal_hint() -> void:
 	_set_text_reveal(1.0)
 	_set_ink_opacity(0.0)
 	_update_hint_anchor_position()
+	_ink_position_locked = true
 
 	var final_scale: Vector2 = Vector2.ONE * _current_definition.ink_scale
 	_hint_anchor.scale = final_scale * 0.05
@@ -456,8 +462,16 @@ func _begin_hide_hint() -> void:
 
 
 func _begin_exit() -> void:
+	_ink_position_locked = false
+	_set_hylas_conch_input_suppressed(false)
 	_end_lykos_overlay()
 	super._begin_exit()
+
+
+func _set_hylas_conch_input_suppressed(suppressed: bool) -> void:
+	if not is_instance_valid(_hylas):
+		return
+	_hylas._set_conch_input_suppressed(suppressed)
 
 
 func _play_tooltip_sound() -> void:
@@ -506,6 +520,8 @@ func _cancel_presentation() -> void:
 		_hint_label.visible_characters = 0
 		_set_text_reveal(0.0)
 	_awaiting_page_advance = false
+	_ink_position_locked = false
+	_set_hylas_conch_input_suppressed(false)
 	_current_page_plain_text = ""
 	_inline_ellipsis_visible = false
 	_intro_pages.clear()
