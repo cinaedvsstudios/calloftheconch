@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/ambient_animal_reaction/ambient_animal_reaction.gd" id="1_controller"]
+
+[node name="AmbientAnimalReaction" type="Node" groups=["ambient_animal_reaction"]]
+script = ExtResource("1_controller")
+metadata/feature_id = "ambient_animal_reaction"
+metadata/optional_component = true
+editor_description = "Optional decoration-animal reaction. Toggle Reaction Enabled or choose none/push_only/knockable/special. Do not add to enemies or fish-school roots."
