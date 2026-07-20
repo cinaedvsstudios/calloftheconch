@@ -78,6 +78,11 @@ func start_death_sequence() -> void:
 
 
 func _start_burst(input_direction: Vector2) -> void:
+	# A fresh Shift tap during Speed Run coast is the ricochet input. Without this
+	# guard the base burst code starts a new Speed Run on the same tap and clears
+	# the ricochet queue before wall contact can consume it.
+	if _should_reserve_action_a_for_ricochet(input_direction):
+		return
 	_clear_ricochet_queue()
 	_ricochet_chain_active = false
 	_ricochet_chain_count = 0
@@ -97,6 +102,12 @@ func _is_burst_input_held(input_direction: Vector2) -> bool:
 		):
 		return true
 	return super._is_burst_input_held(input_direction)
+
+
+func _can_start_burst(input_direction: Vector2) -> bool:
+	if _should_reserve_action_a_for_ricochet(input_direction):
+		return false
+	return super._can_start_burst(input_direction)
 
 
 func _physics_process(delta: float) -> void:
@@ -142,6 +153,19 @@ func _can_queue_ricochet() -> bool:
 		and not _leaf_sheep_active
 		and _get_active_ricochet_lane() != null
 		and _has_ricochet_motion()
+	)
+
+
+func _should_reserve_action_a_for_ricochet(input_direction: Vector2) -> bool:
+	return (
+		_play_enabled
+		and input_direction.length_squared() > 0.0001
+		and _get_active_ricochet_lane() != null
+		and (
+			_ricochet_queued
+			or _ricochet_chain_active
+			or _has_burst_coast()
+		)
 	)
 
 
@@ -379,7 +403,9 @@ func _clear_ricochet_state(reason: StringName) -> void:
 
 func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = super.get_debug_lines()
+	lines.append("ricochet_lane_count=%d" % _ricochet_lanes.size())
 	lines.append("ricochet_lane_active=%s" % str(is_ricochet_lane_active()))
+	lines.append("ricochet_motion=%s" % str(_has_ricochet_motion()))
 	lines.append("ricochet_queued=%s" % str(_ricochet_queued))
 	lines.append("ricochet_queue_remaining=%.2f" % _ricochet_queue_remaining)
 	lines.append("ricochet_chain_active=%s" % str(_ricochet_chain_active))
