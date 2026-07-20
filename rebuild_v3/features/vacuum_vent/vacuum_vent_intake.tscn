@@ -1,0 +1,94 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/features/vacuum_vent/vacuum_vent_intake.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/vent2.webp" id="2_vent_sprite"]
+[ext_resource type="VideoStream" path="res://assets/effects/vent2.ogv" id="3_vent_video"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/vacuum_vent/reverse_vent_video.gdshader" id="4_reverse_shader"]
+[ext_resource type="Shader" path="res://rebuild_v3/features/vacuum_vent/vacuum_whirlpool.gdshader" id="5_whirlpool_shader"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="6_distance_activator"]
+
+[sub_resource type="ShaderMaterial" id="ReverseVideoMaterial"]
+shader = ExtResource("4_reverse_shader")
+shader_parameter/cut_off = 0.01
+shader_parameter/fade_width = 0.08
+shader_parameter/brightness = 5.0
+
+[sub_resource type="ShaderMaterial" id="WhirlpoolMaterial"]
+shader = ExtResource("5_whirlpool_shader")
+shader_parameter/outer_color = Color(0.12, 0.33, 0.68, 1)
+shader_parameter/inner_color = Color(0.56, 0.80, 1, 1)
+shader_parameter/opacity = 0.72
+shader_parameter/rotation_speed = 0.42
+shader_parameter/turns = 7.0
+shader_parameter/strand_thickness = 0.018
+shader_parameter/funnel_curve = 1.15
+shader_parameter/water_wobble = 0.045
+
+[sub_resource type="CircleShape2D" id="CaptureShape"]
+radius = 105.0
+
+[node name="VacuumVentIntake" type="Area2D" groups=["vacuum_vent_intake"]]
+z_index = 1
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+script = ExtResource("1_controller")
+metadata/feature_id = "vacuum_vent"
+metadata/vent_role = "intake"
+metadata/source_asset = "res://assets/backgrounds/vent2.webp"
+
+[node name="VentSprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("2_vent_sprite")
+
+[node name="ReverseBubbleVideo" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
+z_index = 1
+material = SubResource("ReverseVideoMaterial")
+offset_left = -636.0
+offset_top = -1119.0
+offset_right = 644.0
+offset_bottom = -399.0
+scale = Vector2(1.5, 1.5)
+pivot_offset = Vector2(640, 360)
+mouse_filter = 2
+stream = ExtResource("3_vent_video")
+expand = true
+loop = true
+
+[node name="WhirlpoolOverlay" type="ColorRect" parent="."]
+unique_name_in_owner = true
+z_index = 2
+material = SubResource("WhirlpoolMaterial")
+offset_left = -560.0
+offset_top = -1940.0
+offset_right = 560.0
+offset_bottom = -440.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="MouthMarker" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -520)
+gizmo_extents = 55.0
+editor_description = "Vacuum mouth and final capture point. The controller keeps this aligned with Opening Local Y."
+
+[node name="ForceCollision" type="CollisionPolygon2D" parent="."]
+unique_name_in_owner = true
+polygon = PackedVector2Array(-140, -520, 140, -520, 560, -1920, -560, -1920)
+
+[node name="CaptureArea" type="Area2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -520)
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+
+[node name="CaptureCollision" type="CollisionShape2D" parent="CaptureArea"]
+unique_name_in_owner = true
+shape = SubResource("CaptureShape")
+
+[node name="DistanceActivator" type="Node" parent="."]
+script = ExtResource("6_distance_activator")
