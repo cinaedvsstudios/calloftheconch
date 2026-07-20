@@ -429,7 +429,10 @@ drift_max_speed = 150.0
 [node name="DarknessStart" parent="TriggersLayer" parent_id_path=PackedInt32Array(1407700063) index="1"]
 position = Vector2(104, 5376)
 
-[node name="WorldBottomRight" parent="SpawnPoints" parent_id_path=PackedInt32Array(412767337) index="2" unique_id=456801586]
+[node name="SpawnPoints" parent="." index="6" unique_id=412767337]
+position = Vector2(-1132, -573)
+
+[node name="WorldBottomRight" parent="SpawnPoints" index="2" unique_id=456801586]
 position = Vector2(39080, 8211)
 
 [node name="Hylas" parent="." index="10" unique_id=610069161]
