@@ -9,11 +9,15 @@ const INTRO_PLAYTIME_LIMIT: float = 1.0
 @export_range(8.0, 80.0, 1.0) var typewriter_characters_per_second: float = 28.0
 @export_range(0.1, 3.0, 0.1) var intro_page_pause: float = 1.1
 @export_range(0.05, 1.0, 0.05) var page_transition_duration: float = 0.3
-@export_range(0.5, 1.0, 0.01) var ink_max_opacity: float = 0.90
+@export_range(0.0, 1.0, 0.01) var ink_max_opacity: float = 0.65
 @export_range(8, 40, 1) var max_characters_per_line: int = 22
 @export_range(1, 8, 1) var max_lines_per_page: int = 4
 
+@export_group("Ink Layout")
+@export var text_padding: Vector2 = Vector2(60.0, 40.0)
+
 @export_group("Lykos Swimming Polish")
+@export_range(0.0, 5.0, 0.1) var startup_intro_delay: float = 2.0
 @export_range(0.0, 80.0, 1.0) var entry_exit_curve_amplitude: float = 28.0
 @export_range(0.1, 3.0, 0.1) var entry_exit_curve_frequency: float = 0.7
 
@@ -27,6 +31,8 @@ var _inline_ellipsis_visible: bool = false
 var _ink_position_locked: bool = false
 var _conch_input_suppressed: bool = false
 var _saved_conch_input_events: Array[InputEvent] = []
+var _startup_intro_pending: bool = false
+var _runtime_ink_max_opacity: float = 0.65
 
 @onready var _ink_sound: AudioStreamPlayer = %InkSound
 @onready var _tooltip_sound: AudioStreamPlayer = %TooltipSound
@@ -34,14 +40,21 @@ var _saved_conch_input_events: Array[InputEvent] = []
 @onready var _advance_dots: Label = %AdvanceDots
 
 
+func _ready() -> void:
+	super._ready()
+	_runtime_ink_max_opacity = _read_scene_ink_opacity(ink_max_opacity)
+	_update_hint_anchor_pivot()
+	_sync_hint_text_layout()
+
+
 func _process(delta: float) -> void:
 	super._process(delta)
 	_sync_lykos_overlay()
 	if _awaiting_page_advance:
 		_advance_dots_elapsed += maxf(delta, 0.0)
-		var show_inline_ellipsis: bool = fmod(_advance_dots_elapsed, 0.8) < 0.4
-		if show_inline_ellipsis != _inline_ellipsis_visible:
-			_inline_ellipsis_visible = show_inline_ellipsis
+		var show_fixed_dots: bool = fmod(_advance_dots_elapsed, 0.8) < 0.4
+		if show_fixed_dots != _inline_ellipsis_visible:
+			_inline_ellipsis_visible = show_fixed_dots
 			_refresh_waiting_page_text()
 
 
@@ -55,10 +68,14 @@ func _input(event: InputEvent) -> void:
 
 
 func activate() -> void:
-	super.activate()
+	_active = true
+	_state = State.IDLE
+	set_process(true)
+	_refresh_level_bindings()
 	_apply_trigger_monitoring()
-	if _tooltips_enabled:
-		_start_intro_if_possible()
+	if _tooltips_enabled and _start_intro_if_possible():
+		return
+	_start_next_hint_if_possible()
 
 
 func refresh_triggers() -> void:
@@ -74,7 +91,8 @@ func set_tooltips_enabled(enabled: bool) -> void:
 		_cancel_presentation()
 	_apply_trigger_monitoring()
 	if enabled and _active:
-		_start_intro_if_possible()
+		if _start_intro_if_possible():
+			return
 		_start_next_hint_if_possible()
 
 
@@ -86,7 +104,14 @@ func get_debug_lines() -> Array[String]:
 	var lines: Array[String] = super.get_debug_lines()
 	lines.append("intro_page=%d/%d" % [_intro_page_index + 1, _intro_pages.size()])
 	lines.append("awaiting_space=%s" % str(_awaiting_page_advance))
+	lines.append("startup_intro_pending=%s" % str(_startup_intro_pending))
 	return lines
+
+
+func _start_next_hint_if_possible() -> void:
+	if _startup_intro_pending:
+		return
+	super._start_next_hint_if_possible()
 
 
 func _on_hint_requested(trigger: CotcTutorialHintTrigger) -> void:
@@ -110,7 +135,10 @@ func _process_entry(delta: float) -> void:
 	var hover_target: Vector2 = _get_hover_target()
 	var curved_target: Vector2 = _get_curved_entry_exit_target(hover_target)
 	_move_cuttlefish_toward(curved_target, entry_speed, delta)
-	if _cuttlefish.global_position.distance_to(hover_target) <= arrival_radius:
+	if (
+			_cuttlefish.global_position.distance_to(hover_target) <= arrival_radius
+			or _cuttlefish.global_position.distance_to(curved_target) <= arrival_radius
+		):
 		_state = State.PRE_HINT
 		_sprite.play(&"pre_hint")
 		# Lykos hovers to Hylas's right and turns back toward him.
@@ -164,19 +192,17 @@ func _update_hint_anchor_position() -> void:
 		return
 	if not _cuttlefish.visible:
 		return
+	_update_hint_anchor_pivot()
 	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
 	var cuttlefish_screen_position: Vector2 = (
 		get_viewport().get_canvas_transform() * _cuttlefish.global_position
 	)
-	# The enlarged ink opens behind Lykos, with the dialogue centred inside it.
+	# The ink opens behind Lykos, with the dialogue centred inside it.
 	var desired_center: Vector2 = cuttlefish_screen_position + Vector2(
 		-hint_screen_horizontal_offset,
 		hint_screen_vertical_offset,
 	)
-	var presentation_scale: float = 1.0
-	if _current_definition != null:
-		presentation_scale = _current_definition.ink_scale
-	var scaled_half_size: Vector2 = _hint_anchor.size * presentation_scale * 0.5
+	var scaled_half_size: Vector2 = _hint_anchor.size * _hint_anchor.scale * 0.5
 	var minimum_center: Vector2 = Vector2.ONE * hint_screen_margin + scaled_half_size
 	var maximum_center: Vector2 = viewport_size - Vector2.ONE * hint_screen_margin - scaled_half_size
 	maximum_center.x = maxf(maximum_center.x, minimum_center.x)
@@ -203,6 +229,7 @@ func _reveal_hint() -> void:
 
 	_begin_lykos_overlay()
 	_kill_hint_tween()
+	_update_hint_anchor_pivot()
 	_set_typewriter_page(_intro_pages[0])
 	_hide_advance_dots()
 	_set_text_reveal(1.0)
@@ -210,7 +237,7 @@ func _reveal_hint() -> void:
 	_update_hint_anchor_position()
 	_ink_position_locked = true
 
-	var final_scale: Vector2 = Vector2.ONE * _current_definition.ink_scale
+	var final_scale: Vector2 = Vector2.ONE
 	_hint_anchor.scale = final_scale * 0.05
 	_hint_anchor.show()
 	if _ink_video_available and _ink_video.stream != null:
@@ -227,7 +254,7 @@ func _reveal_hint() -> void:
 	_hint_tween.set_trans(Tween.TRANS_QUAD)
 	_hint_tween.set_ease(Tween.EASE_OUT)
 	_hint_tween.tween_property(_hint_anchor, "scale", final_scale, ink_appear_duration)
-	_hint_tween.parallel().tween_method(_set_ink_opacity, 0.0, ink_max_opacity, ink_appear_duration)
+	_hint_tween.parallel().tween_method(_set_ink_opacity, 0.0, _get_ink_target_opacity(), ink_appear_duration)
 
 	_hint_tween.tween_callback(_begin_current_page_typewriter)
 
@@ -439,7 +466,7 @@ func _show_advance_dots() -> void:
 	_advance_dots_elapsed = 0.0
 	_inline_ellipsis_visible = true
 	if is_instance_valid(_advance_dots):
-		_advance_dots.hide()
+		_advance_dots.show()
 	_refresh_waiting_page_text()
 
 
@@ -455,23 +482,45 @@ func _refresh_waiting_page_text() -> void:
 		return
 	if _current_page_plain_text.is_empty():
 		return
-	if _awaiting_page_advance and _inline_ellipsis_visible:
-		_hint_label.text = _current_page_plain_text + "..."
-	else:
-		_hint_label.text = _current_page_plain_text
+	_hint_label.text = _current_page_plain_text
 	_hint_label.visible_characters = -1
+	if is_instance_valid(_advance_dots) and _awaiting_page_advance:
+		_advance_dots.visible = _inline_ellipsis_visible
 
 
 func _sync_hint_text_layout() -> void:
 	if not is_instance_valid(_hint_label) or not is_instance_valid(_ink_video):
 		return
-	var padding: Vector2 = Vector2(60.0, 40.0)
-	var target_position: Vector2 = _ink_video.position + padding
-	var target_size: Vector2 = _ink_video.size - padding * 2.0
+	var target_position: Vector2 = _ink_video.position + text_padding
+	var target_size: Vector2 = _ink_video.size - text_padding * 2.0
 	target_size.x = maxf(target_size.x, 160.0)
 	target_size.y = maxf(target_size.y, 96.0)
 	_hint_label.position = target_position
 	_hint_label.size = target_size
+	if is_instance_valid(_advance_dots):
+		_advance_dots.position = target_position + Vector2(target_size.x - 80.0, target_size.y - 35.0)
+		_advance_dots.size = Vector2(80.0, 40.0)
+
+
+func _update_hint_anchor_pivot() -> void:
+	if is_instance_valid(_hint_anchor):
+		_hint_anchor.pivot_offset = _hint_anchor.size * 0.5
+
+
+func _read_scene_ink_opacity(fallback: float) -> float:
+	if not is_instance_valid(_ink_video):
+		return clampf(fallback, 0.0, 1.0)
+	var material: ShaderMaterial = _ink_video.material as ShaderMaterial
+	if material == null:
+		return clampf(fallback, 0.0, 1.0)
+	var opacity_value: Variant = material.get_shader_parameter(&"opacity")
+	if typeof(opacity_value) == TYPE_FLOAT or typeof(opacity_value) == TYPE_INT:
+		return clampf(float(opacity_value), 0.0, 1.0)
+	return clampf(fallback, 0.0, 1.0)
+
+
+func _get_ink_target_opacity() -> float:
+	return clampf(_runtime_ink_max_opacity, 0.0, 1.0)
 
 
 func _begin_hide_hint() -> void:
@@ -488,12 +537,13 @@ func _begin_hide_hint() -> void:
 	_hint_tween.set_ease(Tween.EASE_IN)
 	_hint_tween.tween_method(_set_text_reveal, 1.0, 0.0, text_hide_duration)
 	_hint_tween.tween_property(_hint_anchor, "scale", hidden_scale, ink_hide_duration)
-	_hint_tween.parallel().tween_method(_set_ink_opacity, ink_max_opacity, 0.0, ink_hide_duration)
+	_hint_tween.parallel().tween_method(_set_ink_opacity, _get_ink_target_opacity(), 0.0, ink_hide_duration)
 	_hint_tween.tween_callback(_on_hint_hidden)
 
 
 func _begin_exit() -> void:
 	_ink_position_locked = false
+	_startup_intro_pending = false
 	_set_conch_input_suppressed(false)
 	_end_lykos_overlay()
 	super._begin_exit()
@@ -566,6 +616,7 @@ func _cancel_presentation() -> void:
 	if is_instance_valid(_hint_label):
 		_hint_label.visible_characters = 0
 		_set_text_reveal(0.0)
+	_startup_intro_pending = false
 	_awaiting_page_advance = false
 	_ink_position_locked = false
 	_set_conch_input_suppressed(false)
@@ -578,28 +629,28 @@ func _cancel_presentation() -> void:
 	super._cancel_presentation()
 
 
-func _start_intro_if_possible() -> void:
+func _start_intro_if_possible() -> bool:
 	if (
 			not _tooltips_enabled
 			or not _active
 			or _state != State.IDLE
 			or hint_library == null
 		):
-		return
+		return false
 	if _game_state == null or _game_state.playtime_seconds > INTRO_PLAYTIME_LIMIT:
-		return
+		return false
 
 	var definition: CotcTutorialHintDefinition = hint_library.get_hint(INTRO_HINT_ID)
 	if definition == null or not definition.is_valid_definition():
 		push_warning("Cuttlefish intro hint is missing from the tutorial hint library.")
-		return
+		return false
 	if _is_hint_completed(definition):
-		return
+		return false
 
 	_resolve_hylas()
 	_connect_hylas_signals()
 	if not is_instance_valid(_hylas):
-		return
+		return false
 
 	_current_trigger = null
 	_current_definition = definition
@@ -607,12 +658,35 @@ func _start_intro_if_possible() -> void:
 	_show_elapsed = 0.0
 	_required_action_completed = false
 	_bob_time = 0.0
+	_startup_intro_pending = true
+	_cuttlefish.hide()
+	_hint_anchor.hide()
+	_ink_video.hide()
+	_end_lykos_overlay()
 
-	# The opening greeting begins with Lykos beside Hylas, facing back toward him.
-	_cuttlefish.global_position = _get_hover_target()
-	_cuttlefish.show()
+	if startup_intro_delay <= 0.0:
+		call_deferred(&"_begin_delayed_startup_intro")
+	else:
+		get_tree().create_timer(startup_intro_delay).timeout.connect(_begin_delayed_startup_intro)
+	return true
+
+
+func _begin_delayed_startup_intro() -> void:
+	if not _startup_intro_pending:
+		return
+	_startup_intro_pending = false
+	if not _tooltips_enabled or not _active or _current_definition == null:
+		_current_definition = null
+		return
+	_resolve_hylas()
+	if not is_instance_valid(_hylas):
+		_current_definition = null
+		return
+
+	_current_side = CotcTutorialHintTrigger.EntrySide.RIGHT
+	_bob_time = 0.0
+	_spawn_cuttlefish()
+	_state = State.ENTERING
 	_sprite.show()
 	_sprite.flip_h = true
-	_sprite.play(&"pre_hint")
-	_state = State.PRE_HINT
-	hint_started.emit(definition.hint_id)
+	_sprite.play(&"swim")	hint_started.emit(_current_definition.hint_id)
