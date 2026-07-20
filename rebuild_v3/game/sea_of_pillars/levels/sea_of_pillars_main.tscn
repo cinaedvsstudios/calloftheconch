@@ -54,6 +54,7 @@
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish.tscn" id="52_34nxo"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/ricochet/ricochet_lane.tscn" id="53_qxate"]
 [ext_resource type="PackedScene" uid="uid://gsi4wdqp1idu" path="res://rebuild_v3/game/shared/enemies/jellyfish.tscn" id="54_34nxo"]
+[ext_resource type="Texture2D" uid="uid://dddtb4cqdco13" path="res://assets/ui/seaofpillars.webp" id="55_ijwbq"]
 
 [sub_resource type="ShaderMaterial" id="LowerWaterMaterial"]
 shader = ExtResource("6_ueib1")
@@ -1113,3 +1114,10 @@ random_seed = 29
 [node name="Jellyfish4" parent="." index="178" unique_id=842705524 instance=ExtResource("54_34nxo")]
 position = Vector2(8561, 2645)
 scale = Vector2(0.07, 0.07)
+
+[node name="Seaofpillars" type="Sprite2D" parent="." index="179" unique_id=589932834]
+modulate = Color(0.91764706, 1, 1, 1)
+position = Vector2(2547, 2439)
+rotation = 0.3577925
+scale = Vector2(0.235, 0.235)
+texture = ExtResource("55_ijwbq")
