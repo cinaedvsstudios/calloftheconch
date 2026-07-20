@@ -49,11 +49,11 @@ signal frozen_finished()
 @export_range(0.0, 500.0, 1.0) var conch_response_speed: float = 170.0
 @export_range(1.0, 1600.0, 1.0) var conch_response_decay: float = 170.0
 
-@onready var _sprite: AnimatedSprite2D = %AnimatedSprite
-@onready var _hurt_area: Area2D = %HurtArea
-@onready var _floor_probe: RayCast2D = %FloorProbe
-@onready var _stun_audio: AudioStreamPlayer2D = %StunAudio
-@onready var _stun_material: ShaderMaterial = %AnimatedSprite.material as ShaderMaterial
+@onready var _sprite: AnimatedSprite2D = $AnimatedSprite
+@onready var _hurt_area: Area2D = $HurtArea
+@onready var _floor_probe: RayCast2D = $FloorProbe
+@onready var _stun_audio: AudioStreamPlayer2D = $StunAudio
+@onready var _stun_material: ShaderMaterial = _sprite.material as ShaderMaterial
 
 var _home_position: Vector2
 var _patrol_target: Vector2
