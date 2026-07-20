@@ -7,7 +7,7 @@
 [ext_resource type="Shader" uid="uid://7dvptbt1e44f" path="res://rebuild_v3/features/tutorial_cuttlefish/text_dissolve.gdshader" id="5_text_shader"]
 [ext_resource type="AudioStream" uid="uid://xi1x1nklh62q" path="res://assets/audio/ink.mp3" id="6_ink_sound"]
 [ext_resource type="AudioStream" uid="uid://b1wnsoirhqbvr" path="res://assets/audio/tooltip.mp3" id="7_tooltip_sound"]
-[ext_resource type="VideoStream" uid="uid://cyujtqf1qi88p" path="res://assets/effects/inkloop.ogv" id="8_ink_video"]
+[ext_resource type="VideoStream" uid="uid://b31adj548b5ny" path="res://assets/effects/cuttlefishink.ogv" id="7_x8nji"]
 
 [sub_resource type="ShaderMaterial" id="InkMaterial"]
 resource_local_to_scene = true
@@ -99,7 +99,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-stream = ExtResource("8_ink_video")
+stream = ExtResource("7_x8nji")
 volume_db = -80.0
 expand = true
 loop = true
