@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/game/sea_of_pillars/levels/pirate_ship_interior.gd" id="1_controller"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/shipwreck.jpg" id="2_background"]
@@ -17,13 +17,16 @@ shader_parameter/brightness = 4.0
 shader_parameter/waterline_screen_y = -1.0
 shader_parameter/waterline_fade = 0.012
 
+[sub_resource type="RectangleShape2D" id="ShipExitShape"]
+size = Vector2(260, 190)
+
 [node name="PirateShipInterior" type="Node2D"]
 script = ExtResource("1_controller")
-metadata/development_status = "playable_background_room"
+metadata/development_status = "scrollable_local_room"
 metadata/sea_id = "sea_of_pillars"
 metadata/area_id = "pirate_ship_interior"
 metadata/source_asset = "res://assets/backgrounds/shipwreck.jpg"
-editor_description = "Single-screen pirate ship interior using shipwreck.jpg and the shared screen-blended bubble overlay."
+editor_description = "Scrollable pirate ship interior. Camera magnifies the native artwork by 30 percent and follows Hylas within the image edges."
 
 [node name="InteriorOrigin" type="Marker2D" parent="."]
 unique_name_in_owner = true
@@ -33,40 +36,43 @@ editor_description = "Visual centre of the pirate ship interior."
 
 [node name="HylasStart" type="Marker2D" parent="."]
 unique_name_in_owner = true
-position = Vector2(640, 560)
+position = Vector2(470, 520)
 gizmo_extents = 48.0
-editor_description = "Hylas spawn point after entering the wreck."
+editor_description = "Hylas spawn point after entering the wreck; deliberately outside the exit trigger."
 
 [node name="ShipExitAnchor" type="Marker2D" parent="."]
 unique_name_in_owner = true
-position = Vector2(640, 650)
+position = Vector2(640, 460)
 gizmo_extents = 48.0
-editor_description = "Reserved exit point aligned to the lower central hull opening."
+editor_description = "Central hull opening used to return to the exact exterior entry position."
 
-[node name="BackgroundCanvas" type="CanvasLayer" parent="."]
-layer = -20
+[node name="InteriorWorld" type="Node2D" parent="."]
+unique_name_in_owner = true
 
-[node name="Backdrop" type="ColorRect" parent="BackgroundCanvas"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.002, 0.006, 0.018, 1)
-
-[node name="ShipwreckBackground" type="TextureRect" parent="BackgroundCanvas"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
+[node name="ShipwreckBackground" type="Sprite2D" parent="InteriorWorld"]
+unique_name_in_owner = true
+centered = false
 texture = ExtResource("2_background")
-expand_mode = 1
-stretch_mode = 6
+
+[node name="Hylas" parent="InteriorWorld" instance=ExtResource("3_hylas")]
+unique_name_in_owner = true
+position = Vector2(470, 520)
+z_index = 5
+
+[node name="ShipExitArea" type="Area2D" parent="InteriorWorld"]
+unique_name_in_owner = true
+position = Vector2(640, 460)
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+editor_description = "Press Up while Hylas is inside this central-opening trigger to leave the ship."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteriorWorld/ShipExitArea"]
+shape = SubResource("ShipExitShape")
 
 [node name="BubbleCanvas" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
 layer = -5
 
 [node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleCanvas"]
@@ -79,15 +85,50 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 stream = ExtResource("4_bubbles")
-autoplay = true
+autoplay = false
 expand = true
 loop = true
 volume_db = -80.0
 
-[node name="Hylas" parent="." instance=ExtResource("3_hylas")]
+[node name="ExitPromptLayer" type="CanvasLayer" parent="."]
+layer = 40
+
+[node name="ExitPrompt" type="PanelContainer" parent="ExitPromptLayer"]
 unique_name_in_owner = true
-position = Vector2(640, 560)
-z_index = 5
+visible = false
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -205.0
+offset_top = -82.0
+offset_right = 205.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="ExitPromptLayer/ExitPrompt"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "Press W / ↑ to leave the ship"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TransitionLayer" type="CanvasLayer" parent="."]
+layer = 1000
+
+[node name="FadeRect" type="ColorRect" parent="TransitionLayer"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
 
 [node name="UnderwaterAmbience" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
@@ -95,3 +136,6 @@ process_mode = 3
 stream = ExtResource("6_ambience")
 volume_db = -8.0
 script = ExtResource("7_looping_audio")
+
+[connection signal="body_entered" from="InteriorWorld/ShipExitArea" to="." method="_on_ship_exit_area_body_entered"]
+[connection signal="body_exited" from="InteriorWorld/ShipExitArea" to="." method="_on_ship_exit_area_body_exited"]
