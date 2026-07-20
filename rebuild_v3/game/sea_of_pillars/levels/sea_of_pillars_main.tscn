@@ -53,6 +53,7 @@
 [ext_resource type="PackedScene" uid="uid://cr1x0cg7aik0i" path="res://rebuild_v3/game/shared/objects/food_crown_sea_grapes.tscn" id="52_0prhx"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish.tscn" id="52_34nxo"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/ricochet/ricochet_lane.tscn" id="53_qxate"]
+[ext_resource type="PackedScene" uid="uid://gsi4wdqp1idu" path="res://rebuild_v3/game/shared/enemies/jellyfish.tscn" id="54_34nxo"]
 
 [sub_resource type="ShaderMaterial" id="LowerWaterMaterial"]
 shader = ExtResource("6_ueib1")
@@ -1087,10 +1088,28 @@ position = Vector2(712.0005, 6088.001)
 rotation = 1.0188124
 
 [node name="FoodCrownSeaGrapes" parent="." index="173" unique_id=1447396690 instance=ExtResource("52_0prhx")]
-position = Vector2(2185, 2591)
-rotation = 0.41313547
+position = Vector2(3014, 2432)
+rotation = 3.546061
 scale = Vector2(0.415, 0.415)
 
 [node name="RicochetLane" parent="." index="174" unique_id=650593725 instance=ExtResource("53_qxate")]
 position = Vector2(6325, 4826)
 scale = Vector2(0.44, 9.695)
+
+[node name="Jellyfish" parent="." index="175" unique_id=2135077584 instance=ExtResource("54_34nxo")]
+position = Vector2(7055, 2519)
+scale = Vector2(0.11, 0.11)
+
+[node name="Jellyfish2" parent="." index="176" unique_id=1333794228 instance=ExtResource("54_34nxo")]
+position = Vector2(7508, 2661)
+scale = Vector2(0.075, 0.075)
+random_seed = 15
+
+[node name="Jellyfish3" parent="." index="177" unique_id=1864562440 instance=ExtResource("54_34nxo")]
+position = Vector2(8030, 2741)
+scale = Vector2(0.17, 0.17)
+random_seed = 29
+
+[node name="Jellyfish4" parent="." index="178" unique_id=842705524 instance=ExtResource("54_34nxo")]
+position = Vector2(8561, 2645)
+scale = Vector2(0.07, 0.07)

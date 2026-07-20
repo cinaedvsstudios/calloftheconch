@@ -1,5 +1,28 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://gsi4wdqp1idu"]
 
 [ext_resource type="PackedScene" path="res://scenes/enemies/Jellyfish/jellyfish_enemy.tscn" id="1_scene"]
+[ext_resource type="Shader" uid="uid://crq2a3u7vboy" path="res://scenes/enemies/Jellyfish/jellyfish_stun_opacity.gdshader" id="2_ckyti"]
 
-[node name="Jellyfish" instance=ExtResource("1_scene")]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_s0lhq"]
+resource_local_to_scene = true
+shader = ExtResource("2_ckyti")
+shader_parameter/glow_color = Color(0, 0.82, 1, 1)
+shader_parameter/stunned_amount = 0.0
+shader_parameter/pulse_speed = 4.5
+shader_parameter/glow_strength = 1.25
+shader_parameter/glow_radius = 5.0
+shader_parameter/opacity = 0.25
+
+[node name="Jellyfish" unique_id=2135077584 instance=ExtResource("1_scene")]
+scale = Vector2(0.3, 0.3)
+
+[node name="AnimatedSprite" parent="." index="0"]
+material = SubResource("ShaderMaterial_s0lhq")
+
+[node name="CurrentReceiverShape" parent="." index="1"]
+position = Vector2(0, -146.66667)
+scale = Vector2(1.86, 3.585)
+
+[node name="HurtShape" parent="HurtArea" index="0"]
+position = Vector2(0, -146.66666)
+scale = Vector2(3.46, 6.04)
