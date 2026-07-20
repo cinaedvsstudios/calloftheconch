@@ -433,7 +433,7 @@ position = Vector2(104, 5376)
 position = Vector2(39080, 8211)
 
 [node name="Hylas" parent="." index="10" unique_id=610069161]
-position = Vector2(2132, 2423)
+position = Vector2(1811, 2416)
 
 [node name="Environment" type="Node2D" parent="." index="13" unique_id=1790016983]
 position = Vector2(798, 2269)
@@ -584,7 +584,8 @@ position = Vector2(712, -614)
 position = Vector2(8030, 2288)
 
 [node name="SceneryPillarsRuins06" type="Sprite2D" parent="." index="54" unique_id=1774032263]
-position = Vector2(1804, 2477)
+position = Vector2(1436, 2398.0002)
+rotation = 0.22414285
 scale = Vector2(0.22966507, 0.22966507)
 texture = ExtResource("30_armp7")
 
