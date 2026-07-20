@@ -71,6 +71,7 @@ unique_name_in_owner = true
 scale = Vector2(0.16347688, 0.16347688)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
+autoplay = "idle"
 script = ExtResource("12_stop_release")
 
 [node name="ItemVisuals" type="Node2D" parent="."]
