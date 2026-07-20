@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_ricochet.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scenes/characters/Hylas/hylas_speedrun_animation.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" uid="uid://bm6ve0lpyouwa" path="res://scenes/characters/Hylas/hylas_v3_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Texture2D" uid="uid://bj6kjlhmbunt7" path="res://assets/characters/hylas-swim_01.webp" id="3_swim_idle"]
 [ext_resource type="PackedScene" uid="uid://ood4cgs0bkqk" path="res://rebuild_v3/features/effects/bubble_burst.tscn" id="4_bubble_burst"]
@@ -50,6 +50,7 @@ script = ExtResource("1_controller")
 tail_flip_speed = 0.0
 tail_flip_duration = 1.0
 conch_duration = 0.72
+speed_run_gameplay_duration = 4.0
 idle_animation_fps = 4.75
 normal_conus_climb_sprite_perpendicular_offset = -16.0
 default_collision_shape = SubResource("HylasCollisionShape")
