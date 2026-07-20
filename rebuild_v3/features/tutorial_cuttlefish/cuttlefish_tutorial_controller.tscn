@@ -26,7 +26,7 @@ shader_parameter/softness = 0.07
 unique_name_in_owner = true
 process_mode = 1
 process_priority = -100
-editor_description = "ONE controller only. The visible scene layout is authoritative. Drag Cuttlefish relative to HylasEditorAnchor. Drag/resize HintAnchor for ink/video. Change InkVideo.stream for the actual runtime video. Drag/resize HintText for text."
+editor_description = "ONE controller and ONE Lykos visual only. The visible scene layout is authoritative. Drag Cuttlefish relative to HylasEditorAnchor. Drag/resize HintAnchor for ink/video. Change InkVideo.stream for the actual runtime video. Drag/resize HintText for text."
 script = ExtResource("1_controller")
 hint_library = ExtResource("3_library")
 max_lines_per_page = 3
@@ -39,7 +39,7 @@ gizmo_extents = 55.0
 
 [node name="Cuttlefish" type="Node2D" parent="." unique_id=2111394705]
 unique_name_in_owner = true
-editor_description = "DRAG THIS NODE to set Lykos's actual runtime position relative to HylasEditorAnchor."
+editor_description = "DRAG THIS NODE to set Lykos's actual runtime position relative to HylasEditorAnchor. This is the only runtime Lykos visual."
 z_index = 70
 position = Vector2(549, 425.99997)
 scale = Vector2(0.154, 0.154)
@@ -158,13 +158,3 @@ theme_override_font_sizes/font_size = 22
 text = "..."
 horizontal_alignment = 2
 vertical_alignment = 1
-
-[node name="LykosOverlayCanvasLayer" type="CanvasLayer" parent="." unique_id=84077594]
-layer = 20
-
-[node name="LykosOverlay" type="AnimatedSprite2D" parent="LykosOverlayCanvasLayer" unique_id=1327189135]
-unique_name_in_owner = true
-scale = Vector2(0.114066, 0.114066)
-sprite_frames = ExtResource("2_frames")
-animation = &"swim"
-autoplay = "swim"
