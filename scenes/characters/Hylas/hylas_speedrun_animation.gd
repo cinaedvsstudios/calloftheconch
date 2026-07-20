@@ -1,10 +1,13 @@
 extends "res://scenes/characters/Hylas/hylas_ricochet.gd"
 
-## Uses the expanded normal-Hylas Speed Run cycle without changing Greatfin.
-## The 25 normal frames are distributed evenly across the full gameplay duration.
+## Uses the expanded normal-Hylas Speed Run and swim cycles without changing
+## Greatfin. Speed Run is distributed across its gameplay duration; the normal
+## swim animation loops once every four seconds.
 
 const NORMAL_SPEEDRUN_FRAME_COUNT: int = 25
 const NORMAL_SPEEDRUN_FPS: float = 6.25
+const NORMAL_SWIM_FRAME_COUNT: int = 29
+const NORMAL_SWIM_FPS: float = 7.25
 const NORMAL_SPEEDRUN_TEXTURES: Array[Texture2D] = [
 	preload("res://assets/characters/Hylas/speedrun/frame_01.webp"),
 	preload("res://assets/characters/Hylas/speedrun/frame_02.webp"),
@@ -32,16 +35,53 @@ const NORMAL_SPEEDRUN_TEXTURES: Array[Texture2D] = [
 	preload("res://assets/characters/Hylas/speedrun/frame_24.webp"),
 	preload("res://assets/characters/Hylas/speedrun/frame_25.webp"),
 ]
+const NORMAL_SWIM_TEXTURES: Array[Texture2D] = [
+	preload("res://assets/characters/Hylas/swim/frame_01.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_02.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_03.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_04.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_05.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_06.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_07.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_08.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_09.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_10.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_11.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_12.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_13.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_14.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_15.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_16.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_17.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_18.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_19.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_20.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_21.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_22.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_23.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_24.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_25.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_26.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_27.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_28.webp"),
+	preload("res://assets/characters/Hylas/swim/frame_29.webp"),
+]
 
 
 func _ready() -> void:
 	super._ready()
 	_install_normal_speedrun_animation_if_needed()
+	_install_normal_swim_animation_if_needed()
 
 
 func _start_burst(input_direction: Vector2) -> void:
 	_install_normal_speedrun_animation_if_needed()
 	super._start_burst(input_direction)
+
+
+func _update_swim(input_direction: Vector2, delta: float) -> void:
+	_install_normal_swim_animation_if_needed()
+	super._update_swim(input_direction, delta)
 
 
 func _update_burst_presentation() -> void:
@@ -83,6 +123,30 @@ func _install_normal_speedrun_animation_if_needed() -> void:
 		local_frames.add_frame(&"burst", texture, 1.0)
 	local_frames.set_animation_speed(&"burst", NORMAL_SPEEDRUN_FPS)
 	local_frames.set_animation_loop(&"burst", false)
+
+
+func _install_normal_swim_animation_if_needed() -> void:
+	if not _uses_normal_hylas_visuals():
+		return
+	var current_frames: SpriteFrames = _animated_sprite.sprite_frames
+	if current_frames == null:
+		return
+	if current_frames.get_frame_count(&"swim") == NORMAL_SWIM_FRAME_COUNT:
+		current_frames.set_animation_speed(&"swim", NORMAL_SWIM_FPS)
+		current_frames.set_animation_loop(&"swim", true)
+		return
+
+	var local_frames: SpriteFrames = current_frames.duplicate(true) as SpriteFrames
+	local_frames.resource_local_to_scene = true
+	_animated_sprite.sprite_frames = local_frames
+	if local_frames.has_animation(&"swim"):
+		local_frames.clear(&"swim")
+	else:
+		local_frames.add_animation(&"swim")
+	for texture: Texture2D in NORMAL_SWIM_TEXTURES:
+		local_frames.add_frame(&"swim", texture, 1.0)
+	local_frames.set_animation_speed(&"swim", NORMAL_SWIM_FPS)
+	local_frames.set_animation_loop(&"swim", true)
 
 
 func _uses_normal_hylas_visuals() -> bool:
