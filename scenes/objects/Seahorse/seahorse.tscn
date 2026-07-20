@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scenes/objects/AmbientFish/ambient_fish.gd" id="1_controller"]
 [ext_resource type="Texture2D" path="res://assets/characters/seahorse01.webp" id="2_frame_01"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/seahorse05.webp" id="6_frame_05"]
 [ext_resource type="Texture2D" path="res://assets/characters/seahorse06.webp" id="7_frame_06"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="8_distance_activator"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/features/ambient_animal_reaction/ambient_animal_reaction.tscn" id="9_reaction"]
 
 [sub_resource type="SpriteFrames" id="SeahorseSpriteFrames"]
 animations = [{
@@ -86,6 +87,12 @@ enabled = true
 target_position = Vector2(210, 0)
 collision_mask = 1
 exclude_parent = true
+
+[node name="PlayfulReaction" parent="." instance=ExtResource("9_reaction")]
+unique_name_in_owner = true
+tail_flip_knock_speed = 560.0
+surface_arc_height = 105.0
+surface_return_side_distance = 185.0
 
 [node name="DistanceActivator" type="Node" parent="."]
 script = ExtResource("8_distance_activator")
