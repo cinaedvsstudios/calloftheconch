@@ -12,6 +12,12 @@ signal ricochet_finished(reason: StringName)
 const DEFAULT_RICOCHET_SURFACE_GROUP: StringName = &"ricochet_surface"
 const NON_RICOCHET_SURFACE_GROUP: StringName = &"non_ricochet_surface"
 const HAZARD_SURFACE_GROUP: StringName = &"hazard_surface"
+const RICOCHET_ANIMATION: StringName = &"ricochet"
+const RICOCHET_CONTACT_FX_SCENE: PackedScene = preload(
+	"res://rebuild_v3/features/effects/ricochet_contact_fx/ricochet_contact_fx.tscn"
+)
+const RICOCHET_01: Texture2D = preload("res://assets/characters/hylas-ricochet_01.webp")
+const RICOCHET_02: Texture2D = preload("res://assets/characters/hylas-ricochet_02.webp")
 
 @export_category("Ricochet Maneuver")
 @export_range(100.0, 3000.0, 10.0) var ricochet_bounce_speed: float = 1120.0
@@ -24,6 +30,12 @@ const HAZARD_SURFACE_GROUP: StringName = &"hazard_surface"
 @export_range(0.0, 48.0, 1.0) var ricochet_wall_separation: float = 8.0
 @export var ricochet_default_requires_surface_group: bool = false
 
+@export_category("Ricochet Contact Presentation")
+@export_range(1.0, 60.0, 0.5) var ricochet_animation_fps: float = 16.0
+@export var ricochet_contact_fx_enabled: bool = true
+@export var ricochet_contact_fx_rock_tint: Color = Color.WHITE
+@export_range(0.10, 3.0, 0.05) var ricochet_contact_fx_intensity: float = 1.0
+
 var _ricochet_lanes: Array[Node] = []
 var _ricochet_queued: bool = false
 var _ricochet_queue_remaining: float = 0.0
@@ -33,6 +45,12 @@ var _ricochet_bounce_cooldown_remaining: float = 0.0
 var _ricochet_chain_count: int = 0
 var _ricochet_last_vertical_sign: float = -1.0
 var _last_ricochet_wall_id: int = 0
+var _ricochet_animation_remaining: float = 0.0
+
+
+func _ready() -> void:
+	super._ready()
+	_install_ricochet_animation(_animated_sprite.sprite_frames)
 
 
 func enter_ricochet_lane(lane: Node) -> void:
@@ -123,6 +141,7 @@ func _physics_process(delta: float) -> void:
 
 	super._physics_process(delta)
 	_resolve_ricochet_wall_contacts()
+	_update_ricochet_animation_return(delta)
 
 
 func _handle_ricochet_shift_press(input_direction: Vector2) -> void:
@@ -298,12 +317,18 @@ func _perform_ricochet_bounce(
 	_burst_coast_velocity = new_direction * resolved_speed
 	velocity = _burst_coast_velocity
 
+	var contact_position: Vector2 = collision.get_position()
+	var incoming_direction: Vector2 = _safe_ricochet_direction(travel_velocity, -normal)
+	var surface: Node = collision.get_collider() as Node
+
 	_set_visual_rotation(_direction_rotation(new_direction, vertical_burst_angle_degrees))
 	_set_animation(&"burst")
+	_play_ricochet_contact_animation()
+	_play_ricochet_contact_fx(contact_position, normal, incoming_direction, new_direction, surface)
 	_play_burst_audio()
 	_play_tail_bubble_burst()
 	_trigger_camera_shake()
-	ricochet_bounced.emit(collision.get_position(), normal, new_direction, _ricochet_chain_count)
+	ricochet_bounced.emit(contact_position, normal, new_direction, _ricochet_chain_count)
 
 
 func _calculate_ricochet_direction(normal: Vector2, lane: Node, travel_velocity: Vector2) -> Vector2:
@@ -327,6 +352,97 @@ func _calculate_ricochet_direction(normal: Vector2, lane: Node, travel_velocity:
 	if absf(horizontal_axis) <= 0.01:
 		horizontal_axis = -1.0 if travel_velocity.x < 0.0 else 1.0
 	return Vector2(horizontal_axis * bias_strength, vertical_sign).normalized()
+
+
+func _play_ricochet_contact_animation() -> void:
+	if not is_instance_valid(_animated_sprite):
+		return
+	var sprite_frames: SpriteFrames = _animated_sprite.sprite_frames
+	if sprite_frames == null or not sprite_frames.has_animation(RICOCHET_ANIMATION):
+		return
+	_set_animation(RICOCHET_ANIMATION)
+	_animated_sprite.frame = 0
+	_animated_sprite.speed_scale = 1.0
+	_animated_sprite.play(RICOCHET_ANIMATION)
+	_ricochet_animation_remaining = 2.0 / maxf(0.1, ricochet_animation_fps)
+
+
+func _update_ricochet_animation_return(delta: float) -> void:
+	if _ricochet_animation_remaining <= 0.0:
+		return
+	_ricochet_animation_remaining = maxf(0.0, _ricochet_animation_remaining - maxf(delta, 0.0))
+	if _ricochet_animation_remaining > 0.0:
+		return
+	if not is_instance_valid(_animated_sprite):
+		return
+	if _animated_sprite.animation != RICOCHET_ANIMATION:
+		return
+	if _burst_active or _ricochet_chain_active or _has_burst_coast():
+		_set_animation(&"burst")
+	else:
+		_set_animation(&"swim")
+
+
+func _play_ricochet_contact_fx(
+		contact_position: Vector2,
+		normal: Vector2,
+		incoming_direction: Vector2,
+		new_direction: Vector2,
+		surface: Node,
+	) -> void:
+	if not ricochet_contact_fx_enabled:
+		return
+	var effect_parent: Node = get_parent()
+	if effect_parent == null:
+		effect_parent = get_tree().current_scene
+	if effect_parent == null:
+		return
+	var contact_fx: Node = RICOCHET_CONTACT_FX_SCENE.instantiate()
+	if contact_fx == null:
+		return
+	effect_parent.add_child(contact_fx)
+	if contact_fx.has_method(&"play_contact"):
+		contact_fx.call(
+			&"play_contact",
+			contact_position,
+			normal,
+			incoming_direction,
+			new_direction,
+			_get_ricochet_surface_kind(surface),
+			ricochet_contact_fx_rock_tint,
+			ricochet_contact_fx_intensity
+		)
+
+
+func _install_ricochet_animation(sprite_frames: SpriteFrames) -> void:
+	if sprite_frames == null:
+		return
+	if sprite_frames.has_animation(RICOCHET_ANIMATION):
+		sprite_frames.clear(RICOCHET_ANIMATION)
+	else:
+		sprite_frames.add_animation(RICOCHET_ANIMATION)
+	sprite_frames.add_frame(RICOCHET_ANIMATION, RICOCHET_01)
+	sprite_frames.add_frame(RICOCHET_ANIMATION, RICOCHET_02)
+	sprite_frames.set_animation_speed(RICOCHET_ANIMATION, ricochet_animation_fps)
+	sprite_frames.set_animation_loop(RICOCHET_ANIMATION, false)
+
+
+func _get_ricochet_surface_kind(surface: Node) -> StringName:
+	if is_instance_valid(surface) and surface.has_method(&"get_ricochet_surface_kind"):
+		var value: Variant = surface.call(&"get_ricochet_surface_kind")
+		if value is StringName:
+			return value
+		if value is String:
+			return StringName(value)
+	return &"rock"
+
+
+func _safe_ricochet_direction(direction: Vector2, fallback: Vector2) -> Vector2:
+	if direction.length_squared() > 0.0001:
+		return direction.normalized()
+	if fallback.length_squared() > 0.0001:
+		return fallback.normalized()
+	return Vector2.RIGHT
 
 
 func _get_ricochet_travel_velocity() -> Vector2:
@@ -396,6 +512,7 @@ func _clear_ricochet_state(reason: StringName) -> void:
 	_ricochet_chain_grace_remaining = 0.0
 	_ricochet_bounce_cooldown_remaining = 0.0
 	_ricochet_chain_count = 0
+	_ricochet_animation_remaining = 0.0
 	_last_ricochet_wall_id = 0
 	if reason != &"reset":
 		ricochet_finished.emit(reason)
@@ -412,4 +529,5 @@ func get_debug_lines() -> Array[String]:
 	lines.append("ricochet_chain_count=%d" % _ricochet_chain_count)
 	lines.append("ricochet_chain_grace=%.2f" % _ricochet_chain_grace_remaining)
 	lines.append("ricochet_bounce_cooldown=%.2f" % _ricochet_bounce_cooldown_remaining)
+	lines.append("ricochet_animation_remaining=%.2f" % _ricochet_animation_remaining)
 	return lines
