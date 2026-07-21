@@ -9,6 +9,10 @@ signal transition_finished
 ## The visible, scaled ship artwork defines both Hylas's playable bounds and the
 ## Camera2D limits, so neither the player nor the viewport can leave the JPEG.
 
+const ENTRANCE_LIGHT_SCENE: PackedScene = preload(
+	"res://rebuild_v3/game/sea_of_pillars/objects/ship_entrance_light.tscn"
+)
+
 @export_category("Room")
 @export var fallback_interior_size: Vector2 = Vector2(1280.0, 720.0)
 @export var interior_waterline_y: float = -10000.0
@@ -22,8 +26,11 @@ signal transition_finished
 @export var exit_action: StringName = &"move_up"
 @export_range(0.05, 1.5, 0.05) var transition_seconds: float = 0.28
 
-@export_category("Companion")
-@export var leaf_sheep_path: NodePath = ^"../ItemEffectController/LeafSheep"
+@export_category("Entrance Light")
+@export var entrance_light_enabled: bool = true
+@export var entrance_light_offset: Vector2 = Vector2(0.0, -35.0)
+@export_range(-180.0, 180.0, 1.0) var entrance_light_rotation_degrees: float = 0.0
+@export var entrance_light_scale: Vector2 = Vector2.ONE
 
 @onready var _interior_world: Node2D = %InteriorWorld
 @onready var _background: Sprite2D = %ShipwreckBackground
@@ -42,6 +49,7 @@ var _room_bounds: Rect2 = Rect2(Vector2.ZERO, Vector2(1280.0, 720.0))
 var _room_size: Vector2 = Vector2.ZERO
 var _leaf_sheep: CotcLeafSheep
 var _leaf_sheep_attached_to_interior: bool = false
+var _entrance_light: Node2D
 var _active: bool = false
 var _hylas_in_exit: bool = false
 var _exit_pending: bool = false
@@ -50,11 +58,11 @@ var _fade_tween: Tween
 
 func _ready() -> void:
 	_camera = _hylas.get_node_or_null(^"Camera2D") as Camera2D
-	_leaf_sheep = get_node_or_null(leaf_sheep_path) as CotcLeafSheep
 	if _camera != null:
 		_camera.enabled = false
 	_hylas.set_play_enabled(false)
 	_configure_room_from_background()
+	_ensure_entrance_light()
 	_set_exit_prompt_visible(false)
 	_set_interior_visuals_visible(false)
 	_fade_rect.modulate.a = 0.0
@@ -80,6 +88,7 @@ func activate() -> void:
 	_configure_room_from_background()
 	_configure_hylas()
 	_configure_camera()
+	_ensure_entrance_light()
 	_attach_leaf_sheep_to_interior()
 	_start_room_ambience()
 	_set_exit_prompt_visible(false)
@@ -227,9 +236,35 @@ func _configure_camera() -> void:
 	_camera.force_update_scroll()
 
 
+func _ensure_entrance_light() -> void:
+	if not entrance_light_enabled or not is_instance_valid(_exit_area):
+		if is_instance_valid(_entrance_light):
+			_entrance_light.hide()
+		return
+	if not is_instance_valid(_entrance_light):
+		_entrance_light = _exit_area.get_node_or_null(^"ShipEntranceLight") as Node2D
+	if not is_instance_valid(_entrance_light):
+		_entrance_light = ENTRANCE_LIGHT_SCENE.instantiate() as Node2D
+		if not is_instance_valid(_entrance_light):
+			push_warning("Pirate ship entrance light scene could not be instantiated.")
+			return
+		_exit_area.add_child(_entrance_light)
+	_entrance_light.position = entrance_light_offset
+	_entrance_light.rotation_degrees = entrance_light_rotation_degrees
+	_entrance_light.scale = entrance_light_scale
+	_entrance_light.show()
+
+
+func _resolve_leaf_sheep() -> CotcLeafSheep:
+	var gameplay_context: Node = get_parent()
+	if not is_instance_valid(gameplay_context):
+		return null
+	return gameplay_context.get_node_or_null(^"ItemEffectController/LeafSheep") as CotcLeafSheep
+
+
 func _attach_leaf_sheep_to_interior() -> void:
 	if not is_instance_valid(_leaf_sheep):
-		_leaf_sheep = get_node_or_null(leaf_sheep_path) as CotcLeafSheep
+		_leaf_sheep = _resolve_leaf_sheep()
 	if not is_instance_valid(_leaf_sheep):
 		push_warning("Pirate ship could not find the GameplayContext Leaf Sheep companion.")
 		return
@@ -343,6 +378,7 @@ func get_debug_lines() -> Array[String]:
 		"room_bounds=%s" % str(_room_bounds),
 		"room_size=%s" % str(_room_size),
 		"camera_zoom=%.2f" % camera_zoom,
+		"entrance_light_enabled=%s" % str(entrance_light_enabled),
 		"leaf_sheep_attached=%s" % str(_leaf_sheep_attached_to_interior),
 		"hylas_in_exit=%s" % str(_hylas_in_exit),
 		"exit_pending=%s" % str(_exit_pending),
