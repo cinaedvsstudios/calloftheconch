@@ -4,3 +4,6 @@
 
 [node name="BellShapedBlockOfLeadPickup" instance=ExtResource("1_base")]
 treasure_id = &"bell_shaped_block_of_lead"
+
+[node name="PickupSprite" parent="." index="0"]
+scale = Vector2(0.0956937799, 0.0956937799)
