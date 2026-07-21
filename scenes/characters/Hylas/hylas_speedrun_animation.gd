@@ -1,11 +1,11 @@
 extends "res://scenes/characters/Hylas/hylas_ricochet.gd"
 
 ## Uses the expanded normal-Hylas Speed Run and swim cycles without changing
-## Greatfin. Speed Run is distributed across its gameplay duration; the normal
-## swim animation loops once every four seconds.
+## Greatfin. Speed Run loops twice across its four-second gameplay duration;
+## the normal swim animation loops once every four seconds.
 
 const NORMAL_SPEEDRUN_FRAME_COUNT: int = 25
-const NORMAL_SPEEDRUN_FPS: float = 6.25
+const NORMAL_SPEEDRUN_FPS: float = 12.5
 const NORMAL_SWIM_FRAME_COUNT: int = 29
 const NORMAL_SWIM_FPS: float = 7.25
 const NORMAL_SPEEDRUN_TEXTURES: Array[Texture2D] = [
@@ -95,9 +95,8 @@ func _update_burst_presentation() -> void:
 		super._update_burst_presentation()
 		return
 
-	var duration: float = maxf(0.01, speed_run_gameplay_duration)
-	var progress: float = clampf(_burst_elapsed / duration, 0.0, 0.999999)
-	_animated_sprite.frame = mini(frame_count - 1, floori(progress * float(frame_count)))
+	var elapsed_frames: float = _burst_elapsed * NORMAL_SPEEDRUN_FPS
+	_animated_sprite.frame = floori(fposmod(elapsed_frames, float(frame_count)))
 	_animated_sprite.pause()
 
 
@@ -109,7 +108,7 @@ func _install_normal_speedrun_animation_if_needed() -> void:
 		return
 	if current_frames.get_frame_count(&"burst") == NORMAL_SPEEDRUN_FRAME_COUNT:
 		current_frames.set_animation_speed(&"burst", NORMAL_SPEEDRUN_FPS)
-		current_frames.set_animation_loop(&"burst", false)
+		current_frames.set_animation_loop(&"burst", true)
 		return
 
 	var local_frames: SpriteFrames = current_frames.duplicate(true) as SpriteFrames
@@ -122,7 +121,7 @@ func _install_normal_speedrun_animation_if_needed() -> void:
 	for texture: Texture2D in NORMAL_SPEEDRUN_TEXTURES:
 		local_frames.add_frame(&"burst", texture, 1.0)
 	local_frames.set_animation_speed(&"burst", NORMAL_SPEEDRUN_FPS)
-	local_frames.set_animation_loop(&"burst", false)
+	local_frames.set_animation_loop(&"burst", true)
 
 
 func _install_normal_swim_animation_if_needed() -> void:
