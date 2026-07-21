@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://f6ug5vpmljte" path="res://assets/backgrounds/shipwreck.jpg" id="2_background"]
 [ext_resource type="PackedScene" path="res://scenes/characters/Hylas/hylas.tscn" id="3_hylas"]
 [ext_resource type="VideoStream" uid="uid://buw0jv63vxw0i" path="res://assets/effects/bubble_riser_field.ogv" id="4_bubbles"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/objects/ship_entrance_light.tscn" id="4_uqn71"]
 [ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="5_bubble_shader"]
 [ext_resource type="AudioStream" uid="uid://b1ok5tlb5fqkw" path="res://assets/audio/underwater_ambience.mp3" id="6_ambience"]
 [ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="7_looping_audio"]
@@ -60,6 +61,7 @@ unique_name_in_owner = true
 scale = Vector2(0.7468, 0.7468)
 texture = ExtResource("2_background")
 centered = false
+metadata/_edit_lock_ = true
 
 [node name="Hylas" parent="InteriorWorld" unique_id=1803911609 instance=ExtResource("3_hylas")]
 unique_name_in_owner = true
@@ -75,6 +77,11 @@ monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InteriorWorld/ShipExitArea" unique_id=1418400389]
 shape = SubResource("ShipExitShape")
+
+[node name="ShipEntranceLight" type="Node2D" parent="InteriorWorld/ShipExitArea" unique_id=887987750 instance=ExtResource("4_uqn71")]
+editor_description = "Light entering through the pirate-ship opening. Instance this beneath ShipExitArea so it follows the entrance position."
+z_index = 2
+position = Vector2(-168, -121)
 
 [node name="RoomDarkness" type="CanvasModulate" parent="." unique_id=211849654]
 unique_name_in_owner = true
@@ -198,14 +205,56 @@ position = Vector2(-169.0852, 9.939697)
 [node name="ShipCollision01" type="StaticBody2D" parent="environment/shipcollision" unique_id=208416394]
 editor_description = "Real editable ship collision on terrain layer 1. Duplicate this node, move it to another deck, then edit its CollisionPolygon2D points."
 position = Vector2(470, 688)
-collision_layer = 1
 collision_mask = 0
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=208416395]
-polygon = PackedVector2Array(-240, -20, 240, -20, 240, 20, -240, 20)
+position = Vector2(-2296.6133, -342)
+scale = Vector2(1.117612, 1.28125)
+polygon = PackedVector2Array(-370.7787, -30.439026, 627.7789, 24.19513, 669.8328, 43.707336, -351.98862, -10.926819)
+
+[node name="CollisionPolygon2D5" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=577147825]
+position = Vector2(-2296.6133, -342)
+scale = Vector2(1.117612, 1.28125)
+polygon = PackedVector2Array(-757.3171, -539.317, -666.0511, -364.4878, -532.7311, -199.02435, -385.0949, -92.097534, -142.61365, 59.317078, -73.716736, 113.95123, -320.67188, 26.53656, -503.20386, -115.51221, -670.5249, -265.36584, -802.0553, -403.51218, -815.4768, -544.78046)
+
+[node name="CollisionPolygon2D3" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=45393204]
+position = Vector2(-367.00012, -270)
+scale = Vector2(1.117612, 1.28125)
+polygon = PackedVector2Array(-370.7787, -30.439026, 33.1062, -28.097595, 22.368896, -2.3414917, -351.98862, -10.926819)
+
+[node name="CollisionPolygon2D6" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=778520845]
+position = Vector2(599.00006, -425)
+scale = Vector2(1.117612, 1.28125)
+polygon = PackedVector2Array(-370.7787, -30.439026, 33.1062, -28.097595, 22.368896, -2.3414917, -351.98862, -10.926819)
+
+[node name="CollisionPolygon2D7" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=1149434675]
+position = Vector2(502.00006, -248)
+scale = Vector2(1.117612, 1.28125)
+polygon = PackedVector2Array(-370.7787, -30.439026, 33.1062, -28.097595, 22.368896, -2.3414917, -351.98862, -10.926819)
+
+[node name="CollisionPolygon2D4" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=157181088]
+position = Vector2(425.99982, -257)
+scale = Vector2(1.117612, 1.28125)
+polygon = PackedVector2Array(-976.18823, 272.3902, -1527.3633, 252.87799, -1938.0603, 181.07318, -2263.755, 114.73169, -2687.8733, -39.024414, -2668.1885, -11.707336, -2344.2837, 116.29266, -1970.2719, 201.36578, -1696.4739, 247.41461, -1464.7297, 289.56097, -989.6096, 302.04877)
+
+[node name="CollisionPolygon2D4" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01/CollisionPolygon2D4" unique_id=171880321]
+position = Vector2(5.368988, -54.634155)
+scale = Vector2(1.117612, 1.28125)
+polygon = PackedVector2Array(-1006.6101, 259.9024, -639.7566, 252.09747, -404.43335, 244.29266, -127.95117, 171.70734, 107.37207, 40.585327, 138.68896, -46.829285, 234.42871, -186.53662, 289.90405, -231.02441, 338.22144, -231.02441, 220.11255, -99.12195, 119.00391, 103.02435, -67.10718, 216.97552, -514.4895, 311.4146, -1022.7158, 298.92682)
+
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=425060342]
+position = Vector2(-2554, -587)
+scale = Vector2(1.117612, 1.28125)
+polygon = PackedVector2Array(-370.7787, -30.439026, 2252.123, 67.902405, 2254.8074, 87.41461, 208.80603, 19.057434, -351.98862, -10.926819)
+
+[node name="CollisionPolygon2D8" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=784501816]
+position = Vector2(-1670.0002, -806.00006)
+scale = Vector2(1.117612, 1.28125)
+polygon = PackedVector2Array(-1253.5653, -58.53656, 2252.123, 67.902405, 2254.8074, 87.41461, 1606.9976, 32.780457, 208.80603, 19.057434, -1232.9857, -29.658508)
 
 [node name="LeafSheepPickup" parent="." unique_id=1971499365 instance=ExtResource("10_leaf_pickup")]
-position = Vector2(3248, 1279)
+position = Vector2(3325, 1221)
+scale = Vector2(0.19, 0.19)
 
 [node name="DepthJellyfishDeepBlue" parent="." unique_id=818172851 instance=ExtResource("11_hxmxa")]
 position = Vector2(601, 213)
