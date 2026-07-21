@@ -21,6 +21,7 @@
 [ext_resource type="Script" path="res://rebuild_v3/features/effects/hylas_action_vfx_refinement.gd" id="19_action_vfx_refinement"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/effects/weapon_emission_fx_2d/weapon_emission_fx_2d.tscn" id="20_tail_flip_emission"]
 [ext_resource type="Script" path="res://rebuild_v3/features/breakable_rocks/rock_hit_router.gd" id="21_rock_hit_router"]
+[ext_resource type="Script" path="res://rebuild_v3/features/effects/ricochet_audio_fx.gd" id="22_ricochet_audio"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_imwqt"]
 shader = ExtResource("10_shadow_shader")
@@ -176,6 +177,9 @@ volume_db = -6.0
 unique_name_in_owner = true
 stream = ExtResource("15_powerdown_audio")
 volume_db = -4.0
+
+[node name="RicochetAudioFX" type="Node2D" parent="Audio"]
+script = ExtResource("22_ricochet_audio")
 
 [connection signal="tail_flip_impact" from="." to="ActionVFX/TailFlipImpactEmission" method="_on_tail_flip_impact"]
 [connection signal="tail_flip_impact" from="." to="RockHitRouter" method="_on_tail_flip_impact"]
