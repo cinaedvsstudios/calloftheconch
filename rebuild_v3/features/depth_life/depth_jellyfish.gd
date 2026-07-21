@@ -10,7 +10,6 @@ enum MotionState {
 }
 
 @export_category("Display")
-@export_range(40.0, 500.0, 1.0) var display_height: float = 150.0
 @export_range(0.0, 0.2, 0.005) var pulse_scale_amount: float = 0.05
 @export_range(0.05, 2.0, 0.05) var pulse_cycles_per_second: float = 0.28
 @export_range(0.0, 80.0, 1.0) var visual_bob_distance: float = 7.0
@@ -62,7 +61,7 @@ func _ready() -> void:
 	else:
 		_rng.seed = random_seed
 	_drift_direction = -1.0 if _rng.randf() < 0.5 else 1.0
-	_apply_display_scale()
+	_base_sprite_scale = _sprite.scale
 	_sprite.animation_finished.connect(_on_animation_finished)
 	_sprite.play(&"idle")
 	_schedule_next_boost()
@@ -272,13 +271,3 @@ func _get_external_current_velocity() -> Vector2:
 	for invalid_source: Node in invalid_sources:
 		_external_currents.erase(invalid_source)
 	return total
-
-
-func _apply_display_scale() -> void:
-	var first_texture: Texture2D = _sprite.sprite_frames.get_frame_texture(&"idle", 0)
-	if first_texture == null:
-		return
-	var scale_factor: float = display_height / maxf(1.0, float(first_texture.get_height()))
-	_base_sprite_scale = Vector2.ONE * scale_factor
-	_sprite.scale = _base_sprite_scale
-	_bubble_burst.position.y = display_height * 0.28
