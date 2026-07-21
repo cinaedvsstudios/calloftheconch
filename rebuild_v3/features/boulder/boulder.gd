@@ -19,7 +19,6 @@ extends CharacterBody2D
 @onready var _solid_collision: CollisionShape2D = $SolidCollision
 
 var _hylas: CotcHylas
-var _instance_scale: Vector2 = Vector2.ONE
 var _tail_flip_active_until: float = 0.0
 var _active_tail_flip_direction: Vector2 = Vector2.RIGHT
 var _last_hit_time: float = -999.0
@@ -27,7 +26,6 @@ var _is_drifting: bool = false
 
 
 func _ready() -> void:
-	_transfer_instance_scale_to_children()
 	call_deferred("_connect_to_hylas")
 
 
@@ -36,15 +34,6 @@ func _physics_process(delta: float) -> void:
 		_try_tail_flip_hit()
 	if _is_drifting:
 		_update_heavy_drift(delta)
-
-
-func _transfer_instance_scale_to_children() -> void:
-	_instance_scale = scale
-	if _instance_scale == Vector2.ZERO:
-		_instance_scale = Vector2.ONE
-	_sprite.scale *= _instance_scale
-	_solid_collision.scale *= _instance_scale
-	scale = Vector2.ONE
 
 
 func _connect_to_hylas() -> void:
@@ -84,7 +73,15 @@ func _get_effective_collision_radius() -> float:
 	var circle_shape: CircleShape2D = _solid_collision.shape as CircleShape2D
 	if circle_shape == null:
 		return 0.0
-	return circle_shape.radius * maxf(absf(_solid_collision.scale.x), absf(_solid_collision.scale.y))
+	var collision_transform: Transform2D = _solid_collision.global_transform
+	var collision_global_scale := Vector2(
+		collision_transform.x.length(),
+		collision_transform.y.length(),
+	)
+	return circle_shape.radius * maxf(
+		absf(collision_global_scale.x),
+		absf(collision_global_scale.y),
+	)
 
 
 func _apply_tail_flip_hit() -> void:
