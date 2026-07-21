@@ -10,7 +10,6 @@ signal frozen_started()
 signal frozen_finished()
 
 @export_category("Animation")
-@export_range(40.0, 900.0, 1.0) var display_height: float = 300.0
 @export var source_faces_left: bool = false
 
 @export_category("Patrol")
@@ -71,7 +70,6 @@ func _ready() -> void:
 	_travel_sign = -1.0 if _rng.randf() < 0.5 else 1.0
 	_wander_phase = _rng.randf_range(0.0, TAU)
 	_choose_next_patrol_target(true)
-	_apply_display_scale()
 	_configure_stun_material()
 	_sprite.play(&"normal")
 	body_entered.connect(_on_body_entered)
@@ -312,8 +310,8 @@ func _get_hylas_intercept_point() -> Vector2:
 		return _patrol_target
 	var facing_direction: Vector2 = Vector2.RIGHT
 	var hylas_body: CharacterBody2D = _hylas as CharacterBody2D
-	if hylas_body != null and hylas_body.velocity.length_squared() > 25.0:
-		facing_direction = hylas_body.velocity.normalized()
+	if hylas_body != null and hylas_body.velocity.length_squared() > 1.0:
+		facing_direction = Vector2.LEFT if hylas_body.velocity.x < 0.0 else Vector2.RIGHT
 	else:
 		var hylas_sprite: AnimatedSprite2D = _hylas.get_node_or_null("AnimatedSprite") as AnimatedSprite2D
 		if hylas_sprite != null and hylas_sprite.flip_h:
@@ -361,11 +359,3 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	if body.is_in_group(&"hylas"):
 		hylas_contacted.emit(body)
-
-
-func _apply_display_scale() -> void:
-	var first_texture: Texture2D = _sprite.sprite_frames.get_frame_texture(&"normal", 0)
-	if first_texture == null:
-		return
-	var scale_factor: float = display_height / maxf(1.0, float(first_texture.get_height()))
-	_sprite.scale = Vector2.ONE * scale_factor
