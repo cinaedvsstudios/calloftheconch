@@ -20,6 +20,8 @@ autoplay = "normal"
 
 [node name="CollisionShape" type="CollisionShape2D" parent="." unique_id=992377911]
 unique_name_in_owner = true
+position = Vector2(22.499998, -17.499998)
+scale = Vector2(4.845, 1.7)
 shape = SubResource("PufferCollisionShape")
 
 [node name="DistanceActivator" type="Node" parent="." unique_id=1978727423]
