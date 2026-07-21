@@ -5,9 +5,6 @@ signal damage_requested(hylas: Node, amount: int)
 signal frozen_started()
 signal frozen_finished()
 
-@export_category("Animation")
-@export_range(40.0, 900.0, 1.0) var display_height: float = 250.0
-
 @export_category("Drift")
 @export var patrol_half_extents: Vector2 = Vector2(700.0, 260.0)
 @export_range(1.0, 500.0, 1.0) var minimum_drift_speed: float = 30.0
@@ -88,7 +85,6 @@ func _ready() -> void:
 	_travel_sign = -1.0 if _rng.randf() < 0.5 else 1.0
 	_wander_phase = _rng.randf_range(0.0, TAU)
 	_choose_next_patrol_target(true)
-	_apply_display_scale()
 	_configure_stun_material()
 	_resolve_hylas()
 	_set_alerted(false, true)
@@ -438,11 +434,3 @@ func _set_stun_glow_enabled(enabled: bool) -> void:
 	if _stun_material == null:
 		return
 	_stun_material.set_shader_parameter(&"stunned_amount", 1.0 if enabled else 0.0)
-
-
-func _apply_display_scale() -> void:
-	var first_texture: Texture2D = _sprite.sprite_frames.get_frame_texture(&"idle", 0)
-	if first_texture != null:
-		var scale_factor: float = display_height / maxf(1.0, float(first_texture.get_height()))
-		_sprite.scale = Vector2.ONE * scale_factor
-	_floor_probe.position.y = display_height * 0.34
