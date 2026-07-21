@@ -1,11 +1,13 @@
 class_name CotcPirateShipEntry
 extends Node2D
 
+signal entry_transition_started(duration_seconds: float)
 signal interior_requested(return_position: Vector2, facing_left: bool)
 
 const HYLAS_FLIP_01: Texture2D = preload("res://assets/characters/hylas-flip_01.webp")
 const HYLAS_FLIP_02: Texture2D = preload("res://assets/characters/hylas-flip_02.webp")
 const HYLAS_FLIP_04: Texture2D = preload("res://assets/characters/hylas-flip_04.webp")
+const ENTRY_FRAME_COUNT: int = 3
 
 # Retained only so older placed scenes keep loading without an invalid-property warning.
 @export_storage var interior_scene_path: String = ""
@@ -134,12 +136,25 @@ func _begin_entry_sequence() -> void:
 	if _hylas_collision != null:
 		_hylas_collision.set_deferred(&"disabled", true)
 
+	entry_transition_started.emit(get_entry_transition_duration())
+	if not _entry_active:
+		return
+
 	for texture: Texture2D in [HYLAS_FLIP_01, HYLAS_FLIP_02, HYLAS_FLIP_04]:
 		_entry_visual.texture = texture
 		await get_tree().create_timer(entry_frame_seconds, false).timeout
 
 	await _play_retreat_motion()
+	if not _entry_active:
+		return
 	interior_requested.emit(_return_position, _return_facing_left)
+
+
+func get_entry_transition_duration() -> float:
+	return (
+		maxf(0.0, entry_frame_seconds) * float(ENTRY_FRAME_COUNT)
+		+ maxf(0.0, retreat_duration)
+	)
 
 
 func _play_retreat_motion() -> void:
