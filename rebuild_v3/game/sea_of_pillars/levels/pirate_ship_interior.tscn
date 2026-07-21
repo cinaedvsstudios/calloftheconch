@@ -78,10 +78,8 @@ monitorable = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InteriorWorld/ShipExitArea" unique_id=1418400389]
 shape = SubResource("ShipExitShape")
 
-[node name="ShipEntranceLight" type="Node2D" parent="InteriorWorld/ShipExitArea" unique_id=887987750 instance=ExtResource("4_uqn71")]
-editor_description = "Light entering through the pirate-ship opening. Instance this beneath ShipExitArea so it follows the entrance position."
-z_index = 2
-position = Vector2(-168, -121)
+[node name="ShipEntranceLight" parent="InteriorWorld/ShipExitArea" unique_id=887987750 instance=ExtResource("4_uqn71")]
+position = Vector2(-145, -77)
 
 [node name="RoomDarkness" type="CanvasModulate" parent="." unique_id=211849654]
 unique_name_in_owner = true
