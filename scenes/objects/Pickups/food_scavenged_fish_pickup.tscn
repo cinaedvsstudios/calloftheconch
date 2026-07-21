@@ -1,9 +1,8 @@
 [gd_scene format=3 uid="uid://bagsgw2i0ltaa"]
 
-[ext_resource type="Script" uid="uid://bc41m1bd05ggc" path="res://scenes/objects/Pickups/food_pickup.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scenes/objects/Pickups/authored_scale_food_pickup.gd" id="1_controller"]
 [ext_resource type="Texture2D" uid="uid://bnbpddfdrctx0" path="res://assets/objects/food_scavenged_fish.png" id="2_texture"]
 [ext_resource type="Script" uid="uid://dtiiykv8psaq5" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="3_activator"]
-[ext_resource type="Script" path="res://rebuild_v3/shared/editor_display_height_preview.gd" id="4_display_preview"]
 
 [sub_resource type="CircleShape2D" id="PickupShape"]
 radius = 82.499275
@@ -15,17 +14,12 @@ monitorable = false
 script = ExtResource("1_controller")
 pickup_type_id = &"food_scavenged_fish"
 display_name = "Scavenged Fish"
-display_height = 150.0
 pickup_radius = 85.0
 
 [node name="PickupSprite" type="Sprite2D" parent="." unique_id=698261534]
 unique_name_in_owner = true
-scale = Vector2(0.25, 0.25)
+scale = Vector2(0.355450237, 0.355450237)
 texture = ExtResource("2_texture")
-
-[node name="DisplayHeightPreview" type="Node" parent="."]
-script = ExtResource("4_display_preview")
-target_sprite_path = NodePath("../PickupSprite")
 
 [node name="PickupCollision" type="CollisionShape2D" parent="." unique_id=1552128030]
 unique_name_in_owner = true
