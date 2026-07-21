@@ -1,6 +1,7 @@
 class_name CotcPirateShipInterior
 extends Node2D
 
+signal exit_transition_started(duration_seconds: float)
 signal exit_requested
 signal transition_finished
 
@@ -13,7 +14,7 @@ signal transition_finished
 @export var interior_waterline_y: float = -10000.0
 
 @export_category("Camera")
-@export_range(1.0, 2.5, 0.01) var camera_zoom: float = 1.30
+@export_range(1.0, 2.5, 0.01) var camera_zoom: float = 1.10
 @export_range(0.0, 20.0, 0.1) var camera_smoothing_speed: float = 5.5
 @export_range(0.0, 0.5, 0.01) var camera_drag_margin: float = 0.12
 
@@ -116,6 +117,7 @@ func _begin_exit() -> void:
 	_hylas.velocity = Vector2.ZERO
 	_set_exit_prompt_visible(false)
 	set_process_unhandled_input(false)
+	exit_transition_started.emit(maxf(0.01, transition_seconds))
 	_kill_fade_tween()
 	_fade_rect.show()
 	_fade_tween = create_tween()
