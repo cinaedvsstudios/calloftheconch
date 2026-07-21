@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="820" viewBox="0 0 700 820">
+  <defs>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c7f3ff" stop-opacity="0.42"/>
+      <stop offset="0.18" stop-color="#8edcff" stop-opacity="0.24"/>
+      <stop offset="0.72" stop-color="#63bfff" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#63bfff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="mouth" cx="50%" cy="42%" r="58%">
+      <stop offset="0" stop-color="#d8f8ff" stop-opacity="0.48"/>
+      <stop offset="0.45" stop-color="#8edcff" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#58b9ff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blurWide" x="-35%" y="-20%" width="170%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="32"/>
+    </filter>
+    <filter id="blurMedium" x="-40%" y="-20%" width="180%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <filter id="blurGlow" x="-50%" y="-80%" width="200%" height="260%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+  </defs>
+
+  <ellipse cx="350" cy="52" rx="150" ry="62" fill="url(#mouth)" filter="url(#blurGlow)"/>
+
+  <path d="M260 20 C292 8 408 8 440 20 L600 790 C526 817 174 817 100 790 Z"
+        fill="url(#beam)" opacity="0.56" filter="url(#blurWide)"/>
+
+  <path d="M286 24 C305 16 339 14 357 18 L410 785 C357 799 260 797 218 780 Z"
+        fill="url(#beam)" opacity="0.44" filter="url(#blurMedium)"/>
+
+  <path d="M354 18 C377 14 410 17 430 25 L522 778 C477 797 390 797 348 784 Z"
+        fill="url(#beam)" opacity="0.40" filter="url(#blurMedium)"/>
+
+  <path d="M316 22 C331 17 365 17 382 22 L414 760 C386 774 323 774 294 760 Z"
+        fill="url(#beam)" opacity="0.32" filter="url(#blurMedium)"/>
+</svg>
