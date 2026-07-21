@@ -6,7 +6,6 @@
 [ext_resource type="Script" uid="uid://dtiiykv8psaq5" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
 [ext_resource type="Script" path="res://rebuild_v3/features/depth_life/depth_colourisation.gd" id="5_colourisation"]
 [ext_resource type="Script" path="res://rebuild_v3/features/plant_foreground/plant_foreground_overlap.gd" id="6_foreground"]
-[ext_resource type="Script" path="res://rebuild_v3/shared/editor_display_height_preview.gd" id="7_display_preview"]
 
 [sub_resource type="CanvasItemMaterial" id="AdditiveMaterial"]
 blend_mode = 1
@@ -36,13 +35,10 @@ texture_scale = 1.35
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=347415016]
 unique_name_in_owner = true
-scale = Vector2(0.515, 0.515)
+scale = Vector2(0.275, 0.275)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
 autoplay = "idle"
-
-[node name="DisplayHeightPreview" type="Node" parent="."]
-script = ExtResource("7_display_preview")
 
 [node name="DistanceActivator" type="Node" parent="." unique_id=323212357]
 script = ExtResource("4_distance_activator")
