@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/features/depth_life/depth_flare_plant.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://rebuild_v3/features/depth_life/depth_flare_plant_frames.tres" id="2_frames"]
