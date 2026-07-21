@@ -15,11 +15,12 @@ const SPARK_TEXTURE: Texture2D = preload(
 @export_range(0.0, 1.0, 0.01) var afterimage_alpha: float = 0.34
 
 @export_category("Speed Run Trail")
-@export_range(2, 30, 1) var burst_trail_min_points: int = 5
-@export_range(3, 40, 1) var burst_trail_max_points: int = 18
-@export_range(0.01, 0.20, 0.01) var burst_trail_sample_interval: float = 0.035
+@export_range(2, 30, 1) var burst_trail_min_points: int = 7
+@export_range(3, 80, 1) var burst_trail_max_points: int = 32
+@export_range(0.005, 0.20, 0.005) var burst_trail_sample_interval: float = 0.018
 @export_range(1.0, 40.0, 0.5) var burst_trail_min_width: float = 7.0
 @export_range(1.0, 60.0, 0.5) var burst_trail_max_width: float = 21.0
+@export_range(0, 4, 1) var burst_trail_smoothing_passes: int = 2
 
 @export_category("Tail Flip Trail")
 @export_range(3, 40, 1) var tail_flip_trail_points: int = 20
@@ -301,7 +302,7 @@ func _update_burst_trail(active: bool, delta: float) -> void:
 		)
 		while _burst_sample_elapsed >= burst_trail_sample_interval:
 			_burst_sample_elapsed -= burst_trail_sample_interval
-			_append_unique_point(_burst_points, _get_burst_tail_point(), 3.0)
+			_append_unique_point(_burst_points, _get_burst_tail_point(), 2.0)
 		while _burst_points.size() > point_limit:
 			_burst_points.pop_front()
 		_burst_trail.width = move_toward(
@@ -314,7 +315,7 @@ func _update_burst_trail(active: bool, delta: float) -> void:
 		_decay_points(_burst_points, delta, 0.025, true)
 		_burst_trail.width = move_toward(_burst_trail.width, burst_trail_min_width, delta * 55.0)
 
-	_apply_line_points(_burst_trail, _burst_points)
+	_apply_line_points(_burst_trail, _burst_points, true)
 
 
 func _update_tail_flip_trail(active: bool, delta: float) -> void:
@@ -358,9 +359,29 @@ func _append_unique_point(points: Array[Vector2], point: Vector2, minimum_distan
 	points.append(point)
 
 
-func _apply_line_points(line: Line2D, points: Array[Vector2]) -> void:
-	line.points = PackedVector2Array(points)
-	line.visible = points.size() >= 2
+func _apply_line_points(line: Line2D, points: Array[Vector2], smooth: bool = false) -> void:
+	var rendered_points: Array[Vector2] = points.duplicate()
+	if smooth and rendered_points.size() >= 3 and burst_trail_smoothing_passes > 0:
+		rendered_points = _smooth_trail_points(rendered_points, burst_trail_smoothing_passes)
+	line.points = PackedVector2Array(rendered_points)
+	line.visible = rendered_points.size() >= 2
+
+
+func _smooth_trail_points(source_points: Array[Vector2], passes: int) -> Array[Vector2]:
+	var result: Array[Vector2] = source_points.duplicate()
+	for pass_index: int in range(clampi(passes, 0, 4)):
+		if result.size() < 3:
+			break
+		var smoothed: Array[Vector2] = []
+		smoothed.append(result[0])
+		for index: int in range(result.size() - 1):
+			var current: Vector2 = result[index]
+			var next: Vector2 = result[index + 1]
+			smoothed.append(current.lerp(next, 0.25))
+			smoothed.append(current.lerp(next, 0.75))
+		smoothed.append(result[result.size() - 1])
+		result = smoothed
+	return result
 
 
 func _burst_speed_ratio() -> float:
@@ -456,7 +477,7 @@ func _clear_active_layers() -> void:
 	_burst_glow_core.hide()
 	_burst_points.clear()
 	_tail_flip_points.clear()
-	_apply_line_points(_burst_trail, _burst_points)
+	_apply_line_points(_burst_trail, _burst_points, true)
 	_apply_line_points(_tail_flip_trail, _tail_flip_points)
 
 
