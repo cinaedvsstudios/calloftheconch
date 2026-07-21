@@ -13,30 +13,13 @@ func _ready() -> void:
 		return
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_process(true)
-	_refresh_preview()
+	queue_redraw()
 
 
 func _process(_delta: float) -> void:
 	if not Engine.is_editor_hint():
 		return
-	_refresh_preview()
 	queue_redraw()
-
-
-func _refresh_preview() -> void:
-	var school: Node2D = get_parent() as Node2D
-	if school == null:
-		return
-	var sprite: AnimatedSprite2D = school.get_node_or_null("AnimatedSprite") as AnimatedSprite2D
-	if sprite == null or sprite.sprite_frames == null:
-		return
-	var texture: Texture2D = sprite.sprite_frames.get_frame_texture(&"idle", 0)
-	if texture == null:
-		return
-	var display_height: float = float(school.get("display_height"))
-	var multiplier: float = float(school.get("display_scale_multiplier"))
-	var scale_factor: float = display_height * multiplier / maxf(1.0, float(texture.get_height()))
-	sprite.scale = Vector2.ONE * scale_factor
 
 
 func _draw() -> void:
