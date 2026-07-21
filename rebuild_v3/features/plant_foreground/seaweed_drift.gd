@@ -143,12 +143,16 @@ func _schedule_next_fragment() -> void:
 func _spawn_fragment() -> void:
 	if _fragment_textures.is_empty():
 		return
+	var scene_root: Node = get_tree().current_scene
+	if not is_instance_valid(scene_root):
+		return
 	var fragment: Sprite2D = Sprite2D.new()
 	fragment.name = "LooseSeaweedFragment"
-	fragment.top_level = true
 	fragment.z_as_relative = false
 	fragment.z_index = z_index - 1
 	fragment.texture = _fragment_textures[_rng.randi_range(0, _fragment_textures.size() - 1)]
+	scene_root.add_child(fragment)
+	fragment.top_level = true
 	fragment.global_position = global_position + Vector2(
 		_rng.randf_range(-24.0, 24.0),
 		_rng.randf_range(-18.0, 18.0),
@@ -160,7 +164,6 @@ func _spawn_fragment() -> void:
 	)
 	fragment.scale = Vector2.ONE * scale_value
 	fragment.modulate = Color.WHITE
-	get_tree().current_scene.add_child(fragment)
 
 	var drift_direction: Vector2 = Vector2(
 		_rng.randf_range(-1.0, 1.0),
