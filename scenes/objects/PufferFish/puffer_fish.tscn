@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/objects/PufferFish/puffer_fish.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" path="res://scenes/objects/PufferFish/puffer_fish_sprite_frames.tres" id="2_frames"]
+[ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="3_distance_activator"]
+
+[sub_resource type="CircleShape2D" id="PufferCollisionShape"]
+radius = 46.0
+
+[node name="PufferFish" type="CharacterBody2D" groups=["current_receiver", "scenery", "tail_flip_reactive"]]
+motion_mode = 1
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("1_controller")
+puffed_duration = 30.0
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+sprite_frames = ExtResource("2_frames")
+animation = &"normal"
+autoplay = "normal"
+
+[node name="CollisionShape" type="CollisionShape2D" parent="."]
+unique_name_in_owner = true
+shape = SubResource("PufferCollisionShape")
+
+[node name="DistanceActivator" type="Node" parent="."]
+script = ExtResource("3_distance_activator")
