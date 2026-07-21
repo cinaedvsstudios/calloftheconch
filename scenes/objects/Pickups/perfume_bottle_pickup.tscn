@@ -1,9 +1,8 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="Script" path="res://scenes/objects/Pickups/food_pickup.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scenes/objects/Pickups/authored_scale_food_pickup.gd" id="1_controller"]
 [ext_resource type="Texture2D" path="res://assets/objects/08_perfume_bottle.png" id="2_texture"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="3_activator"]
-[ext_resource type="Script" path="res://rebuild_v3/shared/editor_display_height_preview.gd" id="4_display_preview"]
 
 [sub_resource type="CircleShape2D" id="PickupShape"]
 radius = 72.0
@@ -18,16 +17,12 @@ pickup_type_id = &"perfume_bottle"
 display_name = "Perfume Bottle"
 heal_amount = 0
 full_health_onos_value = 0
-display_height = 140.0
 pickup_radius = 72.0
 
 [node name="PickupSprite" type="Sprite2D" parent="."]
 unique_name_in_owner = true
+scale = Vector2(0.175, 0.175)
 texture = ExtResource("2_texture")
-
-[node name="DisplayHeightPreview" type="Node" parent="."]
-script = ExtResource("4_display_preview")
-target_sprite_path = NodePath("../PickupSprite")
 
 [node name="PickupCollision" type="CollisionShape2D" parent="."]
 unique_name_in_owner = true
