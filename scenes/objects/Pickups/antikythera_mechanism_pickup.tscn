@@ -21,7 +21,7 @@ pickup_radius = 82.0
 
 [node name="PickupSprite" type="Sprite2D" parent="."]
 unique_name_in_owner = true
-scale = Vector2(0.19375, 0.19375)
+scale = Vector2(0.123604466, 0.123604466)
 texture = ExtResource("2_texture")
 
 [node name="PickupCollision" type="CollisionShape2D" parent="."]
