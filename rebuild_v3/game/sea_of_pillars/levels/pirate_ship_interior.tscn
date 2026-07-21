@@ -9,6 +9,9 @@
 [ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="7_looping_audio"]
 [ext_resource type="PackedScene" path="res://scenes/objects/seaweed_12.tscn" id="8_y5yeg"]
 [ext_resource type="PackedScene" uid="uid://dg8glfdscvdam" path="res://rebuild_v3/game/shared/objects/depth_glowplant.tscn" id="9_7g73d"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep.tscn" id="10_fsyc7"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish_deep_blue.tscn" id="11_hxmxa"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_flare_plant.tscn" id="12_uqn71"]
 
 [sub_resource type="RectangleShape2D" id="ShipExitShape"]
 size = Vector2(260, 190)
@@ -33,19 +36,19 @@ metadata/source_asset = "res://assets/backgrounds/shipwreck.jpg"
 [node name="InteriorOrigin" type="Marker2D" parent="." unique_id=1491558423]
 unique_name_in_owner = true
 editor_description = "Visual centre of the pirate ship interior."
-position = Vector2(640, 360)
+position = Vector2(2196, 1012)
 gizmo_extents = 60.0
 
 [node name="HylasStart" type="Marker2D" parent="." unique_id=303835835]
 unique_name_in_owner = true
 editor_description = "Hylas spawn point after entering the wreck; deliberately outside the exit trigger."
-position = Vector2(470, 520)
+position = Vector2(2026, 1172)
 gizmo_extents = 48.0
 
 [node name="ShipExitAnchor" type="Marker2D" parent="." unique_id=1483809981]
 unique_name_in_owner = true
 editor_description = "Central hull opening used to return to the exact exterior entry position."
-position = Vector2(640, 460)
+position = Vector2(2196, 1112)
 gizmo_extents = 48.0
 
 [node name="InteriorWorld" type="Node2D" parent="." unique_id=2141733593]
@@ -60,12 +63,12 @@ centered = false
 [node name="Hylas" parent="InteriorWorld" unique_id=1803911609 instance=ExtResource("3_hylas")]
 unique_name_in_owner = true
 z_index = 5
-position = Vector2(470, 520)
+position = Vector2(2026, 1172)
 
 [node name="ShipExitArea" type="Area2D" parent="InteriorWorld" unique_id=139987057]
 unique_name_in_owner = true
 editor_description = "Press Up while Hylas is inside this central-opening trigger to leave the ship."
-position = Vector2(640, 460)
+position = Vector2(2196, 1112)
 collision_layer = 0
 monitorable = false
 
@@ -75,6 +78,7 @@ shape = SubResource("ShipExitShape")
 [node name="RoomDarkness" type="CanvasModulate" parent="." unique_id=211849654]
 unique_name_in_owner = true
 editor_description = "Real light-aware darkness. PointLight2D nodes from Leaf Sheep, luminous plants, enemies and animals brighten the ship through this modulation."
+visible = false
 color = Color(0.13, 0.16, 0.24, 1)
 
 [node name="BubbleCanvas" type="CanvasLayer" parent="." unique_id=166891774]
@@ -186,6 +190,28 @@ scale = Vector2(0.45623043, 0.4594049)
 [node name="Node2D3" type="Node2D" parent="environment" unique_id=1361417220]
 
 [node name="Node2D" type="Node2D" parent="environment" unique_id=1125539374]
+
+[node name="shipcollision" type="Node2D" parent="environment" unique_id=1568868948]
+
+[node name="LeafSheep" parent="." unique_id=1971499365 instance=ExtResource("10_fsyc7")]
+position = Vector2(3248, 1279)
+
+[node name="DepthJellyfishDeepBlue" parent="." unique_id=818172851 instance=ExtResource("11_hxmxa")]
+position = Vector2(601, 213)
+
+[node name="DepthJellyfishDeepBlue2" parent="." unique_id=1977662202 instance=ExtResource("11_hxmxa")]
+position = Vector2(1614, 175)
+
+[node name="DepthJellyfishDeepBlue3" parent="." unique_id=1828647560 instance=ExtResource("11_hxmxa")]
+position = Vector2(3717, 186)
+
+[node name="DepthFlarePlant" parent="." unique_id=1454682688 instance=ExtResource("12_uqn71")]
+position = Vector2(3746.0002, 812.00006)
+scale = Vector2(0.725, 0.725)
+
+[node name="DepthFlarePlant2" parent="." unique_id=244672275 instance=ExtResource("12_uqn71")]
+position = Vector2(650.0001, 681.00006)
+scale = Vector2(0.725, 0.725)
 
 [connection signal="body_entered" from="InteriorWorld/ShipExitArea" to="." method="_on_ship_exit_area_body_entered"]
 [connection signal="body_exited" from="InteriorWorld/ShipExitArea" to="." method="_on_ship_exit_area_body_exited"]
