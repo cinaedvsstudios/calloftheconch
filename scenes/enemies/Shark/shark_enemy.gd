@@ -310,8 +310,8 @@ func _get_hylas_intercept_point() -> Vector2:
 		return _patrol_target
 	var facing_direction: Vector2 = Vector2.RIGHT
 	var hylas_body: CharacterBody2D = _hylas as CharacterBody2D
-	if hylas_body != null and hylas_body.velocity.length_squared() > 1.0:
-		facing_direction = Vector2.LEFT if hylas_body.velocity.x < 0.0 else Vector2.RIGHT
+	if hylas_body != null and hylas_body.velocity.length_squared() > 25.0:
+		facing_direction = hylas_body.velocity.normalized()
 	else:
 		var hylas_sprite: AnimatedSprite2D = _hylas.get_node_or_null("AnimatedSprite") as AnimatedSprite2D
 		if hylas_sprite != null and hylas_sprite.flip_h:
