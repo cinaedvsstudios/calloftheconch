@@ -1,6 +1,6 @@
 [gd_scene load_steps=17 format=3]
 
-[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_context.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/gameplay_context_runtime.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/levels/sea_of_pillars_main.tscn" id="2_level"]
 [ext_resource type="AudioStream" path="res://assets/audio/Sea of Pillars Calm.mp3" id="3_music"]
 [ext_resource type="Script" path="res://rebuild_v3/app/contexts/gameplay/pause_overlay.gd" id="4_pause"]
