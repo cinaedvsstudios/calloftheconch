@@ -1,4 +1,4 @@
-[gd_scene format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://rebuild_v3/features/depth_life/depth_flare_plant.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://rebuild_v3/features/depth_life/depth_flare_plant_frames.tres" id="2_frames"]
@@ -7,7 +7,6 @@
 [ext_resource type="AudioStream" path="res://assets/audio/stun.mp3" id="5_stun_audio"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="6_distance_activator"]
 [ext_resource type="Script" path="res://rebuild_v3/features/plant_foreground/plant_foreground_overlap.gd" id="7_foreground"]
-[ext_resource type="Script" path="res://rebuild_v3/shared/editor_display_height_preview.gd" id="8_display_preview"]
 
 [sub_resource type="CanvasItemMaterial" id="AdditiveMaterial"]
 blend_mode = 1
@@ -54,6 +53,7 @@ metadata/source_frames = "assets/enemies/plant01.webp through plant04.webp"
 
 [node name="GlowHalo" type="Sprite2D" parent="."]
 unique_name_in_owner = true
+position = Vector2(0, -21)
 show_behind_parent = true
 z_index = -2
 material = SubResource("AdditiveMaterial")
@@ -63,6 +63,7 @@ scale = Vector2(0.9, 0.9)
 
 [node name="Bioluminescence" type="PointLight2D" parent="."]
 unique_name_in_owner = true
+position = Vector2(0, -21)
 texture = ExtResource("3_light")
 color = Color(1, 0.24, 0.04, 1)
 energy = 0.85
@@ -70,6 +71,7 @@ texture_scale = 1.2
 
 [node name="SparkBurst" type="GPUParticles2D" parent="."]
 unique_name_in_owner = true
+position = Vector2(0, -63)
 z_index = 2
 material = SubResource("AdditiveMaterial")
 emitting = false
@@ -85,12 +87,10 @@ texture = ExtResource("4_spark")
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
 unique_name_in_owner = true
+scale = Vector2(0.2625, 0.2625)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
 autoplay = "idle"
-
-[node name="DisplayHeightPreview" type="Node" parent="."]
-script = ExtResource("8_display_preview")
 
 [node name="TargetShape" type="CollisionShape2D" parent="."]
 shape = SubResource("TargetShape")
