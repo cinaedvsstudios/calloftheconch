@@ -6,7 +6,6 @@
 [ext_resource type="Texture2D" path="res://rebuild_v3/features/depth_life/bubble_particle.svg" id="4_bubble"]
 [ext_resource type="AudioStream" path="res://assets/audio/stun.mp3" id="5_stun_audio"]
 [ext_resource type="Script" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="6_distance_activator"]
-[ext_resource type="Script" path="res://rebuild_v3/shared/editor_display_height_preview.gd" id="7_display_preview"]
 
 [sub_resource type="CanvasItemMaterial" id="AdditiveMaterial"]
 blend_mode = 1
@@ -66,6 +65,7 @@ texture_scale = 1.15
 
 [node name="BubbleBurst" type="GPUParticles2D" parent="."]
 unique_name_in_owner = true
+position = Vector2(0, 42)
 show_behind_parent = true
 z_index = -1
 material = SubResource("AdditiveMaterial")
@@ -82,12 +82,10 @@ texture = ExtResource("4_bubble")
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
 unique_name_in_owner = true
+scale = Vector2(0.1196172249, 0.1196172249)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
 autoplay = "idle"
-
-[node name="DisplayHeightPreview" type="Node" parent="."]
-script = ExtResource("7_display_preview")
 
 [node name="TargetShape" type="CollisionShape2D" parent="."]
 shape = SubResource("TargetShape")
