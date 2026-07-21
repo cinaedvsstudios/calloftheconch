@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://brttaikurbnvm"]
 
-[ext_resource type="Script" uid="uid://bn1du8cpei6h6" path="res://scenes/objects/AmbientFish/ambient_fish.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scenes/objects/AmbientFish/authored_scale_ambient_fish.gd" id="1_controller"]
 [ext_resource type="Texture2D" uid="uid://c4beo3e220ijb" path="res://assets/characters/seahorse01.webp" id="2_frame_01"]
 [ext_resource type="Texture2D" uid="uid://dshg2j116qnlg" path="res://assets/characters/seahorse02.webp" id="3_frame_02"]
 [ext_resource type="Texture2D" uid="uid://c7l754i5b26x4" path="res://assets/characters/seahorse03.webp" id="4_frame_03"]
@@ -38,19 +38,17 @@ animations = [{
 
 [sub_resource type="RectangleShape2D" id="SeahorseBodyShape"]
 resource_local_to_scene = true
-size = Vector2(90, 105)
+size = Vector2(30.256, 22.692)
 
 [sub_resource type="RectangleShape2D" id="SeahorseReceiverShape"]
 resource_local_to_scene = true
-size = Vector2(120, 432.78687)
+size = Vector2(38.7655, 32.147)
 
 [node name="Seahorse" type="CharacterBody2D" unique_id=1579244583 groups=["ambient_fish", "conch_target", "current_receiver", "scenery"]]
-scale = Vector2(0.305, 0.305)
 collision_layer = 0
 motion_mode = 1
 safe_margin = 0.5
 script = ExtResource("1_controller")
-display_height = 155.0
 patrol_half_extents = Vector2(1400, 600)
 minimum_swim_speed = 45.0
 maximum_swim_speed = 70.0
@@ -63,6 +61,7 @@ current_influence = 0.6
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=1180166378]
 unique_name_in_owner = true
+scale = Vector2(0.07879167, 0.07879167)
 sprite_frames = SubResource("SeahorseSpriteFrames")
 animation = &"swim"
 autoplay = "swim"
@@ -77,15 +76,16 @@ monitoring = false
 
 [node name="CurrentReceiverShape" type="CollisionShape2D" parent="CurrentReceiver" unique_id=1708293051]
 unique_name_in_owner = true
-position = Vector2(0, 9.836059)
+position = Vector2(0, 3.0)
 shape = SubResource("SeahorseReceiverShape")
 
 [node name="WallRay" type="RayCast2D" parent="." unique_id=494994181]
 unique_name_in_owner = true
-target_position = Vector2(210, 0)
+target_position = Vector2(64.05, 0)
 
 [node name="PlayfulReaction" parent="." unique_id=1611190054 instance=ExtResource("9_reaction")]
 unique_name_in_owner = true
+scale = Vector2(0.305, 0.305)
 tail_flip_knock_speed = 560.0
 surface_arc_height = 105.0
 surface_return_side_distance = 185.0
