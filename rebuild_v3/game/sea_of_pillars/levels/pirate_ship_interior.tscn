@@ -1,12 +1,17 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene format=3 uid="uid://bu086puv6vnxk"]
 
-[ext_resource type="Script" path="res://rebuild_v3/game/sea_of_pillars/levels/pirate_ship_interior.gd" id="1_controller"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/shipwreck.jpg" id="2_background"]
+[ext_resource type="Script" uid="uid://cqjo3o7eh3pad" path="res://rebuild_v3/game/sea_of_pillars/levels/pirate_ship_interior.gd" id="1_controller"]
+[ext_resource type="Texture2D" uid="uid://f6ug5vpmljte" path="res://assets/backgrounds/shipwreck.jpg" id="2_background"]
 [ext_resource type="PackedScene" path="res://scenes/characters/Hylas/hylas.tscn" id="3_hylas"]
-[ext_resource type="VideoStream" path="res://assets/effects/bubble_riser_field.ogv" id="4_bubbles"]
-[ext_resource type="Shader" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="5_bubble_shader"]
-[ext_resource type="AudioStream" path="res://assets/audio/underwater_ambience.mp3" id="6_ambience"]
-[ext_resource type="Script" path="res://rebuild_v3/shared/looping_audio_player.gd" id="7_looping_audio"]
+[ext_resource type="VideoStream" uid="uid://buw0jv63vxw0i" path="res://assets/effects/bubble_riser_field.ogv" id="4_bubbles"]
+[ext_resource type="Shader" uid="uid://h3uoika0ck2a" path="res://rebuild_v3/shared/shaders/bubble_screen_blend.gdshader" id="5_bubble_shader"]
+[ext_resource type="AudioStream" uid="uid://b1ok5tlb5fqkw" path="res://assets/audio/underwater_ambience.mp3" id="6_ambience"]
+[ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="7_looping_audio"]
+[ext_resource type="PackedScene" path="res://scenes/objects/seaweed_12.tscn" id="8_y5yeg"]
+[ext_resource type="PackedScene" uid="uid://dg8glfdscvdam" path="res://rebuild_v3/game/shared/objects/depth_glowplant.tscn" id="9_7g73d"]
+
+[sub_resource type="RectangleShape2D" id="ShipExitShape"]
+size = Vector2(260, 190)
 
 [sub_resource type="ShaderMaterial" id="BubbleVideoMaterial"]
 resource_local_to_scene = true
@@ -17,65 +22,60 @@ shader_parameter/brightness = 4.0
 shader_parameter/waterline_screen_y = -1.0
 shader_parameter/waterline_fade = 0.012
 
-[sub_resource type="RectangleShape2D" id="ShipExitShape"]
-size = Vector2(260, 190)
-
-[node name="PirateShipInterior" type="Node2D"]
+[node name="PirateShipInterior" type="Node2D" unique_id=1651606504]
+editor_description = "Scrollable pirate ship interior. Camera magnifies the native artwork by 30 percent and follows Hylas within the image edges."
 script = ExtResource("1_controller")
 metadata/development_status = "scrollable_local_room"
 metadata/sea_id = "sea_of_pillars"
 metadata/area_id = "pirate_ship_interior"
 metadata/source_asset = "res://assets/backgrounds/shipwreck.jpg"
-editor_description = "Scrollable pirate ship interior. Camera magnifies the native artwork by 30 percent and follows Hylas within the image edges."
 
-[node name="InteriorOrigin" type="Marker2D" parent="."]
+[node name="InteriorOrigin" type="Marker2D" parent="." unique_id=1491558423]
 unique_name_in_owner = true
+editor_description = "Visual centre of the pirate ship interior."
 position = Vector2(640, 360)
 gizmo_extents = 60.0
-editor_description = "Visual centre of the pirate ship interior."
 
-[node name="HylasStart" type="Marker2D" parent="."]
+[node name="HylasStart" type="Marker2D" parent="." unique_id=303835835]
 unique_name_in_owner = true
+editor_description = "Hylas spawn point after entering the wreck; deliberately outside the exit trigger."
 position = Vector2(470, 520)
 gizmo_extents = 48.0
-editor_description = "Hylas spawn point after entering the wreck; deliberately outside the exit trigger."
 
-[node name="ShipExitAnchor" type="Marker2D" parent="."]
+[node name="ShipExitAnchor" type="Marker2D" parent="." unique_id=1483809981]
 unique_name_in_owner = true
+editor_description = "Central hull opening used to return to the exact exterior entry position."
 position = Vector2(640, 460)
 gizmo_extents = 48.0
-editor_description = "Central hull opening used to return to the exact exterior entry position."
 
-[node name="InteriorWorld" type="Node2D" parent="."]
+[node name="InteriorWorld" type="Node2D" parent="." unique_id=2141733593]
 unique_name_in_owner = true
 
-[node name="ShipwreckBackground" type="Sprite2D" parent="InteriorWorld"]
+[node name="ShipwreckBackground" type="Sprite2D" parent="InteriorWorld" unique_id=285446727]
 unique_name_in_owner = true
-centered = false
 texture = ExtResource("2_background")
+centered = false
 
-[node name="Hylas" parent="InteriorWorld" instance=ExtResource("3_hylas")]
+[node name="Hylas" parent="InteriorWorld" unique_id=1803911609 instance=ExtResource("3_hylas")]
 unique_name_in_owner = true
-position = Vector2(470, 520)
 z_index = 5
+position = Vector2(470, 520)
 
-[node name="ShipExitArea" type="Area2D" parent="InteriorWorld"]
+[node name="ShipExitArea" type="Area2D" parent="InteriorWorld" unique_id=139987057]
 unique_name_in_owner = true
+editor_description = "Press Up while Hylas is inside this central-opening trigger to leave the ship."
 position = Vector2(640, 460)
 collision_layer = 0
-collision_mask = 1
-monitoring = true
 monitorable = false
-editor_description = "Press Up while Hylas is inside this central-opening trigger to leave the ship."
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="InteriorWorld/ShipExitArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteriorWorld/ShipExitArea" unique_id=1418400389]
 shape = SubResource("ShipExitShape")
 
-[node name="BubbleCanvas" type="CanvasLayer" parent="."]
+[node name="BubbleCanvas" type="CanvasLayer" parent="." unique_id=166891774]
 unique_name_in_owner = true
 layer = -5
 
-[node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleCanvas"]
+[node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleCanvas" unique_id=1080285683]
 unique_name_in_owner = true
 material = SubResource("BubbleVideoMaterial")
 anchors_preset = 15
@@ -85,17 +85,17 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 stream = ExtResource("4_bubbles")
-autoplay = false
+volume_db = -80.0
 expand = true
 loop = true
-volume_db = -80.0
 
-[node name="ExitPromptLayer" type="CanvasLayer" parent="."]
+[node name="ExitPromptLayer" type="CanvasLayer" parent="." unique_id=1398952424]
 layer = 40
 
-[node name="ExitPrompt" type="PanelContainer" parent="ExitPromptLayer"]
+[node name="ExitPrompt" type="PanelContainer" parent="ExitPromptLayer" unique_id=309926889]
 unique_name_in_owner = true
 visible = false
+anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
@@ -108,7 +108,7 @@ grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
 
-[node name="Label" type="Label" parent="ExitPromptLayer/ExitPrompt"]
+[node name="Label" type="Label" parent="ExitPromptLayer/ExitPrompt" unique_id=362929099]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.96, 1, 1)
 theme_override_font_sizes/font_size = 22
@@ -116,10 +116,10 @@ text = "Press W / ↑ to leave the ship"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="TransitionLayer" type="CanvasLayer" parent="."]
+[node name="TransitionLayer" type="CanvasLayer" parent="." unique_id=1992845402]
 layer = 1000
 
-[node name="FadeRect" type="ColorRect" parent="TransitionLayer"]
+[node name="FadeRect" type="ColorRect" parent="TransitionLayer" unique_id=573194712]
 unique_name_in_owner = true
 visible = false
 anchors_preset = 15
@@ -130,12 +130,55 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="UnderwaterAmbience" type="AudioStreamPlayer" parent="."]
+[node name="UnderwaterAmbience" type="AudioStreamPlayer" parent="." unique_id=53816189]
 unique_name_in_owner = true
 process_mode = 3
 stream = ExtResource("6_ambience")
 volume_db = -8.0
 script = ExtResource("7_looping_audio")
+
+[node name="environment" type="Node2D" parent="." unique_id=1103814060]
+position = Vector2(2947.0852, 672.0603)
+
+[node name="plants" type="Node2D" parent="environment" unique_id=1572650655]
+
+[node name="Seaweed12" parent="environment/plants" unique_id=1634496553 instance=ExtResource("8_y5yeg")]
+z_index = 0
+position = Vector2(-2461.9182, 860.90576)
+rotation = 0.34504578
+scale = Vector2(0.71, 0.71)
+
+[node name="DepthGlowPlant9" parent="environment/plants" unique_id=1701683715 instance=ExtResource("9_7g73d")]
+position = Vector2(-2815.918, 860.9048)
+rotation = -0.1699095
+scale = Vector2(0.45623043, 0.4594049)
+
+[node name="DepthGlowPlant10" parent="environment/plants" unique_id=2010471357 instance=ExtResource("9_7g73d")]
+z_index = 3
+position = Vector2(-2309.9177, 1064.9048)
+rotation = -0.1699095
+scale = Vector2(0.45623043, 0.4594049)
+
+[node name="Seaweed13" parent="environment/plants" unique_id=201504638 instance=ExtResource("8_y5yeg")]
+z_index = 0
+position = Vector2(-1704.0496, 1086.4777)
+rotation = 0.1710993
+scale = Vector2(0.71, 0.71)
+
+[node name="DepthGlowPlant11" parent="environment/plants" unique_id=1699609633 instance=ExtResource("9_7g73d")]
+position = Vector2(-2058.0493, 1086.4767)
+rotation = -0.34385598
+scale = Vector2(0.45623043, 0.4594049)
+
+[node name="DepthGlowPlant12" parent="environment/plants" unique_id=1152189172 instance=ExtResource("9_7g73d")]
+z_index = 3
+position = Vector2(-1552.0492, 1290.4767)
+rotation = -0.34385598
+scale = Vector2(0.45623043, 0.4594049)
+
+[node name="Node2D3" type="Node2D" parent="environment" unique_id=1361417220]
+
+[node name="Node2D" type="Node2D" parent="environment" unique_id=1125539374]
 
 [connection signal="body_entered" from="InteriorWorld/ShipExitArea" to="." method="_on_ship_exit_area_body_entered"]
 [connection signal="body_exited" from="InteriorWorld/ShipExitArea" to="." method="_on_ship_exit_area_body_exited"]
