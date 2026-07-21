@@ -30,6 +30,16 @@ unique_name_in_owner = true
 process_mode = 3
 script = ExtResource("16_pirate_ship")
 
+[node name="DepthMusic" type="AudioStreamPlayer" parent="PirateShipCoordinator"]
+unique_name_in_owner = true
+process_mode = 3
+volume_db = -50.0
+
+[node name="TransitionSwimAudio" type="AudioStreamPlayer" parent="PirateShipCoordinator"]
+unique_name_in_owner = true
+process_mode = 3
+volume_db = -3.0
+
 [node name="ItemEffectController" parent="." instance=ExtResource("11_item_effects")]
 unique_name_in_owner = true
 process_mode = 1
