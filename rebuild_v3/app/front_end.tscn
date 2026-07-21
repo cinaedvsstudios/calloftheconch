@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://7k4ddbc2l7bd"]
 
-[ext_resource type="Script" path="res://rebuild_v3/app/root_context_level_variants.gd" id="1"]
+[ext_resource type="Script" path="res://rebuild_v3/app/root_context.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://ja6ffolmb7fl" path="res://rebuild_v3/app/contexts/menu/menu_context.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/gameplay/gameplay_context.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/developer_admin/developer_admin_panel.tscn" id="4"]
@@ -11,7 +11,6 @@
 [ext_resource type="PackedScene" uid="uid://bjfac6f1c137j" path="res://rebuild_v3/app/contexts/continue/continue_context.tscn" id="9_continue_context"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/intro/intro_context.tscn" id="10_intro_context"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/app/loading/loading_overlay.tscn" id="11_loading_overlay"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/app/contexts/menu/level_version_selector.tscn" id="12_level_selector"]
 
 [node name="FrontEnd" type="Node" unique_id=1490050788]
 script = ExtResource("1")
@@ -35,9 +34,6 @@ unique_name_in_owner = true
 layer = 100
 
 [node name="MenuContext" parent="MenuLayer" unique_id=412859640 instance=ExtResource("2")]
-unique_name_in_owner = true
-
-[node name="LevelVersionSelector" parent="MenuLayer" instance=ExtResource("12_level_selector")]
 unique_name_in_owner = true
 
 [node name="ContinueLayer" type="CanvasLayer" parent="." unique_id=1281910050]
