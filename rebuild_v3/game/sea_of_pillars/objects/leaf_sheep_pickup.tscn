@@ -19,13 +19,14 @@ editor_description = "Collectible Leaf Sheep. Grants the permanent Item B compan
 [node name="PickupSprite" type="Sprite2D" parent="."]
 unique_name_in_owner = true
 self_modulate = Color(1.25, 1.25, 1.25, 1)
-scale = Vector2(0.0722, 0.0722)
+scale = Vector2(0.38, 0.38)
 texture = ExtResource("2_sprite")
 
 [node name="PickupLight" type="PointLight2D" parent="."]
 unique_name_in_owner = true
 show_behind_parent = true
 z_index = -1
+scale = Vector2(5.263158, 5.263158)
 texture = ExtResource("3_light")
 color = Color(0.91, 0.84, 1, 1)
 energy = 1.65
@@ -33,7 +34,6 @@ texture_scale = 1.2
 shadow_enabled = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-scale = Vector2(0.19, 0.19)
 shape = SubResource("PickupShape")
 
 [node name="PickupAudio" type="AudioStreamPlayer2D" parent="."]
