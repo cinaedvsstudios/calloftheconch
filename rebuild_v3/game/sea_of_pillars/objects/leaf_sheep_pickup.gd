@@ -3,9 +3,7 @@ extends Area2D
 
 const ITEM_ID: StringName = &"leaf_sheep"
 const ITEM_SLOT_B: StringName = &"item_b"
-## Versioned once because the first ship-pickup build could silently remove the
-## collectible from existing test saves before it had ever worked correctly.
-const PICKUP_INSTANCE_ID: StringName = &"pirate_ship_leaf_sheep_v2"
+const PICKUP_INSTANCE_ID: StringName = &"pirate_ship_leaf_sheep_v3"
 
 @export var auto_equip_on_collect: bool = true
 @export var auto_activate_on_collect: bool = true
@@ -27,8 +25,6 @@ func _ready() -> void:
 			+ "Run the full game through FrontEnd rather than running the ship scene alone."
 		)
 		return
-	# Ownership alone no longer removes the physical ship pickup. This lets old
-	# developer/test saves still collect the correctly wired version once.
 	if game_state.is_pickup_collected(PICKUP_INSTANCE_ID):
 		queue_free()
 
@@ -38,6 +34,7 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	if not (body is CotcHylas) and not body.is_in_group(&"hylas"):
 		return
+
 	var game_state: CotcGameState = _resolve_game_state()
 	if game_state == null:
 		push_warning("Leaf Sheep pickup touched Hylas but could not find GameState.")
@@ -45,35 +42,36 @@ func _on_body_entered(body: Node2D) -> void:
 
 	_collecting = true
 	monitoring = false
+
 	var granted: bool = (
 		game_state.has_permanent_inventory_item(ITEM_ID)
 		or game_state.grant_permanent_inventory_item(ITEM_ID)
 	)
 	if not granted:
-		_collecting = false
-		monitoring = true
-		push_warning("Leaf Sheep pickup could not grant permanent ownership.")
+		_fail_collection("Leaf Sheep pickup could not grant permanent ownership.")
 		return
 
-	var equipped: bool = true
-	if auto_equip_on_collect:
-		equipped = game_state.equip_item(ITEM_ID, ITEM_SLOT_B)
-	if not equipped:
-		_collecting = false
-		monitoring = true
-		push_warning("Leaf Sheep was granted but could not be equipped into Item B.")
+	if auto_equip_on_collect and not game_state.equip_item(ITEM_ID, ITEM_SLOT_B):
+		_fail_collection("Leaf Sheep was granted but could not be equipped into Item B.")
+		return
+
+	var activated: bool = true
+	if auto_activate_on_collect:
+		activated = _activate_shared_companion(game_state)
+	if not activated:
+		_fail_collection(
+			"Leaf Sheep was granted and equipped, but the shared companion could not activate."
+		)
 		return
 
 	game_state.mark_pickup_collected(PICKUP_INSTANCE_ID)
-	var activated: bool = true
-	if auto_activate_on_collect:
-		activated = _activate_leaf_sheep_companion()
-	if not activated:
-		push_warning(
-			"Leaf Sheep was collected and equipped, but immediate activation failed. "
-			+ "Use Item B once and check the Developer/Admin Leaf Sheep diagnostics."
-		)
 	_play_collection_feedback()
+
+
+func _fail_collection(message: String) -> void:
+	_collecting = false
+	monitoring = true
+	push_warning(message)
 
 
 func _resolve_game_state() -> CotcGameState:
@@ -87,39 +85,49 @@ func _resolve_game_state() -> CotcGameState:
 	return current_root.find_child("GameState", true, false) as CotcGameState
 
 
-func _resolve_item_controller() -> Node:
+func _resolve_gameplay_context() -> Node:
 	var tree: SceneTree = get_tree()
 	if tree == null or tree.current_scene == null:
 		return null
-	var current_root: Node = tree.current_scene
-	var direct_controller: Node = current_root.get_node_or_null(
-		"GameplayContext/ItemEffectController"
-	)
-	if direct_controller != null:
-		return direct_controller
-	return current_root.find_child("ItemEffectController", true, false)
+	var direct_context: Node = tree.current_scene.get_node_or_null("GameplayContext")
+	if direct_context != null:
+		return direct_context
+	return tree.current_scene.find_child("GameplayContext", true, false)
 
 
-func _activate_leaf_sheep_companion() -> bool:
-	var item_controller: Node = _resolve_item_controller()
-	if item_controller == null:
-		push_warning("Leaf Sheep pickup could not find ItemEffectController.")
+func _resolve_shared_companion() -> CotcLeafSheep:
+	var gameplay_context: Node = _resolve_gameplay_context()
+	if gameplay_context == null:
+		return null
+	var direct_companion: CotcLeafSheep = gameplay_context.get_node_or_null(
+		"ItemEffectController/LeafSheep"
+	) as CotcLeafSheep
+	if direct_companion != null:
+		return direct_companion
+	return gameplay_context.find_child("LeafSheep", true, false) as CotcLeafSheep
+
+
+func _activate_shared_companion(game_state: CotcGameState) -> bool:
+	var companion: CotcLeafSheep = _resolve_shared_companion()
+	if companion == null:
+		push_warning("Leaf Sheep pickup could not find the canonical shared companion.")
 		return false
-	if item_controller.has_method(&"activate_leaf_sheep_from_pickup"):
-		return bool(item_controller.call(&"activate_leaf_sheep_from_pickup"))
-	if not item_controller.has_method(&"handle_item_behavior"):
-		push_warning("ItemEffectController has no Leaf Sheep activation route.")
+
+	var gameplay_context: Node = _resolve_gameplay_context()
+	var room_level: Node = get_parent()
+	var room_hylas: CotcHylas = null
+	if room_level != null and room_level.has_method(&"get_hylas"):
+		room_hylas = room_level.call(&"get_hylas") as CotcHylas
+	if not is_instance_valid(room_hylas):
+		push_warning("Leaf Sheep pickup could not find the pirate-ship Hylas.")
 		return false
-	return bool(
-		item_controller.call(
-			&"handle_item_behavior",
-			ITEM_ID,
-			ITEM_ID,
-			ITEM_SLOT_B,
-			global_position,
-			Vector2.ZERO,
-		)
-	)
+
+	companion.configure(gameplay_context, room_level, room_hylas)
+	companion.bind_game_state(game_state)
+	companion.set_gameplay_active(true)
+	if companion.is_active():
+		return true
+	return companion.toggle_activation()
 
 
 func _play_collection_feedback() -> void:
