@@ -4,3 +4,6 @@
 
 [node name="TerracottaFigurineHumanPickup" instance=ExtResource("1_base")]
 treasure_id = &"terracotta_figurine_human"
+
+[node name="PickupSprite" parent="." index="0"]
+scale = Vector2(0.15, 0.15)
