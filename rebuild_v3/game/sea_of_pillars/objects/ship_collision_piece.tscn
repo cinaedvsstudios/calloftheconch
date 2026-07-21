@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[node name="ShipCollisionPiece" type="StaticBody2D" groups=["terrain_collision"]]
+editor_description = "Invisible reusable ship collision. Drag this into the pirate ship's shipcollision folder, duplicate it, then edit the CollisionPolygon2D points to match decks, walls and ladders."
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-160, -40, 160, -40, 160, 40, -160, 40)
