@@ -23,8 +23,9 @@ shader_parameter/waterline_screen_y = -1.0
 shader_parameter/waterline_fade = 0.012
 
 [node name="PirateShipInterior" type="Node2D" unique_id=1651606504]
-editor_description = "Scrollable pirate ship interior. Camera magnifies the native artwork by 30 percent and follows Hylas within the image edges."
+editor_description = "Scrollable pirate ship interior. Camera magnifies the native artwork by 10 percent and follows Hylas within the image edges. DarknessLayer applies the room-wide underwater tint."
 script = ExtResource("1_controller")
+camera_zoom = 1.1
 metadata/development_status = "scrollable_local_room"
 metadata/sea_id = "sea_of_pillars"
 metadata/area_id = "pirate_ship_interior"
@@ -88,6 +89,20 @@ stream = ExtResource("4_bubbles")
 volume_db = -80.0
 expand = true
 loop = true
+
+[node name="DarknessLayer" type="CanvasLayer" parent="."]
+layer = 10
+editor_description = "Full-screen underwater darkness over the ship, Hylas, plants and bubbles. Select DarkOverlay and adjust its Color alpha to tune the strength."
+
+[node name="DarkOverlay" type="ColorRect" parent="DarknessLayer"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.003, 0.012, 0.045, 0.24)
 
 [node name="ExitPromptLayer" type="CanvasLayer" parent="." unique_id=1398952424]
 layer = 40
