@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dq3tl1qqtcedv"]
 
-[ext_resource type="Script" uid="uid://dx63b8485qyti" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_controller_escape_skip.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://rebuild_v3/features/tutorial_cuttlefish/cuttlefish_tutorial_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Resource" uid="uid://cq8hl4m2wiff0" path="res://rebuild_v3/features/tutorial_cuttlefish/tutorial_hint_library.tres" id="3_library"]
 [ext_resource type="Shader" uid="uid://buy7v8mmpoluy" path="res://rebuild_v3/features/tutorial_cuttlefish/ink_multiply.gdshader" id="4_ink_shader"]
