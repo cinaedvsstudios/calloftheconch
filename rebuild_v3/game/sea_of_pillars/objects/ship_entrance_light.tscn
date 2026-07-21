@@ -1,11 +1,16 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Texture2D" path="res://rebuild_v3/game/sea_of_pillars/objects/ship_entrance_rays.svg" id="1_rays"]
 [ext_resource type="Texture2D" path="res://rebuild_v3/features/depth_life/depth_light.svg" id="2_light"]
+[ext_resource type="Shader" path="res://rebuild_v3/game/sea_of_pillars/objects/ship_entrance_rays.gdshader" id="3_ray_shader"]
 
-[sub_resource type="CanvasItemMaterial" id="GodRayMaterial"]
-blend_mode = 1
-light_mode = 1
+[sub_resource type="ShaderMaterial" id="GodRayMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("3_ray_shader")
+shader_parameter/ray_colour = Color(0.48, 0.84, 1, 0.34)
+shader_parameter/overall_strength = 1.0
+shader_parameter/edge_softness = 0.105
+shader_parameter/bottom_fade_start = 0.63
 
 [sub_resource type="CanvasItemMaterial" id="GlowMaterial"]
 blend_mode = 1
@@ -20,7 +25,6 @@ material = SubResource("GodRayMaterial")
 position = Vector2(-350, -42)
 texture = ExtResource("1_rays")
 centered = false
-modulate = Color(0.82, 0.95, 1, 0.72)
 
 [node name="EntranceGlow" type="Sprite2D" parent="."]
 material = SubResource("GlowMaterial")
