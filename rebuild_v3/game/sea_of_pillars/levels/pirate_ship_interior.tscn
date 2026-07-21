@@ -25,7 +25,6 @@ shader_parameter/waterline_fade = 0.012
 [node name="PirateShipInterior" type="Node2D" unique_id=1651606504]
 editor_description = "Scrollable pirate ship interior. Camera magnifies the native artwork by 10 percent and follows Hylas within the image edges. DarknessLayer applies the room-wide underwater tint."
 script = ExtResource("1_controller")
-camera_zoom = 1.1
 metadata/development_status = "scrollable_local_room"
 metadata/sea_id = "sea_of_pillars"
 metadata/area_id = "pirate_ship_interior"
@@ -54,6 +53,7 @@ unique_name_in_owner = true
 
 [node name="ShipwreckBackground" type="Sprite2D" parent="InteriorWorld" unique_id=285446727]
 unique_name_in_owner = true
+scale = Vector2(0.7468, 0.7468)
 texture = ExtResource("2_background")
 centered = false
 
@@ -90,11 +90,11 @@ volume_db = -80.0
 expand = true
 loop = true
 
-[node name="DarknessLayer" type="CanvasLayer" parent="."]
-layer = 10
+[node name="DarknessLayer" type="CanvasLayer" parent="." unique_id=211849654]
 editor_description = "Full-screen underwater darkness over the ship, Hylas, plants and bubbles. Select DarkOverlay and adjust its Color alpha to tune the strength."
+layer = 10
 
-[node name="DarkOverlay" type="ColorRect" parent="DarknessLayer"]
+[node name="DarkOverlay" type="ColorRect" parent="DarknessLayer" unique_id=207363697]
 unique_name_in_owner = true
 anchors_preset = 15
 anchor_right = 1.0
@@ -159,35 +159,35 @@ position = Vector2(2947.0852, 672.0603)
 
 [node name="Seaweed12" parent="environment/plants" unique_id=1634496553 instance=ExtResource("8_y5yeg")]
 z_index = 0
-position = Vector2(-2461.9182, 860.90576)
+position = Vector2(-2461.9182, 539.90576)
 rotation = 0.34504578
 scale = Vector2(0.71, 0.71)
 
 [node name="DepthGlowPlant9" parent="environment/plants" unique_id=1701683715 instance=ExtResource("9_7g73d")]
-position = Vector2(-2815.918, 860.9048)
+position = Vector2(-2815.918, 539.9048)
 rotation = -0.1699095
 scale = Vector2(0.45623043, 0.4594049)
 
 [node name="DepthGlowPlant10" parent="environment/plants" unique_id=2010471357 instance=ExtResource("9_7g73d")]
 z_index = 3
-position = Vector2(-2309.9177, 1064.9048)
+position = Vector2(-2309.9177, 743.9048)
 rotation = -0.1699095
 scale = Vector2(0.45623043, 0.4594049)
 
 [node name="Seaweed13" parent="environment/plants" unique_id=201504638 instance=ExtResource("8_y5yeg")]
 z_index = 0
-position = Vector2(-1704.0496, 1086.4777)
+position = Vector2(-1704.0496, 765.47766)
 rotation = 0.1710993
 scale = Vector2(0.71, 0.71)
 
 [node name="DepthGlowPlant11" parent="environment/plants" unique_id=1699609633 instance=ExtResource("9_7g73d")]
-position = Vector2(-2058.0493, 1086.4767)
+position = Vector2(-2058.0493, 765.4767)
 rotation = -0.34385598
 scale = Vector2(0.45623043, 0.4594049)
 
 [node name="DepthGlowPlant12" parent="environment/plants" unique_id=1152189172 instance=ExtResource("9_7g73d")]
 z_index = 3
-position = Vector2(-1552.0492, 1290.4767)
+position = Vector2(-1552.0492, 969.4767)
 rotation = -0.34385598
 scale = Vector2(0.45623043, 0.4594049)
 
