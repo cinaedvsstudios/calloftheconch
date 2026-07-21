@@ -1,0 +1,56 @@
+[gd_resource type="SpriteFrames" load_steps=5 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/objects/puff01.webp" id="1_normal"]
+[ext_resource type="Texture2D" path="res://assets/objects/puff02.webp" id="2_inflate_a"]
+[ext_resource type="Texture2D" path="res://assets/objects/puff03.webp" id="3_inflate_b"]
+[ext_resource type="Texture2D" path="res://assets/objects/puff04.webp" id="4_puffed"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_normal")
+}],
+"loop": true,
+"name": &"normal",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_inflate_a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_inflate_b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_puffed")
+}],
+"loop": false,
+"name": &"inflate",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_puffed")
+}],
+"loop": true,
+"name": &"puffed",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_puffed")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_inflate_b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_inflate_a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("1_normal")
+}],
+"loop": false,
+"name": &"deflate",
+"speed": 12.0
+}]
