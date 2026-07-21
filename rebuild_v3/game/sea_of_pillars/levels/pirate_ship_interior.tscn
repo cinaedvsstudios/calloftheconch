@@ -23,7 +23,7 @@ shader_parameter/waterline_screen_y = -1.0
 shader_parameter/waterline_fade = 0.012
 
 [node name="PirateShipInterior" type="Node2D" unique_id=1651606504]
-editor_description = "Scrollable pirate ship interior. Camera magnifies the native artwork by 10 percent and follows Hylas within the image edges. DarknessLayer applies the room-wide underwater tint."
+editor_description = "Scrollable pirate ship interior. The scaled JPEG defines the exact playable and camera bounds. RoomDarkness uses real 2D canvas lighting so Leaf Sheep and luminous creatures can illuminate the wreck."
 script = ExtResource("1_controller")
 metadata/development_status = "scrollable_local_room"
 metadata/sea_id = "sea_of_pillars"
@@ -72,12 +72,18 @@ monitorable = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InteriorWorld/ShipExitArea" unique_id=1418400389]
 shape = SubResource("ShipExitShape")
 
+[node name="RoomDarkness" type="CanvasModulate" parent="." unique_id=211849654]
+unique_name_in_owner = true
+editor_description = "Real light-aware darkness. PointLight2D nodes from Leaf Sheep, luminous plants, enemies and animals brighten the ship through this modulation."
+color = Color(0.13, 0.16, 0.24, 1)
+
 [node name="BubbleCanvas" type="CanvasLayer" parent="." unique_id=166891774]
 unique_name_in_owner = true
 layer = -5
 
 [node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleCanvas" unique_id=1080285683]
 unique_name_in_owner = true
+modulate = Color(0.42, 0.5, 0.68, 0.48)
 material = SubResource("BubbleVideoMaterial")
 anchors_preset = 15
 anchor_right = 1.0
@@ -89,20 +95,6 @@ stream = ExtResource("4_bubbles")
 volume_db = -80.0
 expand = true
 loop = true
-
-[node name="DarknessLayer" type="CanvasLayer" parent="." unique_id=211849654]
-editor_description = "Full-screen underwater darkness over the ship, Hylas, plants and bubbles. Select DarkOverlay and adjust its Color alpha to tune the strength."
-layer = 10
-
-[node name="DarkOverlay" type="ColorRect" parent="DarknessLayer" unique_id=207363697]
-unique_name_in_owner = true
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.003, 0.012, 0.045, 0.24)
 
 [node name="ExitPromptLayer" type="CanvasLayer" parent="." unique_id=1398952424]
 layer = 40
