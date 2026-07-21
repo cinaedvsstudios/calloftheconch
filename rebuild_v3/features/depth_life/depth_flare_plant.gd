@@ -3,9 +3,6 @@ extends CotcDepthStunnableEnemy
 
 ## Stationary dark-depth plant that periodically opens and releases warm sparks.
 
-@export_category("Display")
-@export_range(40.0, 600.0, 1.0) var display_height: float = 210.0
-
 @export_category("Flare Cycle")
 @export_range(0.2, 30.0, 0.1) var flare_interval_min: float = 3.8
 @export_range(0.2, 30.0, 0.1) var flare_interval_max: float = 7.2
@@ -24,7 +21,6 @@ var _flare_wait: float = 0.0
 var _flare_light_elapsed: float = 0.0
 var _flare_active: bool = false
 var _elapsed: float = 0.0
-var _base_sprite_scale: Vector2 = Vector2.ONE
 var _rng := RandomNumberGenerator.new()
 
 
@@ -34,7 +30,6 @@ func _ready() -> void:
 		_rng.randomize()
 	else:
 		_rng.seed = random_seed
-	_apply_display_scale()
 	_sprite.animation_finished.connect(_on_animation_finished)
 	_sprite.play(&"idle")
 	_light.energy = idle_light_energy
@@ -125,15 +120,3 @@ func _on_distance_wake() -> void:
 	if not is_frozen():
 		_sprite.play(&"idle")
 		_schedule_next_flare()
-
-
-func _apply_display_scale() -> void:
-	var first_texture: Texture2D = _sprite.sprite_frames.get_frame_texture(&"idle", 0)
-	if first_texture == null:
-		return
-	var scale_factor: float = display_height / maxf(1.0, float(first_texture.get_height()))
-	_base_sprite_scale = Vector2.ONE * scale_factor
-	_sprite.scale = _base_sprite_scale
-	_spark_burst.position.y = -display_height * 0.30
-	_glow_halo.position.y = -display_height * 0.10
-	_light.position.y = -display_height * 0.10
