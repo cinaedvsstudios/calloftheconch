@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bqvk20uvhfpvu"]
 
-[ext_resource type="Script" uid="uid://bn1du8cpei6h6" path="res://scenes/objects/AmbientFish/ambient_fish.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scenes/objects/AmbientFish/authored_scale_ambient_fish.gd" id="1_controller"]
 [ext_resource type="Texture2D" uid="uid://b6n3gf75v3fm6" path="res://assets/characters/fish01.webp" id="2_frame_a"]
 [ext_resource type="Texture2D" uid="uid://dcxl15xfhcn58" path="res://assets/characters/fish02.webp" id="3_frame_b"]
 [ext_resource type="Script" uid="uid://dtiiykv8psaq5" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="4_distance_activator"]
@@ -22,11 +22,11 @@ animations = [{
 
 [sub_resource type="RectangleShape2D" id="BodyShape_fish_01"]
 resource_local_to_scene = true
-size = Vector2(100, 55)
+size = Vector2(123.73333, 69.6)
 
 [sub_resource type="RectangleShape2D" id="ReceiverShape_fish_01"]
 resource_local_to_scene = true
-size = Vector2(130, 78)
+size = Vector2(158.53333, 98.6)
 
 [node name="AmbientFish01" type="CharacterBody2D" unique_id=678246744 groups=["ambient_fish", "conch_target", "current_receiver", "scenery"]]
 collision_layer = 0
@@ -36,7 +36,7 @@ script = ExtResource("1_controller")
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=1010980968]
 unique_name_in_owner = true
-scale = Vector2(0.3, 0.3)
+scale = Vector2(0.24166667, 0.24166667)
 sprite_frames = SubResource("SpriteFrames_fish_01")
 animation = &"swim"
 autoplay = "swim"
