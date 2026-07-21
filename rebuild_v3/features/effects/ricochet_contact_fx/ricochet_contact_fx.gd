@@ -23,27 +23,28 @@ class SparkParticle:
 	var color: Color = Color.WHITE
 
 @export_category("Flash")
-@export var flash_color: Color = Color(0.55, 1.0, 1.0, 1.0)
+@export var flash_color: Color = Color(0.40, 1.0, 1.0, 1.0)
 @export var flash_core_color: Color = Color(1.0, 1.0, 1.0, 1.0)
-@export_range(0.02, 0.50, 0.01) var flash_lifetime_seconds: float = 0.12
-@export_range(4.0, 96.0, 1.0) var flash_radius: float = 26.0
+@export_range(0.02, 0.50, 0.01) var flash_lifetime_seconds: float = 0.16
+@export_range(4.0, 128.0, 1.0) var flash_radius: float = 56.0
+@export_range(0.0, 32.0, 1.0) var impact_edge_offset: float = 14.0
 
 @export_category("Sparks")
-@export_range(0, 48, 1) var spark_count: int = 10
-@export_range(40.0, 1200.0, 10.0) var spark_speed_min: float = 220.0
-@export_range(40.0, 1600.0, 10.0) var spark_speed_max: float = 520.0
-@export_range(0.02, 1.00, 0.01) var spark_lifetime_min: float = 0.10
-@export_range(0.02, 1.00, 0.01) var spark_lifetime_max: float = 0.22
-@export_range(0.0, 180.0, 1.0) var spark_spread_degrees: float = 58.0
-@export_range(0.0, 20.0, 0.1) var spark_drag: float = 7.0
+@export_range(0, 64, 1) var spark_count: int = 22
+@export_range(40.0, 1600.0, 10.0) var spark_speed_min: float = 320.0
+@export_range(40.0, 2000.0, 10.0) var spark_speed_max: float = 760.0
+@export_range(0.02, 1.00, 0.01) var spark_lifetime_min: float = 0.13
+@export_range(0.02, 1.00, 0.01) var spark_lifetime_max: float = 0.34
+@export_range(0.0, 180.0, 1.0) var spark_spread_degrees: float = 72.0
+@export_range(0.0, 20.0, 0.1) var spark_drag: float = 5.5
 
 @export_category("Debris")
 @export var play_rock_debris: bool = true
-@export_range(0.10, 3.0, 0.05) var debris_intensity: float = 0.70
+@export_range(0.10, 3.0, 0.05) var debris_intensity: float = 1.35
 
 @export_category("Lifecycle")
 @export var auto_free_when_finished: bool = true
-@export_range(0.10, 2.0, 0.05) var maximum_lifetime_seconds: float = 0.65
+@export_range(0.10, 2.0, 0.05) var maximum_lifetime_seconds: float = 0.85
 
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _sparks: Array[SparkParticle] = []
@@ -67,13 +68,16 @@ func play_contact(
 		rock_tint: Color = Color.WHITE,
 		intensity: float = 1.0,
 	) -> void:
-	global_position = contact_position
-	global_rotation = 0.0
-	global_scale = Vector2.ONE
-
 	var resolved_normal: Vector2 = _safe_direction(surface_normal, -incoming_direction)
 	var resolved_incoming: Vector2 = _safe_direction(incoming_direction, -resolved_normal)
 	var resolved_intensity: float = clampf(intensity, 0.10, 3.0)
+
+	# Collision points can sit slightly inside the wall shape. Move the whole contact
+	# effect just outside the surface so flash, sparks and debris read at the visible
+	# shoulder impact edge instead of being swallowed by the wall.
+	global_position = contact_position + resolved_normal * impact_edge_offset
+	global_rotation = 0.0
+	global_scale = Vector2.ONE
 
 	_sparks.clear()
 	_flash_remaining = flash_lifetime_seconds
@@ -117,13 +121,20 @@ func _draw_flash() -> void:
 	if _flash_remaining <= 0.0:
 		return
 	var ratio: float = clampf(_flash_remaining / maxf(0.01, flash_lifetime_seconds), 0.0, 1.0)
-	var radius: float = flash_radius * lerpf(1.35, 0.35, ratio)
+	var outer_radius: float = flash_radius * lerpf(1.55, 0.42, ratio)
+	var mid_radius: float = outer_radius * 0.62
+	var core_radius: float = outer_radius * 0.26
+
 	var outer_color: Color = flash_color
-	outer_color.a *= ratio * 0.65
+	outer_color.a *= ratio * 0.82
+	var mid_color: Color = Color(0.78, 1.0, 1.0, 1.0)
+	mid_color.a *= ratio * 0.70
 	var inner_color: Color = flash_core_color
 	inner_color.a *= ratio
-	draw_circle(Vector2.ZERO, radius, outer_color)
-	draw_circle(Vector2.ZERO, radius * 0.38, inner_color)
+
+	draw_circle(Vector2.ZERO, outer_radius, outer_color)
+	draw_circle(Vector2.ZERO, mid_radius, mid_color)
+	draw_circle(Vector2.ZERO, core_radius, inner_color)
 
 
 func _draw_sparks() -> void:
@@ -132,7 +143,7 @@ func _draw_sparks() -> void:
 			continue
 		var ratio: float = clampf(spark.remaining / maxf(0.01, spark.lifetime), 0.0, 1.0)
 		var spark_color: Color = spark.color
-		spark_color.a *= minf(1.0, ratio * 1.6)
+		spark_color.a *= minf(1.0, ratio * 1.8)
 		var spark_direction: Vector2 = _safe_direction(spark.velocity, Vector2.RIGHT)
 		draw_line(
 			spark.position,
@@ -149,20 +160,24 @@ func _spawn_sparks(surface_normal: Vector2, incoming_direction: Vector2, intensi
 	var tangent: Vector2 = Vector2(-surface_normal.y, surface_normal.x)
 	for index: int in range(resolved_count):
 		var spark: SparkParticle = SparkParticle.new()
-		var scrape_mix: float = _rng.randf_range(-0.42, 0.42)
+		var scrape_mix: float = _rng.randf_range(-0.62, 0.62)
 		var direction: Vector2 = (
 			surface_normal
 			+ tangent * scrape_mix
-			- incoming_direction * _rng.randf_range(0.0, 0.25)
+			- incoming_direction * _rng.randf_range(0.0, 0.30)
 		).normalized()
 		if direction.length_squared() <= 0.0001:
 			direction = surface_normal
 		direction = direction.rotated(_rng.randf_range(-spread_radians, spread_radians) * 0.5)
+		spark.position = (
+			surface_normal * _rng.randf_range(0.0, 7.0)
+			+ tangent * _rng.randf_range(-6.0, 6.0)
+		)
 		spark.velocity = direction * _rng.randf_range(spark_speed_min, spark_speed_max) * sqrt(intensity)
 		spark.lifetime = _rng.randf_range(spark_lifetime_min, spark_lifetime_max)
 		spark.remaining = spark.lifetime
-		spark.length = _rng.randf_range(10.0, 26.0) * sqrt(intensity)
-		spark.width = _rng.randf_range(1.1, 2.8)
+		spark.length = _rng.randf_range(18.0, 42.0) * sqrt(intensity)
+		spark.width = _rng.randf_range(1.8, 4.2)
 		spark.color = _spark_color(index)
 		_sparks.append(spark)
 
@@ -233,10 +248,12 @@ func _safe_direction(direction: Vector2, fallback: Vector2) -> Vector2:
 
 
 func _spark_color(index: int) -> Color:
-	match index % 3:
+	match index % 4:
 		0:
-			return Color(0.35, 1.0, 1.0, 1.0)
+			return Color(0.25, 1.0, 1.0, 1.0)
 		1:
-			return Color(0.75, 1.0, 1.0, 1.0)
+			return Color(0.82, 1.0, 1.0, 1.0)
+		2:
+			return Color(1.0, 1.0, 1.0, 1.0)
 		_:
-			return Color(0.15, 0.72, 1.0, 1.0)
+			return Color(0.12, 0.78, 1.0, 1.0)
