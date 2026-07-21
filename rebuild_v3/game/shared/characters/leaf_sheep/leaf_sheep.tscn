@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3]
 
-[ext_resource type="Script" path="res://rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep.gd" id="1_controller"]
+[ext_resource type="Script" path="res://rebuild_v3/game/shared/characters/leaf_sheep/authored_scale_leaf_sheep.gd" id="1_controller"]
 [ext_resource type="Texture2D" path="res://assets/characters/companion_leaf_sheep2.png" id="2_bright"]
 [ext_resource type="Texture2D" path="res://rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep_light.svg" id="3_light"]
 [ext_resource type="Shader" path="res://rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep_darkness.gdshader" id="4_darkness"]
@@ -25,11 +25,13 @@ script = ExtResource("1_controller")
 [node name="PreviousSprite" type="Sprite2D" parent="."]
 unique_name_in_owner = true
 visible = false
+scale = Vector2(0.108, 0.108)
 texture = ExtResource("2_bright")
 
 [node name="CurrentSprite" type="Sprite2D" parent="."]
 unique_name_in_owner = true
 visible = false
+scale = Vector2(0.108, 0.108)
 texture = ExtResource("2_bright")
 
 [node name="RevealLight" type="PointLight2D" parent="."]
