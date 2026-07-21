@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://dejxu4urgnkfd"]
 
-[ext_resource type="Script" uid="uid://cmcw01k3n0koi" path="res://scenes/objects/PufferFish/puffer_fish.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scenes/objects/PufferFish/authored_scale_puffer_fish.gd" id="1_controller"]
 [ext_resource type="SpriteFrames" path="res://scenes/objects/PufferFish/puffer_fish_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Script" uid="uid://dtiiykv8psaq5" path="res://rebuild_v3/shared/camera_distance_activator.gd" id="3_distance_activator"]
 
@@ -21,6 +21,7 @@ puffed_collision_shape = SubResource("PufferPuffedCollisionShape")
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=646916860]
 unique_name_in_owner = true
+scale = Vector2(0.21689498, 0.21689498)
 sprite_frames = ExtResource("2_frames")
 animation = &"normal"
 autoplay = "normal"
