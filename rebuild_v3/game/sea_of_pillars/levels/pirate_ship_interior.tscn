@@ -192,10 +192,7 @@ scale = Vector2(0.45623043, 0.4594049)
 [node name="Node2D" type="Node2D" parent="environment" unique_id=1125539374]
 
 [node name="shipcollision" type="Node2D" parent="environment" unique_id=1568868948]
-
-[node name="LeafSheep" parent="environment" unique_id=579300599 instance=ExtResource("10_fsyc7")]
-unique_name_in_owner = false
-position = Vector2(123.914795, 522.9397)
+position = Vector2(-169.0852, 9.939697)
 
 [node name="LeafSheep" parent="." unique_id=1971499365 instance=ExtResource("10_fsyc7")]
 position = Vector2(3248, 1279)
