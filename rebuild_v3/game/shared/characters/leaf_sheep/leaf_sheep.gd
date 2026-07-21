@@ -1,7 +1,8 @@
 class_name CotcLeafSheep
 extends Node2D
 
-## Runtime owner for the permanent Item B companion, its phase timers and light.
+## Canonical runtime owner for the permanent Item B companion, its phase timers,
+## light, darkness reveal and one-time repair of the broken pre-pickup save state.
 
 signal state_changed(state_name: StringName)
 signal phase_changed(phase_name: StringName)
@@ -13,6 +14,13 @@ const PHASE_NONE: StringName = &"none"
 const PHASE_BRIGHT: StringName = &"bright"
 const PHASE_MID: StringName = &"mid"
 const PHASE_LOW: StringName = &"low"
+
+const INVENTORY_RESET_FLAG: StringName = &"leaf_sheep_ship_pickup_inventory_reset_v1"
+const SHIP_PICKUP_IDS: Array[StringName] = [
+	&"pirate_ship_leaf_sheep",
+	&"pirate_ship_leaf_sheep_v2",
+	&"pirate_ship_leaf_sheep_v3",
+]
 
 const LOW_TEXTURE: Texture2D = preload("res://assets/characters/companion_leaf_sheep0.png")
 const MID_TEXTURE: Texture2D = preload("res://assets/characters/companion_leaf_sheep1.png")
@@ -56,6 +64,8 @@ var _context: Node
 var _level: Node
 var _hylas: CotcHylas
 var _game_state: CotcGameState
+var _replacement_state_source: CotcGameState
+
 var _state: State = State.READY
 var _phase_elapsed: float = 0.0
 var _active_elapsed: float = 0.0
@@ -69,6 +79,12 @@ var _target_light_energy: float = 0.0
 var _environment_darkness: float = 0.0
 var _active_darkness_profile: StringName = &"none"
 
+var _depth_profile_enabled: bool = false
+var _depth_start_y: float = 0.0
+var _depth_full_y: float = 1.0
+var _depth_maximum_darkness: float = 0.0
+var _depth_tint: Color = Color(0.004, 0.012, 0.055, 1.0)
+
 
 func _ready() -> void:
 	top_level = true
@@ -81,7 +97,14 @@ func _ready() -> void:
 	set_process(true)
 
 
+func _exit_tree() -> void:
+	_disconnect_hylas()
+	_disconnect_game_state()
+	_disconnect_state_replacement()
+
+
 func _process(delta: float) -> void:
+	_update_depth_darkness()
 	_sync_to_hylas()
 	_update_visual_transition(delta)
 	_update_darkness_shader()
@@ -111,14 +134,27 @@ func configure(context: Node, level: Node, hylas: CotcHylas) -> void:
 
 
 func bind_game_state(game_state: CotcGameState) -> void:
+	_disconnect_state_replacement()
 	_disconnect_game_state()
 	_game_state = game_state
 	_connect_game_state()
+	_replacement_state_source = game_state
+	if (
+			_replacement_state_source != null
+			and not _replacement_state_source.state_replaced.is_connected(_on_state_replaced)
+		):
+		_replacement_state_source.state_replaced.connect(_on_state_replaced)
+	_apply_broken_ship_inventory_reset_once()
 	_reset_runtime_state()
 
 
 func set_gameplay_active(is_active: bool) -> void:
 	_gameplay_active = is_active
+	if not is_active:
+		_set_overlay_enabled(false)
+		return
+	_update_depth_darkness()
+	_set_overlay_enabled(_environment_darkness > 0.001)
 
 
 func toggle_activation() -> bool:
@@ -207,14 +243,19 @@ func set_darkness_profile(
 		darkness_strength: float,
 		darkness_tint: Color = Color(0.004, 0.012, 0.055, 1.0),
 	) -> void:
+	_depth_profile_enabled = false
 	_active_darkness_profile = profile_id
 	_environment_darkness = clampf(darkness_strength, 0.0, 1.0)
 	_apply_darkness_tint(darkness_tint)
-	_set_overlay_enabled(_environment_darkness > 0.001)
+	_set_overlay_enabled(_gameplay_active and _environment_darkness > 0.001)
 
 
 func clear_darkness_profile() -> void:
-	set_darkness_profile(&"none", default_environment_darkness, default_darkness_tint)
+	_depth_profile_enabled = false
+	_active_darkness_profile = &"none"
+	_environment_darkness = default_environment_darkness
+	_apply_darkness_tint(default_darkness_tint)
+	_set_overlay_enabled(_gameplay_active and _environment_darkness > 0.001)
 
 
 func get_debug_lines() -> Array[String]:
@@ -239,6 +280,7 @@ func get_debug_lines() -> Array[String]:
 		"leaf_sheep_light_strength=%.2f" % _current_light_energy,
 		"active_darkness_profile=%s" % String(_active_darkness_profile),
 		"current_environment_darkness=%.2f" % _environment_darkness,
+		"depth_profile_enabled=%s" % str(_depth_profile_enabled),
 		"carry_animation_active=%s" % str(_is_hylas_carry_animation_active()),
 		"greatfin_carry_animation_active=%s" % str(_is_greatfin_carry_active()),
 	]
@@ -370,11 +412,10 @@ func _update_visual_transition(delta: float) -> void:
 				_previous_sprite.hide()
 				_current_sprite.modulate.a = 1.0
 	_point_light.energy = _current_light_energy
-	var light_scale: Vector2 = Vector2(
+	_point_light.scale = Vector2(
 		maxf(0.001, _current_reveal_radius.x / 256.0),
 		maxf(0.001, _current_reveal_radius.y / 256.0),
 	)
-	_point_light.scale = light_scale
 
 
 func _sync_to_hylas() -> void:
@@ -424,7 +465,8 @@ func _apply_darkness_tint(tint: Color) -> void:
 
 
 func _set_overlay_enabled(enabled: bool) -> void:
-	_darkness_overlay.visible = enabled
+	if is_instance_valid(_darkness_overlay):
+		_darkness_overlay.visible = enabled
 
 
 func _apply_sprite_scale(texture: Texture2D) -> void:
@@ -505,10 +547,8 @@ func _on_hylas_forced_deactivation_requested(reason: StringName) -> void:
 
 
 func _read_level_darkness_profile() -> void:
-	if not is_instance_valid(_level):
-		clear_darkness_profile()
-		return
-	if not _level.has_meta(&"leaf_sheep_darkness_profile"):
+	_depth_profile_enabled = false
+	if not is_instance_valid(_level) or not _level.has_meta(&"leaf_sheep_darkness_profile"):
 		clear_darkness_profile()
 		return
 	var profile_value: Variant = _level.get_meta(&"leaf_sheep_darkness_profile")
@@ -516,11 +556,81 @@ func _read_level_darkness_profile() -> void:
 		clear_darkness_profile()
 		return
 	var profile: Dictionary = profile_value
+	if profile.has("start_y") and profile.has("full_y"):
+		_depth_profile_enabled = true
+		_depth_start_y = float(profile.get("start_y", 0.0))
+		_depth_full_y = float(profile.get("full_y", _depth_start_y + 1.0))
+		_depth_maximum_darkness = clampf(
+			float(profile.get("maximum_darkness", profile.get("darkness_strength", 0.92))),
+			0.0,
+			1.0,
+		)
+		var tint_value: Variant = profile.get("tint", default_darkness_tint)
+		_depth_tint = tint_value if tint_value is Color else default_darkness_tint
+		_active_darkness_profile = StringName(str(profile.get("id", "depths")))
+		_apply_darkness_tint(_depth_tint)
+		_update_depth_darkness()
+		return
 	set_darkness_profile(
 		StringName(str(profile.get("id", "depths"))),
 		float(profile.get("darkness_strength", default_environment_darkness)),
 		profile.get("tint", default_darkness_tint) as Color,
 	)
+
+
+func _update_depth_darkness() -> void:
+	if not _depth_profile_enabled or not is_instance_valid(_hylas):
+		return
+	var depth_span: float = _depth_full_y - _depth_start_y
+	var depth_ratio: float = 0.0
+	if absf(depth_span) > 0.001:
+		depth_ratio = clampf(
+			(_hylas.global_position.y - _depth_start_y) / depth_span,
+			0.0,
+			1.0,
+		)
+	var eased_ratio: float = depth_ratio * depth_ratio * (3.0 - 2.0 * depth_ratio)
+	_environment_darkness = _depth_maximum_darkness * eased_ratio
+	_apply_darkness_tint(_depth_tint)
+	_set_overlay_enabled(_gameplay_active and _environment_darkness > 0.001)
+
+
+func _apply_broken_ship_inventory_reset_once() -> void:
+	if _game_state == null:
+		return
+	if bool(_game_state.story_flags.get(String(INVENTORY_RESET_FLAG), false)):
+		return
+
+	if _game_state.get_equipped_item(ITEM_SLOT_B) == ITEM_ID:
+		_game_state.clear_equipped_item(ITEM_SLOT_B)
+
+	var item_key: String = String(ITEM_ID)
+	if _game_state.permanent_inventory_items.has(item_key):
+		_game_state.permanent_inventory_items.erase(item_key)
+		_game_state.permanent_inventory_changed.emit(ITEM_ID, false)
+
+	for pickup_id: StringName in SHIP_PICKUP_IDS:
+		var pickup_key: String = String(pickup_id)
+		if not _game_state.collected_pickups.has(pickup_key):
+			continue
+		_game_state.collected_pickups.erase(pickup_key)
+		_game_state.pickup_collection_changed.emit(pickup_id, false)
+
+	_game_state.set_story_flag(INVENTORY_RESET_FLAG, true)
+
+
+func _on_state_replaced(_reason: StringName) -> void:
+	_apply_broken_ship_inventory_reset_once()
+	_reset_runtime_state()
+
+
+func _disconnect_state_replacement() -> void:
+	if (
+			_replacement_state_source != null
+			and _replacement_state_source.state_replaced.is_connected(_on_state_replaced)
+		):
+		_replacement_state_source.state_replaced.disconnect(_on_state_replaced)
+	_replacement_state_source = null
 
 
 func _get_current_sprite_path() -> String:
