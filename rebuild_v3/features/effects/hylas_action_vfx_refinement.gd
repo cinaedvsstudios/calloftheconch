@@ -9,10 +9,6 @@ const ORBIT_HIGHLIGHT_SPAN: float = 1.55
 const ORBIT_TILT_RADIANS: float = -0.31415926536
 const ORBIT_REVOLUTIONS: float = 2.0
 const CANONICAL_START_PROGRESS: float = 13.0 / 60.0
-const NORMAL_SPEED_TRAIL_VERTICAL_OFFSET: float = -15.0
-const NORMAL_SPEED_TRAIL_FORWARD_OFFSET: float = 15.0
-const GREATFIN_SPEED_TRAIL_VERTICAL_OFFSET: float = -45.0
-const GREATFIN_SPEED_TRAIL_FORWARD_OFFSET: float = 55.0
 
 @onready var _action_vfx: Node2D = get_parent() as Node2D
 @onready var _player: CharacterBody2D = get_parent().get_parent() as CharacterBody2D
@@ -59,15 +55,15 @@ func _resolve_parent_layers() -> void:
 
 
 func _offset_speed_trail() -> void:
-	if not is_instance_valid(_speed_trail):
+	if not is_instance_valid(_speed_trail) or not is_instance_valid(_sprite):
 		return
-	var vertical_offset: float = NORMAL_SPEED_TRAIL_VERTICAL_OFFSET
-	var forward_distance: float = NORMAL_SPEED_TRAIL_FORWARD_OFFSET
-	if _is_greatfin_burst_set():
-		vertical_offset = GREATFIN_SPEED_TRAIL_VERTICAL_OFFSET
-		forward_distance = GREATFIN_SPEED_TRAIL_FORWARD_OFFSET
-	var forward_offset: float = -forward_distance if _sprite.flip_h else forward_distance
-	_speed_trail.global_position = Vector2(forward_offset, vertical_offset)
+	var sampled_origin: Vector2 = _sprite.global_position
+	if is_instance_valid(_action_vfx) and _action_vfx.has_method(&"_get_burst_tail_point"):
+		var sampled_value: Variant = _action_vfx.call(&"_get_burst_tail_point")
+		if sampled_value is Vector2:
+			sampled_origin = sampled_value
+	var sprite_centre: Vector2 = _sprite.to_global(_sprite.offset)
+	_speed_trail.global_position = sprite_centre - sampled_origin
 
 
 func _is_greatfin_burst_set() -> bool:
