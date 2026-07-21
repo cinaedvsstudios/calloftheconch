@@ -1,50 +1,238 @@
-[gd_resource type="SpriteFrames" format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://du8l3w8u42meu"]
 
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-speed01.webp" id="1_speed01"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-speed02.webp" id="2_speed02"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-speed03.webp" id="3_speed03"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-speed04.webp" id="4_speed04"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-speed05.webp" id="5_speed05"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-speed06.webp" id="6_speed06"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-conchA01.webp" id="7_conch01"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-conchA02.webp" id="8_conch02"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-conchA03.webp" id="9_conch03"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-conchA04.webp" id="10_conch04"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-conchA05.webp" id="11_conch05"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-conchA06.webp" id="12_conch06"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-crawl01.webp" id="13_crawl01"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-crawl02.webp" id="14_crawl02"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-crawl03.webp" id="15_crawl03"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-crawl04.webp" id="16_crawl04"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-stop01.webp" id="17_stop01"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-stop02.webp" id="18_stop02"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-stop03.webp" id="19_stop03"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-stop04.webp" id="20_stop04"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-stop05.webp" id="21_stop05"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-swim01.webp" id="22_swim01"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-swim02.webp" id="23_swim02"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-swim03.webp" id="24_swim03"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-swim04.webp" id="25_swim04"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-tailflip01.webp" id="26_flip01"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-tailflip02.webp" id="27_flip02"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-tailflip03.webp" id="28_flip03"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-tailflip04.png" id="29_flip04"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-tailflip05.webp" id="30_flip05"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-tailflip06.webp" id="31_flip06"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-idle01.webp" id="32_idle01"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-idle02.webp" id="33_idle02"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-idle03.webp" id="34_idle03"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-idle04.webp" id="35_idle04"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-jump_01.webp" id="36_jump01"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-jump_01a.webp" id="37_jump01a"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-jump_02.webp" id="38_jump02"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-jump_03.webp" id="39_jump03"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-jump_03a.webp" id="40_jump03a"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-jump_04.webp" id="41_jump04"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-climb01.webp" id="42_climb01"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-climb02.webp" id="43_climb02"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-climb03.webp" id="44_climb03"]
-[ext_resource type="Texture2D" path="res://assets/characters/hylas-greatfin-climb04.webp" id="45_climb04"]
+[ext_resource type="Texture2D" uid="uid://crbp1nqs7p2kl" path="res://assets/characters/hylas-greatfin-speed01.webp" id="1_speed01"]
+[ext_resource type="Texture2D" uid="uid://d1ivxw3gyc3yo" path="res://assets/characters/hylas-greatfin-speed02.webp" id="2_speed02"]
+[ext_resource type="Texture2D" uid="uid://il58ph1gdgpw" path="res://assets/characters/hylas-greatfin-speed03.webp" id="3_speed03"]
+[ext_resource type="Texture2D" uid="uid://iye5ps80c4hi" path="res://assets/characters/hylas-greatfin-speed04.webp" id="4_speed04"]
+[ext_resource type="Texture2D" uid="uid://j6scygtwfq2g" path="res://assets/characters/hylas-greatfin-speed05.webp" id="5_speed05"]
+[ext_resource type="Texture2D" uid="uid://dpo3yemwwoe0l" path="res://assets/characters/hylas-greatfin-speed06.webp" id="6_speed06"]
+[ext_resource type="Texture2D" uid="uid://qgfn5gwmpvak" path="res://assets/characters/hylas-greatfin-conchA01.webp" id="7_conch01"]
+[ext_resource type="Texture2D" uid="uid://chx0f5gf8reba" path="res://assets/characters/hylas-greatfin-conchA02.webp" id="8_conch02"]
+[ext_resource type="Texture2D" uid="uid://rk8alpq4epeh" path="res://assets/characters/hylas-greatfin-conchA03.webp" id="9_conch03"]
+[ext_resource type="Texture2D" uid="uid://bar4u7rhepeyd" path="res://assets/characters/hylas-greatfin-conchA04.webp" id="10_conch04"]
+[ext_resource type="Texture2D" uid="uid://bsgat6h5is8gi" path="res://assets/characters/hylas-greatfin-conchA05.webp" id="11_conch05"]
+[ext_resource type="Texture2D" uid="uid://dh7wopyaxrpen" path="res://assets/characters/hylas-greatfin-conchA06.webp" id="12_conch06"]
+[ext_resource type="Texture2D" uid="uid://bj4555685sb4q" path="res://assets/characters/hylas-greatfin-crawl01.webp" id="13_crawl01"]
+[ext_resource type="Texture2D" uid="uid://brrjj3ofppvyr" path="res://assets/characters/hylas-greatfin-crawl02.webp" id="14_crawl02"]
+[ext_resource type="Texture2D" uid="uid://bmysrt2ygygh2" path="res://assets/characters/hylas-greatfin-crawl03.webp" id="15_crawl03"]
+[ext_resource type="Texture2D" uid="uid://dqjlp15is88w4" path="res://assets/characters/hylas-greatfin-crawl04.webp" id="16_crawl04"]
+[ext_resource type="Texture2D" uid="uid://cyugkj502a0fa" path="res://assets/characters/hylas-greatfin-stop01.webp" id="17_stop01"]
+[ext_resource type="Texture2D" uid="uid://bo7gw2u0480vh" path="res://assets/characters/hylas-greatfin-stop02.webp" id="18_stop02"]
+[ext_resource type="Texture2D" uid="uid://bqjd3ij5ryum3" path="res://assets/characters/hylas-greatfin-stop03.webp" id="19_stop03"]
+[ext_resource type="Texture2D" uid="uid://d1ocqhwro5ib2" path="res://assets/characters/hylas-greatfin-stop04.webp" id="20_stop04"]
+[ext_resource type="Texture2D" uid="uid://draycn6om54dp" path="res://assets/characters/hylas-greatfin-stop05.webp" id="21_stop05"]
+[ext_resource type="Texture2D" uid="uid://bxr5hxxvqvite" path="res://assets/characters/hylas-greatfin-swim01.webp" id="22_swim01"]
+[ext_resource type="Texture2D" uid="uid://gymv4q3gtlb" path="res://assets/characters/hylas-greatfin-swim02.webp" id="23_swim02"]
+[ext_resource type="Texture2D" uid="uid://cjk8pwx1si8j5" path="res://assets/characters/hylas-greatfin-swim03.webp" id="24_swim03"]
+[ext_resource type="Texture2D" uid="uid://b0i108d8gj33l" path="res://assets/characters/hylas-greatfin-swim04.webp" id="25_swim04"]
+[ext_resource type="Texture2D" uid="uid://cglagmpl16ihi" path="res://assets/characters/hylas-greatfin-tailflip01.webp" id="26_flip01"]
+[ext_resource type="Texture2D" uid="uid://yi1u58odbyrl" path="res://assets/characters/hylas-greatfin-tailflip02.webp" id="27_flip02"]
+[ext_resource type="Texture2D" uid="uid://cn6m7cs61cmh5" path="res://assets/characters/hylas-greatfin-tailflip03.webp" id="28_flip03"]
+[ext_resource type="Texture2D" uid="uid://bychhifteypsp" path="res://assets/characters/hylas-greatfin-tailflip04.png" id="29_flip04"]
+[ext_resource type="Texture2D" uid="uid://df2u38mt1jbj1" path="res://assets/characters/hylas-greatfin-tailflip05.webp" id="30_flip05"]
+[ext_resource type="Texture2D" uid="uid://dtq5n5f3ikk43" path="res://assets/characters/hylas-greatfin-tailflip06.webp" id="31_flip06"]
+[ext_resource type="Texture2D" uid="uid://b2jpuc6n3jw41" path="res://assets/characters/hylas-greatfin-idle01.webp" id="32_idle01"]
+[ext_resource type="Texture2D" uid="uid://cmv0otjbxwouu" path="res://assets/characters/hylas-greatfin-idle02.webp" id="33_idle02"]
+[ext_resource type="Texture2D" uid="uid://c3hjnrop044ax" path="res://assets/characters/hylas-greatfin-idle03.webp" id="34_idle03"]
+[ext_resource type="Texture2D" uid="uid://54g1p82cdhy3" path="res://assets/characters/hylas-greatfin-idle04.webp" id="35_idle04"]
+[ext_resource type="Texture2D" uid="uid://c5k4bbsetrd8u" path="res://assets/characters/hylas-jump_01.webp" id="36_jump01"]
+[ext_resource type="Texture2D" uid="uid://bo7fnqqi645ib" path="res://assets/characters/hylas-jump_01a.webp" id="37_jump01a"]
+[ext_resource type="Texture2D" uid="uid://bfaleat75aikh" path="res://assets/characters/hylas-jump_02.webp" id="38_jump02"]
+[ext_resource type="Texture2D" uid="uid://cr2mpx06ighic" path="res://assets/characters/hylas-jump_03.webp" id="39_jump03"]
+[ext_resource type="Texture2D" uid="uid://bqhmsbc8c6ff4" path="res://assets/characters/hylas-jump_03a.webp" id="40_jump03a"]
+[ext_resource type="Texture2D" uid="uid://ccf6a3tsats66" path="res://assets/characters/hylas-jump_04.webp" id="41_jump04"]
+[ext_resource type="Texture2D" uid="uid://ow0afj7xw0uc" path="res://assets/characters/hylas-greatfin-climb01.webp" id="42_climb01"]
+[ext_resource type="Texture2D" uid="uid://djr3vh872yhca" path="res://assets/characters/hylas-greatfin-climb02.webp" id="43_climb02"]
+[ext_resource type="Texture2D" uid="uid://ca3st3amns4bk" path="res://assets/characters/hylas-greatfin-climb03.webp" id="44_climb03"]
+[ext_resource type="Texture2D" uid="uid://cxhr1y0u8kmga" path="res://assets/characters/hylas-greatfin-climb04.webp" id="45_climb04"]
 
 [resource]
-animations = [{"frames":[{"duration":1.0,"texture":ExtResource("1_speed01")},{"duration":1.0,"texture":ExtResource("2_speed02")},{"duration":1.0,"texture":ExtResource("3_speed03")},{"duration":1.0,"texture":ExtResource("4_speed04")},{"duration":1.0,"texture":ExtResource("5_speed05")},{"duration":1.0,"texture":ExtResource("6_speed06")}],"loop":0,"name":&"burst","speed":16.0},{"frames":[{"duration":1.0,"texture":ExtResource("7_conch01")},{"duration":1.0,"texture":ExtResource("8_conch02")},{"duration":1.0,"texture":ExtResource("9_conch03")},{"duration":1.0,"texture":ExtResource("10_conch04")},{"duration":1.0,"texture":ExtResource("11_conch05")},{"duration":1.0,"texture":ExtResource("12_conch06")}],"loop":0,"name":&"conch","speed":9.0},{"frames":[{"duration":1.0,"texture":ExtResource("42_climb01")},{"duration":1.0,"texture":ExtResource("43_climb02")},{"duration":1.0,"texture":ExtResource("44_climb03")},{"duration":1.0,"texture":ExtResource("45_climb04")}],"loop":1,"name":&"climb","speed":7.0},{"frames":[{"duration":1.0,"texture":ExtResource("13_crawl01")},{"duration":1.0,"texture":ExtResource("14_crawl02")},{"duration":1.0,"texture":ExtResource("15_crawl03")},{"duration":1.0,"texture":ExtResource("16_crawl04")}],"loop":1,"name":&"crawl","speed":8.0},{"frames":[{"duration":1.0,"texture":ExtResource("32_idle01")},{"duration":1.0,"texture":ExtResource("33_idle02")},{"duration":1.0,"texture":ExtResource("34_idle03")},{"duration":1.0,"texture":ExtResource("35_idle04")}],"loop":1,"name":&"idle","speed":1.0},{"frames":[{"duration":1.0,"texture":ExtResource("36_jump01")},{"duration":1.0,"texture":ExtResource("37_jump01a")},{"duration":1.0,"texture":ExtResource("38_jump02")},{"duration":1.0,"texture":ExtResource("39_jump03")},{"duration":1.0,"texture":ExtResource("40_jump03a")},{"duration":1.0,"texture":ExtResource("41_jump04")}],"loop":0,"name":&"jump","speed":8.0},{"frames":[{"duration":1.0,"texture":ExtResource("17_stop01")},{"duration":1.0,"texture":ExtResource("18_stop02")},{"duration":1.0,"texture":ExtResource("19_stop03")},{"duration":1.0,"texture":ExtResource("20_stop04")},{"duration":1.0,"texture":ExtResource("21_stop05")}],"loop":0,"name":&"stop","speed":9.0},{"frames":[{"duration":1.0,"texture":ExtResource("21_stop05")}],"loop":0,"name":&"stop_release","speed":1.0},{"frames":[{"duration":1.0,"texture":ExtResource("22_swim01")},{"duration":1.0,"texture":ExtResource("23_swim02")},{"duration":1.0,"texture":ExtResource("24_swim03")},{"duration":1.0,"texture":ExtResource("25_swim04")}],"loop":1,"name":&"swim","speed":9.5},{"frames":[{"duration":1.0,"texture":ExtResource("26_flip01")},{"duration":1.0,"texture":ExtResource("27_flip02")},{"duration":1.0,"texture":ExtResource("28_flip03")},{"duration":1.0,"texture":ExtResource("29_flip04")},{"duration":1.0,"texture":ExtResource("30_flip05")},{"duration":1.0,"texture":ExtResource("31_flip06")}],"loop":0,"name":&"tail_flip","speed":6.0}]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_speed01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_speed02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_speed03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_speed04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_speed05")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_speed06")
+}],
+"loop": 0,
+"name": &"burst",
+"speed": 16.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("42_climb01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_climb02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_climb03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_climb04")
+}],
+"loop": 1,
+"name": &"climb",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("7_conch01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_conch02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_conch03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_conch04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_conch05")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_conch06")
+}],
+"loop": 0,
+"name": &"conch",
+"speed": 9.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("13_crawl01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_crawl02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_crawl03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_crawl04")
+}],
+"loop": 1,
+"name": &"crawl",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("32_idle01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_idle02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_idle03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_idle04")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("36_jump01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_jump01a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_jump02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_jump03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_jump03a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_jump04")
+}],
+"loop": 0,
+"name": &"jump",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("17_stop01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_stop02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_stop03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_stop04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_stop05")
+}],
+"loop": 0,
+"name": &"stop",
+"speed": 9.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("21_stop05")
+}],
+"loop": 0,
+"name": &"stop_release",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("22_swim01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_swim02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_swim03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_swim04")
+}],
+"loop": 1,
+"name": &"swim",
+"speed": 9.5
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("26_flip01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_flip02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_flip03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_flip04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_flip05")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_flip06")
+}],
+"loop": 0,
+"name": &"tail_flip",
+"speed": 6.0
+}]
