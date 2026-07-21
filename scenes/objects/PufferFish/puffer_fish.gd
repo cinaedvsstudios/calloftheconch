@@ -24,6 +24,11 @@ enum PufferState {
 @export_range(0.0, 100.0, 1.0) var puffed_bob_speed: float = 12.0
 @export_range(0.01, 3.0, 0.01) var puffed_bob_frequency: float = 0.42
 
+@export_category("Collision Profiles")
+@export var normal_collision_shape: Shape2D
+@export var puffed_collision_shape: Shape2D
+@export var use_puffed_collision_during_transition: bool = true
+
 @export_category("Patrol")
 @export var patrol_half_extents: Vector2 = Vector2(620.0, 190.0)
 @export_range(1.0, 400.0, 1.0) var minimum_swim_speed: float = 38.0
@@ -38,6 +43,7 @@ enum PufferState {
 @export_range(0.0, 2.0, 0.01) var current_influence: float = 0.32
 
 @onready var _sprite: AnimatedSprite2D = %AnimatedSprite
+@onready var _collision_shape: CollisionShape2D = %CollisionShape
 
 var _state: PufferState = PufferState.NORMAL
 var _home_position: Vector2
@@ -51,6 +57,7 @@ var _wander_phase: float = 0.0
 var _travel_sign: float = 1.0
 var _cruise_speed: float = 48.0
 var _distance_active: bool = true
+var _collision_profile: StringName = &"normal"
 var _rng := RandomNumberGenerator.new()
 
 
@@ -62,8 +69,10 @@ func _ready() -> void:
 		_rng.seed = random_seed
 	_wander_phase = _rng.randf_range(0.0, TAU)
 	_travel_sign = -1.0 if _rng.randf() < 0.5 else 1.0
+	_configure_collision_profiles()
 	_configure_animation_speeds()
 	_apply_display_scale()
+	_apply_collision_profile(&"normal")
 	_choose_next_patrol_target(true)
 	if not _sprite.animation_finished.is_connected(_on_animation_finished):
 		_sprite.animation_finished.connect(_on_animation_finished)
@@ -136,8 +145,11 @@ func set_distance_active(is_active: bool) -> void:
 		return
 	_distance_active = is_active
 	set_physics_process(_distance_active)
+	if is_instance_valid(_collision_shape):
+		_collision_shape.disabled = not _distance_active
 	_sprite.visible = _distance_active
 	if _distance_active:
+		_apply_collision_for_current_state()
 		if _state == PufferState.INFLATING:
 			_sprite.play(&"inflate")
 		elif _state == PufferState.DEFLATING:
@@ -161,6 +173,10 @@ func _begin_inflating() -> void:
 	_state = PufferState.INFLATING
 	_puffed_remaining = 0.0
 	_swim_velocity = Vector2.ZERO
+	if use_puffed_collision_during_transition:
+		_apply_collision_profile(&"puffed")
+	else:
+		_apply_collision_profile(&"normal")
 	_sprite.animation = &"inflate"
 	_sprite.frame = 0
 	_sprite.play()
@@ -170,6 +186,7 @@ func _begin_puffed_hold() -> void:
 	_state = PufferState.PUFFED
 	_puffed_remaining = puffed_duration
 	_swim_velocity = Vector2.ZERO
+	_apply_collision_profile(&"puffed")
 	_sprite.play(&"puffed")
 
 
@@ -179,6 +196,10 @@ func _begin_deflating() -> void:
 	_state = PufferState.DEFLATING
 	_puffed_remaining = 0.0
 	_swim_velocity = Vector2.ZERO
+	if use_puffed_collision_during_transition:
+		_apply_collision_profile(&"puffed")
+	else:
+		_apply_collision_profile(&"normal")
 	_sprite.animation = &"deflate"
 	_sprite.frame = 0
 	_sprite.play()
@@ -187,6 +208,7 @@ func _begin_deflating() -> void:
 func _return_to_normal() -> void:
 	_state = PufferState.NORMAL
 	_puffed_remaining = 0.0
+	_apply_collision_profile(&"normal")
 	_sprite.play(&"normal")
 	_choose_next_patrol_target(true)
 
@@ -300,6 +322,37 @@ func _get_external_current_velocity() -> Vector2:
 	return total_velocity
 
 
+func _configure_collision_profiles() -> void:
+	if normal_collision_shape == null and is_instance_valid(_collision_shape):
+		normal_collision_shape = _collision_shape.shape
+	if puffed_collision_shape == null:
+		puffed_collision_shape = normal_collision_shape
+
+
+func _apply_collision_for_current_state() -> void:
+	if _state == PufferState.PUFFED:
+		_apply_collision_profile(&"puffed")
+	elif (_state == PufferState.INFLATING or _state == PufferState.DEFLATING) and use_puffed_collision_during_transition:
+		_apply_collision_profile(&"puffed")
+	else:
+		_apply_collision_profile(&"normal")
+
+
+func _apply_collision_profile(profile_name: StringName) -> void:
+	if not is_instance_valid(_collision_shape):
+		return
+	var target_shape: Shape2D = normal_collision_shape
+	if profile_name == &"puffed" and puffed_collision_shape != null:
+		target_shape = puffed_collision_shape
+	if target_shape == null:
+		return
+	_collision_shape.position = Vector2.ZERO
+	_collision_shape.scale = Vector2.ONE
+	_collision_shape.shape = target_shape
+	_collision_shape.disabled = not _distance_active
+	_collision_profile = profile_name
+
+
 func _configure_animation_speeds() -> void:
 	if _sprite.sprite_frames == null:
 		return
@@ -322,6 +375,8 @@ func get_debug_lines() -> Array[String]:
 		"[PufferFish]",
 		"state=%s" % PufferState.keys()[_state],
 		"puffed_remaining=%.2f" % _puffed_remaining,
+		"collision_profile=%s" % String(_collision_profile),
+		"collision_disabled=%s" % str(_collision_shape.disabled if is_instance_valid(_collision_shape) else true),
 		"position=%s" % str(global_position),
 		"target=%s" % str(_patrol_target),
 		"distance_active=%s" % str(_distance_active),
