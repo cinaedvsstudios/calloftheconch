@@ -6,8 +6,6 @@ extends Area2D
 ## sway so it never travels in one perfectly straight line.
 
 @export_category("Animation")
-@export_range(40.0, 800.0, 1.0) var display_height: float = 260.0
-@export_range(0.10, 4.0, 0.01) var display_scale_multiplier: float = 1.20
 @export var source_faces_left: bool = false
 
 @export_category("Patrol Area")
@@ -57,7 +55,6 @@ func _ready() -> void:
 	_travel_sign = -1.0 if _rng.randf() < 0.5 else 1.0
 	_wander_phase = _rng.randf_range(0.0, TAU)
 	_choose_next_patrol_target(true)
-	_apply_display_scale()
 	_sprite.play(&"idle")
 	set_physics_process(true)
 	monitorable = true
@@ -233,15 +230,3 @@ func _update_facing(motion_velocity: Vector2) -> void:
 		return
 	var moving_left: bool = motion_velocity.x < 0.0
 	_sprite.flip_h = moving_left != source_faces_left
-
-
-func _apply_display_scale() -> void:
-	var first_texture: Texture2D = _sprite.sprite_frames.get_frame_texture(&"idle", 0)
-	if first_texture == null:
-		return
-	var scale_factor: float = (
-		display_height
-		* display_scale_multiplier
-		/ maxf(1.0, float(first_texture.get_height()))
-	)
-	_sprite.scale = Vector2.ONE * scale_factor
