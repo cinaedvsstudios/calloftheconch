@@ -1,3 +1,4 @@
+@tool
 class_name CotcPirateShipInterior
 extends Node2D
 
@@ -32,6 +33,11 @@ const ENTRANCE_LIGHT_SCENE: PackedScene = preload(
 @export_range(-180.0, 180.0, 1.0) var entrance_light_rotation_degrees: float = 0.0
 @export var entrance_light_scale: Vector2 = Vector2.ONE
 
+@export_category("Ship Collision")
+@export var create_collision_template: bool = true
+@export var collision_template_world_position: Vector2 = Vector2(640.0, 665.0)
+@export var collision_template_size: Vector2 = Vector2(420.0, 54.0)
+
 @onready var _interior_world: Node2D = %InteriorWorld
 @onready var _background: Sprite2D = %ShipwreckBackground
 @onready var _hylas: CotcHylas = %Hylas
@@ -57,11 +63,15 @@ var _fade_tween: Tween
 
 
 func _ready() -> void:
+	_configure_room_from_background()
+	if Engine.is_editor_hint():
+		call_deferred(&"_ensure_editor_helpers")
+		return
 	_camera = _hylas.get_node_or_null(^"Camera2D") as Camera2D
 	if _camera != null:
 		_camera.enabled = false
 	_hylas.set_play_enabled(false)
-	_configure_room_from_background()
+	_ensure_collision_template()
 	_ensure_entrance_light()
 	_set_exit_prompt_visible(false)
 	_set_interior_visuals_visible(false)
@@ -71,6 +81,8 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	if Engine.is_editor_hint():
+		return
 	_restore_leaf_sheep_to_open_sea()
 	_stop_room_ambience()
 
@@ -86,6 +98,7 @@ func activate() -> void:
 	show()
 	_set_interior_visuals_visible(true)
 	_configure_room_from_background()
+	_ensure_collision_template()
 	_configure_hylas()
 	_configure_camera()
 	_ensure_entrance_light()
@@ -169,12 +182,10 @@ func _configure_room_from_background() -> void:
 	if not is_instance_valid(_background) or _background.texture == null:
 		_room_size = _room_bounds.size
 		return
-
 	var local_rect: Rect2 = _background.get_rect()
 	if local_rect.size.x <= 1.0 or local_rect.size.y <= 1.0:
 		_room_size = _room_bounds.size
 		return
-
 	var corners: PackedVector2Array = PackedVector2Array([
 		local_rect.position,
 		Vector2(local_rect.end.x, local_rect.position.y),
@@ -190,7 +201,6 @@ func _configure_room_from_background() -> void:
 		minimum.y = minf(minimum.y, world_corner.y)
 		maximum.x = maxf(maximum.x, world_corner.x)
 		maximum.y = maxf(maximum.y, world_corner.y)
-
 	_room_bounds = Rect2(minimum, maximum - minimum)
 	_room_size = _room_bounds.size
 
@@ -236,6 +246,59 @@ func _configure_camera() -> void:
 	_camera.force_update_scroll()
 
 
+func _ensure_editor_helpers() -> void:
+	if not Engine.is_editor_hint():
+		return
+	_ensure_collision_template()
+	_ensure_entrance_light()
+
+
+func _ensure_collision_template() -> void:
+	if not create_collision_template or not is_instance_valid(_interior_world):
+		return
+	var folder: Node2D = find_child("shipcollision", true, false) as Node2D
+	if folder == null:
+		folder = Node2D.new()
+		folder.name = "shipcollision"
+		folder.editor_description = "Duplicate ShipCollisionTemplate to block the ship's decks, walls and internal levels."
+		_interior_world.add_child(folder)
+		_assign_editor_owner(folder)
+	var body: StaticBody2D = folder.get_node_or_null(^"ShipCollisionTemplate") as StaticBody2D
+	if body == null:
+		body = StaticBody2D.new()
+		body.name = "ShipCollisionTemplate"
+		body.editor_description = "Invisible terrain collision on layer 1. Duplicate this body, move it, and edit its CollisionPolygon2D points."
+		body.collision_layer = 1
+		body.collision_mask = 0
+		folder.add_child(body)
+		body.global_position = collision_template_world_position
+		_assign_editor_owner(body)
+	var polygon: CollisionPolygon2D = body.get_node_or_null(^"CollisionPolygon2D") as CollisionPolygon2D
+	if polygon == null:
+		polygon = CollisionPolygon2D.new()
+		polygon.name = "CollisionPolygon2D"
+		var half_size: Vector2 = Vector2(
+			maxf(20.0, collision_template_size.x) * 0.5,
+			maxf(20.0, collision_template_size.y) * 0.5,
+		)
+		polygon.polygon = PackedVector2Array([
+			Vector2(-half_size.x, -half_size.y),
+			Vector2(half_size.x, -half_size.y),
+			Vector2(half_size.x, half_size.y),
+			Vector2(-half_size.x, half_size.y),
+		])
+		body.add_child(polygon)
+		_assign_editor_owner(polygon)
+
+
+func _assign_editor_owner(node: Node) -> void:
+	if not Engine.is_editor_hint() or get_tree() == null:
+		return
+	var edited_root: Node = get_tree().edited_scene_root
+	if edited_root != null:
+		node.owner = edited_root
+
+
 func _ensure_entrance_light() -> void:
 	if not entrance_light_enabled or not is_instance_valid(_exit_area):
 		if is_instance_valid(_entrance_light):
@@ -249,6 +312,7 @@ func _ensure_entrance_light() -> void:
 			push_warning("Pirate ship entrance light scene could not be instantiated.")
 			return
 		_exit_area.add_child(_entrance_light)
+		_assign_editor_owner(_entrance_light)
 	_entrance_light.position = entrance_light_offset
 	_entrance_light.rotation_degrees = entrance_light_rotation_degrees
 	_entrance_light.scale = entrance_light_scale
@@ -372,6 +436,7 @@ func _kill_fade_tween() -> void:
 
 
 func get_debug_lines() -> Array[String]:
+	var collision_folder: Node = find_child("shipcollision", true, false)
 	return [
 		"[PirateShipInterior]",
 		"active=%s" % str(_active),
@@ -379,6 +444,7 @@ func get_debug_lines() -> Array[String]:
 		"room_size=%s" % str(_room_size),
 		"camera_zoom=%.2f" % camera_zoom,
 		"entrance_light_enabled=%s" % str(entrance_light_enabled),
+		"collision_folder_present=%s" % str(collision_folder != null),
 		"leaf_sheep_attached=%s" % str(_leaf_sheep_attached_to_interior),
 		"hylas_in_exit=%s" % str(_hylas_in_exit),
 		"exit_pending=%s" % str(_exit_pending),
