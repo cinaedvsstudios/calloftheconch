@@ -25,6 +25,7 @@ extends Area2D
 var _hylas: CotcHylas
 var _pulse_tween: Tween
 var _pulse_growing: bool = true
+var _visual_base_scale: Vector2 = Vector2.ONE
 var _bubble_timer: float = 0.0
 var _centre_fallback_direction: Vector2 = Vector2.RIGHT
 var _distance_active: bool = true
@@ -33,8 +34,10 @@ var _distance_active: bool = true
 func _ready() -> void:
 	_configure_drift_collision()
 	_centre_fallback_direction = Vector2.from_angle(randf_range(0.0, TAU))
-	_visual_root.scale = Vector2.ONE * randf_range(pulse_min_scale, pulse_max_scale)
-	_pulse_growing = _visual_root.scale.x < (pulse_min_scale + pulse_max_scale) * 0.5
+	_visual_base_scale = _visual_root.scale
+	var initial_pulse_multiplier: float = randf_range(pulse_min_scale, pulse_max_scale)
+	_visual_root.scale = _visual_base_scale * initial_pulse_multiplier
+	_pulse_growing = initial_pulse_multiplier < (pulse_min_scale + pulse_max_scale) * 0.5
 	_bubble_timer = randf_range(1.00, 2.50)
 	monitoring = true
 	set_process(true)
@@ -91,7 +94,12 @@ func _start_pulse() -> void:
 	_pulse_tween = create_tween()
 	_pulse_tween.set_trans(Tween.TRANS_SINE)
 	_pulse_tween.set_ease(Tween.EASE_IN_OUT)
-	_pulse_tween.tween_property(_visual_root, "scale", Vector2.ONE * target_scale, pulse_duration)
+	_pulse_tween.tween_property(
+		_visual_root,
+		^"scale",
+		_visual_base_scale * target_scale,
+		pulse_duration,
+	)
 	_pulse_tween.tween_callback(_continue_pulse)
 
 
