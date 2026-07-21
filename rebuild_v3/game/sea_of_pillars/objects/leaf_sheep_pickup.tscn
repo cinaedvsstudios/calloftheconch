@@ -1,0 +1,42 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://rebuild_v3/game/sea_of_pillars/objects/leaf_sheep_pickup.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://assets/characters/companion_leaf_sheep2.png" id="2_sprite"]
+[ext_resource type="Texture2D" path="res://rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep_light.svg" id="3_light"]
+[ext_resource type="AudioStream" path="res://assets/audio/pickup6.mp3" id="4_audio"]
+
+[sub_resource type="CircleShape2D" id="PickupShape"]
+radius = 92.0
+
+[node name="LeafSheepPickup" type="Area2D"]
+z_index = 14
+collision_layer = 0
+collision_mask = 1
+monitorable = false
+script = ExtResource("1_controller")
+editor_description = "Collectible Leaf Sheep. Grants the permanent Item B companion, equips it and activates it immediately."
+
+[node name="PickupSprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+scale = Vector2(0.38, 0.38)
+texture = ExtResource("2_sprite")
+
+[node name="PickupLight" type="PointLight2D" parent="."]
+unique_name_in_owner = true
+show_behind_parent = true
+z_index = -1
+texture = ExtResource("3_light")
+color = Color(0.91, 0.84, 1, 1)
+energy = 1.45
+texture_scale = 1.2
+shadow_enabled = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("PickupShape")
+
+[node name="PickupAudio" type="AudioStreamPlayer2D" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("4_audio")
+volume_db = -3.0
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
