@@ -15,17 +15,22 @@ shader_parameter/brightness = 5.0
 [node name="Vent1" type="Area2D" unique_id=1723392711]
 z_index = 1
 rotation = -3.1415927
-scale = Vector2(0.405, 0.405)
 collision_layer = 0
 script = ExtResource("1_controller")
-force_length = 1500.0
+opening_local_y = -210.6
+force_length = 607.5
+force_start_width = 105.3
+force_end_width = 364.5
 force_max_speed = 450.0
 
-[node name="VentSprite" type="Sprite2D" parent="." unique_id=474044516]
+[node name="VisualRoot" type="Node2D" parent="."]
+scale = Vector2(0.405, 0.405)
+
+[node name="VentSprite" type="Sprite2D" parent="VisualRoot" unique_id=474044516]
 unique_name_in_owner = true
 texture = ExtResource("2_vent_sprite")
 
-[node name="VentVideo" type="VideoStreamPlayer" parent="." unique_id=1363274679]
+[node name="VentVideo" type="VideoStreamPlayer" parent="VisualRoot" unique_id=1363274679]
 unique_name_in_owner = true
 z_index = 1
 material = SubResource("VentVideoMaterial")
