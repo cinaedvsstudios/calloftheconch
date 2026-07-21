@@ -9,7 +9,7 @@
 [ext_resource type="Script" uid="uid://davmy3yxk5mw5" path="res://rebuild_v3/shared/looping_audio_player.gd" id="7_looping_audio"]
 [ext_resource type="PackedScene" path="res://scenes/objects/seaweed_12.tscn" id="8_y5yeg"]
 [ext_resource type="PackedScene" uid="uid://dg8glfdscvdam" path="res://rebuild_v3/game/shared/objects/depth_glowplant.tscn" id="9_7g73d"]
-[ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep.tscn" id="10_fsyc7"]
+[ext_resource type="PackedScene" path="res://rebuild_v3/game/sea_of_pillars/objects/leaf_sheep_pickup.tscn" id="10_leaf_pickup"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_jellyfish_deep_blue.tscn" id="11_hxmxa"]
 [ext_resource type="PackedScene" path="res://rebuild_v3/game/shared/enemies/depth_flare_plant.tscn" id="12_uqn71"]
 
@@ -28,6 +28,7 @@ shader_parameter/waterline_fade = 0.012
 [node name="PirateShipInterior" type="Node2D" unique_id=1651606504]
 editor_description = "Scrollable pirate ship interior. The scaled JPEG defines the exact playable and camera bounds. RoomDarkness uses real 2D canvas lighting so Leaf Sheep and luminous creatures can illuminate the wreck."
 script = ExtResource("1_controller")
+create_collision_template = false
 metadata/development_status = "scrollable_local_room"
 metadata/sea_id = "sea_of_pillars"
 metadata/area_id = "pirate_ship_interior"
@@ -194,7 +195,16 @@ scale = Vector2(0.45623043, 0.4594049)
 [node name="shipcollision" type="Node2D" parent="environment" unique_id=1568868948]
 position = Vector2(-169.0852, 9.939697)
 
-[node name="LeafSheep" parent="." unique_id=1971499365 instance=ExtResource("10_fsyc7")]
+[node name="ShipCollision01" type="StaticBody2D" parent="environment/shipcollision" unique_id=208416394]
+editor_description = "Real editable ship collision on terrain layer 1. Duplicate this node, move it to another deck, then edit its CollisionPolygon2D points."
+position = Vector2(470, 688)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=208416395]
+polygon = PackedVector2Array(-240, -20, 240, -20, 240, 20, -240, 20)
+
+[node name="LeafSheepPickup" parent="." unique_id=1971499365 instance=ExtResource("10_leaf_pickup")]
 position = Vector2(3248, 1279)
 
 [node name="DepthJellyfishDeepBlue" parent="." unique_id=818172851 instance=ExtResource("11_hxmxa")]
