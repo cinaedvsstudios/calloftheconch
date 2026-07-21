@@ -34,7 +34,6 @@
 [ext_resource type="Texture2D" uid="uid://wb745lq4f6op" path="res://assets/objects/scenery_pillars_ruins06.png" id="30_armp7"]
 [ext_resource type="Texture2D" uid="uid://od0cdw04boyy" path="res://assets/objects/scenery_pillars_ruins01.png" id="31_f14t5"]
 [ext_resource type="Texture2D" uid="uid://c45uokrwv1ciw" path="res://assets/objects/scenery_pillars_ruins05.png" id="32_x7us7"]
-[ext_resource type="PackedScene" path="res://scenes/objects/FishSchool/fish_school.tscn" id="33_uluox"]
 [ext_resource type="PackedScene" uid="uid://bagsgw2i0ltaa" path="res://scenes/objects/Pickups/food_scavenged_fish_pickup.tscn" id="35_0s4mb"]
 [ext_resource type="PackedScene" uid="uid://svxwqbjwycpi" path="res://scenes/objects/Pickups/food_scavenged_fish2_pickup.tscn" id="36_85xaf"]
 [ext_resource type="PackedScene" uid="uid://bqvk20uvhfpvu" path="res://scenes/objects/AmbientFish/ambient_fish_01.tscn" id="37_rmo3g"]
@@ -55,6 +54,9 @@
 [ext_resource type="PackedScene" path="res://rebuild_v3/features/ricochet/ricochet_lane.tscn" id="53_qxate"]
 [ext_resource type="PackedScene" uid="uid://gsi4wdqp1idu" path="res://rebuild_v3/game/shared/enemies/jellyfish.tscn" id="54_34nxo"]
 [ext_resource type="Texture2D" uid="uid://dddtb4cqdco13" path="res://assets/ui/seaofpillars.webp" id="55_ijwbq"]
+[ext_resource type="PackedScene" uid="uid://dg6hkilyiowcy" path="res://scenes/objects/FishSchool/fish_school_procedural_20.tscn" id="55_p6rur"]
+[ext_resource type="PackedScene" uid="uid://dejxu4urgnkfd" path="res://scenes/objects/PufferFish/puffer_fish.tscn" id="56_ws5bm"]
+[ext_resource type="PackedScene" uid="uid://brttaikurbnvm" path="res://scenes/objects/Seahorse/seahorse.tscn" id="57_duk6c"]
 
 [sub_resource type="ShaderMaterial" id="LowerWaterMaterial"]
 shader = ExtResource("6_ueib1")
@@ -492,12 +494,12 @@ position = Vector2(4987, 4836)
 rotation = 3.5810513
 
 [node name="Rock17" parent="." index="25" unique_id=631388645 instance=ExtResource("5_qkcyf")]
-position = Vector2(6437.0005, 3094)
-rotation = -1.0030937
+position = Vector2(6486, 3134)
+rotation = -0.87177074
 
 [node name="Rock18" parent="." index="26" unique_id=886774507 instance=ExtResource("5_qkcyf")]
-position = Vector2(6006, 3209.0002)
-rotation = 1.8325958
+position = Vector2(5989.0005, 3187)
+rotation = 1.9197884
 
 [node name="Rock05" parent="." index="27" unique_id=633996989 instance=ExtResource("6_2hrwh")]
 position = Vector2(10513, -655)
@@ -607,526 +609,538 @@ rotation = 0.47098294
 scale = Vector2(0.41706538, 0.41706538)
 texture = ExtResource("32_x7us7")
 
-[node name="FishSchool" parent="." index="57" unique_id=1567945022 instance=ExtResource("33_uluox")]
-position = Vector2(3375, 2607)
-
-[node name="FoodScavengedFishPickup" parent="." index="58" unique_id=1852098582 instance=ExtResource("35_0s4mb")]
+[node name="FoodScavengedFishPickup" parent="." index="57" unique_id=1852098582 instance=ExtResource("35_0s4mb")]
 z_index = 6
 position = Vector2(3424.9998, 3018)
 scale = Vector2(0.85, 0.85)
 
-[node name="FoodScavengedFish2Pickup" parent="." index="59" unique_id=496472773 instance=ExtResource("36_85xaf")]
+[node name="FoodScavengedFish2Pickup" parent="." index="58" unique_id=496472773 instance=ExtResource("36_85xaf")]
 position = Vector2(2803, 2905.0002)
 scale = Vector2(0.495, 0.495)
 
-[node name="AmbientFish01" parent="." index="60" unique_id=817934162 instance=ExtResource("37_rmo3g")]
+[node name="AmbientFish01" parent="." index="59" unique_id=817934162 instance=ExtResource("37_rmo3g")]
 position = Vector2(4305, 2578)
 
-[node name="AmbientFish02" parent="." index="61" unique_id=237029016 instance=ExtResource("38_lkohx")]
+[node name="AmbientFish02" parent="." index="60" unique_id=237029016 instance=ExtResource("38_lkohx")]
 position = Vector2(4560, 2683)
 
-[node name="AmbientFish03" parent="." index="62" unique_id=126286707 instance=ExtResource("39_5fecg")]
+[node name="AmbientFish03" parent="." index="61" unique_id=126286707 instance=ExtResource("39_5fecg")]
 position = Vector2(4511, 2532)
 
-[node name="SpikeRock2" parent="." index="63" unique_id=1147558650 instance=ExtResource("27_4id1n")]
+[node name="SpikeRock2" parent="." index="62" unique_id=1147558650 instance=ExtResource("27_4id1n")]
 position = Vector2(6987, 3231)
 
-[node name="SpikeRock3" parent="." index="64" unique_id=986852029 instance=ExtResource("27_4id1n")]
+[node name="SpikeRock3" parent="." index="63" unique_id=986852029 instance=ExtResource("27_4id1n")]
 position = Vector2(7806, 3231)
 
-[node name="SpikeRock4" parent="." index="65" unique_id=1868116592 instance=ExtResource("27_4id1n")]
+[node name="SpikeRock4" parent="." index="64" unique_id=1868116592 instance=ExtResource("27_4id1n")]
 position = Vector2(8644, 3239)
 
-[node name="SpikeRock11" parent="." index="66" unique_id=1187982454 instance=ExtResource("27_4id1n")]
+[node name="SpikeRock11" parent="." index="65" unique_id=1187982454 instance=ExtResource("27_4id1n")]
 position = Vector2(9499, 3247)
 
-[node name="SpikeRock12" parent="." index="67" unique_id=1199702826 instance=ExtResource("27_4id1n")]
+[node name="SpikeRock12" parent="." index="66" unique_id=1199702826 instance=ExtResource("27_4id1n")]
 z_index = 2
 position = Vector2(10323, 3239)
 
-[node name="SpikeRock5" parent="." index="68" unique_id=1030467369 instance=ExtResource("27_4id1n")]
+[node name="SpikeRock5" parent="." index="67" unique_id=1030467369 instance=ExtResource("27_4id1n")]
 position = Vector2(8561, 8009)
 
-[node name="SpikeRock6" parent="." index="69" unique_id=859448758 instance=ExtResource("27_4id1n")]
+[node name="SpikeRock6" parent="." index="68" unique_id=859448758 instance=ExtResource("27_4id1n")]
 position = Vector2(9399, 8009)
 
-[node name="SpikeRock7" parent="." index="70" unique_id=571348066 instance=ExtResource("27_4id1n")]
+[node name="SpikeRock7" parent="." index="69" unique_id=571348066 instance=ExtResource("27_4id1n")]
 position = Vector2(10151, 7997)
 
-[node name="SpikeRock8" parent="." index="71" unique_id=498610324 instance=ExtResource("27_4id1n")]
+[node name="SpikeRock8" parent="." index="70" unique_id=498610324 instance=ExtResource("27_4id1n")]
 position = Vector2(10952, 7985)
 
-[node name="SpikeRock9" parent="." index="72" unique_id=1728031815 instance=ExtResource("27_4id1n")]
+[node name="SpikeRock9" parent="." index="71" unique_id=1728031815 instance=ExtResource("27_4id1n")]
 position = Vector2(11817, 7973)
 
-[node name="SpikeRock10" parent="." index="73" unique_id=1818244855 instance=ExtResource("27_4id1n")]
+[node name="SpikeRock10" parent="." index="72" unique_id=1818244855 instance=ExtResource("27_4id1n")]
 position = Vector2(37012, 3425)
 
-[node name="DepthGlowPlant" parent="." index="74" unique_id=792860535 instance=ExtResource("41_5wr0l")]
+[node name="DepthGlowPlant" parent="." index="73" unique_id=792860535 instance=ExtResource("41_5wr0l")]
 position = Vector2(6689, 7237)
 scale = Vector2(0.48, 0.48)
 
-[node name="DepthGlowPlant2" parent="." index="75" unique_id=2024679265 instance=ExtResource("41_5wr0l")]
+[node name="DepthGlowPlant2" parent="." index="74" unique_id=2024679265 instance=ExtResource("41_5wr0l")]
 position = Vector2(7230, 7237.001)
 rotation = 6.000265
 scale = Vector2(0.48, 0.48)
 
-[node name="DepthGlowPlant3" parent="." index="76" unique_id=1701683715 instance=ExtResource("41_5wr0l")]
+[node name="DepthGlowPlant3" parent="." index="75" unique_id=1701683715 instance=ExtResource("41_5wr0l")]
 position = Vector2(6955.0005, 7165.0005)
 rotation = 6.000265
 scale = Vector2(0.48, 0.48)
 
-[node name="PirateShip" parent="." index="77" unique_id=1178522659 instance=ExtResource("43_gh03l")]
+[node name="PirateShip" parent="." index="76" unique_id=1178522659 instance=ExtResource("43_gh03l")]
 z_index = 1
 position = Vector2(3960.0002, 6674)
 rotation = 0.061086524
 
-[node name="Beach5" parent="." index="78" unique_id=335061404 instance=ExtResource("21_uluox")]
+[node name="Beach5" parent="." index="77" unique_id=335061404 instance=ExtResource("21_uluox")]
 z_index = 1
 position = Vector2(3089, 6756)
 
-[node name="Rock25" parent="." index="79" unique_id=1101394053 instance=ExtResource("3_2bc56")]
+[node name="Rock25" parent="." index="78" unique_id=1101394053 instance=ExtResource("3_2bc56")]
 position = Vector2(4869, 7640)
 
-[node name="Rock26" parent="." index="80" unique_id=1948072333 instance=ExtResource("7_s8n2w")]
+[node name="Rock26" parent="." index="79" unique_id=1948072333 instance=ExtResource("7_s8n2w")]
 position = Vector2(1859, 7555)
 
-[node name="Rock27" parent="." index="81" unique_id=930210641 instance=ExtResource("12_px8tc")]
+[node name="Rock27" parent="." index="80" unique_id=930210641 instance=ExtResource("12_px8tc")]
 position = Vector2(4148, 7640)
 
-[node name="Rock28" parent="." index="82" unique_id=436185989 instance=ExtResource("9_0do67")]
+[node name="Rock28" parent="." index="81" unique_id=436185989 instance=ExtResource("9_0do67")]
 position = Vector2(-2215, 6981)
 rotation = -3.5515149
 
-[node name="Rock29" parent="." index="83" unique_id=1631625058 instance=ExtResource("9_0do67")]
+[node name="Rock29" parent="." index="82" unique_id=1631625058 instance=ExtResource("9_0do67")]
 position = Vector2(-2010, 6143)
 rotation = -2.8797934
 
-[node name="Rock30" parent="." index="84" unique_id=360846160 instance=ExtResource("7_s8n2w")]
+[node name="Rock30" parent="." index="83" unique_id=360846160 instance=ExtResource("7_s8n2w")]
 z_index = 1
 position = Vector2(2248, 6232.0005)
 rotation = 1.5617657
 
-[node name="Rock31" parent="." index="85" unique_id=128436218 instance=ExtResource("7_s8n2w")]
+[node name="Rock31" parent="." index="84" unique_id=128436218 instance=ExtResource("7_s8n2w")]
 position = Vector2(219.99988, 3897.9998)
 rotation = 1.8928555
 
-[node name="Rock32" parent="." index="86" unique_id=443020838 instance=ExtResource("16_40c1o")]
+[node name="Rock32" parent="." index="85" unique_id=443020838 instance=ExtResource("16_40c1o")]
 position = Vector2(2272.9998, 5606.9995)
 rotation = -1.6560826
 
-[node name="Rock33" parent="." index="87" unique_id=1945645862 instance=ExtResource("12_px8tc")]
+[node name="Rock33" parent="." index="86" unique_id=1945645862 instance=ExtResource("12_px8tc")]
 position = Vector2(1891, 6143)
 
-[node name="Rock52" parent="." index="88" unique_id=1172435747 instance=ExtResource("12_px8tc")]
+[node name="Rock52" parent="." index="87" unique_id=1172435747 instance=ExtResource("12_px8tc")]
 position = Vector2(770.00006, 6274.999)
 rotation = 0.2617994
 
-[node name="Rock53" parent="." index="89" unique_id=1974772149 instance=ExtResource("12_px8tc")]
+[node name="Rock53" parent="." index="88" unique_id=1974772149 instance=ExtResource("12_px8tc")]
 position = Vector2(1810.9996, 7169.0005)
 rotation = -1.4640443
 
-[node name="Rock34" parent="." index="90" unique_id=1033884631 instance=ExtResource("5_qkcyf")]
+[node name="Rock34" parent="." index="89" unique_id=1033884631 instance=ExtResource("5_qkcyf")]
 position = Vector2(4341, 4963)
 
-[node name="Rock35" parent="." index="91" unique_id=2115436634 instance=ExtResource("6_2hrwh")]
+[node name="Rock35" parent="." index="90" unique_id=2115436634 instance=ExtResource("6_2hrwh")]
 z_index = 1
 position = Vector2(4358, 4376)
 
-[node name="Rock36" parent="." index="92" unique_id=1973169612 instance=ExtResource("7_s8n2w")]
+[node name="Rock36" parent="." index="91" unique_id=1973169612 instance=ExtResource("7_s8n2w")]
 z_index = 2
 position = Vector2(798, 4991)
 
-[node name="Rock56" parent="." index="93" unique_id=802624920 instance=ExtResource("7_s8n2w")]
+[node name="Rock56" parent="." index="92" unique_id=802624920 instance=ExtResource("7_s8n2w")]
 z_index = 2
 position = Vector2(1471, 2760)
 rotation = 0.25605473
 
-[node name="Rock57" parent="." index="94" unique_id=196797617 instance=ExtResource("7_s8n2w")]
+[node name="Rock57" parent="." index="93" unique_id=196797617 instance=ExtResource("7_s8n2w")]
 z_index = 5
 position = Vector2(3193, 3247)
 rotation = 0.25605473
 
-[node name="Rock37" parent="." index="95" unique_id=707909738 instance=ExtResource("9_0do67")]
+[node name="Rock37" parent="." index="94" unique_id=707909738 instance=ExtResource("9_0do67")]
 z_index = 2
 position = Vector2(1637.0002, 5115)
 rotation = -2.803609
 
-[node name="Rock38" parent="." index="96" unique_id=1351759792 instance=ExtResource("10_wdj36")]
+[node name="Rock38" parent="." index="95" unique_id=1351759792 instance=ExtResource("10_wdj36")]
 z_index = -1
 position = Vector2(1307, 4978)
 
-[node name="Rock39" parent="." index="97" unique_id=833462167 instance=ExtResource("11_4id1n")]
+[node name="Rock39" parent="." index="96" unique_id=833462167 instance=ExtResource("11_4id1n")]
 position = Vector2(454, 4362)
 
-[node name="Rock40" parent="." index="98" unique_id=1544321053 instance=ExtResource("11_4id1n")]
+[node name="Rock40" parent="." index="97" unique_id=1544321053 instance=ExtResource("11_4id1n")]
 position = Vector2(454, 4362)
 
-[node name="Rock41" parent="." index="99" unique_id=728633384 instance=ExtResource("11_4id1n")]
+[node name="Rock41" parent="." index="98" unique_id=728633384 instance=ExtResource("11_4id1n")]
 position = Vector2(2440, 4401)
 rotation = -0.08408416
 
-[node name="Rock42" parent="." index="100" unique_id=246953756 instance=ExtResource("11_4id1n")]
+[node name="Rock42" parent="." index="99" unique_id=246953756 instance=ExtResource("11_4id1n")]
 z_index = 1
 position = Vector2(3532, 4403)
 
-[node name="Rock44" parent="." index="101" unique_id=1018646026 instance=ExtResource("11_4id1n")]
+[node name="Rock44" parent="." index="100" unique_id=1018646026 instance=ExtResource("11_4id1n")]
 position = Vector2(6092, 4586)
 rotation = -1.5630585
 
-[node name="Rock55" parent="." index="102" unique_id=1892570887 instance=ExtResource("11_4id1n")]
+[node name="Rock55" parent="." index="101" unique_id=1892570887 instance=ExtResource("11_4id1n")]
 position = Vector2(6534, 4648)
 rotation = -1.5630585
 
-[node name="Rock45" parent="." index="103" unique_id=1752491278 instance=ExtResource("11_4id1n")]
+[node name="Rock45" parent="." index="102" unique_id=1752491278 instance=ExtResource("11_4id1n")]
 position = Vector2(6092, 5188)
 rotation = 1.5070089
 
-[node name="Rock43" parent="." index="104" unique_id=1783932806 instance=ExtResource("7_s8n2w")]
+[node name="Rock43" parent="." index="103" unique_id=1783932806 instance=ExtResource("7_s8n2w")]
 position = Vector2(4611, 4648)
 rotation = 1.4697008
 
-[node name="Rock46" parent="." index="105" unique_id=1877903629 instance=ExtResource("16_40c1o")]
+[node name="Rock46" parent="." index="104" unique_id=1877903629 instance=ExtResource("16_40c1o")]
 position = Vector2(6088, 5874.9995)
 rotation = -1.5900964
 
-[node name="RockCorner" parent="." index="106" unique_id=696770590 instance=ExtResource("44_0prhx")]
+[node name="RockCorner" parent="." index="105" unique_id=696770590 instance=ExtResource("44_0prhx")]
 position = Vector2(781, 7809)
 
-[node name="RockCorner2" parent="." index="107" unique_id=897113226 instance=ExtResource("44_0prhx")]
+[node name="RockCorner2" parent="." index="106" unique_id=897113226 instance=ExtResource("44_0prhx")]
 position = Vector2(7534, 7809)
 rotation = -1.6665273
 
-[node name="RockCorner3" parent="." index="108" unique_id=227706198 instance=ExtResource("44_0prhx")]
+[node name="RockCorner3" parent="." index="107" unique_id=227706198 instance=ExtResource("44_0prhx")]
 position = Vector2(6592.9995, 7836)
 rotation = -1.6665273
 
-[node name="RockCorner4" parent="." index="109" unique_id=1243628178 instance=ExtResource("44_0prhx")]
+[node name="RockCorner4" parent="." index="108" unique_id=1243628178 instance=ExtResource("44_0prhx")]
 position = Vector2(8299, 6756)
 rotation = -4.680933
 
-[node name="RockCorner5" parent="." index="110" unique_id=864449395 instance=ExtResource("44_0prhx")]
+[node name="RockCorner5" parent="." index="109" unique_id=864449395 instance=ExtResource("44_0prhx")]
 position = Vector2(7172.999, 5775)
 rotation = -4.680933
 
-[node name="RockCorner10" parent="." index="111" unique_id=194360156 instance=ExtResource("44_0prhx")]
+[node name="RockCorner10" parent="." index="110" unique_id=194360156 instance=ExtResource("44_0prhx")]
 position = Vector2(12633.999, 5256)
 rotation = -6.204355
 
-[node name="RockCorner6" parent="." index="112" unique_id=1143505391 instance=ExtResource("44_0prhx")]
+[node name="RockCorner6" parent="." index="111" unique_id=1143505391 instance=ExtResource("44_0prhx")]
 position = Vector2(8490.999, 4030.9995)
 rotation = -4.680933
 
-[node name="RockCorner9" parent="." index="113" unique_id=1865366812 instance=ExtResource("44_0prhx")]
+[node name="RockCorner9" parent="." index="112" unique_id=1865366812 instance=ExtResource("44_0prhx")]
 position = Vector2(12280, 6183)
 rotation = -4.680933
 
-[node name="RockCorner7" parent="." index="114" unique_id=461977248 instance=ExtResource("44_0prhx")]
+[node name="RockCorner7" parent="." index="113" unique_id=461977248 instance=ExtResource("44_0prhx")]
 position = Vector2(11910.001, 4963.0005)
 rotation = -3.0750122
 
-[node name="RockCorner8" parent="." index="115" unique_id=198845962 instance=ExtResource("44_0prhx")]
+[node name="RockCorner8" parent="." index="114" unique_id=198845962 instance=ExtResource("44_0prhx")]
 position = Vector2(11910, 5783)
 rotation = -1.6282847
 
-[node name="SceneryPillarsRuins03" type="Sprite2D" parent="." index="116" unique_id=795622056]
+[node name="SceneryPillarsRuins03" type="Sprite2D" parent="." index="115" unique_id=795622056]
 position = Vector2(5820, 6717.0005)
 scale = Vector2(0.6164274, 0.6164274)
 texture = ExtResource("45_qxate")
 
-[node name="Rock47" parent="." index="117" unique_id=754665387 instance=ExtResource("15_f14t5")]
+[node name="Rock47" parent="." index="116" unique_id=754665387 instance=ExtResource("15_f14t5")]
 position = Vector2(5789, 7609)
 
-[node name="Sand01" parent="." index="118" unique_id=2021738389 instance=ExtResource("46_34nxo")]
+[node name="Sand01" parent="." index="117" unique_id=2021738389 instance=ExtResource("46_34nxo")]
 position = Vector2(5820, 7035)
 
-[node name="Sand03" parent="." index="119" unique_id=1009148781 instance=ExtResource("23_7mdn1")]
+[node name="Sand03" parent="." index="118" unique_id=1009148781 instance=ExtResource("23_7mdn1")]
 position = Vector2(4305, 7051)
 
-[node name="Sand04" parent="." index="120" unique_id=1108787352 instance=ExtResource("23_7mdn1")]
+[node name="Sand04" parent="." index="119" unique_id=1108787352 instance=ExtResource("23_7mdn1")]
 position = Vector2(5051, 7051)
 
-[node name="Rock48" parent="." index="121" unique_id=928655826 instance=ExtResource("10_wdj36")]
+[node name="Rock48" parent="." index="120" unique_id=928655826 instance=ExtResource("10_wdj36")]
 position = Vector2(8962, 3847)
 
-[node name="Rock49" parent="." index="122" unique_id=1850967461 instance=ExtResource("15_f14t5")]
+[node name="Rock49" parent="." index="121" unique_id=1850967461 instance=ExtResource("15_f14t5")]
 position = Vector2(9771, 3832)
 
-[node name="Rock50" parent="." index="123" unique_id=2016144423 instance=ExtResource("16_40c1o")]
+[node name="Rock50" parent="." index="122" unique_id=2016144423 instance=ExtResource("16_40c1o")]
 z_index = 1
 position = Vector2(10685.001, 3596)
 rotation = -1.669823
 
-[node name="Rock51" parent="." index="124" unique_id=522043385 instance=ExtResource("12_px8tc")]
+[node name="Rock51" parent="." index="123" unique_id=522043385 instance=ExtResource("12_px8tc")]
 position = Vector2(10464, 3858)
 
-[node name="Seaweed56" parent="." index="125" unique_id=2068196578 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed56" parent="." index="124" unique_id=2068196578 instance=ExtResource("47_ijwbq")]
 position = Vector2(5466, 5965)
 
-[node name="Seaweed34" parent="." index="126" unique_id=429563486 instance=ExtResource("48_nuqah")]
+[node name="Seaweed34" parent="." index="125" unique_id=429563486 instance=ExtResource("48_nuqah")]
 position = Vector2(3638, 5189)
 scale = Vector2(0.75, 0.75)
 
-[node name="Seaweed36" parent="." index="127" unique_id=1087016570 instance=ExtResource("48_nuqah")]
+[node name="Seaweed36" parent="." index="126" unique_id=1087016570 instance=ExtResource("48_nuqah")]
 position = Vector2(5104, 3938)
 scale = Vector2(0.75, 0.75)
 
-[node name="Seaweed37" parent="." index="128" unique_id=1278540589 instance=ExtResource("48_nuqah")]
+[node name="Seaweed37" parent="." index="127" unique_id=1278540589 instance=ExtResource("48_nuqah")]
 position = Vector2(2713, 3841.0002)
 scale = Vector2(0.75, 0.75)
 
-[node name="Seaweed38" parent="." index="129" unique_id=29428371 instance=ExtResource("48_nuqah")]
+[node name="Seaweed38" parent="." index="128" unique_id=29428371 instance=ExtResource("48_nuqah")]
 position = Vector2(712.00024, 3814.0002)
 scale = Vector2(0.5527162, 0.55271614)
 
-[node name="Seaweed39" parent="." index="130" unique_id=689807847 instance=ExtResource("48_nuqah")]
+[node name="Seaweed39" parent="." index="129" unique_id=689807847 instance=ExtResource("48_nuqah")]
 position = Vector2(1948, 3775.0002)
 scale = Vector2(0.5527162, 0.55271614)
 
-[node name="Seaweed35" parent="." index="131" unique_id=1192000583 instance=ExtResource("48_nuqah")]
+[node name="Seaweed35" parent="." index="130" unique_id=1192000583 instance=ExtResource("48_nuqah")]
 position = Vector2(2713, 5197)
 scale = Vector2(0.75, 0.75)
 
-[node name="Seaweed57" parent="." index="132" unique_id=1797690539 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed57" parent="." index="131" unique_id=1797690539 instance=ExtResource("47_ijwbq")]
 position = Vector2(4640, 6098.0005)
 rotation = 2.5229976
 scale = Vector2(0.31949958, 0.3194996)
 
-[node name="Seaweed61" parent="." index="133" unique_id=1925751168 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed61" parent="." index="132" unique_id=1925751168 instance=ExtResource("47_ijwbq")]
 position = Vector2(3278.0002, 4052)
 rotation = 3.6903539
 scale = Vector2(0.31949958, 0.3194996)
 
-[node name="Seaweed64" parent="." index="134" unique_id=403968322 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed64" parent="." index="133" unique_id=403968322 instance=ExtResource("47_ijwbq")]
 position = Vector2(4185, 4074.9998)
 rotation = 6.0999064
 scale = Vector2(0.23815556, 0.22913599)
 
-[node name="Seaweed59" parent="." index="135" unique_id=1233863100 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed59" parent="." index="134" unique_id=1233863100 instance=ExtResource("47_ijwbq")]
 position = Vector2(4801, 5557)
 rotation = 5.526518
 scale = Vector2(0.19865188, 0.20396003)
 
-[node name="Seaweed76" parent="." index="136" unique_id=1442106694 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed76" parent="." index="135" unique_id=1442106694 instance=ExtResource("47_ijwbq")]
 position = Vector2(3173, 6154)
 rotation = 5.526518
 scale = Vector2(0.19865188, 0.20396003)
 
-[node name="Seaweed77" parent="." index="137" unique_id=860213325 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed77" parent="." index="136" unique_id=860213325 instance=ExtResource("47_ijwbq")]
 position = Vector2(2900.0002, 5694)
 rotation = 5.526518
 scale = Vector2(0.19865188, 0.20396003)
 
-[node name="Seaweed78" parent="." index="138" unique_id=1353329744 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed78" parent="." index="137" unique_id=1353329744 instance=ExtResource("47_ijwbq")]
 position = Vector2(3795.0002, 5694)
 rotation = 5.526518
 scale = Vector2(0.19865188, 0.20396003)
 
-[node name="Seaweed65" parent="." index="139" unique_id=930807475 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed65" parent="." index="138" unique_id=930807475 instance=ExtResource("47_ijwbq")]
 position = Vector2(5701, 5005)
 rotation = 4.458226
 scale = Vector2(0.16987269, 0.21710517)
 
-[node name="Seaweed66" parent="." index="140" unique_id=2106161022 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed66" parent="." index="139" unique_id=2106161022 instance=ExtResource("47_ijwbq")]
 position = Vector2(5405, 5376)
 rotation = 7.2609873
 scale = Vector2(0.16987269, 0.21710517)
 
-[node name="Seaweed67" parent="." index="141" unique_id=1283005872 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed67" parent="." index="140" unique_id=1283005872 instance=ExtResource("47_ijwbq")]
 position = Vector2(4343.9995, 5358.0005)
 rotation = 6.396212
 scale = Vector2(0.16987269, 0.21710517)
 
-[node name="Seaweed68" parent="." index="142" unique_id=1165194637 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed68" parent="." index="141" unique_id=1165194637 instance=ExtResource("47_ijwbq")]
 position = Vector2(5837.8857, 5481.4556)
 rotation = 7.6993623
 scale = Vector2(0.122058876, 0.1901806)
 
-[node name="Seaweed69" parent="." index="143" unique_id=1638904682 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed69" parent="." index="142" unique_id=1638904682 instance=ExtResource("47_ijwbq")]
 position = Vector2(5026.5947, 5207.811)
 rotation = 7.6993623
 scale = Vector2(0.08077089, 0.15102343)
 
-[node name="Seaweed70" parent="." index="144" unique_id=1182819016 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed70" parent="." index="143" unique_id=1182819016 instance=ExtResource("47_ijwbq")]
 position = Vector2(5103.999, 5693.9995)
 rotation = 7.6993623
 scale = Vector2(0.08077089, 0.15102343)
 
-[node name="Seaweed71" parent="." index="145" unique_id=1323338544 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed71" parent="." index="144" unique_id=1323338544 instance=ExtResource("47_ijwbq")]
 position = Vector2(4424.9995, 5693.9995)
 rotation = 7.6993623
 scale = Vector2(0.08077089, 0.15102343)
 
-[node name="Seaweed72" parent="." index="146" unique_id=1745139079 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed72" parent="." index="145" unique_id=1745139079 instance=ExtResource("47_ijwbq")]
 position = Vector2(3193, 5742)
 rotation = 7.6993623
 scale = Vector2(0.08077089, 0.15102343)
 
-[node name="Seaweed73" parent="." index="147" unique_id=944120107 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed73" parent="." index="146" unique_id=944120107 instance=ExtResource("47_ijwbq")]
 position = Vector2(3193, 5742)
 rotation = 7.5921826
 scale = Vector2(0.08077089, 0.15102343)
 
-[node name="Seaweed74" parent="." index="148" unique_id=1092101132 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed74" parent="." index="147" unique_id=1092101132 instance=ExtResource("47_ijwbq")]
 position = Vector2(3675, 6046.0005)
 rotation = 7.5921826
 scale = Vector2(0.08077089, 0.15102343)
 
-[node name="Seaweed75" parent="." index="149" unique_id=418893954 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed75" parent="." index="148" unique_id=418893954 instance=ExtResource("47_ijwbq")]
 position = Vector2(2630, 5798)
 rotation = 4.712389
 scale = Vector2(0.08077089, 0.15102343)
 
-[node name="Seaweed62" parent="." index="150" unique_id=63206070 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed62" parent="." index="149" unique_id=63206070 instance=ExtResource("47_ijwbq")]
 position = Vector2(1190.9996, 4002.9995)
 rotation = 5.526518
 scale = Vector2(0.19865188, 0.20396003)
 
-[node name="Seaweed60" parent="." index="151" unique_id=1831028229 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed60" parent="." index="150" unique_id=1831028229 instance=ExtResource("47_ijwbq")]
 position = Vector2(4185, 5856)
 rotation = 7.220608
 scale = Vector2(0.19865188, 0.20396003)
 
-[node name="Seaweed58" parent="." index="152" unique_id=951405663 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed58" parent="." index="151" unique_id=951405663 instance=ExtResource("47_ijwbq")]
 position = Vector2(5253, 6539.0005)
 rotation = -0.2124281
 scale = Vector2(0.31949958, 0.3194996)
 
-[node name="Seaweed63" parent="." index="153" unique_id=1466119694 instance=ExtResource("47_ijwbq")]
+[node name="Seaweed63" parent="." index="152" unique_id=1466119694 instance=ExtResource("47_ijwbq")]
 position = Vector2(1948.0002, 4075)
 rotation = 2.6179938
 scale = Vector2(0.31949958, 0.3194996)
 
-[node name="Seaweed12" parent="." index="154" unique_id=268427807 instance=ExtResource("49_p6rur")]
+[node name="Seaweed12" parent="." index="153" unique_id=268427807 instance=ExtResource("49_p6rur")]
 position = Vector2(3193.0002, 6578.0005)
 rotation = 0.4407959
 scale = Vector2(0.71, 0.71)
 
-[node name="Seaweed13" parent="." index="155" unique_id=140467108 instance=ExtResource("49_p6rur")]
+[node name="Seaweed13" parent="." index="154" unique_id=140467108 instance=ExtResource("49_p6rur")]
 position = Vector2(2514, 6297.9995)
 rotation = 0.4407959
 scale = Vector2(0.71, 0.71)
 
-[node name="Seaweed14" parent="." index="156" unique_id=1756013330 instance=ExtResource("49_p6rur")]
+[node name="Seaweed14" parent="." index="155" unique_id=1756013330 instance=ExtResource("49_p6rur")]
 position = Vector2(1333, 3765)
 rotation = 3.0999315
 scale = Vector2(0.71, 0.71)
 
-[node name="Seaweed15" parent="." index="157" unique_id=1776892637 instance=ExtResource("49_p6rur")]
+[node name="Seaweed15" parent="." index="156" unique_id=1776892637 instance=ExtResource("49_p6rur")]
 z_index = 5
 position = Vector2(3546.9998, 3765)
 rotation = 3.222265
 scale = Vector2(0.71, 0.71)
 
-[node name="Seaweed16" parent="." index="158" unique_id=540393884 instance=ExtResource("49_p6rur")]
+[node name="Seaweed16" parent="." index="157" unique_id=540393884 instance=ExtResource("49_p6rur")]
 z_index = 5
 position = Vector2(4305.0005, 3765)
 rotation = 3.1829154
 scale = Vector2(0.6879398, 0.5764481)
 
-[node name="Seaweed17" parent="." index="159" unique_id=118576293 instance=ExtResource("49_p6rur")]
+[node name="Seaweed17" parent="." index="158" unique_id=118576293 instance=ExtResource("49_p6rur")]
 position = Vector2(970.00006, 4324)
 scale = Vector2(0.388, 0.29857144)
 
-[node name="Seaweed18" parent="." index="160" unique_id=1067134635 instance=ExtResource("49_p6rur")]
+[node name="Seaweed18" parent="." index="159" unique_id=1067134635 instance=ExtResource("49_p6rur")]
 position = Vector2(1925, 4315)
 rotation = -0.0016173385
 scale = Vector2(0.388, 0.29857144)
 
-[node name="Seaweed19" parent="." index="161" unique_id=242210292 instance=ExtResource("49_p6rur")]
+[node name="Seaweed19" parent="." index="160" unique_id=242210292 instance=ExtResource("49_p6rur")]
 position = Vector2(3945, 4332.0005)
 rotation = -0.0016173385
 scale = Vector2(0.388, 0.29857144)
 
-[node name="Seaweed40" parent="." index="162" unique_id=1671386425 instance=ExtResource("48_nuqah")]
+[node name="Seaweed40" parent="." index="161" unique_id=1671386425 instance=ExtResource("48_nuqah")]
 position = Vector2(1452, 4291)
 rotation = 3.1415927
 scale = Vector2(0.38556018, 0.28915286)
 
-[node name="Seaweed41" parent="." index="163" unique_id=1315232148 instance=ExtResource("48_nuqah")]
+[node name="Seaweed41" parent="." index="162" unique_id=1315232148 instance=ExtResource("48_nuqah")]
 position = Vector2(2988, 4291)
 rotation = 3.1415927
 scale = Vector2(0.38556018, 0.28915286)
 
-[node name="Vent1" parent="." index="164" unique_id=1723392711 instance=ExtResource("50_0prhx")]
+[node name="Vent1" parent="." index="163" unique_id=1723392711 instance=ExtResource("50_0prhx")]
 z_index = 0
 position = Vector2(5673, 4017.0002)
 rotation = -2.8889012
 
-[node name="Vent2" parent="." index="165" unique_id=473972117 instance=ExtResource("50_0prhx")]
+[node name="Vent2" parent="." index="164" unique_id=473972117 instance=ExtResource("50_0prhx")]
 z_index = -1
 position = Vector2(339, 4149)
 rotation = -4.8581376
 
-[node name="Vent3" parent="." index="166" unique_id=913253687 instance=ExtResource("50_0prhx")]
+[node name="Vent3" parent="." index="165" unique_id=913253687 instance=ExtResource("50_0prhx")]
 position = Vector2(1307, 5121)
 rotation = -3.1300175
 
-[node name="Vent4" parent="." index="167" unique_id=887113614 instance=ExtResource("50_0prhx")]
+[node name="Vent4" parent="." index="166" unique_id=887113614 instance=ExtResource("50_0prhx")]
 position = Vector2(1112.0001, 7985.0005)
 rotation = -0.23547578
 
-[node name="Boulder" parent="." index="168" unique_id=730954845 instance=ExtResource("51_qxate")]
+[node name="Boulder" parent="." index="167" unique_id=730954845 instance=ExtResource("51_qxate")]
 position = Vector2(1261, 6339)
 scale = Vector2(0.355, 0.355)
 
-[node name="Boulder2" parent="." index="169" unique_id=1996476394 instance=ExtResource("51_qxate")]
+[node name="Boulder2" parent="." index="168" unique_id=1996476394 instance=ExtResource("51_qxate")]
 position = Vector2(1027, 6100.9995)
 rotation = -0.85933846
 scale = Vector2(0.355, 0.355)
 
-[node name="Boulder3" parent="." index="170" unique_id=900097027 instance=ExtResource("51_qxate")]
+[node name="Boulder3" parent="." index="169" unique_id=900097027 instance=ExtResource("51_qxate")]
 position = Vector2(1452, 6143)
 rotation = -0.24512303
 scale = Vector2(0.355, 0.355)
 
-[node name="Boulder4" parent="." index="171" unique_id=256734474 instance=ExtResource("51_qxate")]
+[node name="Boulder4" parent="." index="170" unique_id=256734474 instance=ExtResource("51_qxate")]
 position = Vector2(1666, 5898)
 rotation = -0.24512303
 scale = Vector2(0.355, 0.355)
 
-[node name="Boulder5" parent="." index="172" unique_id=467505133 instance=ExtResource("51_qxate")]
+[node name="Boulder5" parent="." index="171" unique_id=467505133 instance=ExtResource("51_qxate")]
 position = Vector2(1244.9998, 5964.9995)
 rotation = -0.24512303
 scale = Vector2(0.355, 0.355)
 
-[node name="DepthJellyfish6" parent="." index="173" unique_id=295465690 instance=ExtResource("52_34nxo")]
+[node name="DepthJellyfish6" parent="." index="172" unique_id=295465690 instance=ExtResource("52_34nxo")]
 position = Vector2(860.0002, 5596.0005)
 scale = Vector2(0.17768854, 0.17768854)
 
-[node name="DepthGlowPlant5" parent="." index="174" unique_id=689516536 instance=ExtResource("41_5wr0l")]
+[node name="DepthGlowPlant5" parent="." index="173" unique_id=689516536 instance=ExtResource("41_5wr0l")]
 position = Vector2(712.0005, 6088.001)
 rotation = 1.0188124
 
-[node name="FoodCrownSeaGrapes" parent="." index="175" unique_id=1447396690 instance=ExtResource("52_0prhx")]
+[node name="FoodCrownSeaGrapes" parent="." index="174" unique_id=1447396690 instance=ExtResource("52_0prhx")]
 position = Vector2(3014, 2432)
 rotation = 3.546061
 scale = Vector2(0.415, 0.415)
 
-[node name="RicochetLane" parent="." index="176" unique_id=650593725 instance=ExtResource("53_qxate")]
+[node name="RicochetLane" parent="." index="175" unique_id=650593725 instance=ExtResource("53_qxate")]
 position = Vector2(6325, 4826)
 scale = Vector2(0.44, 9.695)
 
-[node name="Jellyfish" parent="." index="177" unique_id=2135077584 instance=ExtResource("54_34nxo")]
+[node name="Jellyfish" parent="." index="176" unique_id=2135077584 instance=ExtResource("54_34nxo")]
 position = Vector2(7055, 2519)
 scale = Vector2(0.11, 0.11)
 
-[node name="Jellyfish2" parent="." index="178" unique_id=1333794228 instance=ExtResource("54_34nxo")]
+[node name="Jellyfish2" parent="." index="177" unique_id=1333794228 instance=ExtResource("54_34nxo")]
 position = Vector2(7508, 2661)
 scale = Vector2(0.075, 0.075)
 random_seed = 15
 
-[node name="Jellyfish3" parent="." index="179" unique_id=1864562440 instance=ExtResource("54_34nxo")]
+[node name="Jellyfish3" parent="." index="178" unique_id=1864562440 instance=ExtResource("54_34nxo")]
 position = Vector2(8030, 2741)
 scale = Vector2(0.17, 0.17)
 random_seed = 29
 
-[node name="Jellyfish4" parent="." index="180" unique_id=842705524 instance=ExtResource("54_34nxo")]
+[node name="Jellyfish4" parent="." index="179" unique_id=842705524 instance=ExtResource("54_34nxo")]
 position = Vector2(8561, 2645)
 scale = Vector2(0.07, 0.07)
 
-[node name="Seaofpillars" type="Sprite2D" parent="." index="181" unique_id=589932834]
+[node name="Seaofpillars" type="Sprite2D" parent="." index="180" unique_id=589932834]
 position = Vector2(2547, 2439)
 rotation = 0.3577925
 scale = Vector2(0.235, 0.235)
 texture = ExtResource("55_ijwbq")
+
+[node name="ProceduralFishSchool20" parent="." index="181" unique_id=339317702 instance=ExtResource("55_p6rur")]
+position = Vector2(3376, 2570)
+
+[node name="PufferFish" parent="." index="182" unique_id=1656403594 instance=ExtResource("56_ws5bm")]
+position = Vector2(5828, 2474)
+
+[node name="Seahorse" parent="." index="183" unique_id=142862111 instance=ExtResource("57_duk6c")]
+position = Vector2(6235, 6859)
+
+[node name="Vent5" parent="." index="184" unique_id=759385935 instance=ExtResource("50_0prhx")]
+z_index = -1
+position = Vector2(8030, 2474.0002)
+rotation = -3.1347075
+scale = Vector2(0.19, 0.19)
