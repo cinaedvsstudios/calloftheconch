@@ -35,6 +35,25 @@ func set_gameplay_active(is_active: bool) -> void:
 	_set_overlay_enabled(_environment_darkness > 0.001)
 
 
+## Pickup-only activation route. Unlike the normal Item B toggle, this can never
+## switch an already-active companion off and it clears stale cooldown state left
+## by older pirate-ship transition builds before starting the Bright phase.
+func activate_from_pickup() -> bool:
+	set_gameplay_active(true)
+	if is_active():
+		return true
+	if _state != State.READY:
+		_reset_runtime_state()
+	if not _can_activate():
+		push_warning(
+			"Leaf Sheep pickup granted the item, but activation requirements were not met. "
+			+ "Check ownership, Item B equipment and the active Hylas target."
+		)
+		return false
+	_activate_bright()
+	return is_active()
+
+
 func set_darkness_profile(
 		profile_id: StringName,
 		darkness_strength: float,
