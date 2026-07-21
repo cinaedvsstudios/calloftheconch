@@ -84,6 +84,7 @@ func _exit_tree() -> void:
 		return
 	_release_exit_interaction()
 	_disconnect_hylas_interaction()
+	_restore_gameplay_systems_to_open_sea()
 	_restore_leaf_sheep_to_open_sea()
 	_stop_room_ambience()
 
@@ -102,6 +103,7 @@ func activate() -> void:
 	_ensure_collision_template()
 	_configure_hylas()
 	_configure_camera()
+	_bind_gameplay_systems_to_hylas(_hylas)
 	_ensure_entrance_light()
 	_connect_hylas_interaction()
 	_attach_leaf_sheep_to_interior()
@@ -112,6 +114,7 @@ func activate() -> void:
 
 func complete_exit_transition() -> void:
 	_release_exit_interaction()
+	_restore_gameplay_systems_to_open_sea()
 	_restore_leaf_sheep_to_open_sea()
 	_stop_room_ambience()
 	_set_exit_prompt_visible(false)
@@ -279,6 +282,65 @@ func _configure_camera() -> void:
 	_camera.reset_smoothing()
 	_camera.make_current()
 	_camera.force_update_scroll()
+
+
+func _bind_gameplay_systems_to_hylas(target_hylas: CotcHylas) -> void:
+	if not is_instance_valid(target_hylas):
+		return
+	var gameplay_context: Node = get_parent()
+	if not is_instance_valid(gameplay_context):
+		return
+
+	var previous_hylas: CotcHylas = gameplay_context.get("_hylas") as CotcHylas
+	var item_request_callback: Callable = Callable(
+		gameplay_context,
+		"_on_hylas_item_a_requested",
+	)
+	if (
+			is_instance_valid(previous_hylas)
+			and previous_hylas.has_signal(&"item_a_requested")
+			and previous_hylas.is_connected(&"item_a_requested", item_request_callback)
+		):
+		previous_hylas.disconnect(&"item_a_requested", item_request_callback)
+
+	gameplay_context.set("_hylas", target_hylas)
+	if target_hylas.has_signal(&"item_a_requested") and not target_hylas.is_connected(
+			&"item_a_requested",
+			item_request_callback,
+		):
+		target_hylas.connect(&"item_a_requested", item_request_callback)
+	if gameplay_context.has_method(&"_sync_equipped_item_a"):
+		gameplay_context.call(&"_sync_equipped_item_a")
+
+	var item_effect_controller: CotcItemEffectController = gameplay_context.get_node_or_null(
+		^"ItemEffectController"
+	) as CotcItemEffectController
+	var sea_level: CotcSeaOfPillars = gameplay_context.get_node_or_null(
+		^"SeaOfPillars"
+	) as CotcSeaOfPillars
+	if is_instance_valid(item_effect_controller) and is_instance_valid(sea_level):
+		item_effect_controller.configure(gameplay_context, sea_level, target_hylas)
+
+
+func _restore_gameplay_systems_to_open_sea() -> void:
+	var sea_hylas: CotcHylas = _find_open_sea_hylas()
+	if is_instance_valid(sea_hylas):
+		_bind_gameplay_systems_to_hylas(sea_hylas)
+
+
+func _find_open_sea_hylas() -> CotcHylas:
+	var gameplay_context: Node = get_parent()
+	if not is_instance_valid(gameplay_context):
+		return null
+	var sea_level: Node = gameplay_context.get_node_or_null(^"SeaOfPillars")
+	if not is_instance_valid(sea_level):
+		return null
+	for candidate: Node in get_tree().get_nodes_in_group(&"hylas"):
+		if sea_level.is_ancestor_of(candidate):
+			var sea_hylas: CotcHylas = candidate as CotcHylas
+			if is_instance_valid(sea_hylas):
+				return sea_hylas
+	return null
 
 
 func _ensure_editor_helpers() -> void:
