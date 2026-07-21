@@ -28,6 +28,7 @@ script = ExtResource("1_controller")
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
 unique_name_in_owner = true
 material = SubResource("SharkStunGlowMaterial")
+scale = Vector2(0.75, 0.75)
 sprite_frames = ExtResource("2_frames")
 animation = &"normal"
 autoplay = "normal"
