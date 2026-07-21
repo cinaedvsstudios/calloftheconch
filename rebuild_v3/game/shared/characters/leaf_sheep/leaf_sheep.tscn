@@ -21,6 +21,9 @@ unique_name_in_owner = true
 process_mode = 1
 z_index = 14
 script = ExtResource("1_controller")
+bright_light_energy = 2.75
+mid_light_energy = 1.6875
+low_light_energy = 0.8125
 
 [node name="PreviousSprite" type="Sprite2D" parent="."]
 unique_name_in_owner = true
