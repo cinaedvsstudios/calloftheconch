@@ -70,7 +70,7 @@ position = Vector2(2026, 1172)
 
 [node name="ShipExitArea" type="Area2D" parent="InteriorWorld" unique_id=139987057]
 unique_name_in_owner = true
-editor_description = "Press Up while Hylas is inside this central-opening trigger to leave the ship."
+editor_description = "Press Space while Hylas is inside this central-opening trigger to leave the ship."
 position = Vector2(2196, 1112)
 collision_layer = 0
 monitorable = false
@@ -89,7 +89,7 @@ color = Color(0.13, 0.16, 0.24, 1)
 
 [node name="BubbleCanvas" type="CanvasLayer" parent="." unique_id=166891774]
 unique_name_in_owner = true
-layer = -5
+layer = 5
 
 [node name="BubbleOverlay" type="VideoStreamPlayer" parent="BubbleCanvas" unique_id=1080285683]
 unique_name_in_owner = true
@@ -125,11 +125,11 @@ grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
 
-[node name="Label" type="Label" parent="ExitPromptLayer/ExitPrompt" unique_id=362929099]
+[node name="Label" type="Label" parent="ExitPromptLayer/ExitPrompt" unique_id=362929899]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.96, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "Press W / ↑ to leave the ship"
+text = "Press Space to leave the ship"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -235,9 +235,9 @@ position = Vector2(425.99982, -257)
 scale = Vector2(1.117612, 1.28125)
 polygon = PackedVector2Array(-976.18823, 272.3902, -1527.3633, 252.87799, -1938.0603, 181.07318, -2263.755, 114.73169, -2687.8733, -39.024414, -2668.1885, -11.707336, -2344.2837, 116.29266, -1970.2719, 201.36578, -1696.4739, 247.41461, -1464.7297, 289.56097, -989.6096, 302.04877)
 
-[node name="CollisionPolygon2D4" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01/CollisionPolygon2D4" unique_id=171880321]
-position = Vector2(5.368988, -54.634155)
-scale = Vector2(1.117612, 1.28125)
+[node name="CollisionPolygon2D9" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=171880321]
+position = Vector2(432.00027, -327.00001)
+scale = Vector2(1.2490566, 1.6416016)
 polygon = PackedVector2Array(-1006.6101, 259.9024, -639.7566, 252.09747, -404.43335, 244.29266, -127.95117, 171.70734, 107.37207, 40.585327, 138.68896, -46.829285, 234.42871, -186.53662, 289.90405, -231.02441, 338.22144, -231.02441, 220.11255, -99.12195, 119.00391, 103.02435, -67.10718, 216.97552, -514.4895, 311.4146, -1022.7158, 298.92682)
 
 [node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=425060342]

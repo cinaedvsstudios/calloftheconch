@@ -11,7 +11,7 @@ height = 116.0
 [sub_resource type="CircleShape2D" id="PufferPuffedCollisionShape"]
 radius = 58.0
 
-[node name="PufferFish" type="CharacterBody2D" unique_id=1441337182 groups=["current_receiver", "scenery", "tail_flip_reactive"]]
+[node name="PufferFish" type="CharacterBody2D" unique_id=1441337182 groups=["conch_target", "current_receiver", "scenery", "tail_flip_reactive"]]
 motion_mode = 1
 collision_layer = 1
 collision_mask = 1

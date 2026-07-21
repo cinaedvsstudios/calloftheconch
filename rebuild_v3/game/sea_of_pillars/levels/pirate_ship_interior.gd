@@ -24,7 +24,6 @@ const ENTRANCE_LIGHT_SCENE: PackedScene = preload(
 @export_range(0.0, 0.5, 0.01) var camera_drag_margin: float = 0.12
 
 @export_category("Exit")
-@export var exit_action: StringName = &"move_up"
 @export_range(0.05, 1.5, 0.05) var transition_seconds: float = 0.28
 
 @export_category("Entrance Light")
@@ -73,16 +72,19 @@ func _ready() -> void:
 	_hylas.set_play_enabled(false)
 	_ensure_collision_template()
 	_ensure_entrance_light()
+	_connect_hylas_interaction()
 	_set_exit_prompt_visible(false)
 	_set_interior_visuals_visible(false)
 	_fade_rect.modulate.a = 0.0
-	set_process_unhandled_input(false)
 	hide()
 
 
 func _exit_tree() -> void:
 	if Engine.is_editor_hint():
 		return
+	_release_exit_interaction()
+	_disconnect_hylas_interaction()
+	_restore_gameplay_systems_to_open_sea()
 	_restore_leaf_sheep_to_open_sea()
 	_stop_room_ambience()
 
@@ -101,19 +103,21 @@ func activate() -> void:
 	_ensure_collision_template()
 	_configure_hylas()
 	_configure_camera()
+	_bind_gameplay_systems_to_hylas(_hylas)
 	_ensure_entrance_light()
+	_connect_hylas_interaction()
 	_attach_leaf_sheep_to_interior()
 	_start_room_ambience()
 	_set_exit_prompt_visible(false)
-	set_process_unhandled_input(true)
 	_fade_from_black()
 
 
 func complete_exit_transition() -> void:
+	_release_exit_interaction()
+	_restore_gameplay_systems_to_open_sea()
 	_restore_leaf_sheep_to_open_sea()
 	_stop_room_ambience()
 	_set_exit_prompt_visible(false)
-	set_process_unhandled_input(false)
 	_hylas.set_play_enabled(false)
 	if _camera != null:
 		_camera.enabled = false
@@ -129,18 +133,42 @@ func get_room_bounds() -> Rect2:
 	return _room_bounds
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _connect_hylas_interaction() -> void:
+	if not is_instance_valid(_hylas):
+		return
+	var callback: Callable = Callable(self, "_on_hylas_interaction_requested")
+	if _hylas.has_signal(&"interaction_requested") and not _hylas.is_connected(
+			&"interaction_requested",
+			callback,
+		):
+		_hylas.connect(&"interaction_requested", callback)
+
+
+func _disconnect_hylas_interaction() -> void:
+	if not is_instance_valid(_hylas):
+		return
+	var callback: Callable = Callable(self, "_on_hylas_interaction_requested")
+	if _hylas.has_signal(&"interaction_requested") and _hylas.is_connected(
+			&"interaction_requested",
+			callback,
+		):
+		_hylas.disconnect(&"interaction_requested", callback)
+
+
+func _on_hylas_interaction_requested() -> void:
 	if not _active or _exit_pending or not _hylas_in_exit:
 		return
-	if event.is_action_pressed(exit_action, false, true):
-		get_viewport().set_input_as_handled()
-		_begin_exit()
+	if not _exit_area.overlaps_body(_hylas):
+		return
+	_begin_exit()
 
 
 func _on_ship_exit_area_body_entered(body: Node2D) -> void:
 	if body != _hylas or not _active or _exit_pending:
 		return
 	_hylas_in_exit = true
+	if _hylas.has_method(&"set_interaction_available"):
+		_hylas.call(&"set_interaction_available", true)
 	_set_exit_prompt_visible(true)
 
 
@@ -148,17 +176,27 @@ func _on_ship_exit_area_body_exited(body: Node2D) -> void:
 	if body != _hylas:
 		return
 	_hylas_in_exit = false
+	_release_exit_interaction()
 	_set_exit_prompt_visible(false)
+
+
+func _release_exit_interaction() -> void:
+	if not is_instance_valid(_hylas):
+		return
+	if _hylas.has_method(&"set_interaction_available"):
+		_hylas.call(&"set_interaction_available", false)
+	if _hylas.has_method(&"cancel_pending_interaction"):
+		_hylas.call(&"cancel_pending_interaction")
 
 
 func _begin_exit() -> void:
 	if _exit_pending:
 		return
 	_exit_pending = true
+	_release_exit_interaction()
 	_hylas.set_play_enabled(false)
 	_hylas.velocity = Vector2.ZERO
 	_set_exit_prompt_visible(false)
-	set_process_unhandled_input(false)
 	exit_transition_started.emit(maxf(0.01, transition_seconds))
 	_kill_fade_tween()
 	_fade_rect.show()
@@ -244,6 +282,65 @@ func _configure_camera() -> void:
 	_camera.reset_smoothing()
 	_camera.make_current()
 	_camera.force_update_scroll()
+
+
+func _bind_gameplay_systems_to_hylas(target_hylas: CotcHylas) -> void:
+	if not is_instance_valid(target_hylas):
+		return
+	var gameplay_context: Node = get_parent()
+	if not is_instance_valid(gameplay_context):
+		return
+
+	var previous_hylas: CotcHylas = gameplay_context.get("_hylas") as CotcHylas
+	var item_request_callback: Callable = Callable(
+		gameplay_context,
+		"_on_hylas_item_a_requested",
+	)
+	if (
+			is_instance_valid(previous_hylas)
+			and previous_hylas.has_signal(&"item_a_requested")
+			and previous_hylas.is_connected(&"item_a_requested", item_request_callback)
+		):
+		previous_hylas.disconnect(&"item_a_requested", item_request_callback)
+
+	gameplay_context.set("_hylas", target_hylas)
+	if target_hylas.has_signal(&"item_a_requested") and not target_hylas.is_connected(
+			&"item_a_requested",
+			item_request_callback,
+		):
+		target_hylas.connect(&"item_a_requested", item_request_callback)
+	if gameplay_context.has_method(&"_sync_equipped_item_a"):
+		gameplay_context.call(&"_sync_equipped_item_a")
+
+	var item_effect_controller: CotcItemEffectController = gameplay_context.get_node_or_null(
+		^"ItemEffectController"
+	) as CotcItemEffectController
+	var sea_level: CotcSeaOfPillars = gameplay_context.get_node_or_null(
+		^"SeaOfPillars"
+	) as CotcSeaOfPillars
+	if is_instance_valid(item_effect_controller) and is_instance_valid(sea_level):
+		item_effect_controller.configure(gameplay_context, sea_level, target_hylas)
+
+
+func _restore_gameplay_systems_to_open_sea() -> void:
+	var sea_hylas: CotcHylas = _find_open_sea_hylas()
+	if is_instance_valid(sea_hylas):
+		_bind_gameplay_systems_to_hylas(sea_hylas)
+
+
+func _find_open_sea_hylas() -> CotcHylas:
+	var gameplay_context: Node = get_parent()
+	if not is_instance_valid(gameplay_context):
+		return null
+	var sea_level: Node = gameplay_context.get_node_or_null(^"SeaOfPillars")
+	if not is_instance_valid(sea_level):
+		return null
+	for candidate: Node in get_tree().get_nodes_in_group(&"hylas"):
+		if sea_level.is_ancestor_of(candidate):
+			var sea_hylas: CotcHylas = candidate as CotcHylas
+			if is_instance_valid(sea_hylas):
+				return sea_hylas
+	return null
 
 
 func _ensure_editor_helpers() -> void:

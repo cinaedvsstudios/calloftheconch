@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://rebuild_v3/game/sea_of_pillars/objects/leaf_sheep_pickup.gd" id="1_controller"]
 [ext_resource type="Texture2D" path="res://assets/characters/companion_leaf_sheep2.png" id="2_sprite"]
 [ext_resource type="Texture2D" path="res://rebuild_v3/game/shared/characters/leaf_sheep/leaf_sheep_light.svg" id="3_light"]
-[ext_resource type="AudioStream" path="res://assets/audio/pickup6.mp3" id="4_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/pickup5.mp3" id="4_audio"]
 
 [sub_resource type="CircleShape2D" id="PickupShape"]
 radius = 92.0
@@ -18,6 +18,7 @@ editor_description = "Collectible Leaf Sheep. Grants the permanent Item B compan
 
 [node name="PickupSprite" type="Sprite2D" parent="."]
 unique_name_in_owner = true
+self_modulate = Color(1.25, 1.25, 1.25, 1)
 scale = Vector2(0.38, 0.38)
 texture = ExtResource("2_sprite")
 
@@ -25,9 +26,10 @@ texture = ExtResource("2_sprite")
 unique_name_in_owner = true
 show_behind_parent = true
 z_index = -1
+scale = Vector2(5.263158, 5.263158)
 texture = ExtResource("3_light")
 color = Color(0.91, 0.84, 1, 1)
-energy = 1.45
+energy = 1.65
 texture_scale = 1.2
 shadow_enabled = false
 
