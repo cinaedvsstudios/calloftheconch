@@ -17,6 +17,7 @@ static func move_circle(
 		collision_mask: int = DEFAULT_TERRAIN_MASK,
 		margin: float = 1.5,
 		max_slides: int = 2,
+		collide_with_areas: bool = false,
 	) -> Dictionary:
 	var result: Dictionary = {
 		&"motion": Vector2.ZERO,
@@ -57,7 +58,7 @@ static func move_circle(
 		query.motion = remaining_motion
 		query.collision_mask = collision_mask
 		query.collide_with_bodies = true
-		query.collide_with_areas = false
+		query.collide_with_areas = collide_with_areas
 		query.margin = maxf(0.0, margin)
 		query.exclude = excluded_rids
 
@@ -89,7 +90,7 @@ static func move_circle(
 		contact_query.transform = Transform2D(mover.global_rotation, contact_position)
 		contact_query.collision_mask = collision_mask
 		contact_query.collide_with_bodies = true
-		contact_query.collide_with_areas = false
+		contact_query.collide_with_areas = collide_with_areas
 		contact_query.margin = maxf(0.0, margin)
 		contact_query.exclude = excluded_rids
 
