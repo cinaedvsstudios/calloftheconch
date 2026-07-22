@@ -79,7 +79,7 @@ monitorable = false
 shape = SubResource("ShipExitShape")
 
 [node name="ShipEntranceLight" parent="InteriorWorld/ShipExitArea" unique_id=887987750 instance=ExtResource("4_uqn71")]
-position = Vector2(-145, -77)
+position = Vector2(0, -35)
 
 [node name="RoomDarkness" type="CanvasModulate" parent="." unique_id=211849654]
 unique_name_in_owner = true
@@ -161,7 +161,7 @@ position = Vector2(2947.0852, 672.0603)
 
 [node name="Seaweed12" parent="environment/plants" unique_id=1634496553 instance=ExtResource("8_y5yeg")]
 z_index = 0
-position = Vector2(-2461.9182, 539.90576)
+position = Vector2(-2662.0852, 465.93982)
 rotation = 0.34504578
 scale = Vector2(0.71, 0.71)
 
@@ -178,7 +178,19 @@ scale = Vector2(0.45623043, 0.4594049)
 
 [node name="Seaweed13" parent="environment/plants" unique_id=201504638 instance=ExtResource("8_y5yeg")]
 z_index = 0
-position = Vector2(-1704.0496, 765.47766)
+position = Vector2(-2274.0854, 581.9397)
+rotation = 0.1710993
+scale = Vector2(0.71, 0.71)
+
+[node name="Seaweed14" parent="environment/plants" unique_id=1830795391 instance=ExtResource("8_y5yeg")]
+z_index = 0
+position = Vector2(-1896.0852, 682.9397)
+rotation = 0.1710993
+scale = Vector2(0.71, 0.71)
+
+[node name="Seaweed15" parent="environment/plants" unique_id=1604725332 instance=ExtResource("8_y5yeg")]
+z_index = 0
+position = Vector2(-1507.0852, 808.9397)
 rotation = 0.1710993
 scale = Vector2(0.71, 0.71)
 
@@ -236,7 +248,7 @@ scale = Vector2(1.117612, 1.28125)
 polygon = PackedVector2Array(-976.18823, 272.3902, -1527.3633, 252.87799, -1938.0603, 181.07318, -2263.755, 114.73169, -2687.8733, -39.024414, -2668.1885, -11.707336, -2344.2837, 116.29266, -1970.2719, 201.36578, -1696.4739, 247.41461, -1464.7297, 289.56097, -989.6096, 302.04877)
 
 [node name="CollisionPolygon2D9" type="CollisionPolygon2D" parent="environment/shipcollision/ShipCollision01" unique_id=171880321]
-position = Vector2(432.00027, -327.00001)
+position = Vector2(432.00027, -327)
 scale = Vector2(1.2490566, 1.6416016)
 polygon = PackedVector2Array(-1006.6101, 259.9024, -639.7566, 252.09747, -404.43335, 244.29266, -127.95117, 171.70734, 107.37207, 40.585327, 138.68896, -46.829285, 234.42871, -186.53662, 289.90405, -231.02441, 338.22144, -231.02441, 220.11255, -99.12195, 119.00391, 103.02435, -67.10718, 216.97552, -514.4895, 311.4146, -1022.7158, 298.92682)
 

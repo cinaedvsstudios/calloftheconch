@@ -1,16 +1,31 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://oa1tyhavlhti"]
 
-[ext_resource type="Script" path="res://rebuild_v3/features/effects/surface_splash.gd" id="1_controller"]
-[ext_resource type="Texture2D" path="res://assets/effects/splash1.webp" id="2_splash_1"]
-[ext_resource type="Texture2D" path="res://assets/effects/splash2.webp" id="3_splash_2"]
-[ext_resource type="Texture2D" path="res://assets/effects/splash3.webp" id="4_splash_3"]
-[ext_resource type="Texture2D" path="res://assets/effects/splash4.webp" id="5_splash_4"]
-[ext_resource type="Texture2D" path="res://assets/effects/splash5.webp" id="6_splash_5"]
-[ext_resource type="Texture2D" path="res://rebuild_v3/features/effects/splash_particle.svg" id="7_particle"]
+[ext_resource type="Script" uid="uid://2oljk3l38nwn" path="res://rebuild_v3/features/effects/surface_splash.gd" id="1_controller"]
+[ext_resource type="Texture2D" uid="uid://bq3exr4lu7n4p" path="res://assets/effects/splash1.webp" id="2_splash_1"]
+[ext_resource type="Texture2D" uid="uid://ds0ublha82dci" path="res://assets/effects/splash2.webp" id="3_splash_2"]
+[ext_resource type="Texture2D" uid="uid://dmxvg4nll2d5a" path="res://assets/effects/splash3.webp" id="4_splash_3"]
+[ext_resource type="Texture2D" uid="uid://ce7pgebygised" path="res://assets/effects/splash4.webp" id="5_splash_4"]
+[ext_resource type="Texture2D" uid="uid://deahjdxhl0gx1" path="res://assets/effects/splash5.webp" id="6_splash_5"]
+[ext_resource type="Texture2D" uid="uid://br4wmywllwmim" path="res://rebuild_v3/features/effects/splash_particle.svg" id="7_particle"]
 
 [sub_resource type="SpriteFrames" id="SurfaceSplashFrames"]
 animations = [{
-"frames": [{"duration": 1.0, "texture": ExtResource("2_splash_1")}, {"duration": 1.0, "texture": ExtResource("3_splash_2")}, {"duration": 1.0, "texture": ExtResource("4_splash_3")}, {"duration": 1.0, "texture": ExtResource("5_splash_4")}, {"duration": 1.0, "texture": ExtResource("6_splash_5")}],
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_splash_1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_splash_2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_splash_3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_splash_4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_splash_5")
+}],
 "loop": 0,
 "name": &"splash",
 "speed": 12.0
@@ -18,28 +33,6 @@ animations = [{
 
 [sub_resource type="CanvasItemMaterial" id="SplashAdditiveMaterial"]
 blend_mode = 1
-
-[sub_resource type="Gradient" id="DropletGradient"]
-offsets = PackedFloat32Array(0, 0.58, 1)
-colors = PackedColorArray(0.95, 1, 1, 1, 0.42, 0.92, 1, 0.94, 0.08, 0.58, 0.92, 0)
-
-[sub_resource type="GradientTexture1D" id="DropletColorRamp"]
-gradient = SubResource("DropletGradient")
-
-[sub_resource type="ParticleProcessMaterial" id="DropletProcessMaterial"]
-particle_flag_disable_z = true
-emission_shape = 3
-emission_box_extents = Vector3(42, 4, 1)
-direction = Vector3(0, -1, 0)
-spread = 54.0
-gravity = Vector3(0, 620, 0)
-initial_velocity_min = 260.0
-initial_velocity_max = 480.0
-damping_min = 10.0
-damping_max = 30.0
-scale_min = 0.12
-scale_max = 0.34
-color_ramp = SubResource("DropletColorRamp")
 
 [sub_resource type="Gradient" id="MistGradient"]
 offsets = PackedFloat32Array(0, 0.45, 1)
@@ -54,24 +47,45 @@ emission_shape = 3
 emission_box_extents = Vector3(56, 6, 1)
 direction = Vector3(0, -1, 0)
 spread = 68.0
-gravity = Vector3(0, 170, 0)
 initial_velocity_min = 80.0
 initial_velocity_max = 175.0
+gravity = Vector3(0, 170, 0)
 damping_min = 18.0
 damping_max = 42.0
 scale_min = 0.28
 scale_max = 0.68
 color_ramp = SubResource("MistColorRamp")
 
-[node name="SurfaceSplash" type="AnimatedSprite2D"]
+[sub_resource type="Gradient" id="DropletGradient"]
+offsets = PackedFloat32Array(0, 0.58, 1)
+colors = PackedColorArray(0.95, 1, 1, 1, 0.42, 0.92, 1, 0.94, 0.08, 0.58, 0.92, 0)
+
+[sub_resource type="GradientTexture1D" id="DropletColorRamp"]
+gradient = SubResource("DropletGradient")
+
+[sub_resource type="ParticleProcessMaterial" id="DropletProcessMaterial"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(42, 4, 1)
+direction = Vector3(0, -1, 0)
+spread = 54.0
+initial_velocity_min = 260.0
+initial_velocity_max = 480.0
+gravity = Vector3(0, 620, 0)
+damping_min = 10.0
+damping_max = 30.0
+scale_min = 0.12
+scale_max = 0.34
+color_ramp = SubResource("DropletColorRamp")
+
+[node name="SurfaceSplash" type="AnimatedSprite2D" unique_id=1254294017]
 modulate = Color(1, 1, 1, 0.9)
-scale = Vector2(0.6, 0.6)
+scale = Vector2(0.41, 0.41)
 sprite_frames = SubResource("SurfaceSplashFrames")
 animation = &"splash"
-centered = true
 script = ExtResource("1_controller")
 
-[node name="SurfaceRing" type="Line2D" parent="."]
+[node name="SurfaceRing" type="Line2D" parent="." unique_id=560331495]
 unique_name_in_owner = true
 visible = false
 show_behind_parent = true
@@ -81,38 +95,38 @@ width = 7.0
 default_color = Color(0.78, 0.96, 1, 0.95)
 antialiased = true
 
-[node name="FineMist" type="GPUParticles2D" parent="."]
+[node name="FineMist" type="GPUParticles2D" parent="." unique_id=1929834642]
 unique_name_in_owner = true
 show_behind_parent = true
 z_index = -1
 material = SubResource("SplashAdditiveMaterial")
+scale = Vector2(1.31, 1.31)
 emitting = false
 amount = 18
+texture = ExtResource("7_particle")
 lifetime = 0.62
 one_shot = true
 explosiveness = 0.96
 randomness = 0.72
-local_coords = false
 visibility_rect = Rect2(-320, -320, 640, 640)
 process_material = SubResource("MistProcessMaterial")
-texture = ExtResource("7_particle")
 
-[node name="DropletBurst" type="GPUParticles2D" parent="."]
+[node name="DropletBurst" type="GPUParticles2D" parent="." unique_id=996636917]
 unique_name_in_owner = true
 z_index = 1
 material = SubResource("SplashAdditiveMaterial")
+scale = Vector2(0.725, 0.725)
 emitting = false
 amount = 24
+texture = ExtResource("7_particle")
 lifetime = 0.78
 one_shot = true
 explosiveness = 1.0
 randomness = 0.55
-local_coords = false
 visibility_rect = Rect2(-360, -360, 720, 720)
 process_material = SubResource("DropletProcessMaterial")
-texture = ExtResource("7_particle")
 
-[node name="EffectTimer" type="Timer" parent="."]
+[node name="EffectTimer" type="Timer" parent="." unique_id=427623123]
 unique_name_in_owner = true
 wait_time = 0.9
 one_shot = true
