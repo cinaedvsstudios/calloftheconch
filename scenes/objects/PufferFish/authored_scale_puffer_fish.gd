@@ -61,12 +61,9 @@ func receive_tail_flip_bash(
 		normal: Vector2,
 		source: Node,
 	) -> void:
-	# The first hit only startles and inflates the fish. Once fully puffed, later
-	# Tail Flips use the original kick impulse and refresh the puff timer.
-	if is_puffed():
-		super.receive_tail_flip_bash(contact_position, normal, source)
-		return
-	_begin_inflating()
+	# First Tail Flip now uses the base kick impulse as well as inflation. Once
+	# puffed, later Tail Flips keep refreshing the puff timer and kicking the fish.
+	super.receive_tail_flip_bash(contact_position, normal, source)
 
 
 func receive_conch_hit(
