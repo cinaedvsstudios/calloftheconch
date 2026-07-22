@@ -32,6 +32,7 @@ const FRAGMENT_PATHS: PackedStringArray = [
 
 @export_category("Terrain Avoidance")
 @export_flags_2d_physics var terrain_collision_mask: int = 1
+@export var terrain_collide_with_areas: bool = true
 @export_range(4.0, 180.0, 1.0) var terrain_collision_radius: float = 46.0
 @export_range(0.0, 12.0, 0.5) var terrain_margin: float = 1.5
 
@@ -97,6 +98,7 @@ func _physics_process(delta: float) -> void:
 		terrain_collision_mask,
 		terrain_margin,
 		2,
+		terrain_collide_with_areas,
 	)
 	if bool(motion_result.get(&"blocked", false)):
 		_cycle_direction *= -1.0
