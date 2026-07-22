@@ -1,0 +1,58 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/objects/Kairos/kairos.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" path="res://scenes/objects/Kairos/kairos_sprite_frames.tres" id="2_frames"]
+
+[sub_resource type="CircleShape2D" id="KairosBodyShape"]
+radius = 62.0
+
+[sub_resource type="CircleShape2D" id="KairosInteractionShape"]
+radius = 165.0
+
+[node name="Kairos" type="StaticBody2D" groups=["chance_creature", "interactable", "kairos", "tail_flip_reactive"]]
+z_index = 8
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("1_controller")
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="BodyCollision" type="CollisionShape2D" parent="."]
+unique_name_in_owner = true
+shape = SubResource("KairosBodyShape")
+
+[node name="InteractionArea" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+monitorable = false
+
+[node name="InteractionShape" type="CollisionShape2D" parent="InteractionArea"]
+unique_name_in_owner = true
+shape = SubResource("KairosInteractionShape")
+
+[node name="OutcomeSpawnMarker" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -34)
+
+[node name="DialogueLabel" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 90
+offset_left = -230.0
+offset_top = -180.0
+offset_right = 230.0
+offset_bottom = -92.0
+theme_override_colors/font_color = Color(0.82, 1, 0.92, 1)
+theme_override_colors/font_outline_color = Color(0.025, 0.012, 0.055, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 22
+text = "Care to try your luck, friend?"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
