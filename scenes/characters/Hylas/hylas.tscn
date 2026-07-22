@@ -48,7 +48,7 @@ radius = 97.128784
 
 [node name="Hylas" type="CharacterBody2D" unique_id=25639110 groups=["hylas"]]
 script = ExtResource("1_controller")
-tail_flip_speed = 0.0
+tail_flip_speed = 0.5
 tail_flip_duration = 1.0
 conch_duration = 0.72
 speed_run_gameplay_duration = 4.0
