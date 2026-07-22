@@ -126,7 +126,7 @@ func _build_glow_layers() -> void:
 
 func _build_trails() -> void:
 	_burst_trail = Line2D.new()
-	_burst_trail.name = "BurstTailTrail"
+	_burst_trail.name = "BurstBodyCenterTrail"
 	_burst_trail.top_level = true
 	_burst_trail.global_position = Vector2.ZERO
 	_burst_trail.z_index = _sprite.z_index - 1
@@ -302,7 +302,7 @@ func _update_burst_trail(active: bool, delta: float) -> void:
 		)
 		while _burst_sample_elapsed >= burst_trail_sample_interval:
 			_burst_sample_elapsed -= burst_trail_sample_interval
-			_append_unique_point(_burst_points, _get_burst_tail_point(), 2.0)
+			_append_unique_point(_burst_points, _get_burst_body_center_point(), 2.0)
 		while _burst_points.size() > point_limit:
 			_burst_points.pop_front()
 		_burst_trail.width = move_toward(
@@ -315,7 +315,10 @@ func _update_burst_trail(active: bool, delta: float) -> void:
 		_decay_points(_burst_points, delta, 0.025, true)
 		_burst_trail.width = move_toward(_burst_trail.width, burst_trail_min_width, delta * 55.0)
 
-	_apply_line_points(_burst_trail, _burst_points, true)
+	var rendered_burst_points: Array[Vector2] = _copy_points(_burst_points)
+	if active:
+		_append_unique_point(rendered_burst_points, _get_burst_body_center_point(), 0.5)
+	_apply_line_points(_burst_trail, rendered_burst_points, true)
 
 
 func _update_tail_flip_trail(active: bool, delta: float) -> void:
@@ -360,15 +363,22 @@ func _append_unique_point(points: Array[Vector2], point: Vector2, minimum_distan
 
 
 func _apply_line_points(line: Line2D, points: Array[Vector2], smooth: bool = false) -> void:
-	var rendered_points: Array[Vector2] = points.duplicate()
+	var rendered_points: Array[Vector2] = _copy_points(points)
 	if smooth and rendered_points.size() >= 3 and burst_trail_smoothing_passes > 0:
 		rendered_points = _smooth_trail_points(rendered_points, burst_trail_smoothing_passes)
 	line.points = PackedVector2Array(rendered_points)
 	line.visible = rendered_points.size() >= 2
 
 
+func _copy_points(source_points: Array[Vector2]) -> Array[Vector2]:
+	var copied_points: Array[Vector2] = []
+	for point: Vector2 in source_points:
+		copied_points.append(point)
+	return copied_points
+
+
 func _smooth_trail_points(source_points: Array[Vector2], passes: int) -> Array[Vector2]:
-	var result: Array[Vector2] = source_points.duplicate()
+	var result: Array[Vector2] = _copy_points(source_points)
 	for pass_index: int in range(clampi(passes, 0, 4)):
 		if result.size() < 3:
 			break
@@ -389,15 +399,8 @@ func _burst_speed_ratio() -> float:
 	return clampf(_player.velocity.length() / reference_speed, 0.0, 1.0)
 
 
-func _get_burst_tail_point() -> Vector2:
-	var texture: Texture2D = _current_texture()
-	if texture == null:
-		return _sprite.global_position
-	var texture_size: Vector2 = texture.get_size()
-	var local_point: Vector2 = _sprite.offset + Vector2(-texture_size.x * 0.34, texture_size.y * 0.12)
-	if _sprite.flip_h:
-		local_point.x = -local_point.x
-	return _sprite.to_global(local_point)
+func _get_burst_body_center_point() -> Vector2:
+	return _sprite.to_global(_sprite.offset)
 
 
 func _get_tail_flip_tip_point() -> Vector2:
